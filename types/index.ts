@@ -8,6 +8,7 @@ export type Article = {
   description?: string;
   content?: string;
   thumbnail?: string;
+  feedId?: string;
   seen: boolean;
   saved: boolean;
 };

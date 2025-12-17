@@ -20,6 +20,7 @@ type ArticlesState = {
   markAllSeen: () => void
   toggleSaved: (id: string) => void
   upsertArticle: (article: Article) => void
+  removeByFeed: (feedId: string) => void
   clear: () => void
 }
 
@@ -72,6 +73,10 @@ export const useArticlesStore = create<ArticlesState>()(
                 : [article, ...state.articles],
             }
           }),
+        removeByFeed: (feedId) =>
+          set((state) => ({
+            articles: state.articles.filter((article) => article.feedId !== feedId),
+          })),
         clear: () => set({ articles: [], lastFetched: undefined }),
       }),
       {

@@ -4,10 +4,12 @@ import { Appbar, Banner, Chip, Divider, FAB, Text, useTheme } from 'react-native
 
 import FeedItem from '@/components/ui/FeedItem'
 import { useArticles } from '@/hooks/useArticles'
+import { useFiltersStore } from '@/store/filters'
 
 export default function FeedScreen() {
   const router = useRouter()
   const { articles, loading, refresh, toggleSaved, toggleSeen, markAllSeen, error } = useArticles()
+  const { selectedFeedTitle, showUnseenOnly, setShowUnseenOnly } = useFiltersStore()
   const { colors } = useTheme()
   const hasArticles = articles.length > 0
   const hasUnseen = articles.some((article) => !article.seen)
@@ -20,9 +22,22 @@ export default function FeedScreen() {
       </Appbar.Header>
 
       <View style={styles.filters}>
-        <Chip icon="rss">Sources</Chip>
-        <Chip icon="eye-outline">Seen</Chip>
-        <Chip icon="bookmark">Saved</Chip>
+        <Chip
+          icon="rss"
+          onPress={() => router.push('/sources')}
+          selected={Boolean(selectedFeedTitle)}
+          mode="flat"
+        >
+          {selectedFeedTitle ? `Sources: ${selectedFeedTitle}` : 'Sources'}
+        </Chip>
+        <Chip
+          icon="eye-off-outline"
+          onPress={() => setShowUnseenOnly(!showUnseenOnly)}
+          selected={showUnseenOnly}
+          mode="flat"
+        >
+          Seen
+        </Chip>
       </View>
 
       {error ? (

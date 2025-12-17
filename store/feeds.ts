@@ -8,6 +8,7 @@ type FeedsState = {
   feeds: Feed[]
   setFeeds: (feeds: Feed[]) => void
   addFeed: (feed: Feed) => void
+  removeFeed: (id: string) => void
   clear: () => void
 }
 
@@ -20,6 +21,10 @@ export const useFeedsStore = create<FeedsState>()(
         addFeed: (feed) =>
           set((state) => ({
             feeds: state.feeds.find((f) => f.url === feed.url) ? state.feeds : [...state.feeds, feed],
+          })),
+        removeFeed: (id) =>
+          set((state) => ({
+            feeds: state.feeds.filter((feed) => feed.id !== id),
           })),
         clear: () => set({ feeds: [] }),
       }),

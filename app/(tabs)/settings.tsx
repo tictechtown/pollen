@@ -1,7 +1,9 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Appbar, Button, Divider, List, Switch, Text } from 'react-native-paper';
+import { useRouter } from 'expo-router'
+import { ScrollView, StyleSheet, View } from 'react-native'
+import { Appbar, Button, Divider, List, Switch, Text } from 'react-native-paper'
 
 export default function SettingsScreen() {
+  const router = useRouter()
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
@@ -15,7 +17,7 @@ export default function SettingsScreen() {
             description="Add or remove feeds from your newsfeed"
             left={(props) => <List.Icon {...props} icon="rss" />}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            onPress={() => {}}
+            onPress={() => router.push('/sources')}
           />
           <List.Item
             title="Pull interval"

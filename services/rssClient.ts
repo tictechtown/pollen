@@ -226,6 +226,7 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed) => {
         description: decodeString(item.description ?? item.summary?.['#text']) ?? undefined,
         content: typeof contentEncoded === 'string' ? contentEncoded : undefined,
         thumbnail,
+        feedId: feed.id,
         seen: false,
         saved: false,
       }
@@ -238,6 +239,7 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed) => {
 const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
   const channel = rssFeed.rss.channel
   const items = toArray(channel?.item)
+  console.log('channel', { ...channel, item: [] })
   const feedIdSource = channel?.link?.[0]?.href ?? channel?.link?.[0]?.['#text'] ?? url
   const feed: Feed = {
     id: encodeBase64(feedIdSource) ?? feedIdSource ?? url,
@@ -252,9 +254,11 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
 
   const articles: Article[] = await Promise.all(
     items.map(async (item: FetchedRssArticle) => {
+      console.log('item', { ...item, 'content:encoded': '' })
+
       const contentEncoded =
-        item['content:encoded'] ??
         item['content:encoded']?.['#text'] ??
+        item['content:encoded'] ??
         item.content ??
         item.description
       const rawId =
@@ -264,12 +268,11 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
         item.link ??
         item.title['#text'] ??
         `${Date.now()}`
+
+      console.log('item', rawId)
       const encodedId = encodeBase64(rawId) ?? rawId
       const thumbnail = await extractImage(item)
-
-      if (thumbnail === undefined && url.includes('techcrunch.com')) {
-        console.log('thumbnail', item)
-      }
+      console.log('thumbnail', thumbnail)
 
       return {
         id: encodedId,
@@ -285,6 +288,7 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
         description: decodeString(item.description?.['#text'] ?? item.description) ?? undefined,
         content: typeof contentEncoded === 'string' ? contentEncoded : undefined,
         thumbnail,
+        feedId: feed.id,
         seen: false,
         saved: false,
       }

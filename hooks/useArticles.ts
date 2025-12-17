@@ -6,6 +6,7 @@ import { parseOpml } from '@/services/opml'
 import { fetchFeed } from '@/services/rssClient'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
+import { useFiltersStore } from '@/store/filters'
 import { Article, Feed } from '@/types'
 
 const dedupeById = (articles: Article[]): Article[] => {
@@ -21,6 +22,7 @@ export const useArticles = () => {
   const { articles, setArticles, toggleSaved, toggleSeen, setSeen, markAllSeen, lastFetched } =
     useArticlesStore()
   const { feeds, setFeeds } = useFeedsStore()
+  const { selectedFeedId, showUnseenOnly } = useFiltersStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -50,6 +52,11 @@ export const useArticles = () => {
         feedsToUse = await loadDefaultFeedsFromOpml()
       }
 
+      if (selectedFeedId) {
+        const selected = feeds.find((feed) => feed.id === selectedFeedId)
+        feedsToUse = selected ? [selected] : []
+      }
+
       if (!feedsToUse.length) {
         setError('No feeds available')
         return
@@ -60,6 +67,7 @@ export const useArticles = () => {
         .flatMap((result) => (result.status === 'fulfilled' ? result.value.articles : []))
         .filter(Boolean)
 
+      console.log('articles from feed', articlesFromFeeds)
       if (!articlesFromFeeds.length) {
         setError('Failed to load feeds')
       } else {
@@ -70,7 +78,7 @@ export const useArticles = () => {
     } finally {
       setLoading(false)
     }
-  }, [feeds, loadDefaultFeedsFromOpml, setArticles])
+  }, [feeds, loadDefaultFeedsFromOpml, selectedFeedId, setArticles])
 
   useEffect(() => {
     if (!lastFetched) {
@@ -78,15 +86,18 @@ export const useArticles = () => {
     }
   }, [lastFetched, load])
 
-  const sorted = useMemo(
-    () =>
-      [...articles].sort((a, b) => {
-        const dateA = new Date(a.updatedAt ?? a.publishedAt ?? 0).getTime()
-        const dateB = new Date(b.updatedAt ?? b.publishedAt ?? 0).getTime()
-        return dateB - dateA
-      }),
-    [articles],
-  )
+  const sorted = useMemo(() => {
+    const base = [...articles].sort((a, b) => {
+      const dateA = new Date(a.updatedAt ?? a.publishedAt ?? 0).getTime()
+      const dateB = new Date(b.updatedAt ?? b.publishedAt ?? 0).getTime()
+      return dateB - dateA
+    })
+
+    const byFeed = selectedFeedId
+      ? base.filter((article) => article.feedId === selectedFeedId)
+      : base
+    return byFeed
+  }, [articles, selectedFeedId, showUnseenOnly])
 
   return {
     articles: sorted,
