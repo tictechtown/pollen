@@ -2,6 +2,28 @@
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
+## Description
+
+This React Native app is a RSS reader. It has the following pages:
+- A Newsfeed: a list of all articles, sorted by updated timestamp dec. The user can add/remove a newsfeed from this page. It can also filter per source/seen/unseen flag and saved for later.
+   Each article is a card. Each card has:
+   - a thumbnail image 
+   - a title, with a max of 2 lines (if there's a description) or 3 lines if no description
+   - a description (if available) with a max of 1 line 
+   - a source and relative timestamp
+   The card is faded if their article has been opened.
+   When the user swaps left on a card, the article is marked as saved for later
+   When the user swaps right on a card, the seen/unseen flag is toggled
+
+- An Article View: an HTML rendered view of the RSS article. When the user clicks on a card from the Newsfeed, they are redirected to this Article View. They also marked the article as viewed
+- A Saved for Later Feed: a list of articles that the user has manually saved
+
+
+This app is also offline first. Meaning all the contents is saved on disk, and the thumbnail image is cached as well. When the user requests to clear the cache, only the image cache is cleared.
+
+
+
+
 ## Get started
 
 1. Install dependencies

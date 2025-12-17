@@ -1,98 +1,146 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router'
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
+import { Appbar, Avatar, Badge, Banner, Button, Card, Chip, Text } from 'react-native-paper'
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { useArticles } from '@/hooks/useArticles'
+import { Article } from '@/types'
 
-export default function HomeScreen() {
+const relativeTime = (date?: string) => {
+  if (!date) return 'Just now'
+  const diffMs = Date.now() - new Date(date).getTime()
+  const diffMinutes = Math.max(Math.floor(diffMs / 60000), 0)
+  if (diffMinutes < 1) return 'Just now'
+  if (diffMinutes < 60) return `${diffMinutes}m ago`
+  const diffHours = Math.floor(diffMinutes / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+  const diffDays = Math.floor(diffHours / 24)
+  return `${diffDays}d ago`
+}
+
+const ArticleCard = ({
+  article,
+  onOpen,
+  onToggleSaved,
+  onToggleSeen,
+}: {
+  article: Article
+  onOpen: () => void
+  onToggleSaved: () => void
+  onToggleSeen: () => void
+}) => (
+  <Card style={[styles.card, article.seen && styles.cardSeen]} onPress={onOpen}>
+    <Card.Title
+      title={article.title}
+      titleNumberOfLines={2}
+      subtitle={`${article.source} · ${relativeTime(article.updatedAt ?? article.publishedAt)}`}
+      left={(props) =>
+        article.thumbnail ? (
+          <Avatar.Image {...props} source={{ uri: article.thumbnail }} />
+        ) : (
+          <Avatar.Icon {...props} icon="rss" />
+        )
+      }
+      right={() =>
+        article.saved ? (
+          <Badge style={styles.badge} size={24}>
+            Saved
+          </Badge>
+        ) : null
+      }
+    />
+    {article.description ? (
+      <Card.Content>
+        <Text variant="bodyMedium" numberOfLines={2}>
+          {article.description}
+        </Text>
+      </Card.Content>
+    ) : null}
+    <Card.Actions>
+      <Button icon={article.saved ? 'bookmark-remove' : 'bookmark-outline'} onPress={onToggleSaved}>
+        {article.saved ? 'Unsave' : 'Save for later'}
+      </Button>
+      <Button icon={article.seen ? 'eye-off-outline' : 'eye-outline'} onPress={onToggleSeen}>
+        {article.seen ? 'Mark unseen' : 'Mark seen'}
+      </Button>
+    </Card.Actions>
+  </Card>
+)
+
+export default function FeedScreen() {
+  const router = useRouter()
+  const { articles, loading, refresh, toggleSaved, toggleSeen, error } = useArticles()
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.container}>
+      <Appbar.Header mode="center-aligned">
+        <Appbar.Content title="Newsfeed" subtitle="The Verge RSS" />
+        <Appbar.Action icon="refresh" onPress={() => refresh()} />
+      </Appbar.Header>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+      <View style={styles.filters}>
+        <Chip icon="rss">Sources</Chip>
+        <Chip icon="eye-outline">Seen</Chip>
+        <Chip icon="bookmark">Saved</Chip>
+      </View>
+
+      {error ? (
+        <Banner visible icon="alert-circle" actions={[{ label: 'Retry', onPress: refresh }]}>
+          {error}
+        </Banner>
+      ) : null}
+
+      <FlatList
+        contentContainerStyle={styles.listContent}
+        data={articles}
+        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <ArticleCard
+            article={item}
+            onOpen={() => {
+              console.log('opening', `/article/${item.id}`)
+              router.push(`/article/${item.id}`)
+            }}
+            onToggleSaved={() => toggleSaved(item.id)}
+            onToggleSeen={() => toggleSeen(item.id)}
+          />
+        )}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text variant="bodyLarge">No articles yet. Pull to refresh.</Text>
+          </View>
+        }
+      />
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  filters: {
     flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+  },
+  listContent: {
+    padding: 16,
+    gap: 12,
+  },
+  card: {
+    overflow: 'hidden',
+  },
+  cardSeen: {
+    opacity: 0.7,
+  },
+  badge: {
+    marginRight: 8,
+    alignSelf: 'center',
+  },
+  empty: {
+    padding: 24,
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
+})
