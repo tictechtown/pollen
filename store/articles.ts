@@ -4,6 +4,13 @@ import { createJSONStorage, devtools, persist } from 'zustand/middleware'
 
 import { Article } from '@/types'
 
+const pruneArticle = (article: Article): Article => ({
+  ...article,
+  // Drop large fields to keep persistence lightweight
+  content: undefined,
+  description: article.description ? article.description.slice(0, 500) : undefined,
+})
+
 type ArticlesState = {
   articles: Article[]
   lastFetched?: number
@@ -45,9 +52,24 @@ export const useArticlesStore = create<ArticlesState>()(
         clear: () => set({ articles: [], lastFetched: undefined }),
       }),
       {
-        name: '6-rss-reader-articles',
+        name: '12-rss-reader-articles',
         storage: createJSONStorage(() => AsyncStorage),
-        version: 1,
+        version: 2,
+        partialize: (state) => ({
+          articles: state.articles.map(pruneArticle),
+          lastFetched: state.lastFetched,
+        }),
+        migrate: (persistedState, version) => {
+          if (!persistedState) return { articles: [], lastFetched: undefined }
+          if (version < 2) {
+            const casted = persistedState as ArticlesState
+            return {
+              ...casted,
+              articles: casted.articles.map(pruneArticle),
+            }
+          }
+          return persistedState as ArticlesState
+        },
       },
     ),
   ),

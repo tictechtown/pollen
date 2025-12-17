@@ -2,7 +2,7 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { Appbar, Button, Text, useTheme } from 'react-native-paper';
+import { Appbar, Button, useTheme } from 'react-native-paper';
 
 import { useArticlesStore } from '@/store/articles';
 
@@ -42,7 +42,18 @@ export default function ArticleScreen() {
         </body>
       </html>
     `;
-  }, [article?.content, article?.description, colors.onSurface, colors.primary, colors.surface]);
+  }, [
+    article?.content,
+    article?.description,
+    article?.publishedAt,
+    article?.source,
+    article?.title,
+    article?.updatedAt,
+    colors.onSurface,
+    colors.primary,
+    colors.surface,
+    colors.onSurfaceVariant,
+  ]);
 
   useEffect(() => {
     if (id) {
