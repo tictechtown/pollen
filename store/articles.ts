@@ -16,6 +16,8 @@ type ArticlesState = {
   lastFetched?: number
   setArticles: (articles: Article[]) => void
   toggleSeen: (id: string) => void
+  setSeen: (id: string, seen?: boolean) => void
+  markAllSeen: () => void
   toggleSaved: (id: string) => void
   upsertArticle: (article: Article) => void
   clear: () => void
@@ -28,13 +30,34 @@ export const useArticlesStore = create<ArticlesState>()(
         articles: [],
         lastFetched: undefined,
         setArticles: (articles) =>
-          set(() => ({
-            articles,
-            lastFetched: Date.now(),
-          })),
+          set((state) => {
+            const existingById = new Map(state.articles.map((article) => [article.id, article]))
+            const merged = articles.map((article) => {
+              const existing = existingById.get(article.id)
+              if (!existing) return article
+              return {
+                ...article,
+                seen: existing.seen,
+                saved: existing.saved,
+              }
+            })
+
+            return {
+              articles: merged,
+              lastFetched: Date.now(),
+            }
+          }),
         toggleSeen: (id) =>
           set((state) => ({
             articles: state.articles.map((a) => (a.id === id ? { ...a, seen: !a.seen } : a)),
+          })),
+        setSeen: (id, seen = true) =>
+          set((state) => ({
+            articles: state.articles.map((a) => (a.id === id ? { ...a, seen } : a)),
+          })),
+        markAllSeen: () =>
+          set((state) => ({
+            articles: state.articles.map((a) => ({ ...a, seen: true })),
           })),
         toggleSaved: (id) =>
           set((state) => ({

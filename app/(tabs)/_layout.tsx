@@ -12,7 +12,22 @@ export default function TabLayout() {
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.onSurfaceVariant,
-        tabBarStyle: { backgroundColor: colors.elevation.level2 },
+        tabBarStyle: {
+          backgroundColor: colors.elevation.level2,
+          height: 84,
+          paddingTop: 10,
+          paddingBottom: 18,
+          borderTopWidth: 0,
+        },
+        tabBarItemStyle: {
+          borderRadius: 16,
+          marginHorizontal: 6,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '600',
+        },
+        tabBarHideOnKeyboard: true,
         headerShown: false,
       }}>
       <Tabs.Screen

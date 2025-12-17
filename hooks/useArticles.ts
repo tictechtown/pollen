@@ -18,7 +18,8 @@ const dedupeById = (articles: Article[]): Article[] => {
 }
 
 export const useArticles = () => {
-  const { articles, setArticles, toggleSaved, toggleSeen, lastFetched } = useArticlesStore()
+  const { articles, setArticles, toggleSaved, toggleSeen, setSeen, markAllSeen, lastFetched } =
+    useArticlesStore()
   const { feeds, setFeeds } = useFeedsStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -94,5 +95,7 @@ export const useArticles = () => {
     refresh: () => load(),
     toggleSaved,
     toggleSeen,
+    setSeen,
+    markAllSeen,
   }
 }

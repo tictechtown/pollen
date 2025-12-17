@@ -1,14 +1,16 @@
 import { useRouter } from 'expo-router'
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
-import { Appbar, Banner, Chip, Divider, Text, useTheme } from 'react-native-paper'
+import { Appbar, Banner, Chip, Divider, FAB, Text, useTheme } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
 import { useArticles } from '@/hooks/useArticles'
 
 export default function FeedScreen() {
   const router = useRouter()
-  const { articles, loading, refresh, toggleSaved, toggleSeen, error } = useArticles()
+  const { articles, loading, refresh, toggleSaved, toggleSeen, markAllSeen, error } = useArticles()
   const { colors } = useTheme()
+  const hasArticles = articles.length > 0
+  const hasUnseen = articles.some((article) => !article.seen)
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -55,6 +57,17 @@ export default function FeedScreen() {
           </View>
         }
       />
+
+      {hasArticles ? (
+        <FAB
+          icon="check-all"
+          label="Mark all seen"
+          visible={hasUnseen}
+          onPress={() => markAllSeen()}
+          style={styles.fab}
+          variant="secondary"
+        />
+      ) : null}
     </View>
   )
 }
@@ -71,6 +84,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 16,
+    paddingBottom: 120,
     gap: 12,
   },
   card: {
@@ -86,5 +100,10 @@ const styles = StyleSheet.create({
   empty: {
     padding: 24,
     alignItems: 'center',
+  },
+  fab: {
+    position: 'absolute',
+    right: 16,
+    bottom: 24,
   },
 })

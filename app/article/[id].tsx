@@ -11,7 +11,7 @@ export default function ArticleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const article = useArticlesStore((state) => state.articles.find((a) => a.id === id))
   const toggleSaved = useArticlesStore((state) => state.toggleSaved)
-  const toggleSeen = useArticlesStore((state) => state.toggleSeen)
+  const setSeen = useArticlesStore((state) => state.setSeen)
   const { colors } = useTheme()
 
   const displayDate = useMemo(() => {
@@ -85,9 +85,9 @@ export default function ArticleScreen() {
 
   useEffect(() => {
     if (id) {
-      toggleSeen(id)
+      setSeen(id, true)
     }
-  }, [id, toggleSeen])
+  }, [id, setSeen])
 
   return (
     <View style={styles.container}>
