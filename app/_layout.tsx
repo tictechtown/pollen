@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@react-navigation/native'
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import { View } from 'react-native'
 import { PaperProvider } from 'react-native-paper'
 import 'react-native-reanimated'
 
@@ -21,14 +22,13 @@ export default function RootLayout() {
     <PaperProvider theme={paperTheme}>
       <ThemeProvider value={navigationTheme}>
         <GestureHandlerRootView>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen
-              name="article/[id]"
-              options={{ headerShown: false, animation: 'slide_from_right' }}
-            />
-            <Stack.Screen name="sources" options={{ headerShown: false, presentation: 'card' }} />
-          </Stack>
+          <View style={{ flex: 1, backgroundColor: navigationTheme.colors.background }}>
+            <Stack>
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
+              <Stack.Screen name="sources" options={{ headerShown: false, presentation: 'card' }} />
+            </Stack>
+          </View>
         </GestureHandlerRootView>
         <StatusBar style="auto" />
       </ThemeProvider>

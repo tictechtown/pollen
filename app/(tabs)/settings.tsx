@@ -1,9 +1,26 @@
 import { useRouter } from 'expo-router'
+import { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { Appbar, Button, Divider, List, Switch, Text } from 'react-native-paper'
+import { Appbar, Button, Divider, List, Snackbar, Switch, Text } from 'react-native-paper'
+
+import { deleteArticlesOlderThan, getArticlesFromDb } from '@/services/articles-db'
+import { useArticlesStore } from '@/store/articles'
+import { useFiltersStore } from '@/store/filters'
 
 export default function SettingsScreen() {
   const router = useRouter()
+  const setArticles = useArticlesStore((state) => state.setArticles)
+  const { selectedFeedId } = useFiltersStore()
+  const [snackbar, setSnackbar] = useState<string | null>(null)
+
+  const handleClearOld = async () => {
+    const sixMonthsAgo = Date.now() - 1000 * 60 * 60 * 24 * 180
+    await deleteArticlesOlderThan(sixMonthsAgo)
+    // Reload articles scoped to current filter to reflect deletions
+    const refreshed = await getArticlesFromDb(selectedFeedId)
+    setArticles(refreshed)
+    setSnackbar('Removed articles older than 6 months')
+  }
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
@@ -45,6 +62,13 @@ export default function SettingsScreen() {
             right={(props) => <List.Icon {...props} icon="delete-outline" />}
             onPress={() => {}}
           />
+          <List.Item
+            title="Clear articles older than 6 months"
+            description="Keeps your database small by pruning old stories"
+            left={(props) => <List.Icon {...props} icon="delete-clock" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={handleClearOld}
+          />
         </List.Section>
 
         <Divider />
@@ -66,6 +90,15 @@ export default function SettingsScreen() {
           Export subscriptions (OPML)
         </Button>
       </ScrollView>
+
+      <Snackbar
+        visible={Boolean(snackbar)}
+        onDismiss={() => setSnackbar(null)}
+        duration={2500}
+        action={{ label: 'OK', onPress: () => setSnackbar(null) }}
+      >
+        {snackbar}
+      </Snackbar>
     </View>
   );
 }

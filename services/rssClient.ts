@@ -9,6 +9,24 @@ const parser = new XMLParser({
   attributeNamePrefix: '',
 })
 
+const toTimestamp = (value?: string | null): number => {
+  if (!value) return 0
+  const ts = new Date(value).getTime()
+  return Number.isFinite(ts) ? ts : 0
+}
+
+const METADATA_TIMEOUT = 5000
+const ENRICHMENT_TYPES = new Set(['Article', 'NewsArticle', 'BlogPosting'])
+
+type MetadataBudget = { remaining: number }
+
+const consumeBudget = (budget?: MetadataBudget) => {
+  if (!budget) return false
+  if (budget.remaining <= 0) return false
+  budget.remaining -= 1
+  return true
+}
+
 export const decodeString = (value?: string): string | undefined => {
   if (!value) return value
   const decodedEntities = he.decode(value)
@@ -46,51 +64,165 @@ const dedupeById = (articles: Article[]): Article[] => {
   })
 }
 
-const fetchOgImage = async (url?: string): Promise<string | undefined> => {
-  if (!url) return undefined
+const fetchWithTimeout = async (url: string, init?: RequestInit, timeoutMs = METADATA_TIMEOUT) => {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    const headResp = await fetch(url, { method: 'HEAD' })
-    if (!headResp.ok) return undefined
-    const contentType = headResp.headers.get('content-type') ?? ''
-    if (!contentType.includes('text/html')) return undefined
-
-    const resp = await fetch(url)
-    const html = await resp.text()
-    const match = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
-    return match?.[1]
-  } catch {
-    return undefined
+    const resp = await fetch(url, { ...init, signal: controller.signal })
+    return resp
+  } finally {
+    clearTimeout(timeout)
   }
 }
 
-export const extractImage = async (
+const toAbsoluteUrl = (baseUrl: string, maybeUrl?: string): string | undefined => {
+  if (!maybeUrl) return undefined
+  try {
+    return new URL(maybeUrl, baseUrl).toString()
+  } catch {
+    return maybeUrl
+  }
+}
+
+const stripHtml = (input?: string): string | undefined => {
+  if (!input) return undefined
+  const noTags = input.replace(/<[^>]*>/g, '')
+  return decodeString(noTags) ?? noTags
+}
+
+const extractOg = (headHtml: string, baseUrl: string) => {
+  const ogImage =
+    headHtml.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
+    headHtml.match(/<meta[^>]+name=["']image["'][^>]+content=["']([^"']+)["']/i)?.[1]
+  const ogDescription =
+    headHtml.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
+    headHtml.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)?.[1]
+  const ogPublished =
+    headHtml.match(/<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
+    headHtml.match(/<meta[^>]+name=["']date["'][^>]+content=["']([^"']+)["']/i)?.[1]
+
+  return {
+    thumbnail: toAbsoluteUrl(baseUrl, ogImage),
+    description: stripHtml(ogDescription),
+    publishedAt: ogPublished,
+  }
+}
+
+const extractJsonLd = (headHtml: string, baseUrl: string) => {
+  const scripts = [...headHtml.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+  for (const match of scripts) {
+    const content = match[1]
+    try {
+      const parsed = JSON.parse(content)
+      const candidates = Array.isArray(parsed) ? parsed : [parsed]
+      for (const candidate of candidates) {
+        const typeField = candidate['@type']
+        const types = Array.isArray(typeField) ? typeField : [typeField]
+        const hasType = types.some((t) => typeof t === 'string' && ENRICHMENT_TYPES.has(t))
+        if (!hasType) continue
+        const description = stripHtml(candidate.description)
+        const imageField = candidate.image || candidate.thumbnailUrl
+        const image =
+          typeof imageField === 'string'
+            ? imageField
+            : Array.isArray(imageField) && typeof imageField[0] === 'string'
+              ? imageField[0]
+              : undefined
+        const publishedAt = candidate.datePublished || candidate.dateModified
+        return {
+          thumbnail: toAbsoluteUrl(baseUrl, image),
+          description,
+          publishedAt,
+        }
+      }
+    } catch {
+      continue
+    }
+  }
+  return {}
+}
+
+const fetchMetadataFromPage = async (
+  url?: string,
+  budget?: MetadataBudget,
+): Promise<Partial<Article>> => {
+  if (!url) return {}
+  if (!consumeBudget(budget)) return {}
+  try {
+    const headResp = await fetchWithTimeout(url, { method: 'HEAD' })
+    if (!headResp.ok) return {}
+    const contentType = headResp.headers.get('content-type') ?? ''
+    if (!contentType.includes('text/html')) return {}
+
+    const resp = await fetchWithTimeout(url, undefined)
+    const html = await resp.text()
+    const headMatch = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i)
+    const headHtml = headMatch?.[1] ?? html
+
+    const og = extractOg(headHtml, url)
+    const ld = extractJsonLd(headHtml, url)
+
+    return {
+      thumbnail: ld.thumbnail ?? og.thumbnail,
+      description: ld.description ?? og.description,
+      publishedAt: ld.publishedAt ?? og.publishedAt,
+    }
+  } catch {
+    return {}
+  }
+}
+
+const extractMetadataFromFeed = async (
   item: FetchedAtomArticle | FetchedRssArticle,
-): Promise<string | undefined> => {
+  options?: {
+    baseUrl?: string
+    budget?: MetadataBudget
+    hasDescription?: boolean
+    hasPublished?: boolean
+  },
+): Promise<Partial<Article>> => {
+  let thumbnail: string | undefined
+  let description: string | undefined
+  let publishedAt: string | undefined
+
   const enclosure = item.enclosure
   if (enclosure) {
     if (Array.isArray(enclosure)) {
       const withUrl = enclosure.find((enc) => enc.url)
-      if (withUrl?.url) return withUrl.url
+      if (withUrl?.url) thumbnail = withUrl.url
     } else if (enclosure.url) {
-      return enclosure.url
+      thumbnail = enclosure.url
     }
   }
 
   const mediaContent = item['media:content']
-  if (mediaContent) {
+  if (!thumbnail && mediaContent) {
     if (Array.isArray(mediaContent)) {
       const withUrl = mediaContent.find((m) => m.url)
-      if (withUrl?.url) return withUrl.url
+      if (withUrl?.url) thumbnail = withUrl.url
     } else if (mediaContent.url) {
-      return mediaContent.url
+      thumbnail = mediaContent.url
     }
   }
 
-  const content = item['content:encoded'] ?? item.content?.['#text'] ?? item.content
-  const match = typeof content === 'string' ? content.match(/<img[^>]+src="([^">]+)"/i) : null
-  if (match?.[1]) return match[1]
+  if (!thumbnail) {
+    const content = item['content:encoded'] ?? item.content?.['#text'] ?? item.content
+    const match = typeof content === 'string' ? content.match(/<img[^>]+src="([^">]+)"/i) : null
+    if (match?.[1]) thumbnail = match[1]
+  }
 
-  return fetchOgImage(item.link?.href ?? item.link?.['#text'] ?? item.link)
+  const needsEnrichment =
+    !thumbnail || (!description && !options?.hasDescription) || (!publishedAt && !options?.hasPublished)
+  if (needsEnrichment) {
+    const link = item.link?.href ?? item.link?.['#text'] ?? item.link
+    const fetched = await fetchMetadataFromPage(link, options?.budget)
+    thumbnail =
+      thumbnail ?? (fetched.thumbnail ? toAbsoluteUrl(options?.baseUrl ?? '', fetched.thumbnail) : undefined)
+    description = description ?? fetched.description
+    publishedAt = publishedAt ?? fetched.publishedAt
+  }
+
+  return { thumbnail, description, publishedAt }
 }
 
 interface AtomFeed {
@@ -183,10 +315,14 @@ interface FetchedAtomArticle {
   description?: string
 }
 
-const parseAtomFeed = async (url: string, atomFeed: AtomFeed) => {
+const parseAtomFeed = async (url: string, atomFeed: AtomFeed, cutoffTs = 0, budget?: MetadataBudget) => {
   const channel = atomFeed.feed
 
-  const items = toArray(channel?.entry)
+  const items = toArray(channel?.entry).filter((item) => {
+    if (!cutoffTs) return true
+    const ts = toTimestamp(item.updated ?? item.published)
+    return ts > cutoffTs
+  })
   const feedIdSource = channel?.link?.[0]?.href ?? channel?.link?.[0]?.['#text'] ?? url
 
   const feed: Feed = {
@@ -206,11 +342,15 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed) => {
       const rawId =
         item.id['#text'] ?? item.id ?? item.link.href ?? item.title['#text'] ?? `${Date.now()}`
       const encodedId = encodeBase64(rawId) ?? rawId
-      const thumbnail = await extractImage(item)
+      const feedDescription = decodeString(item.description ?? item.summary?.['#text'])
+      const feedPublished = item.published ?? undefined
 
-      if (thumbnail === undefined && url.includes('techcrunch.com')) {
-        console.log('thumbnail', item)
-      }
+      const metadata = await extractMetadataFromFeed(item, {
+        baseUrl: url,
+        budget,
+        hasDescription: Boolean(feedDescription),
+        hasPublished: Boolean(feedPublished),
+      })
 
       return {
         id: encodedId,
@@ -221,11 +361,11 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed) => {
         source:
           (typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
           'RSS Feed',
-        publishedAt: item.published ?? undefined,
+        publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: item.updated ?? undefined,
-        description: decodeString(item.description ?? item.summary?.['#text']) ?? undefined,
+        description: feedDescription ?? metadata.description,
         content: typeof contentEncoded === 'string' ? contentEncoded : undefined,
-        thumbnail,
+        thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         seen: false,
         saved: false,
@@ -233,13 +373,18 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed) => {
     }),
   )
 
+  console.log('articles', url, articles.length)
+
   return { feed, articles: dedupeById(articles) }
 }
 
-const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
+const parseRssFeed = async (url: string, rssFeed: RssFeed, cutoffTs = 0, budget?: MetadataBudget) => {
   const channel = rssFeed.rss.channel
-  const items = toArray(channel?.item)
-  console.log('channel', { ...channel, item: [] })
+  const items = toArray(channel?.item).filter((item) => {
+    if (!cutoffTs) return true
+    const ts = toTimestamp(item.pubDate)
+    return ts > cutoffTs
+  })
   const feedIdSource = channel?.link?.[0]?.href ?? channel?.link?.[0]?.['#text'] ?? url
   const feed: Feed = {
     id: encodeBase64(feedIdSource) ?? feedIdSource ?? url,
@@ -254,8 +399,6 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
 
   const articles: Article[] = await Promise.all(
     items.map(async (item: FetchedRssArticle) => {
-      console.log('item', { ...item, 'content:encoded': '' })
-
       const contentEncoded =
         item['content:encoded']?.['#text'] ??
         item['content:encoded'] ??
@@ -269,10 +412,16 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
         item.title['#text'] ??
         `${Date.now()}`
 
-      console.log('item', rawId)
       const encodedId = encodeBase64(rawId) ?? rawId
-      const thumbnail = await extractImage(item)
-      console.log('thumbnail', thumbnail)
+      const feedDescription = decodeString(item.description?.['#text'] ?? item.description)
+      const feedPublished = item.pubDate ?? undefined
+
+      const metadata = await extractMetadataFromFeed(item, {
+        baseUrl: url,
+        budget,
+        hasDescription: Boolean(feedDescription),
+        hasPublished: Boolean(feedPublished),
+      })
 
       return {
         id: encodedId,
@@ -283,11 +432,11 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
         source:
           (typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
           'RSS Feed',
-        publishedAt: item.pubDate ?? undefined,
+        publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: undefined,
-        description: decodeString(item.description?.['#text'] ?? item.description) ?? undefined,
+        description: feedDescription ?? metadata.description,
         content: typeof contentEncoded === 'string' ? contentEncoded : undefined,
-        thumbnail,
+        thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         seen: false,
         saved: false,
@@ -295,18 +444,26 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed) => {
     }),
   )
 
+  console.log('articles', url, articles.length)
+
   return { feed, articles: dedupeById(articles) }
 }
 
-export const fetchFeed = async (url: string): Promise<{ feed: Feed; articles: Article[] }> => {
-  console.log('fetching', url)
+type FetchOptions = { cutoffTs?: number; metadataBudget?: MetadataBudget }
+
+export const fetchFeed = async (
+  url: string,
+  options: FetchOptions = {},
+): Promise<{ feed: Feed; articles: Article[] }> => {
+  const { cutoffTs = 0, metadataBudget } = options
+  console.log('fetching', url, { cutoffTs })
   const response = await fetch(url)
   const xml = await response.text()
   const parsed: FetchedFeed = parser.parse(xml)
 
   if ('feed' in parsed) {
-    return parseAtomFeed(url, parsed)
+    return parseAtomFeed(url, parsed, cutoffTs, metadataBudget)
   } else {
-    return parseRssFeed(url, parsed)
+    return parseRssFeed(url, parsed, cutoffTs, metadataBudget)
   }
 }

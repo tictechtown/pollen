@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser'
 import he from 'he'
 
+import { encodeBase64 } from '@/services/rssClient'
 import { Feed } from '@/types'
 
 const parser = new XMLParser({
@@ -34,8 +35,9 @@ const collectFeeds = (node?: OutlineNode | OutlineNode[]): Feed[] => {
   return outlines.flatMap((outline) => {
     const feeds: Feed[] = []
     if (outline.type === 'rss' && outline.xmlUrl) {
+      const feedId = encodeBase64(outline.xmlUrl) ?? outline.xmlUrl
       feeds.push({
-        id: outline.xmlUrl,
+        id: feedId,
         url: outline.xmlUrl,
         title: decode(outline.title ?? outline.text) ?? outline.xmlUrl,
         description: decode(outline.description),

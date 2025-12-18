@@ -1,18 +1,24 @@
+import { MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Appbar, Button, useTheme } from 'react-native-paper'
+import { Appbar, Snackbar, useTheme } from 'react-native-paper'
 import { WebView } from 'react-native-webview'
 
+import { setArticleSaved } from '@/services/articles-db'
 import { useArticlesStore } from '@/store/articles'
+import { useSeenStore } from '@/store/seen'
 
 export default function ArticleScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
   const article = useArticlesStore((state) => state.articles.find((a) => a.id === id))
-  const toggleSaved = useArticlesStore((state) => state.toggleSaved)
-  const setSeen = useArticlesStore((state) => state.setSeen)
+  const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
+  const markSeen = useSeenStore((state) => state.markSeen)
+  const isSeen = useSeenStore((state) => state.isSeen)
   const { colors } = useTheme()
+  const [mode, setMode] = useState<'reader' | 'original'>('reader')
+  const [snackbar, setSnackbar] = useState<string | null>(null)
 
   const displayDate = useMemo(() => {
     const raw = article?.publishedAt ?? article?.updatedAt
@@ -83,39 +89,70 @@ export default function ArticleScreen() {
     displayDate,
   ])
 
+  const hasReaderContent = Boolean(article?.content || article?.description)
+  const resolvedMode = mode === 'reader' && !hasReaderContent ? 'original' : mode
+
   useEffect(() => {
-    if (id) {
-      setSeen(id, true)
+    if (id && !isSeen(id)) {
+      markSeen(id, true)
     }
-  }, [id, setSeen])
+  }, [id, isSeen, markSeen])
+
+  const handleToggleSaved = async () => {
+    if (!id || !article) return
+    const next = !article.saved
+    await setArticleSaved(id, next)
+    updateSavedLocal(id, next)
+  }
 
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title={article?.title ?? 'Article'} />
+        <Appbar.Content />
+        <Appbar.Action
+          icon={({ size, color }) => (
+            <MaterialIcons name="chrome-reader-mode" size={size} color={color} />
+          )}
+          accessibilityLabel="Reader mode"
+          onPress={() => {
+            setMode('reader')
+            setSnackbar('Reader mode')
+          }}
+          animated
+        />
+        <Appbar.Action
+          icon={({ size, color }) => <MaterialIcons name="language" size={size} color={color} />}
+          accessibilityLabel="Open original"
+          onPress={() => {
+            setMode('original')
+            setSnackbar('Original page')
+          }}
+          animated
+        />
         <Appbar.Action
           icon={article?.saved ? 'bookmark' : 'bookmark-outline'}
-          onPress={() => (id ? toggleSaved(id) : undefined)}
+          onPress={handleToggleSaved}
         />
       </Appbar.Header>
 
-      <WebView originWhitelist={['*']} source={{ html: htmlContent }} />
+      <WebView
+        originWhitelist={['*']}
+        source={
+          resolvedMode === 'reader'
+            ? { html: htmlContent }
+            : { uri: article?.link ?? 'about:blank' }
+        }
+      />
 
-      <View style={{ position: 'absolute', bottom: 64, left: 12, right: 12 }}>
-        <Button
-          mode="contained"
-          icon="web"
-          style={styles.cta}
-          onPress={() => {
-            if (article?.link) {
-              // WebBrowser could be added later; for now placeholder.
-            }
-          }}
-        >
-          Open original
-        </Button>
-      </View>
+      <Snackbar
+        visible={Boolean(snackbar)}
+        onDismiss={() => setSnackbar(null)}
+        duration={1500}
+        action={{ label: 'OK', onPress: () => setSnackbar(null) }}
+      >
+        {snackbar}
+      </Snackbar>
     </View>
   )
 }
@@ -131,11 +168,6 @@ const styles = StyleSheet.create({
   title: {
     marginTop: 4,
     marginBottom: 4,
-  },
-  cta: {
-    alignSelf: 'center',
-    width: '100%',
-    marginTop: 12,
   },
   webviewContainer: {
     flex: 1,

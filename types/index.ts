@@ -20,4 +20,6 @@ export type Feed = {
   description?: string;
   image?: string;
   lastUpdated?: string;
+  lastPublishedAt?: string;
+  lastPublishedTs?: number;
 };

@@ -14,6 +14,8 @@ import {
   useTheme,
 } from 'react-native-paper'
 
+import { getArticlesFromDb } from '@/services/articles-db'
+import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
 import { encodeBase64 } from '@/services/rssClient'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
@@ -36,7 +38,7 @@ export default function SourcesScreen() {
   const feeds = useFeedsStore((state) => state.feeds)
   const addFeed = useFeedsStore((state) => state.addFeed)
   const removeFeed = useFeedsStore((state) => state.removeFeed)
-  const removeArticlesByFeed = useArticlesStore((state) => state.removeByFeed)
+  const setArticles = useArticlesStore((state) => state.setArticles)
   const { setFeedFilter, selectedFeedId } = useFiltersStore()
 
   const [addVisible, setAddVisible] = useState(false)
@@ -55,20 +57,25 @@ export default function SourcesScreen() {
   }
 
   const handleRemove = (feed: Feed) => {
-    removeFeed(feed.id)
-    removeArticlesByFeed(feed.id)
-    if (selectedFeedId === feed.id) {
-      setFeedFilter(undefined, undefined)
-    }
-    setSnackbar(`Removed ${feed.title}`)
+    removeFeedFromDb(feed.id).then(async () => {
+      removeFeed(feed.id)
+      const nextFeedId = selectedFeedId === feed.id ? undefined : selectedFeedId
+      if (selectedFeedId === feed.id) {
+        setFeedFilter(undefined, undefined)
+      }
+      const remainingArticles = await getArticlesFromDb(nextFeedId)
+      setArticles(remainingArticles)
+      setSnackbar(`Removed ${feed.title}`)
+    })
   }
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     if (!feedUrl.trim()) {
       setSnackbar('Enter a feed URL')
       return
     }
     const feed = toFeed(feedUrl)
+    await upsertFeeds([feed])
     addFeed(feed)
     setFeedFilter(feed.id, feed.title)
     setFeedUrl('')
