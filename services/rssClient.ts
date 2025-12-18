@@ -315,6 +315,25 @@ interface FetchedAtomArticle {
   description?: string
 }
 
+export const extractImage = async (
+  item: FetchedAtomArticle | FetchedRssArticle,
+  budget: MetadataBudget = { remaining: 1 },
+): Promise<string | undefined> => {
+  const baseUrl =
+    (item as FetchedAtomArticle)?.link?.href ??
+    (item as FetchedRssArticle)?.link?.['#text'] ??
+    (item as FetchedRssArticle)?.link
+
+  const metadata = await extractMetadataFromFeed(item, {
+    baseUrl: typeof baseUrl === 'string' ? baseUrl : undefined,
+    budget,
+    hasDescription: true,
+    hasPublished: true,
+  })
+
+  return metadata.thumbnail
+}
+
 const parseAtomFeed = async (url: string, atomFeed: AtomFeed, cutoffTs = 0, budget?: MetadataBudget) => {
   const channel = atomFeed.feed
 
