@@ -1,12 +1,13 @@
-import { useRouter } from 'expo-router';
-import { FlatList, StyleSheet, View } from 'react-native';
-import { Appbar, Card, List, Text } from 'react-native-paper';
+import { useRouter } from 'expo-router'
+import { FlatList, StyleSheet, View } from 'react-native'
+import { Appbar, Card, List, Text } from 'react-native-paper'
 
-import { useArticlesStore } from '@/store/articles';
+import { useArticlesStore } from '@/store/articles'
+import { useShallow } from 'zustand/react/shallow'
 
 export default function SavedScreen() {
-  const router = useRouter();
-  const saved = useArticlesStore((state) => state.articles.filter((a) => a.saved));
+  const router = useRouter()
+  const saved = useArticlesStore(useShallow((state) => state.articles.filter((a) => a.saved)))
 
   return (
     <View style={styles.container}>
@@ -39,7 +40,7 @@ export default function SavedScreen() {
         )}
       />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -52,4 +53,4 @@ const styles = StyleSheet.create({
   emptyCard: {
     margin: 16,
   },
-});
+})

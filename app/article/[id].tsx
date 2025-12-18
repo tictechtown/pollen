@@ -108,9 +108,9 @@ export default function ArticleScreen() {
             a:hover { text-decoration: underline; }
             img { max-width: 100%; height: auto; border-radius: 12px; }
             figure { margin: 0 0 16px 0; }
-            blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${
-      colors.onSurface
-    }; opacity: 0.8; }
+            blockquote { border-left: 3px solid ${
+              colors.outlineVariant
+            }; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
             p { margin: 0 0 16px 0; }
             h1, h2, h3, h4 { margin: 24px 0 12px 0; line-height: 1.2; }
           </style>
@@ -175,8 +175,8 @@ export default function ArticleScreen() {
         ? { html: readerHtml }
         : { html: rssHtml }
       : mode === 'original'
-        ? { uri: article?.link ?? 'about:blank' }
-        : { html: rssHtml }
+      ? { uri: article?.link ?? 'about:blank' }
+      : { html: rssHtml }
 
   const readerIconName =
     mode === 'reader' ? 'book-open-page-variant' : 'book-open-page-variant-outline'
@@ -208,9 +208,7 @@ export default function ArticleScreen() {
           animated
         />
         <Appbar.Action
-          icon={({ size, color }) => (
-            <MaterialIcons name="description" size={size} color={color} />
-          )}
+          icon={({ size, color }) => <MaterialIcons name="description" size={size} color={color} />}
           accessibilityLabel="Show RSS content"
           onPress={() => {
             setMode('rss')

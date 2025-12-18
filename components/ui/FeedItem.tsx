@@ -69,7 +69,7 @@ const FeedItem = ({
           <IconButton
             size={16}
             style={{ margin: 0 }}
-            icon={article.saved ? 'bookmark-remove' : 'bookmark-outline'}
+            icon={article.saved ? 'bookmark' : 'bookmark-outline'}
             onPress={onToggleSaved}
           />
         </View>
