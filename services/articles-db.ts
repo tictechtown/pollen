@@ -17,12 +17,12 @@ export const upsertArticles = async (articles: Article[]) => {
   const savedLookup: Record<string, number> = {}
 
   if (ids.length) {
-    const existing = await db.getAllAsync<{ id: string; saved: number }>(
-      `SELECT id, saved FROM articles WHERE id IN (${placeholders})`,
+    const existing = await db.getAllAsync<{ articleId: string; starred: number }>(
+      `SELECT articleId, starred FROM article_statuses WHERE articleId IN (${placeholders})`,
       ids,
     )
     existing.forEach((row) => {
-      savedLookup[row.id] = row.saved
+      savedLookup[row.articleId] = row.starred
     })
   }
 
@@ -63,6 +63,19 @@ export const upsertArticles = async (articles: Article[]) => {
             sortTimestamp,
           ],
         )
+        if (savedLookup[article.id] === undefined && saved === 1) {
+          const now = Math.floor(Date.now() / 1000)
+          await db.runAsync(
+            `
+            INSERT INTO article_statuses (articleId, starred, updatedAt)
+            VALUES (?, ?, ?)
+            ON CONFLICT(articleId) DO UPDATE SET
+              starred=excluded.starred,
+              updatedAt=excluded.updatedAt;
+          `,
+            [article.id, 1, now],
+          )
+        }
       }
     })
   })
@@ -70,33 +83,113 @@ export const upsertArticles = async (articles: Article[]) => {
 
 export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => {
   const db = await getDb()
-  const rows = await db.getAllAsync<Omit<Article, 'seen' | 'saved'> & { saved: number }>(
+  const rows = await db.getAllAsync<
+    Omit<Article, 'seen' | 'saved'> & { read: number | null; starred: number | null }
+  >(
     feedId
-      ? `SELECT * FROM articles WHERE feedId = ? ORDER BY sortTimestamp DESC, createdAt DESC`
-      : `SELECT * FROM articles ORDER BY sortTimestamp DESC, createdAt DESC`,
+      ? `
+        SELECT articles.*, article_statuses.read, article_statuses.starred
+        FROM articles
+        LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+        WHERE articles.feedId = ?
+        ORDER BY articles.sortTimestamp DESC, articles.createdAt DESC
+      `
+      : `
+        SELECT articles.*, article_statuses.read, article_statuses.starred
+        FROM articles
+        LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+        ORDER BY articles.sortTimestamp DESC, articles.createdAt DESC
+      `,
     feedId ? [feedId] : undefined,
   )
-  return rows.map((row) => ({
-    ...row,
-    saved: Boolean(row.saved),
-    seen: false,
-  }))
+  return rows.map((row) => {
+    const { read, starred, ...article } = row
+    return {
+      ...article,
+      saved: Boolean(starred),
+      seen: Boolean(read),
+    }
+  })
 }
 
 export const setArticleSaved = async (id: string, saved: boolean) => {
+  const now = Math.floor(Date.now() / 1000)
   await runWrite(async (db) => {
-    await db.runAsync(`UPDATE articles SET saved = ? WHERE id = ?`, [saved ? 1 : 0, id])
+    await db.runAsync(
+      `
+      INSERT INTO article_statuses (articleId, starred, updatedAt)
+      VALUES (?, ?, ?)
+      ON CONFLICT(articleId) DO UPDATE SET
+        starred=excluded.starred,
+        updatedAt=excluded.updatedAt;
+    `,
+      [id, saved ? 1 : 0, now],
+    )
+  })
+}
+
+export const setArticleRead = async (id: string, read: boolean) => {
+  const now = Math.floor(Date.now() / 1000)
+  const lastReadAt = read ? now : null
+  await runWrite(async (db) => {
+    await db.runAsync(
+      `
+      INSERT INTO article_statuses (articleId, read, lastReadAt, updatedAt)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(articleId) DO UPDATE SET
+        read=excluded.read,
+        lastReadAt=excluded.lastReadAt,
+        updatedAt=excluded.updatedAt;
+    `,
+      [id, read ? 1 : 0, lastReadAt, now],
+    )
+  })
+}
+
+export const setManyArticlesRead = async (ids: string[], read: boolean) => {
+  if (!ids.length) return
+  const now = Math.floor(Date.now() / 1000)
+  const lastReadAt = read ? now : null
+  await runWrite(async (db) => {
+    await db.withTransactionAsync(async () => {
+      for (const id of ids) {
+        await db.runAsync(
+          `
+          INSERT INTO article_statuses (articleId, read, lastReadAt, updatedAt)
+          VALUES (?, ?, ?, ?)
+          ON CONFLICT(articleId) DO UPDATE SET
+            read=excluded.read,
+            lastReadAt=excluded.lastReadAt,
+            updatedAt=excluded.updatedAt;
+        `,
+          [id, read ? 1 : 0, lastReadAt, now],
+        )
+      }
+    })
   })
 }
 
 export const removeArticlesByFeed = async (feedId: string) => {
   await runWrite(async (db) => {
+    await db.runAsync(
+      `DELETE FROM article_statuses WHERE articleId IN (SELECT id FROM articles WHERE feedId = ?)`,
+      [feedId],
+    )
     await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [feedId])
   })
 }
 
 export const deleteArticlesOlderThan = async (olderThanMs: number) => {
   await runWrite(async (db) => {
+    await db.runAsync(
+      `
+      DELETE FROM article_statuses
+      WHERE articleId IN (
+        SELECT id FROM articles WHERE sortTimestamp > 0 AND sortTimestamp < ?
+      )
+    `,
+      [olderThanMs],
+    )
     await db.runAsync(`DELETE FROM articles WHERE sortTimestamp > 0 AND sortTimestamp < ?`, [
       olderThanMs,
     ])

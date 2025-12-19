@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { setArticleSaved } from '@/services/articles-db'
+import { setArticleRead, setArticleSaved, setManyArticlesRead } from '@/services/articles-db'
 import { hydrateArticlesAndFeeds, refreshFeedsAndArticles } from '@/services/refresh'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
-import { useSeenStore } from '@/store/seen'
 
 const PAGE_SIZE = 100
 
@@ -14,10 +13,9 @@ type UseArticlesOptions = {
 }
 
 export const useArticles = (options: UseArticlesOptions = {}) => {
-  const { articles, setArticles, updateSavedLocal } = useArticlesStore()
+  const { articles, setArticles, updateSavedLocal, updateSeenLocal } = useArticlesStore()
   const { setFeeds } = useFeedsStore()
   const { selectedFeedId, showUnseenOnly } = useFiltersStore()
-  const { seenIds, markSeen, markManySeen } = useSeenStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
@@ -76,24 +74,15 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     }
   }, [hydrateFromDb, initialized, selectedFeedId])
 
-  const articlesWithSeen = useMemo(
-    () =>
-      articles.map((article) => ({
-        ...article,
-        seen: seenIds.has(article.id),
-      })),
-    [articles, seenIds],
-  )
-
   const unseenOnly = options.unseenOnly ?? showUnseenOnly
 
   const sortedAndFiltered = useMemo(() => {
     const byFeed = selectedFeedId
-      ? articlesWithSeen.filter((article) => article.feedId === selectedFeedId)
-      : articlesWithSeen
+      ? articles.filter((article) => article.feedId === selectedFeedId)
+      : articles
     const filtered = unseenOnly ? byFeed.filter((article) => !article.seen) : byFeed
     return filtered
-  }, [articlesWithSeen, selectedFeedId, unseenOnly])
+  }, [articles, selectedFeedId, unseenOnly])
 
   useEffect(() => {
     setPage(1)
@@ -134,23 +123,29 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   )
 
   const toggleSeen = useCallback(
-    (id: string) => {
-      const isSeen = seenIds.has(id)
-      markSeen(id, !isSeen)
+    async (id: string) => {
+      const current = articles.find((article) => article.id === id)
+      if (!current) return
+      const nextSeen = !current.seen
+      await setArticleRead(id, nextSeen)
+      updateSeenLocal(id, nextSeen)
     },
-    [markSeen, seenIds],
+    [articles, updateSeenLocal],
   )
 
   const setSeen = useCallback(
-    (id: string, seen = true) => {
-      markSeen(id, seen)
+    async (id: string, seen = true) => {
+      await setArticleRead(id, seen)
+      updateSeenLocal(id, seen)
     },
-    [markSeen],
+    [updateSeenLocal],
   )
 
   const markAllSeen = useCallback(() => {
-    markManySeen(sortedAndFiltered.map((article) => article.id))
-  }, [markManySeen, sortedAndFiltered])
+    const ids = sortedAndFiltered.map((article) => article.id)
+    void setManyArticlesRead(ids, true)
+    ids.forEach((id) => updateSeenLocal(id, true))
+  }, [sortedAndFiltered, updateSeenLocal])
 
   return {
     articles: pagedArticles,

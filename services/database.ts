@@ -45,12 +45,29 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
       createdAt INTEGER DEFAULT (strftime('%s','now')),
       FOREIGN KEY(feedId) REFERENCES feeds(id)
     );
+    CREATE TABLE IF NOT EXISTS article_statuses (
+      articleId TEXT PRIMARY KEY,
+      read INTEGER DEFAULT 0,
+      starred INTEGER DEFAULT 0,
+      lastReadAt INTEGER,
+      updatedAt INTEGER,
+      FOREIGN KEY(articleId) REFERENCES articles(id) ON DELETE CASCADE
+    );
     CREATE INDEX IF NOT EXISTS idx_articles_feed ON articles(feedId);
     CREATE INDEX IF NOT EXISTS idx_articles_sort ON articles(sortTimestamp DESC);
+    CREATE INDEX IF NOT EXISTS idx_article_statuses_read ON article_statuses(read);
+    CREATE INDEX IF NOT EXISTS idx_article_statuses_starred ON article_statuses(starred);
   `)
 
   await ensureColumn(db, 'feeds', 'lastPublishedAt', 'TEXT')
   await ensureColumn(db, 'feeds', 'lastPublishedTs', 'INTEGER')
+  await db.execAsync(`
+    INSERT INTO article_statuses (articleId, starred, updatedAt)
+    SELECT id, 1, strftime('%s','now')
+    FROM articles
+    WHERE saved = 1
+      AND id NOT IN (SELECT articleId FROM article_statuses);
+  `)
 }
 
 export const getDb = () => {

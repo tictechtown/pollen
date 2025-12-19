@@ -4,9 +4,8 @@ import { FlatList, StyleSheet, View } from 'react-native'
 import { Appbar, Card, Divider, Text, useTheme } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
-import { setArticleSaved } from '@/services/articles-db'
+import { setArticleRead, setArticleSaved } from '@/services/articles-db'
 import { useArticlesStore } from '@/store/articles'
-import { useSeenStore } from '@/store/seen'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function SavedScreen() {
@@ -18,16 +17,11 @@ export default function SavedScreen() {
       updateSavedLocal: state.updateSavedLocal,
     })),
   )
-  const { seenIds, markSeen } = useSeenStore(
-    useShallow((state) => ({ seenIds: state.seenIds, markSeen: state.markSeen })),
-  )
+  const updateSeenLocal = useArticlesStore((state) => state.updateSeenLocal)
 
   const saved = useMemo(
-    () =>
-      articles
-        .filter((article) => article.saved)
-        .map((article) => ({ ...article, seen: seenIds.has(article.id) })),
-    [articles, seenIds],
+    () => articles.filter((article) => article.saved),
+    [articles],
   )
 
   const toggleSaved = useCallback(
@@ -42,11 +36,14 @@ export default function SavedScreen() {
   )
 
   const toggleSeen = useCallback(
-    (id: string) => {
-      const isSeen = seenIds.has(id)
-      markSeen(id, !isSeen)
+    async (id: string) => {
+      const current = articles.find((article) => article.id === id)
+      if (!current) return
+      const nextSeen = !current.seen
+      await setArticleRead(id, nextSeen)
+      updateSeenLocal(id, nextSeen)
     },
-    [markSeen, seenIds],
+    [articles, updateSeenLocal],
   )
 
   return (

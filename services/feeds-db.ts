@@ -44,6 +44,10 @@ export const getFeedsFromDb = async (): Promise<Feed[]> => {
 export const removeFeedFromDb = async (id: string) => {
   await runWrite(async (db) => {
     await db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `DELETE FROM article_statuses WHERE articleId IN (SELECT id FROM articles WHERE feedId = ?)`,
+        [id],
+      )
       await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [id])
       await db.runAsync(`DELETE FROM feeds WHERE id = ?`, [id])
     })

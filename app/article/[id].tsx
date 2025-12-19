@@ -5,18 +5,16 @@ import { StyleSheet, View } from 'react-native'
 import { Appbar, Snackbar, useTheme } from 'react-native-paper'
 import { WebView } from 'react-native-webview'
 
-import { setArticleSaved } from '@/services/articles-db'
+import { setArticleRead, setArticleSaved } from '@/services/articles-db'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { useArticlesStore } from '@/store/articles'
-import { useSeenStore } from '@/store/seen'
 
 export default function ArticleScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
   const article = useArticlesStore((state) => state.articles.find((a) => a.id === id))
   const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
-  const markSeen = useSeenStore((state) => state.markSeen)
-  const isSeen = useSeenStore((state) => state.isSeen)
+  const updateSeenLocal = useArticlesStore((state) => state.updateSeenLocal)
   const { colors } = useTheme()
   const [mode, setMode] = useState<'rss' | 'reader' | 'original'>('rss')
   const [snackbar, setSnackbar] = useState<string | null>(null)
@@ -138,10 +136,11 @@ export default function ArticleScreen() {
   }, [article, colors, displayDate, reader])
 
   useEffect(() => {
-    if (id && !isSeen(id)) {
-      markSeen(id, true)
+    if (id && article && !article.seen) {
+      void setArticleRead(id, true)
+      updateSeenLocal(id, true)
     }
-  }, [id, isSeen, markSeen])
+  }, [article, id, updateSeenLocal])
 
   const handleToggleSaved = async () => {
     if (!id || !article) return

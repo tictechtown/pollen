@@ -8,6 +8,7 @@ type ArticlesState = {
   setArticles: (articles: Article[]) => void
   upsertArticle: (article: Article) => void
   updateSavedLocal: (id: string, saved: boolean) => void
+  updateSeenLocal: (id: string, seen: boolean) => void
   clear: () => void
 }
 
@@ -30,6 +31,10 @@ export const useArticlesStore = create<ArticlesState>()(
     updateSavedLocal: (id, saved) =>
       set((state) => ({
         articles: state.articles.map((a) => (a.id === id ? { ...a, saved } : a)),
+      })),
+    updateSeenLocal: (id, seen) =>
+      set((state) => ({
+        articles: state.articles.map((a) => (a.id === id ? { ...a, seen } : a)),
       })),
     clear: () => set({ articles: [] }),
   })),
