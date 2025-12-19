@@ -1,11 +1,27 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
-import React from 'react';
-import { useTheme } from 'react-native-paper';
+import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs'
+import React from 'react'
 
 export default function TabLayout() {
-  const { colors } = useTheme();
+  return (
+    <NativeTabs>
+      <NativeTabs.Trigger name="index">
+        <Label>Feed</Label>
+        <Icon src={require('@/assets/images/rss_feed_24dp.png')} />
+        {/* <Icon drawable={'rss_feed_24px'} /> */}
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="saved">
+        <Icon src={require('@/assets/images/bookmark_24dp.png')} />
+        <Label>Saved</Label>
+      </NativeTabs.Trigger>
 
+      <NativeTabs.Trigger name="settings">
+        <Icon src={require('@/assets/images/settings_24dp.png')} />
+        <Label>Settings</Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
+  )
+
+  /*
   return (
     <Tabs
       initialRouteName="index"
@@ -59,4 +75,5 @@ export default function TabLayout() {
       />
     </Tabs>
   );
+  */
 }

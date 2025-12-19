@@ -17,7 +17,7 @@ export default function FeedScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Appbar.Header mode="center-aligned">
-        <Appbar.Content title="Newsfeed" subtitle="The Verge RSS" />
+        <Appbar.Content title="Newsfeed" />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
       </Appbar.Header>
 
@@ -26,17 +26,17 @@ export default function FeedScreen() {
           icon="rss"
           onPress={() => router.push('/sources')}
           selected={Boolean(selectedFeedTitle)}
-          mode="flat"
+          mode={Boolean(selectedFeedTitle) === true ? 'flat' : 'outlined'}
         >
-          {selectedFeedTitle ? `Sources: ${selectedFeedTitle}` : 'Sources'}
+          {selectedFeedTitle ? `Sources: ${selectedFeedTitle}` : 'All Sources'}
         </Chip>
         <Chip
-          icon="eye-off-outline"
+          icon="eye-off"
           onPress={() => setShowUnseenOnly(!showUnseenOnly)}
           selected={showUnseenOnly}
-          mode="flat"
+          mode={showUnseenOnly ? 'flat' : 'outlined'}
         >
-          Seen
+          Unread Only
         </Chip>
       </View>
 
@@ -62,6 +62,7 @@ export default function FeedScreen() {
               }}
               onToggleSaved={() => toggleSaved(item.id)}
               onToggleSeen={() => toggleSeen(item.id)}
+              colors={colors}
             />
             <Divider />
           </>
@@ -94,7 +95,7 @@ const styles = StyleSheet.create({
   filters: {
     flexDirection: 'row',
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 4,
     gap: 8,
   },
   listContent: {
