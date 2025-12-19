@@ -39,7 +39,7 @@ const collectFeeds = (node?: OutlineNode | OutlineNode[]): Feed[] => {
       const feedId = encodeBase64(outline.xmlUrl) ?? outline.xmlUrl
       feeds.push({
         id: feedId,
-        url: outline.xmlUrl,
+        xmlUrl: outline.xmlUrl,
         title: decode(outline.title ?? outline.text) ?? outline.xmlUrl,
         description: decode(outline.description),
       })

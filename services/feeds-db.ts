@@ -8,8 +8,10 @@ export const upsertFeeds = async (feeds: Feed[]) => {
   await runWrite(async (db) => {
     await db.withTransactionAsync(async () => {
       for (const feed of feeds) {
+        console.log('inserting feeds', feed.id, feed.title, feed.xmlUrl)
+
         await db.runAsync(
-        `
+          `
         INSERT INTO feeds (id, title, url, description, image, lastUpdated, lastPublishedAt, lastPublishedTs)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
@@ -21,17 +23,17 @@ export const upsertFeeds = async (feeds: Feed[]) => {
           lastPublishedAt=COALESCE(excluded.lastPublishedAt, feeds.lastPublishedAt),
           lastPublishedTs=COALESCE(excluded.lastPublishedTs, feeds.lastPublishedTs);
       `,
-        [
-          feed.id,
-          feed.title,
-          feed.url,
-          feed.description ?? null,
-          feed.image ?? null,
-          feed.lastUpdated ?? null,
-          feed.lastPublishedAt ?? null,
-          feed.lastPublishedTs ?? null,
-        ],
-      )
+          [
+            feed.id,
+            feed.title,
+            feed.xmlUrl,
+            feed.description ?? null,
+            feed.image ?? null,
+            feed.lastUpdated ?? null,
+            feed.lastPublishedAt ?? null,
+            feed.lastPublishedTs ?? null,
+          ],
+        )
       }
     })
   })

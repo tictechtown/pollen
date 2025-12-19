@@ -73,7 +73,7 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
 
 export const getDb = () => {
   if (!dbPromise) {
-    dbPromise = SQLite.openDatabaseAsync('pollen.db').then(async (db) => {
+    dbPromise = SQLite.openDatabaseAsync('pollen-4.db').then(async (db) => {
       await createTables(db)
       return db
     })

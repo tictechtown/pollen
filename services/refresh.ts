@@ -2,16 +2,17 @@
 import { Asset } from 'expo-asset'
 import * as FileSystem from 'expo-file-system/legacy'
 
+import { Article, Feed } from '@/types'
 import { getArticlesFromDb, upsertArticles } from './articles-db'
 import { getFeedsFromDb, upsertFeeds } from './feeds-db'
 import { parseOpml } from './opml'
 import { fetchFeed } from './rssClient'
-import { Article, Feed } from '@/types'
 
 type RefreshOptions = {
   selectedFeedId?: string
   includeDefaultFeeds?: boolean
   metadataBudget?: { remaining: number }
+  defaultFeedsModule?: unknown
 }
 
 export type RefreshResult = {
@@ -37,33 +38,34 @@ const toTimestamp = (value?: string | null): number => {
 const articleTimestamp = (article: Article): number =>
   toTimestamp(article.updatedAt) || toTimestamp(article.publishedAt)
 
-export const loadDefaultFeedsFromOpml = async (
-  feedModule: unknown = require('../feed.xml'),
-): Promise<Feed[]> => {
+export const loadDefaultFeedsFromOpml = async (feedModule?: unknown): Promise<Feed[]> => {
   try {
-    const asset = Asset.fromModule(feedModule)
+    const moduleToUse = feedModule ?? require('../feed.xml')
+    const asset = Asset.fromModule(moduleToUse)
     await asset.downloadAsync()
     const uri = asset.localUri ?? asset.uri
     const opml = await FileSystem.readAsStringAsync(uri)
     const parsedFeeds = parseOpml(opml)
-    if (parsedFeeds.length) {
-      await upsertFeeds(parsedFeeds)
-    }
     return parsedFeeds
   } catch {
     return []
   }
 }
 
-export const refreshFeedsAndArticles = async ({
-  selectedFeedId,
-  includeDefaultFeeds = false,
-  metadataBudget = { remaining: 200 },
-}: RefreshOptions): Promise<RefreshResult> => {
+let refreshInFlight: Promise<RefreshResult> | null = null
+
+const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<RefreshResult> => {
+  const {
+    selectedFeedId,
+    includeDefaultFeeds = false,
+    metadataBudget = { remaining: 200 },
+    defaultFeedsModule,
+  } = options
+
   let feedsToUse = await getFeedsFromDb()
 
   if (!feedsToUse.length && includeDefaultFeeds) {
-    feedsToUse = await loadDefaultFeedsFromOpml()
+    feedsToUse = await loadDefaultFeedsFromOpml(defaultFeedsModule)
   }
 
   if (selectedFeedId) {
@@ -85,7 +87,7 @@ export const refreshFeedsAndArticles = async ({
 
   const results = await Promise.allSettled(
     feedsToUse.map((feed) =>
-      fetchFeed(feed.url, {
+      fetchFeed(feed.xmlUrl, {
         cutoffTs: lastPublishedByFeed.get(feed.id) ?? 0,
         metadataBudget,
       }),
@@ -104,7 +106,10 @@ export const refreshFeedsAndArticles = async ({
       return ts > cutoff
     })
 
-    const maxTsFromFresh = fresh.reduce((max, article) => Math.max(max, articleTimestamp(article)), cutoff)
+    const maxTsFromFresh = fresh.reduce(
+      (max, article) => Math.max(max, articleTimestamp(article)),
+      cutoff,
+    )
 
     feedsForUpsert.push({
       ...feed,
@@ -132,6 +137,18 @@ export const refreshFeedsAndArticles = async ({
     feedsUsed: feedsToUse,
     newArticlesCount: deduped.length,
   }
+}
+
+export const refreshFeedsAndArticles = (options: RefreshOptions): Promise<RefreshResult> => {
+  if (refreshInFlight) {
+    return refreshInFlight
+  }
+
+  refreshInFlight = doRefreshFeedsAndArticles(options).finally(() => {
+    refreshInFlight = null
+  })
+
+  return refreshInFlight
 }
 
 export const hydrateArticlesAndFeeds = async (feedId?: string) => {

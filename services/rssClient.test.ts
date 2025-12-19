@@ -70,7 +70,7 @@ describe('fetchFeed', () => {
   type ExpectedFeed = {
     id: string | null
     title: string | null
-    url: string | null
+    xmlUrl: string | null
     image: string | null
     description: string | null
     lastUpdated: string | null
@@ -112,7 +112,7 @@ describe('fetchFeed', () => {
   const normalizeFeed = (feed: any): ExpectedFeed => ({
     id: feed?.id ?? null,
     title: feed?.title ?? null,
-    url: feed?.url ?? null,
+    xmlUrl: feed?.xmlUrl ?? null,
     image: feed?.image ?? null,
     description: feed?.description ?? null,
     lastUpdated: feed?.lastUpdated ?? null,

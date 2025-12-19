@@ -242,7 +242,9 @@ interface AtomFeed {
     entry: FetchedAtomArticle[]
     icon: string
     id: string
-    link: { rel: string; type?: string; href: string }[]
+    link:
+      | { rel: string; type?: string; href: string }
+      | { rel: string; type?: string; href: string }[]
     subtitle?: {
       '#text': string
       type: string
@@ -348,6 +350,17 @@ export const extractImage = async (
   return metadata.thumbnail
 }
 
+const extractHTMLLink = (links: AtomFeed['feed']['link'] | undefined): string | undefined => {
+  if (!links) {
+    return undefined
+  }
+  if (Array.isArray(links)) {
+    return links.find((l) => l.type === 'text/html')?.href
+  } else {
+    return links.type === 'text/html' ? links.href : undefined
+  }
+}
+
 const parseAtomFeed = async (
   url: string,
   atomFeed: AtomFeed,
@@ -361,17 +374,20 @@ const parseAtomFeed = async (
     const ts = toTimestamp(item.updated ?? item.published)
     return ts > cutoffTs
   })
-  const feedIdSource = channel?.link?.[0]?.href ?? channel?.link?.[0]?.['#text'] ?? url
+
+  const feedIdSource = channel?.id
 
   const feed: Feed = {
     id: encodeBase64(feedIdSource) ?? feedIdSource ?? url,
     title:
       decodeString(typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
       'RSS Feed',
-    url,
+    xmlUrl: url,
+    htmlUrl: extractHTMLLink(channel.link),
     description:
-      decodeString(typeof channel?.subtitle === 'string' ? channel?.subtitle : channel?.subtitle?.['#text']) ??
-      undefined,
+      decodeString(
+        typeof channel?.subtitle === 'string' ? channel?.subtitle : channel?.subtitle?.['#text'],
+      ) ?? undefined,
     image: channel?.icon ?? undefined,
     lastUpdated: channel?.updated ?? channel?.lastBuildDate ?? channel?.pubDate ?? undefined,
   }
@@ -436,7 +452,7 @@ const parseRssFeed = async (
     title:
       decodeString(typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
       'RSS Feed',
-    url,
+    xmlUrl: url,
     description: decodeString(channel?.subtitle?.['#text']) ?? undefined,
     image:
       (Array.isArray(channel?.image) ? channel?.image[0]?.url : channel?.image?.url) ?? undefined,

@@ -18,7 +18,7 @@ export const useFeedsStore = create<FeedsState>()(
     setFeeds: (feeds) => set({ feeds }),
     addFeed: (feed) =>
       set((state) => ({
-        feeds: state.feeds.find((f) => f.url === feed.url) ? state.feeds : [...state.feeds, feed],
+        feeds: state.feeds.find((f) => f.id === feed.id) ? state.feeds : [...state.feeds, feed],
       })),
     removeFeed: (id) =>
       set((state) => ({

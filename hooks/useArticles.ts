@@ -15,7 +15,7 @@ type UseArticlesOptions = {
 export const useArticles = (options: UseArticlesOptions = {}) => {
   const { articles, setArticles, updateSavedLocal, updateSeenLocal } = useArticlesStore()
   const { setFeeds } = useFeedsStore()
-  const { selectedFeedId, showUnseenOnly } = useFiltersStore()
+  const { selectedFeedId } = useFiltersStore()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
@@ -74,7 +74,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     }
   }, [hydrateFromDb, initialized, selectedFeedId])
 
-  const unseenOnly = options.unseenOnly ?? showUnseenOnly
+  const unseenOnly = !!options.unseenOnly
 
   const sortedAndFiltered = useMemo(() => {
     const byFeed = selectedFeedId

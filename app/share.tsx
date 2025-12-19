@@ -5,7 +5,7 @@ import { Appbar, Button, Card, Snackbar, Text } from 'react-native-paper'
 
 import { setArticleSaved, upsertArticles } from '@/services/articles-db'
 import { upsertFeeds } from '@/services/feeds-db'
-import { fetchFeed, encodeBase64 } from '@/services/rssClient'
+import { encodeBase64, fetchFeed } from '@/services/rssClient'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { Article } from '@/types'
@@ -80,7 +80,7 @@ export default function ShareScreen() {
       return
     }
     const feedId = encodeBase64(normalizedUrl) ?? normalizedUrl
-    const existing = feeds.find((feed) => feed.url === normalizedUrl || feed.id === feedId)
+    const existing = feeds.find((feed) => feed.id === feedId)
     if (existing) {
       setSnackbar('Feed already added')
       return
