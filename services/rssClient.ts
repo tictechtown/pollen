@@ -1,3 +1,4 @@
+// RSS/Atom fetch and parsing utilities with metadata enrichment.
 import { Buffer } from 'buffer'
 import { XMLParser } from 'fast-xml-parser'
 import he from 'he'

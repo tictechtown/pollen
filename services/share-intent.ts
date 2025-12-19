@@ -1,3 +1,4 @@
+// Parse shared URLs from Android share intents.
 const EXTRA_TEXT_KEY = 'S.android.intent.extra.TEXT='
 
 const extractUrlFromText = (text: string): string | null => {

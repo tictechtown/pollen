@@ -1,3 +1,4 @@
+// Zustand store for feed list state.
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 

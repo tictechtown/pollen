@@ -1,3 +1,4 @@
+// Feed refresh workflow and hydration utilities.
 import { Asset } from 'expo-asset'
 import * as FileSystem from 'expo-file-system/legacy'
 
@@ -36,9 +37,11 @@ const toTimestamp = (value?: string | null): number => {
 const articleTimestamp = (article: Article): number =>
   toTimestamp(article.updatedAt) || toTimestamp(article.publishedAt)
 
-export const loadDefaultFeedsFromOpml = async (): Promise<Feed[]> => {
+export const loadDefaultFeedsFromOpml = async (
+  feedModule: unknown = require('../feed.xml'),
+): Promise<Feed[]> => {
   try {
-    const asset = Asset.fromModule(require('../feed.xml'))
+    const asset = Asset.fromModule(feedModule)
     await asset.downloadAsync()
     const uri = asset.localUri ?? asset.uri
     const opml = await FileSystem.readAsStringAsync(uri)

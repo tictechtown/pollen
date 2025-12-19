@@ -1,3 +1,4 @@
+// Tests for reader-mode extraction helpers.
 import { describe, expect, it } from 'vitest'
 
 import { extractReaderFromHtml } from './reader'

@@ -1,3 +1,4 @@
+// Reader-mode extraction helpers for article HTML.
 import { Readability } from '@mozilla/readability'
 import { parseHTML } from 'linkedom'
 

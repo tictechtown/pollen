@@ -1,3 +1,4 @@
+// SQLite setup, migrations, and serialized writes for the app database.
 import * as SQLite from 'expo-sqlite'
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null
@@ -72,7 +73,7 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
 
 export const getDb = () => {
   if (!dbPromise) {
-    dbPromise = SQLite.openDatabaseAsync('rss-reader.db').then(async (db) => {
+    dbPromise = SQLite.openDatabaseAsync('pollen.db').then(async (db) => {
       await createTables(db)
       return db
     })

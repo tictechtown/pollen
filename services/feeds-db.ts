@@ -1,3 +1,4 @@
+// Feed CRUD helpers for the SQLite database.
 import { Feed } from '@/types'
 
 import { getDb, runWrite } from './database'

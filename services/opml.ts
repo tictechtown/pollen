@@ -1,8 +1,9 @@
+// OPML parsing helpers for feed import.
 import { XMLParser } from 'fast-xml-parser'
 import he from 'he'
 
-import { encodeBase64 } from '@/services/rssClient'
 import { Feed } from '@/types'
+import { encodeBase64 } from './rssClient'
 
 const parser = new XMLParser({
   ignoreAttributes: false,

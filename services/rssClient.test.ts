@@ -1,6 +1,7 @@
+// Tests for RSS parsing utilities.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { encodeBase64, extractImage } from '../rssClient'
+import { encodeBase64, extractImage } from './rssClient'
 
 describe('encodeBase64', () => {
   it('encodes plain text to base64', () => {

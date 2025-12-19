@@ -1,3 +1,4 @@
+// Zustand store for selected feed filter state.
 import { create } from 'zustand'
 
 type FiltersState = {

@@ -1,3 +1,4 @@
+// Background fetch task wiring and marker storage for new articles.
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as BackgroundFetch from 'expo-background-fetch'
 import * as TaskManager from 'expo-task-manager'

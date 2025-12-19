@@ -1,3 +1,4 @@
+// Article CRUD helpers for the SQLite database.
 import { Article } from '@/types'
 
 import { getDb, runWrite } from './database'

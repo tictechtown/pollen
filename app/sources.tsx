@@ -1,21 +1,11 @@
 import { useRouter } from 'expo-router'
 import { useMemo, useRef, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
-import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
+import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
-import {
-  Appbar,
-  Avatar,
-  Button,
-  Dialog,
-  FAB,
-  List,
-  Portal,
-  Snackbar,
-  TextInput,
-  useTheme,
-} from 'react-native-paper'
+import { Appbar, Button, Dialog, FAB, Portal, Snackbar, TextInput, useTheme } from 'react-native-paper'
 
+import SourceListItem from '@/components/ui/SourceListItem'
 import { getArticlesFromDb } from '@/services/articles-db'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
 import { encodeBase64 } from '@/services/rssClient'
@@ -23,7 +13,6 @@ import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
 import { Feed } from '@/types'
-import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated'
 
 const toFeed = (url: string): Feed => {
   const normalized = url.trim()
@@ -33,26 +22,6 @@ const toFeed = (url: string): Feed => {
     url: normalized,
     title: normalized,
   }
-}
-
-type RightActionProps = {
-  dragX: SharedValue<number>
-  backgroundColor: string
-  iconColor: string
-}
-
-const RightAction = ({ dragX, backgroundColor, iconColor }: RightActionProps) => {
-  const styleAnimation = useAnimatedStyle(() => ({
-    width: Math.max(0, -dragX.value),
-  }))
-
-  return (
-    <View style={styles.deleteActionContainer}>
-      <Reanimated.View style={[styles.deleteAction, { backgroundColor }, styleAnimation]}>
-        <List.Icon color={iconColor} icon="delete" />
-      </Reanimated.View>
-    </View>
-  )
 }
 
 export default function SourcesScreen() {
@@ -140,69 +109,22 @@ export default function SourcesScreen() {
         renderItem={({ item, index }) => {
           const isAll = item.id === 'all'
           const isSelected = isAll ? !selectedFeedId : selectedFeedId === item.id
-          const isFirst = index === 0
-          const isLast = index === listData.length - 1
-          const cornerRadius = isSelected ? 16 : 4
-          const edgeRadius = isSelected ? 22 : 16
-
-          const containerStyle = [
-            styles.segmentItem,
-            {
-              backgroundColor: isSelected ? colors.secondaryContainer : colors.elevation.level1,
-              borderTopLeftRadius: isFirst ? edgeRadius : cornerRadius,
-              borderTopRightRadius: isFirst ? edgeRadius : cornerRadius,
-              borderBottomLeftRadius: isLast ? edgeRadius : cornerRadius,
-              borderBottomRightRadius: isLast ? edgeRadius : cornerRadius,
-            },
-          ]
-
           return (
-            <View style={styles.segmentItemWrapper}>
-              {isAll ? (
-                <View style={containerStyle}>
-                  <List.Item
-                    title="All"
-                    description="See every article"
-                    left={(props) => <List.Icon {...props} icon="folder" />}
-                    onPress={() => handleSelect(undefined)}
-                  />
-                </View>
-              ) : (
-                <Swipeable
-                  ref={(ref: SwipeableMethods) => {
-                    swipeableRefs.current[item.id] = ref
-                  }}
-                  renderRightActions={(_, dragX) => (
-                    <RightAction
-                      dragX={dragX}
-                      backgroundColor={colors.errorContainer}
-                      iconColor={colors.onErrorContainer}
-                    />
-                  )}
-                  onSwipeableOpen={() => {
-                    setFeedToRemove(item)
-                    setRemoveVisible(true)
-                  }}
-                >
-                  <View style={containerStyle}>
-                    <List.Item
-                      title={item.title || item.url}
-                      description={item.url}
-                      titleNumberOfLines={1}
-                      descriptionNumberOfLines={1}
-                      left={() =>
-                        item.image ? (
-                          <Avatar.Image size={32} source={{ uri: item.image }} />
-                        ) : (
-                          <Avatar.Icon size={32} icon="rss" />
-                        )
-                      }
-                      onPress={() => handleSelect(item)}
-                    />
-                  </View>
-                </Swipeable>
-              )}
-            </View>
+            <SourceListItem
+              item={item}
+              isAll={isAll}
+              isSelected={isSelected}
+              isFirst={index === 0}
+              isLast={index === listData.length - 1}
+              onSelect={handleSelect}
+              onRequestRemove={(feed) => {
+                setFeedToRemove(feed)
+                setRemoveVisible(true)
+              }}
+              registerSwipeableRef={(id, ref) => {
+                swipeableRefs.current[id] = ref
+              }}
+            />
           )
         }}
       />
@@ -266,22 +188,6 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingHorizontal: 16,
     paddingBottom: 64,
-  },
-  segmentItemWrapper: {
-    marginBottom: 2,
-  },
-  segmentItem: {
-    overflow: 'hidden',
-  },
-  deleteAction: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 12,
-    height: '100%',
-  },
-  deleteActionContainer: {
-    alignItems: 'flex-end',
-    width: '100%',
   },
   fab: {
     position: 'absolute',
