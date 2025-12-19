@@ -7,7 +7,13 @@ import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
 import { useSeenStore } from '@/store/seen'
 
-export const useArticles = () => {
+const PAGE_SIZE = 100
+
+type UseArticlesOptions = {
+  unseenOnly?: boolean
+}
+
+export const useArticles = (options: UseArticlesOptions = {}) => {
   const { articles, setArticles, updateSavedLocal } = useArticlesStore()
   const { setFeeds } = useFeedsStore()
   const { selectedFeedId, showUnseenOnly } = useFiltersStore()
@@ -15,6 +21,7 @@ export const useArticles = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
+  const [page, setPage] = useState(1)
 
   const hydrateFromDb = useCallback(
     async (feedId?: string) => {
@@ -33,6 +40,7 @@ export const useArticles = () => {
     }
     setLoading(true)
     setError(null)
+    setPage(1)
     try {
       const result = await refreshFeedsAndArticles({
         selectedFeedId,
@@ -77,13 +85,42 @@ export const useArticles = () => {
     [articles, seenIds],
   )
 
+  const unseenOnly = options.unseenOnly ?? showUnseenOnly
+
   const sortedAndFiltered = useMemo(() => {
     const byFeed = selectedFeedId
       ? articlesWithSeen.filter((article) => article.feedId === selectedFeedId)
       : articlesWithSeen
-    const filtered = showUnseenOnly ? byFeed.filter((article) => !article.seen) : byFeed
+    const filtered = unseenOnly ? byFeed.filter((article) => !article.seen) : byFeed
     return filtered
-  }, [articlesWithSeen, selectedFeedId, showUnseenOnly])
+  }, [articlesWithSeen, selectedFeedId, unseenOnly])
+
+  useEffect(() => {
+    setPage(1)
+  }, [selectedFeedId, unseenOnly])
+
+  const totalPages = useMemo(
+    () => Math.max(1, Math.ceil(sortedAndFiltered.length / PAGE_SIZE)),
+    [sortedAndFiltered.length],
+  )
+
+  useEffect(() => {
+    setPage((current) => Math.min(current, totalPages))
+  }, [totalPages])
+
+  const pagedArticles = useMemo(
+    () => sortedAndFiltered.slice(0, page * PAGE_SIZE),
+    [page, sortedAndFiltered],
+  )
+
+  const hasUnseen = useMemo(
+    () => sortedAndFiltered.some((article) => !article.seen),
+    [sortedAndFiltered],
+  )
+
+  const loadNextPage = useCallback(() => {
+    setPage((current) => (current < totalPages ? current + 1 : current))
+  }, [totalPages])
 
   const toggleSaved = useCallback(
     async (id: string) => {
@@ -116,11 +153,14 @@ export const useArticles = () => {
   }, [markManySeen, sortedAndFiltered])
 
   return {
-    articles: sortedAndFiltered,
+    articles: pagedArticles,
     loading,
     error,
     initialized,
     refresh: () => load(),
+    loadNextPage,
+    hasMore: pagedArticles.length < sortedAndFiltered.length,
+    hasUnseen,
     toggleSaved,
     toggleSeen,
     setSeen,

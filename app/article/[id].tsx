@@ -176,8 +176,6 @@ export default function ArticleScreen() {
       ? { uri: article?.link ?? 'about:blank' }
       : { html: rssHtml }
 
-  const readerIconName =
-    mode === 'reader' ? 'book-open-page-variant' : 'book-open-page-variant-outline'
   const originalIconName = mode === 'original' ? 'earth-box' : 'earth'
 
   return (
@@ -185,15 +183,6 @@ export default function ArticleScreen() {
       <Appbar.Header mode="center-aligned">
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content />
-        <Appbar.Action
-          icon={({ size, color }) => (
-            <MaterialCommunityIcons name={readerIconName as any} size={size} color={color} />
-          )}
-          accessibilityLabel="Reader mode"
-          onPress={handleLoadReader}
-          disabled={reader.status === 'pending'}
-          animated
-        />
         <Appbar.Action
           icon={({ size, color }) => (
             <MaterialCommunityIcons name={originalIconName as any} size={size} color={color} />
@@ -206,12 +195,23 @@ export default function ArticleScreen() {
           animated
         />
         <Appbar.Action
-          icon={({ size, color }) => <MaterialIcons name="description" size={size} color={color} />}
-          accessibilityLabel="Show RSS content"
+          icon={({ size, color }) => (
+            <MaterialIcons
+              name="description"
+              size={size}
+              color={mode === 'rss' ? colors.primary : color}
+            />
+          )}
+          accessibilityLabel={mode === 'rss' ? 'Reader mode' : 'Show RSS content'}
           onPress={() => {
-            setMode('rss')
-            setSnackbar('RSS content')
+            if (mode === 'rss') {
+              handleLoadReader()
+            } else {
+              setMode('rss')
+              setSnackbar('RSS content')
+            }
           }}
+          disabled={reader.status === 'pending'}
           animated
         />
         <Appbar.Action
@@ -220,7 +220,11 @@ export default function ArticleScreen() {
         />
       </Appbar.Header>
 
-      <WebView originWhitelist={['*']} source={resolvedSource} />
+      <WebView
+        originWhitelist={['*']}
+        source={resolvedSource}
+        style={{ backgroundColor: colors.surface }}
+      />
 
       <Snackbar
         visible={Boolean(snackbar)}

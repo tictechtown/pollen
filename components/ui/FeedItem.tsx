@@ -1,6 +1,6 @@
 import { Article } from '@/types'
 import { useRef } from 'react'
-import { Image, Pressable, StyleSheet, View } from 'react-native'
+import { Image, Pressable, Share, StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 import { IconButton, Text } from 'react-native-paper'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
@@ -80,7 +80,7 @@ const FeedItem = ({
             dragX={dragX}
             backgroundColor={colors.secondaryContainer}
             iconColor={colors.onSecondaryContainer}
-            icon={article.seen ? 'eye' : 'eye-outline'}
+            icon={article.seen ? 'circle' : 'check-circle-outline'}
             isLeft
           />
         )}
@@ -89,7 +89,7 @@ const FeedItem = ({
             dragX={dragX}
             backgroundColor={colors.tertiaryContainer}
             iconColor={colors.onTertiaryContainer}
-            icon={article.saved ? 'bookmark' : 'bookmark-outline'}
+            icon={article.saved ? 'bookmark-outline' : 'bookmark'}
           />
         )}
         onSwipeableOpen={(direction) => {
@@ -120,6 +120,11 @@ const FeedItem = ({
               <Text variant="titleMedium" style={styles.title} numberOfLines={3}>
                 {article.title}
               </Text>
+              {!!article.description && (
+                <Text variant="bodySmall" numberOfLines={2}>
+                  {article.description}
+                </Text>
+              )}
             </View>
             {!!article.thumbnail && (
               <View style={{ flex: 1 }}>
@@ -144,8 +149,12 @@ const FeedItem = ({
                 size={16}
                 icon="share-variant-outline"
                 style={{ margin: 0 }}
-                onPress={() => {
-                  /** TODO, should share the article */
+                onPress={async () => {
+                  await Share.share({
+                    title: article.title,
+                    message: article.link,
+                    url: article.link,
+                  })
                 }}
               />
               <IconButton

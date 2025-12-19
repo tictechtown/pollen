@@ -6,7 +6,7 @@ import FeedItem from '@/components/ui/FeedItem'
 import { useArticles } from '@/hooks/useArticles'
 import { useFiltersStore } from '@/store/filters'
 
-export default function FeedScreen() {
+export default function UnreadScreen() {
   const router = useRouter()
   const {
     articles,
@@ -19,15 +19,16 @@ export default function FeedScreen() {
     toggleSeen,
     markAllSeen,
     error,
-  } = useArticles()
+  } = useArticles({ unseenOnly: true })
   const { selectedFeedTitle } = useFiltersStore()
+
   const { colors } = useTheme()
   const hasArticles = articles.length > 0
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Appbar.Header mode="small">
-        <Appbar.Action icon={'menu'} onPress={() => router.push('/sources')} />
+        <Appbar.Action icon="menu" onPress={() => router.push('/sources')} />
         <Appbar.Content title={selectedFeedTitle ? selectedFeedTitle : 'All'} />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
         <Appbar.Action icon="cog-outline" onPress={() => router.push('/settings')} />
@@ -66,7 +67,7 @@ export default function FeedScreen() {
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text variant="bodyLarge">No articles yet. Pull to refresh.</Text>
+            <Text variant="bodyLarge">No unread articles. Pull to refresh.</Text>
           </View>
         }
       />

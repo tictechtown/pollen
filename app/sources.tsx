@@ -201,7 +201,13 @@ export default function SourcesScreen() {
       />
 
       <Portal>
-        <FAB icon="plus" label="Add feed" style={styles.fab} onPress={() => setAddVisible(true)} />
+        <FAB
+          icon="plus"
+          label="Add feed"
+          style={styles.fab}
+          onPress={() => setAddVisible(true)}
+          variant="secondary"
+        />
 
         <Dialog visible={addVisible} onDismiss={() => setAddVisible(false)}>
           <Dialog.Title>Add a feed</Dialog.Title>

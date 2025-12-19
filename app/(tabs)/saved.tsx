@@ -52,8 +52,8 @@ export default function SavedScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Appbar.Header mode="center-aligned">
-        <Appbar.Content title="Saved for later" />
-        <Appbar.Action icon="cog" onPress={() => router.push('/settings')} />
+        <Appbar.Content title="Read Later" />
+        <Appbar.Action icon="cog-outline" onPress={() => router.push('/settings')} />
       </Appbar.Header>
 
       <FlatList
