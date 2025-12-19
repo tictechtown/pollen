@@ -5,6 +5,7 @@ import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/Reanim
 
 import {
   Appbar,
+  Avatar,
   Button,
   Dialog,
   FAB,
@@ -162,7 +163,7 @@ export default function SourcesScreen() {
                   <List.Item
                     title="All"
                     description="See every article"
-                    left={(props) => <List.Icon {...props} icon="infinity" />}
+                    left={(props) => <List.Icon {...props} icon="folder" />}
                     onPress={() => handleSelect(undefined)}
                   />
                 </View>
@@ -189,7 +190,13 @@ export default function SourcesScreen() {
                       description={item.url}
                       titleNumberOfLines={1}
                       descriptionNumberOfLines={1}
-                      left={(props) => <List.Icon {...props} icon="rss" />}
+                      left={() =>
+                        item.image ? (
+                          <Avatar.Image size={32} source={{ uri: item.image }} />
+                        ) : (
+                          <Avatar.Icon size={32} icon="rss" />
+                        )
+                      }
                       onPress={() => handleSelect(item)}
                     />
                   </View>
