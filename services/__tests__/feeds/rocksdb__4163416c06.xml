@@ -1,0 +1,1582 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>RocksDB</title>
+    <description>RocksDB is an embeddable persistent key-value store for fast storage.
+</description>
+    <link>https://rocksdb.org/feed.xml</link>
+    <atom:link href="http://rocksdb.org/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Tue, 16 Dec 2025 20:39:29 +0000</pubDate>
+    <lastBuildDate>Tue, 16 Dec 2025 20:39:29 +0000</lastBuildDate>
+    <generator>Jekyll v3.10.0</generator>
+    
+      <item>
+        <title>Parallel Compression Revamp: Dramatically Reduced CPU Overhead</title>
+        <description>&lt;p&gt;The upcoming RocksDB 10.7 release includes a major revamp of parallel compression that &lt;strong&gt;dramatically reduces the feature’s CPU overhead by up to 65%&lt;/strong&gt; while maintaining or improving throughput for compression-heavy workloads. We expect this to broaden the set of workloads that could benefit from parallel compression, especially for &lt;strong&gt;bulk SST generation and remote compaction use cases&lt;/strong&gt; that are less sensitive to CPU responsiveness.&lt;/p&gt;
+
+&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+
+&lt;p&gt;Parallel compression in RocksDB (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CompressionOptions::parallel_threads &amp;gt; 1&lt;/code&gt;) allows multiple threads to compress different blocks simultaneously during SST file generation, which can significantly improve compaction throughput for workloads where compression is a bottleneck. However, the original implementation had substantial CPU overhead that often outweighed the benefits, limiting its practical adoption.&lt;/p&gt;
+
+&lt;h2 id=&quot;whats-new-a-complete-reimplementation&quot;&gt;What’s New: A Complete Reimplementation&lt;/h2&gt;
+
+&lt;p&gt;The parallel compression framework has been completely rewritten from the ground up in &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/13910&quot;&gt;pull request #13910&lt;/a&gt; to address the core inefficiencies:&lt;/p&gt;
+
+&lt;h3 id=&quot;ring-buffer-architecture&quot;&gt;Ring Buffer Architecture&lt;/h3&gt;
+&lt;p&gt;Instead of separate compression and write queues with complex thread coordination, the new implementation uses a ring buffer of blocks-in-progress that enables efficient work distribution across threads. This bounds working memory while enabling high throughput with minimal cross-thread synchronization.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/static/images/parallel-compression/ring-buffer-architecture.svg&quot; alt=&quot;Ring Buffer Architecture&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;work-stealing-design&quot;&gt;Work-Stealing Design&lt;/h3&gt;
+&lt;p&gt;Previously, the calling thread could only generate uncompressed blocks, dedicated compression threads could only compress, and a writer thread could only write the SST file to storage. Now, all threads can participate in compression work in a quasi-work-stealing manner, dramatically reducing the need for threads to block waiting for work. While only one thread (the calling thread or “emit thread”) can generate uncompressed SST blocks in the new implementation, feeding compression work to other threads and itself, all other threads are compatible with writing compressed blocks to storage.&lt;/p&gt;
+
+&lt;h3 id=&quot;auto-scaling-thread-management&quot;&gt;Auto-Scaling Thread Management&lt;/h3&gt;
+&lt;p&gt;The ring buffer enables another key feature: auto-scaling of active threads based on ring buffer utilization. The framework intelligently wakes up idle worker threads only when there’s sufficient work to justify the overhead, achieving near-maximum throughput while minimizing CPU waste from unnecessary thread wake-ups.&lt;/p&gt;
+
+&lt;h3 id=&quot;lock-free-synchronization&quot;&gt;Lock-Free Synchronization&lt;/h3&gt;
+&lt;p&gt;The entire framework is now lock-free (and wait-free as long as compatible work units are available for each thread), based primarily on atomic operations. To cleanly pack and leverage many data fields into a single atomic value, I’ve developed a new &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BitFields&lt;/code&gt; utility API. This is proving useful for cleaning up the HyperClockCache implementation as well, and will be the topic of a later blog post.&lt;/p&gt;
+
+&lt;p&gt;Semaphores are used for lock-free management of idle threads (assuming a lock-free semaphore implementation, which is likely the case with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ROCKSDB_USE_STD_SEMAPHORES&lt;/code&gt; but that is untrustworthy; see below).&lt;/p&gt;
+
+&lt;h2 id=&quot;performance-improvements&quot;&gt;Performance Improvements&lt;/h2&gt;
+
+&lt;p&gt;The results speak for themselves. Here’s a comparison using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_bench&lt;/code&gt; fillseq benchmarks with various compression configurations:&lt;/p&gt;
+
+&lt;h3 id=&quot;zstd-compression-default-level&quot;&gt;ZSTD Compression (Default Level)&lt;/h3&gt;
+&lt;p&gt;Note:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;“throughput” = how quickly a given CPU-bound flush or compaction can complete&lt;/li&gt;
+  &lt;li&gt;“CPU increase” = total CPU usage in amount of time that each core was used&lt;/li&gt;
+  &lt;li&gt;“PT” = parallel_threads setting.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Before:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;PT=3: ~38% throughput increase for ~73% CPU increase&lt;/li&gt;
+  &lt;li&gt;PT=6: No throughput increase for ~70% CPU increase&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;After:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;PT=3: ~58% throughput increase for ~25% CPU increase&lt;/li&gt;
+  &lt;li&gt;PT=6: ~58% throughput increase for ~28% CPU increase&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;high-compression-scenarios&quot;&gt;High Compression Scenarios&lt;/h3&gt;
+&lt;p&gt;For ZSTD compression level 8, the improvements are even more dramatic:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Before:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;PT=4: 2.6x throughput increase for 139% CPU increase&lt;/li&gt;
+  &lt;li&gt;PT=8: 3.6x throughput increase for 135% CPU increase&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;After:&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;PT=4: 2.8x throughput increase for 114% CPU increase&lt;/li&gt;
+  &lt;li&gt;PT=8: 3.7x throughput increase for 116% CPU increase&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;compression-algorithm-optimizations&quot;&gt;Compression Algorithm Optimizations&lt;/h2&gt;
+
+&lt;p&gt;Alongside the parallel compression revamp, some optimizations have gone into the underlying compression implementations/integrations. Most notably, &lt;strong&gt;LZ4HC received dramatic performance improvements&lt;/strong&gt; through better reuse of internal data structures between compression calls (detailed in &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/13805&quot;&gt;pull request #13805&lt;/a&gt;). A small regression in LZ4 performance from that change was fixed in &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/14017&quot;&gt;pull request #14017&lt;/a&gt;.&lt;/p&gt;
+
+&lt;p&gt;While &lt;strong&gt;ZSTD remains the gold standard&lt;/strong&gt; for medium-to-high compression ratios in RocksDB, these LZ4HC optimizations make it an increasingly attractive option for read-heavy workloads where LZ4’s faster decompression can provide overall performance benefits.&lt;/p&gt;
+
+&lt;h2 id=&quot;production-ready&quot;&gt;Production Ready&lt;/h2&gt;
+
+&lt;p&gt;With these efficiency improvements, parallel compression is now considered &lt;strong&gt;production-ready&lt;/strong&gt;. The feature has been thoroughly tested in both unit tests and stress testing, including validation on high-load scenarios with hundreds of concurrent compression jobs and thousands of threads.&lt;/p&gt;
+
+&lt;p&gt;Some notes on current limitations:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Parallel compression is currently incompatible with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;UserDefinedIndex&lt;/code&gt; and with the deprecated &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;decouple_partitioned_filters=false&lt;/code&gt; setting&lt;/li&gt;
+  &lt;li&gt;Maximum performance is available with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-DROCKSDB_USE_STD_SEMAPHORES&lt;/code&gt; at compile time, though this is not currently recommended due to reported bugs in some implementations of C++20 semaphores&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;configuration-recommendations&quot;&gt;Configuration Recommendations&lt;/h2&gt;
+
+&lt;p&gt;The dramatically reduced CPU overhead means parallel compression is now viable for a broader range of workloads, particularly those using higher compression levels or compression-heavy scenarios like time-series data. However, simply enabling parallel compression could result in more &lt;em&gt;spiky&lt;/em&gt; CPU loads for hosts serving live DB data. &lt;strong&gt;Parallel compression might be most useful for bulk SST file generation and/or remote compaction workloads&lt;/strong&gt; because they are less sensitive to CPU responsiveness. In these scenarios there is little danger in setting &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;parallel_threads=8&lt;/code&gt; even with the possibility of over-subscribing CPU cores, though the potentially safer “sweet spot” is typically around &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;parallel_threads=3&lt;/code&gt;, depending on compression level, etc.&lt;/p&gt;
+
+&lt;h2 id=&quot;limitations-and-future&quot;&gt;Limitations and Future&lt;/h2&gt;
+
+&lt;p&gt;Although this offers a great improvement in the implementation of an existing option, we recognize that this setup is suboptimal in a number of ways:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;There is no work sharing / thread pooling for these SST compression/writer threads among compactions in the same process, so not well able to fit the workload to available CPU cores and not able to use other SST file compression work to avoid a worker thread going to sleep.&lt;/li&gt;
+  &lt;li&gt;We are not (yet) using a framework that would allow micro-work sharing with things other than SST generation on a set of threads. That would be a good direction for effective sharing of CPU resources without spikes in usage, but might incur intolerable CPU overhead in managing work. With this “hand optimized” and specialized framework, we can at least evaluate such future endeavors against a perhaps ideal framework in terms of parallelizing with minimal overhead.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;try-it-out&quot;&gt;Try It Out&lt;/h2&gt;
+
+&lt;p&gt;Parallel compression revamp will be available in RocksDB 10.7. As always, we recommend testing in your specific environment to determine the optimal configuration for your workload.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2025/10/08/parallel-compression-revamp.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2025/10/08/parallel-compression-revamp.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>IO Activity Tagging</title>
+        <description>&lt;h2 id=&quot;context&quot;&gt;Context&lt;/h2&gt;
+
+&lt;p&gt;RocksDB performs a variety of IO operations—user reads, background compactions, flushes, database opens, and verification tasks. Treating all these operations the same makes it difficult for file system implementers to optimize performance, prioritize latency-sensitive IOs, and diagnose bottlenecks. To solve that, RocksDB internally tags every IO operation with its activity type using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IOActivity&lt;/code&gt; enum. This automatic tagging provides precise context for each IO, enabling file systems to make smarter, context-aware decisions for scheduling, caching, and resource management.&lt;/p&gt;
+
+&lt;h2 id=&quot;how-internal-io-tagging-works&quot;&gt;How Internal IO Tagging Works&lt;/h2&gt;
+&lt;p&gt;RocksDB automatically assigns an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IOActivity&lt;/code&gt; tag to each IO operation. This tag is propagated through the storage stack and included in the IO options passed to the file system.&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;enum&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IOActivity&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;uint8_t&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kFlush&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                        &lt;span class=&quot;c1&quot;&gt;// IO for flush operations (background write)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kCompaction&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                   &lt;span class=&quot;c1&quot;&gt;// IO for compaction (background read/write)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kDBOpen&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                       &lt;span class=&quot;c1&quot;&gt;// IO during database open (read/write)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kGet&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;3&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                          &lt;span class=&quot;c1&quot;&gt;// User Get() read&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kMultiGet&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                     &lt;span class=&quot;c1&quot;&gt;// User MultiGet() read&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kDBIterator&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                   &lt;span class=&quot;c1&quot;&gt;// User iterator read&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kVerifyDBChecksum&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;6&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;             &lt;span class=&quot;c1&quot;&gt;// Verification: DB checksum&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kVerifyFileChecksums&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;7&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;          &lt;span class=&quot;c1&quot;&gt;// Verification: file checksums&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kGetEntity&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;                    &lt;span class=&quot;c1&quot;&gt;// Entity Get (e.g., wide-column)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kMultiGetEntity&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;9&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;               &lt;span class=&quot;c1&quot;&gt;// Entity MultiGet&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kGetFileChecksumsFromCurrentManifest&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;10&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// Manifest checksum reads&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;// 0x80–0xFE: Reserved for custom/internal use&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kUnknown&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mh&quot;&gt;0xFF&lt;/span&gt;                    &lt;span class=&quot;c1&quot;&gt;// Unknown/unspecified activity&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;access-io-tag-in-file-system&quot;&gt;Access IO Tag in File System&lt;/h2&gt;
+&lt;p&gt;Custom file systems can access the IOActivity tag via the IO options structure provided by RocksDB. This allows them to optimize behavior based on the specific IO activity.&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;Status&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CustomFileSystem&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;offset&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Slice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;data&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;IOOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;io_opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;...)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;switch&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;io_opts&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;io_activity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IOActivity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kGet&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// Prioritize or cache user reads&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IOActivity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kCompaction&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// Throttle or deprioritize background compaction IO&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;case&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Env&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;IOActivity&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kDBOpen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// Track or optimize DB open IO&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;// ... handle other activities ...&lt;/span&gt;
+        &lt;span class=&quot;nl&quot;&gt;default:&lt;/span&gt;
+            &lt;span class=&quot;c1&quot;&gt;// Default handling&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;break&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+    &lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;h2 id=&quot;io-activity-statistics-in-rocksdb&quot;&gt;IO Activity Statistics in RocksDB&lt;/h2&gt;
+&lt;p&gt;RocksDB provides detailed histograms for IO activities, allowing you to analyze both the aggregate time spent (in microseconds) and the count of IOs for each activity type.&lt;/p&gt;
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;c1&quot;&gt;// Read Histograms&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_FLUSH_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_COMPACTION_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_DB_OPEN_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_GET_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_MULTIGET_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_DB_ITERATOR_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_VERIFY_DB_CHECKSUM_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_READ_VERIFY_FILE_CHECKSUMS_MICROS&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;// Write Histograms&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_WRITE_FLUSH_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_WRITE_COMPACTION_MICROS&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;FILE_WRITE_DB_OPEN_MICROS&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Thanks to Maciej Szeszko and Andrew Chang from the RocksDB team for their contributions in expanding and maintaining the IOActivity enum.&lt;/p&gt;
+</description>
+        <pubDate>Thu, 25 Sep 2025 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2025/09/25/io-tagging.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2025/09/25/io-tagging.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Unified Memory Tracking</title>
+        <description>&lt;h2 id=&quot;context--problem&quot;&gt;Context / Problem&lt;/h2&gt;
+&lt;p&gt;Modern RocksDB deployments often run in environments with strict memory constraints—cloud VMs, containers, or hosts with hundreds of DB instances. Unpredictable memory usage can lead to out-of-memory (OOM) errors, degraded performance, or even service outages.
+Historically, while the block cache was the main source of memory usage, other components—such as memtables, table readers, file metadata, and temporary buffers—could consume significant memory outside the block cache’s control. This made it difficult for users to set a single memory limit and guarantee resource usage stays within expectations.&lt;/p&gt;
+
+&lt;h2 id=&quot;goal&quot;&gt;Goal&lt;/h2&gt;
+&lt;p&gt;The goal of recent memory tracking work in RocksDB is to enable users to cap the total memory usage of RocksDB instances under a single, configurable limit—the block cache capacity. This is achieved by:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Tracking and charging&lt;/strong&gt; all major memory consumers (memtables, table readers, file metadata, compression buffers, filter construction) to the block cache.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Evicting&lt;/strong&gt; data blocks or other memory when the total tracked usage exceeds the configured limit.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Providing a fixed memory footprint&lt;/strong&gt; for RocksDB, making it easier to run in resource-constrained environments and avoid OOMs.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;memtable-memory-charging&quot;&gt;Memtable Memory Charging&lt;/h2&gt;
+&lt;p&gt;A major source of memory usage in RocksDB is the memtable. To ensure memtable memory is tracked and capped under a single limit, RocksDB provides the WriteBufferManager (WBM). When WBM is configured with a block cache, memtable memory usage is charged to the block cache. This helps prevent OOM errors and simplifies resource management.&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shared_ptr&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Cache&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;HyperClockCacheOptions&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;capacity&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;MakeSharedCache&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;DBOptions&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;db_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;db_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;write_buffer_manager&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;make_shared&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;WriteBufferManager&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(..,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cache&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;other-memory-charging&quot;&gt;Other Memory Charging&lt;/h2&gt;
+&lt;p&gt;Beyond memtables, RocksDB allows users to control memory charging for other internal roles using the cache_usage_options API. This provides fine-grained control over how memory is tracked for components like table readers, file metadata, compression dictionary buffers (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CompressionOptions::max_dict_buffer_bytes:&lt;/code&gt;) and filter construction.&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CacheEntryRoleOptions&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;enum&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Decision&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kEnabled&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kDisabled&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;kFallback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;Decision&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;charged&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Decision&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kFallback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;CacheUsageOptions&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;CacheEntryRoleOptions&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+  &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;map&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CacheEntryRole&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CacheEntryRoleOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;options_overrides&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+
+&lt;span class=&quot;p&quot;&gt;...&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;BlockBasedTableOptions&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;table_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;table_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cache_usage_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;charged&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CacheEntryRoleOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Decision&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kFallback&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;table_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cache_usage_options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;options_overrides&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;CacheEntryRole&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kTableBuilder&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;charged&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;CacheEntryRoleOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Decision&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kEnabled&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;p&quot;&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;Default (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Decision::kFallback&lt;/code&gt;) behavior for each memory type:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CacheEntryRole::kCompressionDictionaryBuildingBuffer&lt;/code&gt;: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kEnabled&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CacheEntryRole::kFilterConstruction&lt;/code&gt;: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kDisabled&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CacheEntryRole::kBlockBasedTableReader&lt;/code&gt;: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kDisabled&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CacheEntryRole::kFileMetadata&lt;/code&gt;: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;kDisabled&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;monitoring-and-observability&quot;&gt;Monitoring and Observability&lt;/h2&gt;
+&lt;p&gt;RocksDB provides built-in statistics to help users monitor memory usage and cache behavior. The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DB::Properties::kBlockCacheEntryStats&lt;/code&gt; exposes detailed statistics about block cache entries, including breakdowns by each &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;CacheEntryRole&lt;/code&gt;. These statistics are essential for understanding memory consumption and tuning cache configuration.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 24 Sep 2025 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2025/09/24/unified-memory-tracking.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2025/09/24/unified-memory-tracking.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Addressing a Mitigated Misconfig Bug in the RocksDB OSS Repository</title>
+        <description>&lt;p&gt;Dear RocksDB Community,&lt;/p&gt;
+
+&lt;p&gt;We want to share an update about the bug that allowed our bug bounty researcher to update the release note title in August 2024 involving the RocksDB open-source repository on GitHub. This issue was found and responsibly disclosed to us by an external bug bounty researcher through our &lt;a href=&quot;https://www.facebook.com/whitehat&quot;&gt;Meta Bug Bounty program&lt;/a&gt; and quickly mitigated by our teams. We have not seen any evidence of malicious exploitation. Please note that no action is required from our community, as we have taken all necessary steps to remediate the issue.&lt;/p&gt;
+
+&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+
+&lt;p&gt;RocksDB is a high-performance storage engine library widely used in various large-scale applications. On August 21, 2024, a bug was reported to us by one of our  bug bounty researchers. They were able to demonstrate the ability to obtain the GITHUB_TOKEN used in GitHub Actions workflows. This token provides write access to the metadata of the repository, and the researcher used it to change the title of the release note 9.5.2 as proof of concept. The researcher also unsuccessfully attempted to merge a change to the main branch of the repository; however, we had access controls set up to prevent it from going through.&lt;/p&gt;
+
+&lt;h2 id=&quot;key-details&quot;&gt;Key Details&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;strong&gt;Incident Discovery&lt;/strong&gt;: After the bug bounty researcher changed the open source release note title to demonstrate the vulnerability, external users noticed this change and &lt;a href=&quot;https://github.com/facebook/rocksdb/issues/12962&quot;&gt;notified&lt;/a&gt; RocksDB. RocksDB then reached out to the Bug Bounty program to confirm this was the result of security research.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;No Malicious Abuse&lt;/strong&gt;: The investigation confirmed that no code or data was compromised. The change was public and visible on GitHub.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Tag Reversion Clarification&lt;/strong&gt;: On August 21, a tag named “v9.5.2” was initially published pointing to an incorrect commit. This was unrelated to the bug described here and was promptly corrected by pointing the tag to the correct commit. The release binary remains safe to use, and this correction does not impact the security or integrity of the release.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We’ve taken the following steps to mitigate and remediate the issue:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;The release note title was corrected.&lt;/li&gt;
+  &lt;li&gt;The workflow running on the self-hosted runner was disabled immediately.&lt;/li&gt;
+  &lt;li&gt;It was confirmed that the GITHUB_TOKEN expired and is no longer in use.&lt;/li&gt;
+  &lt;li&gt;The binary tagged for public release was examined to confirm that it was not compromised.&lt;/li&gt;
+  &lt;li&gt;Action logs were cross-checked to ensure no other actions were taken with the compromised token, other than the release note title change and the failed attempts to merge self-approved pull requests to the main branch.&lt;/li&gt;
+  &lt;li&gt;We have &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/12973&quot;&gt;scoped down&lt;/a&gt; the access level of tokens generated for workflows to prevent similar issues. Additionally, we are developing better guidelines for bug bounty researchers to minimize disruptions during their research.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Thank you for your continued support and trust in RocksDB.&lt;/p&gt;
+
+&lt;p&gt;Sincerely,&lt;/p&gt;
+
+&lt;p&gt;The RocksDB Team&lt;/p&gt;
+</description>
+        <pubDate>Fri, 07 Feb 2025 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2025/02/07/mitigated-bug-update.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2025/02/07/mitigated-bug-update.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Java Foreign Function Interface</title>
+        <description>&lt;h1 id=&quot;java-foreign-function-interface-ffi&quot;&gt;Java Foreign Function Interface (FFI)&lt;/h1&gt;
+
+&lt;p&gt;Evolved Binary has been working on several aspects of how the Java API to RocksDB can be improved. The recently introduced FFI features in Java provide significant opportunities for improving the API. We have investigated this through a prototype implementation.&lt;/p&gt;
+
+&lt;p&gt;Java 19 introduced a new &lt;a href=&quot;https://openjdk.org/jeps/424&quot;&gt;FFI Preview&lt;/a&gt; which is described as &lt;em&gt;an API by which Java programs can interoperate with code and data outside of the Java runtime. By efficiently invoking foreign functions (i.e., code outside the JVM), and by safely accessing foreign memory (i.e., memory not managed by the JVM), the API enables Java programs to call native libraries and process native data without the brittleness and danger of JNI&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;If the twin promises of efficiency and safety are realised, then using FFI as a mechanism to support a future RocksDB API may be of significant benefit.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Remove the complexity of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNI&lt;/code&gt; access to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++ RocksDB&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Improve RocksDB Java API performance&lt;/li&gt;
+  &lt;li&gt;Reduce the opportunity for coding errors in the RocksDB Java API&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Here’s what we did. We have&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;created a prototype FFI branch&lt;/li&gt;
+  &lt;li&gt;updated the RocksDB Java build to use Java 19&lt;/li&gt;
+  &lt;li&gt;implemented an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFI Preview API&lt;/code&gt; version of core RocksDB feature (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt;)&lt;/li&gt;
+  &lt;li&gt;Extended the current JMH benchmarks to also benchmark the new FFI methods. Usefully, JNI and FFI can co-exist peacefully, so we use the existing RocksDB Java to do support work around the FFI-based &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; implementation.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;implementation&quot;&gt;Implementation&lt;/h2&gt;
+
+&lt;h3 id=&quot;how-jni-works&quot;&gt;How JNI Works&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNI&lt;/code&gt; requires a preprocessing step during build/compilation to generate header files which are linked into by Pure Java code. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; implementations of the methods in the headers are implemented. Corresponding &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;native&lt;/code&gt; methods are declared in Java and the whole is linked together.&lt;/p&gt;
+
+&lt;p&gt;Code in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; methods uses what amounts to a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNI&lt;/code&gt; library to access Java values and objects and to create Java objects in response.&lt;/p&gt;
+
+&lt;h3 id=&quot;how-ffi-works&quot;&gt;How FFI Works&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFI&lt;/code&gt; provides the facility for Java to call existing native (in our case C++) code from Pure Java without having to generate support files during compilation steps. &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFI&lt;/code&gt; does support an external tool (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jextract&lt;/code&gt;) which makes generating common boilerplate easier and less error prone, but we choose to start prototyping without it, in part better to understand how things really work.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFI&lt;/code&gt; does its job by providing 2 things&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;A model for allocating, reading and writing native memory and native structures within that memory&lt;/li&gt;
+  &lt;li&gt;A model for discovering and calling native methods with parameters consisting of native memory references and/or values&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;The called &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; is invoked entirely natively. It does not have to access any Java objects to retrieve data it needs. Therefore existing packages in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; and other sufficiently low level languages can be called from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Java&lt;/code&gt; without having to implement stubs in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h3 id=&quot;our-approach&quot;&gt;Our Approach&lt;/h3&gt;
+
+&lt;p&gt;While we could in principle avoid writing any C++, C++ objects and classes are not easily defined in the FFI model, so to begin with it is easier to write some very simple &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C&lt;/code&gt;-like methods/stubs in C++ which can immediately call into the object-oriented core of RocksDB. We define structures with which to pass parameters to and receive results from the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C&lt;/code&gt;-like method(s) we implement.&lt;/p&gt;
+
+&lt;h4 id=&quot;c-side&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; Side&lt;/h4&gt;
+
+&lt;p&gt;The first method we implement is&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-C&quot;&gt;extern &quot;C&quot; int rocksdb_ffi_get_pinnable(
+    ROCKSDB_NAMESPACE::DB* db, ROCKSDB_NAMESPACE::ReadOptions* read_options,
+    ROCKSDB_NAMESPACE::ColumnFamilyHandle* cf, rocksdb_input_slice_t* key,
+    rocksdb_pinnable_slice_t* value);
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;our input structure is&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-C&quot;&gt;typedef struct rocksdb_input_slice {
+  const char* data;
+  size_t size;
+} rocksdb_input_slice_t;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;and our output structure is a pinnable slice (of which more later)&lt;/p&gt;
+&lt;pre&gt;&lt;code class=&quot;language-C&quot;&gt;typedef struct rocksdb_pinnable_slice {
+  const char* data;
+  size_t size;
+  ROCKSDB_NAMESPACE::PinnableSlice* pinnable_slice;
+  bool is_pinned;
+} rocksdb_pinnable_slice_t;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4 id=&quot;java-side&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Java&lt;/code&gt; Side&lt;/h4&gt;
+
+&lt;p&gt;We implement an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIMethod&lt;/code&gt; class to advertise a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;java.lang.invoke.MethodHandle&lt;/code&gt; for each of our helper stubs&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MethodHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GetPinnable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// handle which refers to the rocksdb_ffi_get_pinnable method in C++&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MethodHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ResetPinnable&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;;&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;// handle which refers to the rocksdb_ffi_reset_pinnable method in C++&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;We also implement an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFILayout&lt;/code&gt; class to describe each of the passed structures (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rocksdb_input_slice&lt;/code&gt; , &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rocksdb_pinnable_slice&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rocksdb_output_slice&lt;/code&gt;) in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Java&lt;/code&gt; terms&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt; &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;InputSlice&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GroupLayout&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Layout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;VarHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;VarHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Size&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+ &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
+
+ &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;PinnableSlice&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GroupLayout&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Layout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;VarHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;VarHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Size&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;VarHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;IsPinned&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+ &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
+
+ &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;OutputSlice&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GroupLayout&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Layout&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;VarHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Data&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+  &lt;span class=&quot;kd&quot;&gt;static&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;VarHandle&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Size&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;...&lt;/span&gt;
+ &lt;span class=&quot;o&quot;&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIDB&lt;/code&gt; class, which implements the public Java FFI API methods, makes use of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIMethod&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFILayout&lt;/code&gt; to make the code for each individual method as idiomatic and efficient as possible. This class also contains &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;java.lang.foreign.MemorySession&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;java.lang.foreign.SegmentAllocator&lt;/code&gt; objects which control the lifetime of native memory sessions and allow us to allocate lifetime-limited native memory which can be written and read by Java, and passed to native methods.&lt;/p&gt;
+
+&lt;p&gt;At the user level, we then present a method which wraps the details of use of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIMethod&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFILayout&lt;/code&gt; to implement our single, core Java API &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; method&lt;/p&gt;
+
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt; &lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GetPinnableSlice&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getPinnableSlice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ReadOptions&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;readOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ColumnFamilyHandle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;columnFamilyHandle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;MemorySegment&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;keySegment&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GetParams&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;getParams&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The flow of implementation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getPinnableSlice()&lt;/code&gt;, in common with any other core RocksDB FFI API method becomes:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Allocate &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt;s for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; structures using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Layout&lt;/code&gt;s from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFILayout&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Write to the allocated structures using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;VarHandle&lt;/code&gt;s from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFILayout&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Invoke the native method using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MethodHandle&lt;/code&gt; from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIMethod&lt;/code&gt; and addresses of instantiated &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt;s, or value types, as parameters&lt;/li&gt;
+  &lt;li&gt;Read the call result and the output parameter(s), again using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;VarHandle&lt;/code&gt;s from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFILayout&lt;/code&gt; to perform the mapping.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;For the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getPinnableSlice()&lt;/code&gt; method, on successful return from an invocation of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rocksdb_ffi_get()&lt;/code&gt;, the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt; object will contain the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;data&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;size&lt;/code&gt; fields of a pinnable slice (see below) containing the requested value. A &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt; referring to the native memory of the pinnable slice is then constructed, and used by the client to retrieve the value in whatever fashion they choose.&lt;/p&gt;
+
+&lt;h3 id=&quot;pinnable-slices&quot;&gt;Pinnable Slices&lt;/h3&gt;
+
+&lt;p&gt;RocksDB offers core (C++) API methods using the concept of a &lt;a href=&quot;http://rocksdb.org/blog/2017/08/24/pinnableslice.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt;&lt;/a&gt; to return fetched data values while reducing copies to a minimum. We take advantage of this to base our central &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; method(s) on &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt;s. Methods mirroring the existing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNI&lt;/code&gt;-based API can then be implemented in pure Java by wrapping the core &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getPinnableSlice()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;So we implement&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;GetPinnableSlice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Status&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Code&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;code&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;Optional&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;FFIPinnableSlice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;pinnableSlice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GetPinnableSlice&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;getPinnableSlice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;
+      &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ColumnFamilyHandle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;columnFamilyHandle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;and we wrap that to provide&lt;/p&gt;
+&lt;div class=&quot;language-java highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;record&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;GetBytes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nc&quot;&gt;Status&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;na&quot;&gt;Code&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;code&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;long&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;size&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;{}&lt;/span&gt;
+
+&lt;span class=&quot;kd&quot;&gt;public&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;GetBytes&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;ColumnFamilyHandle&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;columnFamilyHandle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;kd&quot;&gt;final&lt;/span&gt; &lt;span class=&quot;kt&quot;&gt;byte&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;[]&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;benchmark-results&quot;&gt;Benchmark Results&lt;/h2&gt;
+
+&lt;p&gt;We extended existing RocksDB Java JNI benchmarks with new benchmarks based on FFI. Full benchmark run on Ubuntu, including new benchmarks.&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;java &lt;span class=&quot;nt&quot;&gt;--enable-preview&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--enable-native-access&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ALL-UNNAMED &lt;span class=&quot;nt&quot;&gt;-jar&lt;/span&gt; target/rocksdbjni-jmh-1.0-SNAPSHOT-benchmarks.jar &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;keyCount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;100000 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;keySize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;128 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;valueSize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096,65536 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;columnFamilyTestType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;no_column_family&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; csv org.rocksdb.jmh.GetBenchmarks
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/static/images/jni-ffi/jmh-result-fixed.png&quot; alt=&quot;JNI vs FFI&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;discussion&quot;&gt;Discussion&lt;/h3&gt;
+
+&lt;p&gt;We have plotted the performance (more operations is better) of a selection of benchmarks,&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;q &lt;span class=&quot;s2&quot;&gt;&quot;select Benchmark,Score from ./plot/jmh-result-fixed.csv where &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Param: keyCount&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;=100000 and &lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;Param: valueSize&lt;/span&gt;&lt;span class=&quot;se&quot;&gt;\&quot;&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;=65536 -d, -H
+&lt;/span&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;JNI versions of benchmarks are previously implemented &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jmh&lt;/code&gt; benchmarks for measuring the performance of the current RocksDB Java interface.&lt;/li&gt;
+  &lt;li&gt;FFI versions of benchmarks are equivalent benchmarks (as far as possible) implemented using the FFI mechanisms.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We can see that for all benchmarks which have equivalent FFI and JNI pairs, the JNI version is only very marginally faster. FFI has successfully optimized away most of the extra safety-checking of the new invocation mechanism.&lt;/p&gt;
+
+&lt;p&gt;Our initial implementation of FFI benchmarks lagged the JNI benchmarks quite significantly, but we have received extremely helpful support from Maurizio Cimadamore of the Panama Dev team, to help us optimize the performance of our FFI implementation. We consider that the small remaining performance gap is a feature of the remaining extra bounds checking of FFI.&lt;/p&gt;
+
+&lt;p&gt;For basic &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; the result buffer is allocated by the method, so that there is a cost of allocation associated with each request.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGet&lt;/code&gt; vs &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;The JNI version is very marginally faster than FFI&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;For preallocated &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; where the result buffer is supplied to the method, we avoid an allocation of a fresh result buffer on each call, and the test recycles its result buffers. Then the same small difference persists&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;JNI is very marginally faster than FFI&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preallocatedGet()&lt;/code&gt; is a lot faster than basic &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We implemented some methods where the key for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; is randomized, so that any ordering effects can be accounted for. The same differences persisted.&lt;/p&gt;
+
+&lt;p&gt;The FFI interface gives us a natural way to expose RocksDB’s &lt;a href=&quot;http://rocksdb.org/blog/2017/08/24/pinnableslice.html&quot;&gt;pinnable slice&lt;/a&gt; mechanism. When we provide a benchmark which accesses the raw &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt; API, as expected this is the fastest method of any; however we are not comparing like with like:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetPinnableSlice()&lt;/code&gt; returns a handle to the RocksDB memory containing the slice, and presents that as an FFI &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt;. No copying of the memory in the segment occurs.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;As noted above, we implement the new FFI-based &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; methods using the new FFI-based &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getPinnableSlice()&lt;/code&gt; method, and copying out the result. So the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGet&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiPreallocatedGet&lt;/code&gt; benchmarks use this mechanism underneath.&lt;/p&gt;
+
+&lt;p&gt;In an effort to discover whether using the Java APIs to copy from the pinnable slice backed &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt; was a problem, we implemented a separate &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetOutputSlice()&lt;/code&gt; benchmark which copies the result into a (Java allocated native memory) segment at the C++ side.&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetOutputSlice()&lt;/code&gt; is faster than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiPreallocatedGet()&lt;/code&gt; and is in fact at least as fast as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preallocatedGet()&lt;/code&gt;, which is an almost exact analogue in the JNI world.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So it appears that we can build an FFI-based API with equal performance to the JNI-based one.&lt;/p&gt;
+
+&lt;p&gt;Thinking about the (very small, but probably statistically significant) difference between our &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetPinnableSlice()&lt;/code&gt;-based FFI calls and the JNI-based calls, it is reasonable to expect that some of the cost is the extra FFI call to C++ to release the pinned slice as a separate operation. A null FFI method call is extremely fast, but it does take some time.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We would recommend looking again the performance of the FFI-based implementation when Panama is release post-Preview in Java 21. It seems that at least with Java 20 the performance is of our FFI benchmarks is not significantly different from that of the Java 19 version.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;copies-versus-calls&quot;&gt;Copies versus Calls&lt;/h3&gt;
+
+&lt;p&gt;The second method call over the FFI boundary to release a pinnable slice has a cost. We compared the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetOutputSlice()&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetPinnableSlice()&lt;/code&gt; benchmarks in order to examine this cost. We ran it with a fixed ky size (128 bytes); the key size is likely to be pretty much irrelevant anyway; we varied the value size read from 16 bytes to 16k, and we found a crossover point between 1k and 4k for performance:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/static/images/jni-ffi/jmh-result-pinnable-vs-output-plot.png&quot; alt=&quot;Plot&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetOutputSlice()&lt;/code&gt; is faster when values read are  1k in size or smaller. The cost of an extra copy in the C++ side from the pinnable slice buffer into the supplied buffer allocated by Java Foreign Memory API is less than the cost of the extra call to release a pinnable slice.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetPinnableSlice()&lt;/code&gt; is faster when values read are 4k in size, or larger. Consistent with intuition, the advantage grows with larger read values.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The way that the RocksDB API is constructed means that of the 2 methods compared, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetOutputSlice()&lt;/code&gt; will always make exactly 1 more copy than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetPinnableSlice()&lt;/code&gt;. The underlying RocksDB C++ API will always copy into its own temporary buffer if it decides that it cannot pin an internal buffer, and that will be returned as the pinnable slice. There is a potential optimization where the temporary buffer could be replaced by an output buffer, such as that supplied by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ffiGetOutputSlice()&lt;/code&gt;; in practice that is a hard fix to hack in. Its effectiveness depends on how often RocksDB fails to pin an internal buffer.&lt;/p&gt;
+
+&lt;p&gt;A solution which either filled a buffer &lt;em&gt;or&lt;/em&gt; returned a pinnable slice would give us the best of both worlds.&lt;/p&gt;
+
+&lt;h2 id=&quot;other-conclusions&quot;&gt;Other Conclusions&lt;/h2&gt;
+
+&lt;h3 id=&quot;build-processing&quot;&gt;Build Processing&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;It is easier to implement an interface using FFI than JNI. No intermediate build processing or code generation steps were needed to implement this protoype.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;For a production version, we would urge using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jextract&lt;/code&gt; to automate the process of generating Java API methods from the set of supporting stubs we generate.&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;safety&quot;&gt;Safety&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;The use of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;jextract&lt;/code&gt; will give a similar level of type security to the use of JNI, when crossing the language boundary. But we do not believe FFI is significantly more type-safe than JNI for method invocation. Neither is it less safe, though.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;native-memory&quot;&gt;Native Memory&lt;/h3&gt;
+
+&lt;p&gt;Panama’s &lt;em&gt;Foreign-Memory Access API&lt;/em&gt; appears to us to be the most significant part of the whole project. At the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Java&lt;/code&gt; side of RocksDB it gives us a clean mechanism (a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt;) for holding RocksDB data (e.g. as from the result of a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt;) call pending its forwarding to client code or network buffers.&lt;/p&gt;
+
+&lt;p&gt;We have taken advantage of this mechanism to provide the core &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIDB.getPinnableSlice()&lt;/code&gt; method in our Panama-based API. The rest of our prototype &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; API, duplicating the existing &lt;em&gt;JNI&lt;/em&gt;-based API, is then a &lt;em&gt;Pure Java&lt;/em&gt; library on top of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIDB.getPinnableSlice()&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FFIPinnableSlice.reset()&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The common standard for foreign memory opens up the possibility of efficient interoperation between RocksDB and Java clients (e.g. Kafka). We think that this is really the key to higher performing, more integrated Java-based systems:&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;This could result in data never being copied into Java memory, or a significant reduction in copies, as native &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt;s are handed off between co-operating Java clients of fundamentally native APIs. This extra potential performance can be extremely useful when 2 or more clients are interoperating; we still need to provide a simplest possible API wrapping these calls (like our prototype &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt;), which operates at a similar level to the current Java API.&lt;/li&gt;
+  &lt;li&gt;Some thought should be applied to how this architecture would interact with the cache layer(s) in RocksDB, and whether it can be accommodated within the present RocksDB architecture. How long can 3rd-party applications &lt;em&gt;pin&lt;/em&gt; pages in the RocksDB cache without disrupting RocksDB normal behaviour (e.g. compaction) ?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Panama/FFI (in &lt;a href=&quot;https://openjdk.org/jeps/424&quot;&gt;Preview&lt;/a&gt;) is a highly capable technology for (re)building the RocksDB Java API, although the supported language level of RocksDB and the planned release schedule for Panama mean that it could not replace JNI in production for some time to come.&lt;/li&gt;
+  &lt;li&gt;Panama/FFI would seem to offer comparable performance to JNI;  there is no strong performance argument &lt;em&gt;for&lt;/em&gt; a re-implementation of a standalone RocksDB Java API. But the opportunity to provide a natural pinnable slice-based API gives a lot of flexibility; not least because an efficient API could be built mostly in Java with only a small underlying layer implementing the pinnable slice interface.&lt;/li&gt;
+  &lt;li&gt;Panama/FFI can remove some boilerplate (native method declarations) and allow Java programs to access &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C&lt;/code&gt; libraries without stub code, but calling a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt;-based library still requires &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C&lt;/code&gt; stubs; a possible approach would be to use the RocksDB &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C&lt;/code&gt; API as the basis for a rebuilt Java API. This would allow us to remove all the existing JNI boilerplate, and concentrate support effort on the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C&lt;/code&gt; API. An alternative approach would be to build a robust API based on &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/10736&quot;&gt;Reference Counting&lt;/a&gt;, but using FFI.&lt;/li&gt;
+  &lt;li&gt;Panama/FFI really shines as a foreign memory standard for a Java API that can allow efficient interoperation between RocksDB Java clients and other (Java and native) components of a system. Foreign Memory gives us a model for how to efficiently return data from RocksDB; as pinnable slices with their contents presented in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MemorySegment&lt;/code&gt;s. If we focus on designing an API &lt;em&gt;for native interoperability&lt;/em&gt; we think this can be highly productive in opening RocksDB to new uses and opportunities in future.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;appendix&quot;&gt;Appendix&lt;/h2&gt;
+
+&lt;h3 id=&quot;code-and-data&quot;&gt;Code and Data&lt;/h3&gt;
+
+&lt;p&gt;The &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/11095/files&quot;&gt;Experimental Pull Request&lt;/a&gt; contains the source code implemented,
+together with further data plots and the source CSV files for all data plots.&lt;/p&gt;
+
+&lt;h3 id=&quot;running&quot;&gt;Running&lt;/h3&gt;
+
+&lt;p&gt;This is an example run; the jmh parameters (after &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;-p&lt;/code&gt;) can be changed to measure performance with varying key counts, and key and value sizes.&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;java &lt;span class=&quot;nt&quot;&gt;--enable-preview&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--enable-native-access&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;ALL-UNNAMED &lt;span class=&quot;nt&quot;&gt;-jar&lt;/span&gt; target/rocksdbjni-jmh-1.0-SNAPSHOT-benchmarks.jar &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;keyCount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;100000 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;keySize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;128 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;valueSize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;4096,65536 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;columnFamilyTestType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;no_column_family&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-rf&lt;/span&gt; csv org.rocksdb.jmh.GetBenchmarks &lt;span class=&quot;nt&quot;&gt;-wi&lt;/span&gt; 1 &lt;span class=&quot;nt&quot;&gt;-to&lt;/span&gt; 1m &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; 1
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;processing&quot;&gt;Processing&lt;/h3&gt;
+
+&lt;p&gt;Use &lt;a href=&quot;http://harelba.github.io/q/&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;q&lt;/code&gt;&lt;/a&gt; to select the csv output for analysis and graphing.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Note that we edited the column headings for easier processing&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;q &lt;span class=&quot;s2&quot;&gt;&quot;select Benchmark,Score,Error from ./plot/jmh-result.csv where keyCount=100000 and valueSize=65536&quot;&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt;, &lt;span class=&quot;nt&quot;&gt;-H&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; readwrite
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;java-19-installation&quot;&gt;Java 19 installation&lt;/h3&gt;
+
+&lt;p&gt;We followed the instructions to install &lt;a href=&quot;https://docs.azul.com/core/zulu-openjdk/install/debian&quot;&gt;Azul&lt;/a&gt;. Then select the correct instance of java locally:&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;update-alternatives &lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt; java
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;update-alternatives &lt;span class=&quot;nt&quot;&gt;--config&lt;/span&gt; javac
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;And set &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JAVA_HOME&lt;/code&gt; appropriately. In my case, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sudo update-alternatives --config java&lt;/code&gt; listed a few JVMs thus:&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;  0            /usr/lib/jvm/bellsoft-java8-full-amd64/bin/java   20803123  auto mode
+  1            /usr/lib/jvm/bellsoft-java8-full-amd64/bin/java   20803123  manual mode
+  2            /usr/lib/jvm/java-11-openjdk-amd64/bin/java       1111      manual mode
+* 3            /usr/lib/jvm/zulu19/bin/java                      2193001   manual mode
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;For our environment, we set this:&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nb&quot;&gt;export &lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;JAVA_HOME&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;/usr/lib/jvm/zulu19
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The default version of Maven avaiable on the Ubuntu package repositories (3.6.3) is incompatible with Java 19. You will need to install a later &lt;a href=&quot;https://maven.apache.org/install.html&quot;&gt;Maven&lt;/a&gt;, and use it. I used &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;3.8.7&lt;/code&gt; successfully.&lt;/p&gt;
+
+&lt;h3 id=&quot;java-20-21-22-and-subsequent-versions&quot;&gt;Java 20, 21, 22 and subsequent versions&lt;/h3&gt;
+
+&lt;p&gt;The FFI version we used was a preview in Java 19, and the interface has changed through to Java 22, where it has been finalized. Future work with this prototype will need to update the code to use the changed interface.&lt;/p&gt;
+</description>
+        <pubDate>Tue, 20 Feb 2024 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2024/02/20/foreign-function-interface.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2024/02/20/foreign-function-interface.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Java API Performance Improvements</title>
+        <description>&lt;h1 id=&quot;rocksdb-java-api-performance-improvements&quot;&gt;RocksDB Java API Performance Improvements&lt;/h1&gt;
+
+&lt;p&gt;Evolved Binary has been working on several aspects of how the Java API to RocksDB can be improved. Two aspects of this which are of particular importance are performance and the developer experience.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;We have built some synthetic benchmark code to determine which are the most efficient methods of transferring data between Java and C++.&lt;/li&gt;
+  &lt;li&gt;We have used the results of the synthetic benchmarking to guide plans for rationalising the API interfaces.&lt;/li&gt;
+  &lt;li&gt;We have made some opportunistic performance optimizations/fixes within the Java API which have already yielded noticable improvements.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;synthetic-jni-api-performance-benchmarks&quot;&gt;Synthetic JNI API Performance Benchmarks&lt;/h2&gt;
+&lt;p&gt;The synthetic benchmark repository contains tests designed to isolate the Java to/from C++ interaction of a canonical data intensive Key/Value Store implemented in C++ with a Java (JNI) API layered on top.&lt;/p&gt;
+
+&lt;p&gt;JNI provides several mechanisms for allowing transfer of data between Java buffers and C++ buffers. These mechanisms are not trivial, because they require the JNI system to ensure that Java memory under the control of the JVM is not moved or garbage collected whilst it is being accessed outside the direct control of the JVM.&lt;/p&gt;
+
+&lt;p&gt;We set out to determine which of multiple options for transfer of data from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Java&lt;/code&gt; and vice-versa were the most efficient. We used the &lt;a href=&quot;https://github.com/openjdk/jmh&quot;&gt;Java Microbenchmark Harness&lt;/a&gt; to set up repeatable benchmarks to measure all the options.&lt;/p&gt;
+
+&lt;p&gt;We explore these and some other potential mechanisms in the detailed results (in our &lt;a href=&quot;https://github.com/evolvedbinary/jni-benchmarks/blob/main/DataBenchmarks.md&quot;&gt;Synthetic JNI performance repository&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;We summarise this work here:&lt;/p&gt;
+
+&lt;h3 id=&quot;the-model&quot;&gt;The Model&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;C++&lt;/code&gt; we represent the on-disk data as an in-memory map of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;(key, value)&lt;/code&gt;
+pairs.&lt;/li&gt;
+  &lt;li&gt;For a fetch query, we expect the result to be a Java object with access to the
+contents of the &lt;em&gt;value&lt;/em&gt;. This may be a standard Java object which does the job
+of data access (a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; or a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuffer&lt;/code&gt;) or an object of our own devising
+which holds references to the value in some form (a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FastBuffer&lt;/code&gt; pointing to
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;com.sun.unsafe.Unsafe&lt;/code&gt; unsafe memory, for instance).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;data-types&quot;&gt;Data Types&lt;/h3&gt;
+
+&lt;p&gt;There are several potential data types for holding data for transfer, and they
+are unsurprisingly quite connected underneath.&lt;/p&gt;
+
+&lt;h4 id=&quot;byte-array&quot;&gt;Byte Array&lt;/h4&gt;
+
+&lt;p&gt;The simplest data container is a &lt;em&gt;raw&lt;/em&gt; array of bytes (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt;).&lt;/p&gt;
+
+&lt;p&gt;There are 3 different mechanisms for transferring data between a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; and
+C++&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;At the C++ side, the method
+&lt;a href=&quot;https://docs.oracle.com/en/java/javase/13/docs/specs/jni/functions.html#getprimitivearraycritical&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNIEnv.GetArrayCritical()&lt;/code&gt;&lt;/a&gt;
+allows access to a C++ pointer to the underlying array.&lt;/li&gt;
+  &lt;li&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNIEnv&lt;/code&gt; methods &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetByteArrayElements()&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ReleaseByteArrayElements()&lt;/code&gt;
+fetch references/copies to and from the contents of a byte array, with less
+concern for critical sections than the &lt;em&gt;critical&lt;/em&gt; methods, though they are
+consequently more likely/certain to result in (extra) copies.&lt;/li&gt;
+  &lt;li&gt;The &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNIEnv&lt;/code&gt; methods &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetByteArrayRegion()&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SetByteArrayRegion()&lt;/code&gt;
+transfer raw C++ buffer data to and from the contents of a byte array. These
+must ultimately do some data pinning for the duration of copies; the
+mechanisms may be similar or different to the &lt;em&gt;critical&lt;/em&gt; operations, and
+therefore performance may differ.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;byte-buffer&quot;&gt;Byte Buffer&lt;/h4&gt;
+
+&lt;p&gt;A &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuffer&lt;/code&gt; abstracts the contents of a collection of bytes, and was in fact
+introduced to support a range of higher-performance I/O operations in some
+circumstances.&lt;/p&gt;
+
+&lt;p&gt;There are 2 types of byte buffers in Java, &lt;em&gt;indirect&lt;/em&gt; and &lt;em&gt;direct&lt;/em&gt;. Indirect
+byte buffers are the standard, and the memory they use is on-heap as with all
+usual Java objects. In contrast, direct byte buffers are used to wrap off-heap
+memory which is accessible to direct network I/O. Either type of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuffer&lt;/code&gt;
+can be allocated at the Java side, using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;allocate()&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;allocateDirect()&lt;/code&gt;
+methods respectively.&lt;/p&gt;
+
+&lt;p&gt;Direct byte buffers can be created in C++ using the JNI method
+&lt;a href=&quot;https://docs.oracle.com/en/java/javase/13/docs/specs/jni/functions.html#newdirectbytebuffer&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNIEnv.NewDirectByteBuffer()&lt;/code&gt;&lt;/a&gt;
+to wrap some native (C++) memory.&lt;/p&gt;
+
+&lt;p&gt;Direct byte buffers can be accessed in C++ using the
+&lt;a href=&quot;https://docs.oracle.com/en/java/javase/13/docs/specs/jni/functions.html#GetDirectBufferAddress&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNIEnv.GetDirectBufferAddress()&lt;/code&gt;&lt;/a&gt;
+and measured using
+&lt;a href=&quot;https://docs.oracle.com/en/java/javase/13/docs/specs/jni/functions.html#GetDirectBufferCapacity&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNIEnv.GetDirectBufferCapacity()&lt;/code&gt;&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;unsafe-memory&quot;&gt;Unsafe Memory&lt;/h4&gt;
+
+&lt;p&gt;The call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;com.sun.unsafe.Unsafe.allocateMemory()&lt;/code&gt; returns a handle which is (of course) just a pointer to raw memory, and
+can be used as such on the C++ side. We could turn it into a byte buffer on the
+C++ side by calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;JNIEnv.NewDirectByteBuffer()&lt;/code&gt;, or simply use it as a native
+C++ buffer at the expected address, assuming we record or remember how much
+space was allocated.&lt;/p&gt;
+
+&lt;p&gt;A custom &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FastBuffer&lt;/code&gt; class provides access to unsafe memory from the Java side.&lt;/p&gt;
+
+&lt;h4 id=&quot;allocation&quot;&gt;Allocation&lt;/h4&gt;
+
+&lt;p&gt;For these benchmarks, allocation has been excluded from the benchmark costs by
+pre-allocating a quantity of buffers of the appropriate kind as part of the test
+setup. Each run of the benchmark acquires an existing buffer from a pre-allocated
+FIFO list, and returns it afterwards. A small test has
+confirmed that the request and return cycle is of insignificant cost compared to
+the benchmark API call.&lt;/p&gt;
+
+&lt;h3 id=&quot;getjnibenchmark-performance&quot;&gt;GetJNIBenchmark Performance&lt;/h3&gt;
+
+&lt;p&gt;Benchmarks ran for a duration of order 6 hours on an otherwise unloaded VM,
+  the error bars are small and we can have strong confidence in the values
+  derived and plotted.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/static/images/jni-get-benchmarks/fig_1024_1_none_nopoolbig.png&quot; alt=&quot;Raw JNI Get small&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Comparing all the benchmarks as the data size tends large, the conclusions we
+can draw are:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Indirect byte buffers add cost; they are effectively an overhead on plain
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; and the JNI-side only allows them to be accessed via their
+encapsulated &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SetRegion&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetCritical&lt;/code&gt; mechanisms for copying data into a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; are
+of very comparable performance; presumably the behaviour behind the scenes of
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SetRegion&lt;/code&gt; is very similar to that of declaring a critical region, doing a
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;memcpy()&lt;/code&gt; and releasing the critical region.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetElements&lt;/code&gt; methods for transferring data from C++ to Java are consistently
+less efficient than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SetRegion&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetCritical&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;Getting into a raw memory buffer, passed as an address (the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;handle&lt;/code&gt; of an
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unsafe&lt;/code&gt; or of a netty &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuf&lt;/code&gt;) is of similar cost to the more efficient
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; operations.&lt;/li&gt;
+  &lt;li&gt;Getting into a direct &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nio.ByteBuffer&lt;/code&gt; is of similar cost again; while the
+ByteBuffer is passed over JNI as an ordinary Java object, JNI has a specific
+method for getting hold of the address of the direct buffer, and using this, the
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; cost with a ByteBuffer is just that of the underlying C++ &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;memcpy()&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;At small(er) data sizes, we can see whether other factors are important.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/static/images/jni-get-benchmarks/fig_1024_1_none_nopoolsmall.png&quot; alt=&quot;Raw JNI Get large&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Indirect byte buffers are the most significant overhead here. Again, we can
+conclude that this is due to pure overhead compared to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; operations.&lt;/li&gt;
+  &lt;li&gt;At the lowest data sizes, netty &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuf&lt;/code&gt;s and unsafe memory are marginally
+more efficient than &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt;s or (slightly less efficient) direct
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nio.Bytebuffer&lt;/code&gt;s. This may be explained by even the small cost of
+calling the JNI model on the C++ side simply to acquire a
+direct buffer address. The margins (nanoseconds) here are extremely small.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&quot;post-processing-the-results&quot;&gt;Post processing the results&lt;/h4&gt;
+
+&lt;p&gt;Our benchmark model for post-processing is to transfer the results into a
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt;. Where the result is already a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; this may seem like an unfair
+extra cost, but the aim is to model the least cost processing step for any kind
+of result.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Copying into a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; using the bulk methods supported by &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt;,
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nio.ByteBuffer&lt;/code&gt; have comparable performance.&lt;/li&gt;
+  &lt;li&gt;Accessing the contents of an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Unsafe&lt;/code&gt; buffer using the supplied unsafe methods
+is inefficient. The access is word by
+word, in Java.&lt;/li&gt;
+  &lt;li&gt;Accessing the contents of a netty &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuf&lt;/code&gt; is similarly inefficient; again
+the access is presumably word by word, using normal
+Java mechanisms.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/static/images/jni-get-benchmarks/fig_1024_1_copyout_nopoolbig.png&quot; alt=&quot;Copy out JNI Get&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;putjnibenchmark&quot;&gt;PutJNIBenchmark&lt;/h3&gt;
+
+&lt;p&gt;We benchmarked &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Put&lt;/code&gt; methods in a similar synthetic fashion in less depth, but enough to confirm that the performance profile is similar/symmetrical. As with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetElements&lt;/code&gt; is the least performant way of implementing transfers to/from Java objects in C++/JNI, and other JNI mechanisms do not differ greatly one from another.&lt;/p&gt;
+
+&lt;h2 id=&quot;lessons-from-synthetic-api&quot;&gt;Lessons from Synthetic API&lt;/h2&gt;
+
+&lt;p&gt;Performance analysis shows that for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt;, fetching into allocated &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; is
+equally as efficient as any other mechanism, as long as JNI region methods are used
+for the internal data transfer. Copying out or otherwise using the
+result on the Java side is straightforward and efficient. Using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt; avoids the manual memory
+management required with direct &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;nio.ByteBuffer&lt;/code&gt;s, which extra work does not
+appear to provide any gain. A C++ implementation using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetRegion&lt;/code&gt; JNI
+method is probably to be preferred to using &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetCritical&lt;/code&gt; because while their
+performance is equal, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;GetRegion&lt;/code&gt; is a higher-level/simpler abstraction.&lt;/p&gt;
+
+&lt;p&gt;Vitally, whatever JNI transfer mechanism is chosen, the buffer allocation
+mechanism and pattern is crucial to achieving good performance. We experimented
+with making use of netty’s pooled allocator part of the benchmark, and the
+difference of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getIntoPooledNettyByteBuf&lt;/code&gt;, using the allocator, compared to
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;getIntoNettyByteBuf&lt;/code&gt; using the same pre-allocate on setup as every other
+benchmark, is significant.&lt;/p&gt;
+
+&lt;p&gt;Equally importantly, transfer of data to or from buffers should where possible
+be done in bulk, using array copy or buffer copy mechanisms. Thought should
+perhaps be given to supporting common transformations in the underlying C++
+layer.&lt;/p&gt;
+
+&lt;h2 id=&quot;api-recommendations&quot;&gt;API Recommendations&lt;/h2&gt;
+
+&lt;p&gt;Of course there is some noise within the results. but we can agree:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Don’t make copies you don’t need to make&lt;/li&gt;
+  &lt;li&gt;Don’t allocate/deallocate when you can avoid it&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Translating this into designing an efficient API, we want to:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Support API methods that return results in buffers supplied by the client.&lt;/li&gt;
+  &lt;li&gt;Support &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt;-based APIs as the simplest way of getting data into a usable configuration for a broad range of Java use.&lt;/li&gt;
+  &lt;li&gt;Support direct &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuffer&lt;/code&gt;s as these can reduce copies when used as part of a chain of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuffer&lt;/code&gt;-based operations. This sort of sophisticated streaming model is most likely to be used by clients where performance is important, and so we decide to support it.&lt;/li&gt;
+  &lt;li&gt;Support indirect &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ByteBuffer&lt;/code&gt;s for a combination of reasons:
+    &lt;ul&gt;
+      &lt;li&gt;API consistency between direct and indirect buffers&lt;/li&gt;
+      &lt;li&gt;Simplicity of implementation, as we can wrap &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;byte[]&lt;/code&gt;-oriented methods&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Continue to support methods which allocate return buffers per-call, as these are the easiest to use on initial encounter with the RocksDB API.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;High performance Java interaction with RocksDB ultimately requires architectural decisions by the client&lt;/p&gt;
+&lt;ul&gt;
+  &lt;li&gt;Use more complex (client supplied buffer) API methods where performance matters&lt;/li&gt;
+  &lt;li&gt;Don’t allocate/deallocate where you don’t need to
+    &lt;ul&gt;
+      &lt;li&gt;recycle your own buffers where this makes sense&lt;/li&gt;
+      &lt;li&gt;or make sure that you are supplying the ultimate destination buffer (your cache, or a target network buffer) as input to RocksDB &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;put()&lt;/code&gt; calls&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;We are currently implementing a number of extra methods consistently across the Java fetch and store APIs to RocksDB in the PR &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/11019&quot;&gt;Java API consistency between RocksDB.put() , .merge() and Transaction.put() , .merge()&lt;/a&gt; according to these principles.&lt;/p&gt;
+
+&lt;h2 id=&quot;optimizations&quot;&gt;Optimizations&lt;/h2&gt;
+
+&lt;h3 id=&quot;reduce-copies-within-api-implementation&quot;&gt;Reduce Copies within API Implementation&lt;/h3&gt;
+
+&lt;p&gt;Having analysed JNI performance as described, we reviewed the core of RocksJNI for opportunities to improve the performance. We noticed one thing in particular; some of the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; methods of the Java API had not been updated to take advantage of the new &lt;a href=&quot;http://rocksdb.org/blog/2017/08/24/pinnableslice.html&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt;&lt;/a&gt; methods.&lt;/p&gt;
+
+&lt;p&gt;Fixing this turned out to be a straightforward change, which has now been incorporated in the codebase &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/10970&quot;&gt;Improve Java API &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; performance by reducing copies&lt;/a&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;performance-results&quot;&gt;Performance Results&lt;/h4&gt;
+
+&lt;p&gt;Using the JMH performances tests we updated as part of the above PR, we can see a small but consistent improvement in performance for all of the different get method variants which we have enhanced in the PR.&lt;/p&gt;
+
+&lt;div class=&quot;language-sh highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;java &lt;span class=&quot;nt&quot;&gt;-jar&lt;/span&gt; target/rocksdbjni-jmh-1.0-SNAPSHOT-benchmarks.jar &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;keyCount&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1000,50000 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;keySize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;128 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;valueSize&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1024,16384 &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;columnFamilyTestType&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;1_column_family&quot;&lt;/span&gt; GetBenchmarks.get GetBenchmarks.preallocatedByteBufferGet GetBenchmarks.preallocatedGet
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;The y-axis shows &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ops/sec&lt;/code&gt; in throughput, so higher is better.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/static/images/jni-get-benchmarks/optimization-graph.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;analysis&quot;&gt;Analysis&lt;/h3&gt;
+
+&lt;p&gt;Before the invention of the Pinnable Slice the simplest RocksDB (native) API &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Get()&lt;/code&gt; looked like this:&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;Status&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ReadOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                           &lt;span class=&quot;n&quot;&gt;ColumnFamilyHandle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;column_family&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Slice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                           &lt;span class=&quot;n&quot;&gt;std&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;string&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;After PinnableSlice the correct way for new code to implement a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt; is like this&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;Status&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;ReadOptions&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;options&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;ColumnFamilyHandle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;column_family&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;const&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Slice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;amp;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;key&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;n&quot;&gt;PinnableSlice&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;value&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;But of course RocksDB has to support legacy code, so there is an &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;inline&lt;/code&gt; method in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db.h&lt;/code&gt; which re-implements the former using the latter.
+And RocksJava API implementation seamlessly continues to use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt;-based &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;get()&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Let’s examine what happens when get() is called from Java&lt;/p&gt;
+
+&lt;div class=&quot;language-cpp highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;jint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Java_org_rocksdb_RocksDB_get__JJ_3BII_3BIIJ&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;JNIEnv&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;env&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jobject&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jlong&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jdb_handle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jlong&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jropt_handle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jbyteArray&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jkey&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;jint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jkey_off&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jkey_len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jbyteArray&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jval&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jval_off&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jint&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jval_len&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+   &lt;span class=&quot;n&quot;&gt;jlong&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;jcf_handle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Create an empty &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string value&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DB::Get()&lt;/code&gt; using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt; variant&lt;/li&gt;
+  &lt;li&gt;Copy the resultant &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt; into Java, using the JNI &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SetByteArrayRegion()&lt;/code&gt; method&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;So stage (3) costs us a copy into Java. It’s mostly unavoidable that there will be at least the one copy from a C++ buffer into a Java buffer.&lt;/p&gt;
+
+&lt;p&gt;But what does stage 2 do ?&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice(std::string&amp;amp;)&lt;/code&gt; which uses the value as the slice’s backing buffer.&lt;/li&gt;
+  &lt;li&gt;Call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DB::Get()&lt;/code&gt; using the PinnableSlice variant&lt;/li&gt;
+  &lt;li&gt;Work out if the slice has pinned data, in which case copy the pinned data into value and release it.&lt;/li&gt;
+  &lt;li&gt;..or, if the slice has not pinned data, it is already in value (because we tried, but couldn’t pin anything).&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;So stage (2) costs us a copy into a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt;. But! It’s just a naive &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt; that we have copied a large buffer into. And in RocksDB, the buffer is or can be large, so an extra copy something we need to worry about.&lt;/p&gt;
+
+&lt;p&gt;Luckily this is easy to fix. In the Java API (JNI) implementation:&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Create a PinnableSlice() which uses its own default backing buffer.&lt;/li&gt;
+  &lt;li&gt;Call &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DB::Get()&lt;/code&gt; using the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt; variant of the RocksDB API&lt;/li&gt;
+  &lt;li&gt;Copy the data indicated by the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt; straight into the Java output buffer using the JNI &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SetByteArrayRegion()&lt;/code&gt; method, then release the slice.&lt;/li&gt;
+  &lt;li&gt;Work out if the slice has successfully pinned data, in which case copy the pinned data straight into the Java output buffer using the JNI &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SetByteArrayRegion()&lt;/code&gt; method, then release the pin.&lt;/li&gt;
+  &lt;li&gt;..or, if the slice has not pinned data, it is in the pinnable slice’s default backing buffer. All that is left, is to copy it straight into the Java output buffer using the JNI SetByteArrayRegion() method.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;In the case where the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt; has succesfully pinned the data, this saves us the intermediate copy to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt;. In the case where it hasn’t, we still have the extra copy so the observed performance improvement depends on when the data can be pinned. Luckily, our benchmarking suggests that the pin is happening in a significant number of cases.&lt;/p&gt;
+
+&lt;p&gt;On discussion with the RocksDB core team we understand that the core &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PinnableSlice&lt;/code&gt; optimization is most likely to succeed when pages are loaded from the block cache, rather than when they are in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;memtable&lt;/code&gt;. And it might be possible to successfully pin in the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;memtable&lt;/code&gt; as well, with some extra coding effort. This would likely improve the results for these benchmarks.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 06 Nov 2023 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2023/11/06/java-jni-benchmarks.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2023/11/06/java-jni-benchmarks.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Time-Aware Tiered Storage in RocksDB</title>
+        <description>&lt;h2 id=&quot;tldr&quot;&gt;TL:DR&lt;/h2&gt;
+&lt;p&gt;Tiered storage is now natively supported in the RocksDB with the option &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L910&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;last_level_temperature&lt;/code&gt;&lt;/a&gt;, time-aware Tiered storage feature guarantees the recently written data are put in the hot tier storage with the option &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L927&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preclude_last_level_data_seconds&lt;/code&gt;&lt;/a&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+&lt;p&gt;RocksDB Tiered Storage assigns a data temperature when creating the new SST which &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/file_system.h#L162&quot;&gt;hints the file system&lt;/a&gt; to put the data on the corresponding storage media, so the data in a single DB instance can be placed on different storage media. Before the feature, the user typically creates multiple DB instances for different storage media, for example, one DB instance stores the recent hot data and migrates the data to another cold DB instance when the data becomes cold. Tracking and migrating the data could be challenging. With the RocksDB tiered storage feature, RocksDB compaction migrates the data from hot storage to cold storage.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/time-aware-tiered-storage/tiered_storage_overview.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Currently, RocksDB supports assigning the last level file temperature. In an LSM tree, typically the last level data is most likely the coldest. As the most recent data is on the higher level and gradually compacted to the lower level. The higher level data is more likely to be read, because:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;RocksDB read always queries from the higher level to the lower level until it finds the data;&lt;/li&gt;
+  &lt;li&gt;The high-level data is much more likely to be read and written by the compactions.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;problem&quot;&gt;Problem&lt;/h3&gt;
+&lt;p&gt;Generally in the LSM tree, hotter data is likely on the higher levels as mentioned before, &lt;strong&gt;but it is not always the case&lt;/strong&gt;, for example for the skewed dataset, the recent data could be compacted to the last level first. For the universal compaction, a major compaction would compact all data to the last level (the cold tier) which includes both recent data that should be cataloged as hot data. In production, &lt;strong&gt;we found the majority of the compaction load is actually major compaction (more than 80%)&lt;/strong&gt;.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/time-aware-tiered-storage/tiered_storage_problem.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;goal-and-non-goals&quot;&gt;Goal and Non-goals&lt;/h3&gt;
+&lt;p&gt;It’s hard to predict the hot and cold data. The most frequently accessed data should be cataloged as hot data. But it is hard to predict which key is going to be accessed most, it is also hard to track the per-key based access history. The time-aware tiered storage feature is only &lt;strong&gt;focusing on the use cases that the more recent data is more likely to be accessed&lt;/strong&gt;. Which is the majority of the cases, but not all.&lt;/p&gt;
+
+&lt;h2 id=&quot;user-apis&quot;&gt;User APIs&lt;/h2&gt;
+&lt;p&gt;Here are the 3 main tiered storage options:&lt;/p&gt;
+&lt;div class=&quot;language-c++ highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;Temperature&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;last_level_temperature&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Temperature&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;kUnknown&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;preclude_last_level_data_seconds&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;preserve_internal_time_seconds&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L910&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;last_level_temperature&lt;/code&gt;&lt;/a&gt; defines the data temperature for the last level SST files, which is typically kCold or kWarm. RocksDB doesn’t check the option value, instead it just passes that to the file_system API with &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/file_system.h#L162&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FileOptions.temperature&lt;/code&gt;&lt;/a&gt; when creating the last level SST files. For all the other files, non-last-level SST files, and non-SST files like manifest files, the temperature is set to kUnknown, which typically maps to hot data.
+The user can also get each SST’s temperature information through APIs:&lt;/p&gt;
+&lt;div class=&quot;language-c++ highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;GetLiveFilesStorageInfo&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;GetLiveFilesMetaData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;db&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;GetColumnFamilyMetaData&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;user-metrics&quot;&gt;User Metrics&lt;/h3&gt;
+&lt;p&gt;Here are the tiered storage related statistics:&lt;/p&gt;
+&lt;div class=&quot;language-c++ highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;n&quot;&gt;HOT_FILE_READ_BYTES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;WARM_FILE_READ_BYTES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;COLD_FILE_READ_BYTES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;HOT_FILE_READ_COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;WARM_FILE_READ_COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;COLD_FILE_READ_COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// Last level and non-last level statistics&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;LAST_LEVEL_READ_BYTES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;LAST_LEVEL_READ_COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;NON_LAST_LEVEL_READ_BYTES&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;NON_LAST_LEVEL_READ_COUNT&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;And more details from &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;IOStats&lt;/code&gt;:&lt;/p&gt;
+&lt;div class=&quot;language-c++ highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;k&quot;&gt;struct&lt;/span&gt; &lt;span class=&quot;nc&quot;&gt;FileIOByTemperature&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;{&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// the number of bytes read to Temperature::kHot file&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hot_file_bytes_read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// the number of bytes read to Temperature::kWarm file&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;warm_file_bytes_read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// the number of bytes read to Temperature::kCold file&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cold_file_bytes_read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// total number of reads to Temperature::kHot file&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;hot_file_read_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// total number of reads to Temperature::kWarm file&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;warm_file_read_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;// total number of reads to Temperature::kCold file&lt;/span&gt;
+&lt;span class=&quot;kt&quot;&gt;uint64_t&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cold_file_read_count&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;implementation&quot;&gt;Implementation&lt;/h2&gt;
+&lt;p&gt;There are 2 main components for this feature. One is the &lt;strong&gt;time-tracking&lt;/strong&gt;, and another is the &lt;strong&gt;per-key based placement compaction&lt;/strong&gt;. These 2 components are relatively independent and linked together during the compaction initialization phase which gets the sequence number for splitting the hot and cold data. The time-tracking components can even be enabled independently by setting the option &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L950&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preserve_internal_time_seconds&lt;/code&gt;&lt;/a&gt;. The purpose of that is before migrating existing user cases to the tiered storage feature and avoid compacting the existing hot data to the cold tier (detailed in the migration session below).&lt;/p&gt;
+
+&lt;p&gt;Unlike the user-defined timestamp feature, the time tracking feature doesn’t have accurate time information for each key. It only samples the time information and gives a rough estimation for the key write time. Here is the high-level graph for the implementation:&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/time-aware-tiered-storage/tiered_storage_design.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;time-tracking&quot;&gt;Time Tracking&lt;/h3&gt;
+&lt;p&gt;Time tracking information is recorded by a &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/d9e71fb2c53726d9c5ed73b4ec962a7ed6ef15ec/db/periodic_task_scheduler.cc#L36&quot;&gt;periodic task&lt;/a&gt; which gets the latest sequence number and the current time and then stores it in an in-memory data structure. The interval of the periodic task is determined by the user setting &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L950&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preserve_internal_time_seconds&lt;/code&gt;&lt;/a&gt; and dividing that by 100. For example, if 3 days of data should be precluded from the last level, then the interval of the periodic task is about 0.7 hours (3 * 24 / 100 ~= 0.72), which also means only the latest 100 seq-&amp;gt;time pairs needed in memory.&lt;/p&gt;
+
+&lt;p&gt;Currently, the in-memory seq_time_mapping is only used during Flush() and encoded to the SST property. The data is delta encoded and again maximum 100 pairs are stored, so the extra data size is pretty small (far less than 1KB per SST) and only non-last-level SSTs need to have that information. Internally, RocksDB also uses the minimal sequence number and SST creation time from the SST metadata to improve the time accuracy.
+&lt;strong&gt;The sequence number to time information is distributed in each SST&lt;/strong&gt;, ranging from the min seqno to max seqno for that SST file, so each SST has its self-contained time information. This also means there could be redundancy for the time information, for example, if 2 SSTs have an overlapped sequence number (which is very likely for non-L0 files), the same seq-&amp;gt;time pair may exist in both SSTs.
+For the future, the time information could also be useful for other potential features like a better estimate of the oldest timestamp for an SST which is critical for the RocksDB TTL feature.&lt;/p&gt;
+
+&lt;h3 id=&quot;per-key-placement-compaction&quot;&gt;Per-Key Placement Compaction&lt;/h3&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/time-aware-tiered-storage/per_key_placement_compaction.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Compare to normal compaction which only outputs the data to a single level, Per-key placement compaction can output data to 2 different levels, as per-per placement compaction is only for the last level compaction, so the 2 output levels would &lt;strong&gt;always be the penultimate level, and the last level&lt;/strong&gt;. The compaction places the key to its corresponding tier by simply checking the key’s sequence number.&lt;/p&gt;
+
+&lt;p&gt;At the beginning of the compaction, the compaction job collects all seq to time information from every input SSTs and merges them together, then based on the current time to get the oldest sequence number that should be put into non-last-level (hot tier). During the last level compaction, as long as the key is newer than the oldest_sequence_number, it will be placed in the penultimate level (hot tier) instead of the last level (cold tier).&lt;/p&gt;
+
+&lt;p&gt;Note, RocksDB also places the keys that are within the user snapshot in the hot tier, there’re a few reasons for that:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;It’s reasonable to assume snapshot-protected data are hot data;&lt;/li&gt;
+  &lt;li&gt;Avoid mixing the sequence number not zeroed out data with old last-level data, which is desirable to reduce the oldest obsolete data time (it’s defined as the oldest SST time that has a non-zero sequence number). It also means tombstones are always placed in the hot tier, which is also desirable as it should be pretty small.&lt;/li&gt;
+  &lt;li&gt;The original motivation was to avoid moving data from the lower level to a higher level in case the user increases the &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L927&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preclude_last_level_data_seconds&lt;/code&gt;&lt;/a&gt;, so the snapshot-protected data in the last level will become hot again, and moving data to a higher level. It’s not always safe to move data from a lower level to a higher level in the LSM tree which could cause key conflict. Later we added a conflict check to allow the data to move up as long as there’s no key conflict, but then the movement is not guaranteed (see Migration for details)&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;migration&quot;&gt;Migration&lt;/h3&gt;
+&lt;p&gt;Once the user enables the feature, it enables both time tracking and per-key placement compaction &lt;strong&gt;at the same time&lt;/strong&gt;. As the existing data, it can still be mismarked as cold data. To have a smooth migration to the feature. The user can enable the time-tracking feature first. For example, if the user plans to set &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L927&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preclude_last_level_data_seconds&lt;/code&gt;&lt;/a&gt; to 3 days, the user can enable time tracking 3 days earlier with &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L950&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preserve_internal_time_seconds&lt;/code&gt;&lt;/a&gt;. Then when enabling the tiered storage feature, it already has the time information for the last 3 days’ hot data, then per-key placement compaction won’t compact them to the last level.&lt;/p&gt;
+
+&lt;p&gt;Just preserving the time information won’t prevent the data from compacting to the last level (which should be still on the hot tier). Once the &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L927&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;preclude_last_level_data_seconds&lt;/code&gt;&lt;/a&gt; and &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/b0d9776b704af01c2b5385e9d53754e0c8176373/include/rocksdb/advanced_options.h#L910&quot;&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;last_level_temperature&lt;/code&gt;&lt;/a&gt; features are enabled, some of the last-level data might need to move up. Currently, RocksDB just does a conflict check, the hot/cold split in this case is not guaranteed.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/time-aware-tiered-storage/compaction_moving_up_conflict.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;p&gt;Time-aware tired storage feature guarantees the new data is placed in the hot tier, which &lt;strong&gt;is ideal for the tiering use cases where the most recent data is likely the hot data&lt;/strong&gt;. It’s done by tracking the write time information and per-key placement compaction to split the hot/cold data.&lt;/p&gt;
+
+&lt;p&gt;The tiered storage feature is actively being developed, any suggestions or PRs will be welcomed.&lt;/p&gt;
+
+&lt;h2 id=&quot;acknowledgements&quot;&gt;Acknowledgements&lt;/h2&gt;
+&lt;p&gt;We thank Siying Dong and Andrew Kryczka for brainstorming and reviewing the feature design and implementation. And it was my fortune to work with the RocksDB team members!&lt;/p&gt;
+</description>
+        <pubDate>Wed, 09 Nov 2022 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2022/11/09/time-aware-tiered-storage.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2022/11/09/time-aware-tiered-storage.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Reduce Write Amplification by Aligning Compaction Output File Boundaries</title>
+        <description>&lt;h2 id=&quot;tldr&quot;&gt;TL;DR&lt;/h2&gt;
+&lt;p&gt;By cutting the compaction output file earlier and allowing larger than targeted_file_size to align the compaction output files to the next level files, it can &lt;strong&gt;reduce WA (Write Amplification) by more than 10%&lt;/strong&gt;. The feature is &lt;strong&gt;enabled by default&lt;/strong&gt; after the user upgrades RocksDB to version &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;7.8.0+&lt;/code&gt;.&lt;/p&gt;
+
+&lt;h2 id=&quot;background&quot;&gt;Background&lt;/h2&gt;
+&lt;p&gt;RocksDB level compaction picks one file from the source level and compacts to the next level, which is a typical partial merge compaction algorithm. Compared to the full merge compaction strategy for example &lt;a href=&quot;https://github.com/facebook/rocksdb/wiki/Universal-Compaction&quot;&gt;universal compaction&lt;/a&gt;, it has the benefits of smaller compaction size, better parallelism, etc. But it also has a larger write amplification (typically 20-30 times user data). One of the problems is wasted compaction at the beginning and ending:&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/align-compaction-output/file_cut_normal.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the diagram above, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SST11&lt;/code&gt; is selected for the compaction, it overlaps with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SST20&lt;/code&gt; to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SST23&lt;/code&gt;, so all these files are selected for compaction. But the beginning and ending of the SST on Level 2 are wasted, which also means it will be compacted again when &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SST10&lt;/code&gt; is compacting down. If the file boundaries are aligned, then the wasted compaction size could be reduced. On average, the wasted compaction is &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;1&lt;/code&gt; file size: &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0.5&lt;/code&gt; at the beginning, and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0.5&lt;/code&gt; at the end. Typically the average compaction fan-out is about 6 (with the default max_bytes_for_level_multiplier = 10), then &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;1 / (6 + 1) ~= 14%&lt;/code&gt; of compaction is wasted.&lt;/p&gt;
+&lt;h2 id=&quot;implementation&quot;&gt;implementation&lt;/h2&gt;
+&lt;p&gt;To reduce such wasted compaction, RocksDB now tries to align the compaction output file to the next level’s file. So future compactions will have fewer wasted compaction. For example, the above case might be cut like this:&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/align-compaction-output/file_cut_align.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The trade-off is the file won’t be cut exactly after it exceeds target_file_size_base, instead, it will be more likely cut when it’s aligned with the next level file’s boundary, so the file size might be more varied. It could be as small as 50% of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;target_file_size&lt;/code&gt; or as large as &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2x target_file_size&lt;/code&gt;. It will only impact non-bottommost-level files, which should be only &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;~11%&lt;/code&gt; of the data.
+Internally, RocksDB tries to cut the file so its size is close to the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;target_file_size&lt;/code&gt; setting but also aligned with the next level boundary. When the compaction output file hit a next-level file boundary, either the beginning or ending boundary, it will cut if:&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;current_size &amp;gt; ((5 * min(bounderies_num, 8) + 50) / 100) * target_file_size
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;(&lt;a href=&quot;https://github.com/facebook/rocksdb/blob/23fa5b7789d6acd0c211d6bdd41448bbf1513bb6/db/compaction/compaction_outputs.cc#L270-L290&quot;&gt;details&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;The file size is also capped at &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2x target_file_size&lt;/code&gt;: &lt;a href=&quot;https://github.com/facebook/rocksdb/blob/f726d29a8268ae4e2ffeec09172383cff2ab4db9/db/compaction/compaction.cc#L273-L277&quot;&gt;details&lt;/a&gt;.
+Another benefit of cutting the file earlier is having more trivial move compaction, which is moving the file from a high level to a low level without compacting anything. Based on a compaction simulator test, the trivial move data is increased by 30% (but still less than 1% compaction data is trivial move):&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/align-compaction-output/file_cut_trival_move.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Based on the db_bench test, it can save &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;~12%&lt;/code&gt; compaction load, here is the test command and result:&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;TEST_TMPDIR=/data/dbbench ./db_bench --benchmarks=fillrandom,readrandom -max_background_jobs=12 -num=400000000 -target_file_size_base=33554432
+
+# baseline:
+Flush(GB): cumulative 25.882, interval 7.216
+Cumulative compaction: 285.90 GB write, 162.36 MB/s write, 269.68 GB read, 153.15 MB/s read, 2926.7 seconds
+
+# with this change:
+Flush(GB): cumulative 25.882, interval 7.753
+Cumulative compaction: 249.97 GB write, 141.96 MB/s write, 233.74 GB read, 132.74 MB/s read, 2534.9 seconds
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;The feature is enabled by default by upgrading to RocksDB 7.8 or later versions, as the feature should have a limited impact on the file size and have great write amplification improvements. If in a rare case, it needs to opt out, set&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;options.level_compaction_dynamic_file_size = false;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;other-options-and-benchmark&quot;&gt;Other Options and Benchmark&lt;/h2&gt;
+&lt;p&gt;We also tested a few other options, starting with a fixed threshold: 75% of the target_file_size and 50%. Then with a dynamic threshold that is explained, but still limiting file size smaller than the target_file_size.&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Baseline (main branch before &lt;a href=&quot;https://github.com/facebook/rocksdb/pull/10655&quot;&gt;PR#10655&lt;/a&gt;);&lt;/li&gt;
+  &lt;li&gt;Fixed Threshold &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;75%&lt;/code&gt;: after 75% of target file size, cut the file whenever it aligns with a low level file boundary;&lt;/li&gt;
+  &lt;li&gt;Fixed Threshold &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;50%&lt;/code&gt;: reduce the threshold to 50% of target file size;&lt;/li&gt;
+  &lt;li&gt;Dynamic Threshold &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;(5*bounderies_num + 50)&lt;/code&gt; percent of target file size and maxed at 90%;&lt;/li&gt;
+  &lt;li&gt;Dynamic Threshold + allow 2x the target file size (chosen option).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3 id=&quot;test-environment-and-data&quot;&gt;Test Environment and Data&lt;/h3&gt;
+&lt;p&gt;To speed up the benchmark, we introduced a compaction simulator within Rocksdb (&lt;a href=&quot;https://github.com/jay-zhuang/rocksdb/tree/compaction_sim&quot;&gt;details&lt;/a&gt;), which replaced the physical SST with in-memory data (a large bitset). Which can test compaction more consistently. As it’s a simulator, it has its limitations:&lt;/p&gt;
+
+&lt;p&gt;it assumes each key-value has the same size;&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;no deletion (but has override);&lt;/li&gt;
+  &lt;li&gt;doesn’t consider data compression;&lt;/li&gt;
+  &lt;li&gt;single-threaded and finish all compactions before the next flush (so no write stall).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;We use 3 kinds of the dataset for tests:&lt;/p&gt;
+&lt;ol&gt;
+  &lt;li&gt;Random Data, has an override, evenly distributed;&lt;/li&gt;
+  &lt;li&gt;Zipf distribution with alpha = 1.01, moderately skewed;&lt;/li&gt;
+  &lt;li&gt;Zipf distribution with alpha = 1.2, highly skewed.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4 id=&quot;write-amplification&quot;&gt;Write Amplification&lt;/h4&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 100%&quot;&gt;&lt;img src=&quot;/static/images/align-compaction-output/write_amp_compare.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;As we can see, all options are better than the baseline. Option5 (brown) and option3 (green) have similar WA improvements. (The sudden WA drop during ~40G Random Dataset is because we enabled &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;level_compaction_dynamic_level_bytes&lt;/code&gt; and the level number was increased from 3 to 4, the similar test result without enabling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;level_compaction_dynamic_level_bytes&lt;/code&gt;).&lt;/p&gt;
+
+&lt;h4 id=&quot;file-size-distribution-at-the-end-of-test&quot;&gt;File Size Distribution at the End of Test&lt;/h4&gt;
+&lt;p&gt;This is the file size distribution at the end of the test, which loads about 100G data. As this change only impacts the non-bottommost file size, and the majority of the SST files are bottommost, there’re no significant differences:&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 100%&quot;&gt;&lt;img src=&quot;/static/images/align-compaction-output/file_size_compare.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;all-compaction-generated-file-sizes&quot;&gt;All Compaction Generated File Sizes&lt;/h4&gt;
+&lt;p&gt;The high-level files are much more likely to be compacted, so all compaction-generated files size has more significant change:&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 100%&quot;&gt;&lt;img src=&quot;/static/images/align-compaction-output/compaction_output_file_size_compare.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Overall option5 has most of the file size close to the target file size. vs. option3 has a much smaller size. Here are more detailed stats for compaction output file size:&lt;/p&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;rougeHighlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;              base           50p           75p       dynamic     2xdynamic
+count  1.656000e+03  1.960000e+03  1.770000e+03  1.687000e+03  1.705000e+03
+mean   3.116062e+07  2.634125e+07  2.917876e+07  3.060135e+07  3.028076e+07
+std    7.145242e+06  1.065134e+07  8.800474e+06  7.612939e+06  8.046139e+06
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+&lt;p&gt;Allowing more dynamic file size and aligning the compaction output file to the next level file’s boundary improves the RocksDB write amplification by more than 10%, which will be enabled by default in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;7.8.0&lt;/code&gt; release. We picked a simple algorithm to decide when to cut the output file, which can be further improved. For example, by estimating output file size with index information. Any suggestions or PR are welcomed.&lt;/p&gt;
+
+&lt;h2 id=&quot;acknowledgements&quot;&gt;Acknowledgements&lt;/h2&gt;
+&lt;p&gt;We thank Siying Dong for initializing the file-cutting idea and thank Andrew Kryczka, Mark Callaghan for contributing to the ideas. And Changyu Bi for the detailed code review.&lt;/p&gt;
+</description>
+        <pubDate>Mon, 31 Oct 2022 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2022/10/31/align-compaction-output-file.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2022/10/31/align-compaction-output-file.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Asynchronous IO in RocksDB</title>
+        <description>&lt;h2 id=&quot;summary&quot;&gt;Summary&lt;/h2&gt;
+
+&lt;p&gt;RocksDB provides several APIs to read KV pairs from a database, including Get and MultiGet for point lookups and Iterator for sequential scanning. These APIs may result in RocksDB reading blocks from SST files on disk storage. The types of blocks and the frequency with which they are read from storage is workload dependent. Some workloads may have a small working set and thus may be able to cache most of the data required, while others may have large working sets and have to read from disk more often. In the latter case, the latency would be much higher and throughput would be lower than the former. They would also be dependent on the characteristics of the underlying storage media, making it difficult to migrate from one medium to another, for example, local flash to disaggregated flash.&lt;/p&gt;
+
+&lt;p&gt;One way to mitigate the impact of storage latency is to read asynchronously and in parallel as much as possible, in order to hide IO latency. We have implemented this in RocksDB in Iterators and MultiGet. In Iterators, we prefetch data asynchronously in the background for each file being iterated on, unlike the current implementation that does prefetching synchronously, thus blocking the iterator thread. In MultiGet, we determine the set of files that a given batch of keys overlaps, and read the necessary data blocks from those files in parallel using an asynchronous file system API. These optimizations have significantly decreased the overall latency of the RocksDB MultiGet and iteration APIs on slower storage compared to local flash.&lt;/p&gt;
+
+&lt;p&gt;The optimizations described here are in the internal implementation of Iterator and MultiGet in RocksDB. The user API is still synchronous, so existing code can easily benefit from it. We might consider async user APIs in the future.&lt;/p&gt;
+
+&lt;h2 id=&quot;design&quot;&gt;Design&lt;/h2&gt;
+
+&lt;h3 id=&quot;api&quot;&gt;API&lt;/h3&gt;
+
+&lt;p&gt;A new flag in &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ReadOptions&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;async_io&lt;/code&gt;, controls the usage of async IO. This flag, when set, enables async IO in Iterators and MultiGet. For MultiGet, an additional &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ReadOptions&lt;/code&gt; flag, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;optimize_multiget_for_io&lt;/code&gt; (defaults to true), controls how aggressively to use async IO. If the flag is not set, files in the same level are read in parallel but not different levels. If the flag is set, the level restriction is removed and as many files as possible are read in parallel, regardless of level. The latter might have a higher CPU cost depending on the workload.&lt;/p&gt;
+
+&lt;p&gt;At the FileSystem layer, we use the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FSRandomAccessFile::ReadAsync&lt;/code&gt; API to start an async read, providing a completion callback.&lt;/p&gt;
+
+&lt;h3 id=&quot;scan&quot;&gt;Scan&lt;/h3&gt;
+
+&lt;p&gt;A RocksDB scan usually involves the allocation of a new iterator, followed by a Seek call with a target key to position the iterator, followed by multiple Next calls to iterate through the keys sequentially. Both the Seek and Next operations present opportunities to read asynchronously, thereby reducing the scan latency.&lt;/p&gt;
+
+&lt;p&gt;A scan usually involves iterating through keys in multiple entities - the active memtable, sealed and unflushed memtables, every L0 file, and every non-empty non-zero level. The first two are completely in memory and thus not impacted by IO latency. The latter two involve reading from SST files. This means that an increase in IO latency has a multiplier effect, since multiple L0 files and levels have to be iterated on.&lt;/p&gt;
+
+&lt;p&gt;Some factors, such as block cache and prefix bloom filters, can reduce the number of files to iterate and number of reads from the files. Nevertheless, even a few reads from disk can dominate the overall latency. RocksDB uses async IO in both Seek and Next to mitigate the latency impact, as described below.&lt;/p&gt;
+
+&lt;h4 id=&quot;seek&quot;&gt;Seek&lt;/h4&gt;
+
+&lt;p&gt;A RocksDB iterator maintains a collection of child iterators, one for each L0 file and for each non-empty non-zero levels. For a Seek operation every child iterator has to Seek to the target key. This is normally done serially, by doing synchronous reads from SST files when the required data blocks are not in cache. When the async_io option is enabled, RocksDB performs the Seek in 2 phases - 1) Locate the data block required for Seek in each file/level and issue an async read, and 2) in the second phase, reseek with the same key, which will wait for the async read to finish at each level and position the table iterator. Phase 1 reads multiple blocks in parallel, reducing overall Seek latency.&lt;/p&gt;
+
+&lt;h4 id=&quot;next&quot;&gt;Next&lt;/h4&gt;
+
+&lt;p&gt;For the iterator Next operation, RocksDB tries to reduce the latency due to IO by prefetching data from the file. This prefetching occurs when a data block required by Next is not present in the cache. The reads from file and prefetching is managed by the FilePrefetchBuffer, which is an object that’s created per table iterator (BlockBasedTableIterator). The FilePrefetchBuffer reads the required data block, and an additional amount of data that varies depending on the options provided by the user in ReadOptions and BlockBasedTableOptions. The default behavior is to start prefetching on the third read from a file, with an initial prefetch size of 8KB and doubling it on every subsequent read, upto a max of 256KB.&lt;/p&gt;
+
+&lt;p&gt;While the prefetching in the previous paragraph helps, it is still synchronous and contributes to the iterator latency. When the async_io option is enabled, RocksDB prefetches in the background, i.e while the iterator is scanning KV pairs. This is accomplished in FilePrefetchBuffer by maintaining two prefetch buffers. The prefetch size is calculated as usual, but its then split across the two buffers. As the iteration proceeds and data in the first buffer is consumed, the buffer is cleared and an async read is scheduled to prefetch additional data. This read continues in the background while the iterator continues to process data in the second buffer. At this point, the roles of the two buffers are reversed. This does not completely hide the IO latency, since the iterator would have to wait for an async read to complete after the data in memory has been consumed. However, it does hide some of it by overlapping CPU and IO, and async prefetch can be happening on multiple levels in parallel, further reducing the latency.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/asynchronous-io/scan_async.png&quot; alt=&quot;Scan flow&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;multiget&quot;&gt;MultiGet&lt;/h3&gt;
+
+&lt;p&gt;The MultiGet API accepts a batch of keys as input. Its a more efficient way of looking up multiple keys compared to a loop of Gets. One way MultiGet is more efficient is by reading multiple data blocks from an SST file in a batch, for keys in the same file. This greatly reduces the latency of the request, compared to a loop of Gets. The MultiRead FileSystem API is used to read a batch of data blocks.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/asynchronous-io/mget_async.png&quot; alt=&quot;MultiGet flow&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Even with the MultiRead optimization, subset of keys that are in different files still need to be read serially. We can take this one step further and read multiple files in parallel. In order to do this, a few fundamental changes were required in the MultiGet implementation -&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Coroutines - A MultiGet involves determining the set of keys in a batch that overlap an SST file, and then calling TableReader::MultiGet to do the actual lookup. The TableReader probes the bloom filter, traverses the index block, looks up the block cache for the necessary, reads the missing data blocks from the SST file, and then searches for the keys in the data blocks. There is a significant amount of context that’s accumulated at each stage, and it would be rather complex to interleave data blocks reads by multiple TableReaders. In order to simplify it, we used async IO with C++ coroutines. The TableReader::MultiGet is implemented as a coroutine, and the coroutine is suspended after issuing async reads for missing data blocks. This allows the top-level MultiGet to iterate through the TableReaders for all the keys, before waiting for the reads to finish and resuming the coroutines.&lt;/li&gt;
+  &lt;li&gt;Filtering - The downside of using coroutines is the CPU overhead, which is non-trivial. To minimize the overhead, its desirable to not use coroutines as much as possible. One scenario in which we can completely avoid the call to a TableReader::MultiGet coroutine is if we know that none of the overlapping keys are actually present in the SST file. This can easily determined by probing the bloom filter. In the previous implementation, the bloom filter lookup was embedded in TableReader::MultiGet. However, we could easily implement is as a separate step, before calling TableReader::MultiGet.&lt;/li&gt;
+  &lt;li&gt;Splitting batches - The default strategy of MultiGet is to lookup keys in one level (or L0 file), before moving on to the next. This limits the amount of IO parallelism we can exploit. For example, the keys in a batch may not be clustered together, and may be scattered over multiple files. Even if they are clustered together in the key space, they may not all be in the same level. In order to optimize for these situations, we determine the subset of keys that are likely to be in a given level, and then split the MultiGet batch into 2 - the subset in that level, and the remainder. The batch containing the remainder can then be processed in parallel. The subset of keys likely to be in a level is determined by the filtering step.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;Together, these changes enabled two types of latency optimization in MultiGet using async IO - single-level and multi-level. The former reads data blocks in parallel from multiple files in the same LSM level, while the latter reads in parallel from multiple files in multiple levels.&lt;/p&gt;
+
+&lt;h2 id=&quot;results&quot;&gt;Results&lt;/h2&gt;
+
+&lt;p&gt;Command used to generate the database:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;buck-out/opt/gen/rocks/tools/rocks_db_bench —db=/rocks_db_team/prefix_scan —env_uri=ws://ws.flash.ftw3preprod1 -logtostderr=false -benchmarks=&quot;fillseqdeterministic&quot; -key_size=32 -value_size=512 -num=5000000 -num_levels=4 -multiread_batched=true -use_direct_reads=false -adaptive_readahead=true -threads=1 -cache_size=10485760000 -async_io=false -multiread_stride=40000 -disable_auto_compactions=true -compaction_style=1 -bloom_bits=10&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Structure of the database:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Level[0]: /000233.sst(size: 24828520 bytes)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Level[0]: /000232.sst(size: 49874113 bytes)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Level[0]: /000231.sst(size: 100243447 bytes)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Level[0]: /000230.sst(size: 201507232 bytes)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Level[1]: /000224.sst - /000229.sst(total size: 405046844 bytes)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Level[2]: /000211.sst - /000223.sst(total size: 814190051 bytes)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Level[3]: /000188.sst - /000210.sst(total size: 1515327216 bytes)&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;multiget-1&quot;&gt;MultiGet&lt;/h3&gt;
+
+&lt;p&gt;MultiGet benchmark command:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;buck-out/opt/gen/rocks/tools/rocks_db_bench -use_existing_db=true —db=/rocks_db_team/prefix_scan -benchmarks=&quot;multireadrandom&quot; -key_size=32 -value_size=512 -num=5000000 -batch_size=8 -multiread_batched=true -use_direct_reads=false -duration=60 -ops_between_duration_checks=1 -readonly=true -threads=4 -cache_size=300000000 -async_io=true -multiread_stride=40000 -statistics —env_uri=ws://ws.flash.ftw3preprod1 -logtostderr=false -adaptive_readahead=true -bloom_bits=10&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;single-file&quot;&gt;Single-file&lt;/h4&gt;
+
+&lt;p&gt;The default MultiGet implementation of reading from one file at a time had a latency of 1292 micros/op.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;multireadrandom : 1291.992 micros/op 3095 ops/sec 60.007 seconds 185768 operations; 1.6 MB/s (46768 of 46768 found) &lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rocksdb.db.multiget.micros P50 : 9664.419795 P95 : 20757.097056 P99 : 29329.444444 P100 : 46162.000000 COUNT : 23221 SUM : 239839394&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;single-level&quot;&gt;Single-level&lt;/h4&gt;
+
+&lt;p&gt;MultiGet with async_io=true and optimize_multiget_for_io=false had a latency of 775 micros/op.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;multireadrandom : 774.587 micros/op 5163 ops/sec 60.009 seconds 309864 operations; 2.7 MB/s (77816 of 77816 found)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rocksdb.db.multiget.micros P50 : [6029.601964](tel:6029601964) P95 : 10727.467932 P99 : 13986.683940 P100 : 47466.000000 COUNT : 38733 SUM : 239750172&lt;/code&gt;&lt;/p&gt;
+
+&lt;h4 id=&quot;multi-level&quot;&gt;Multi-level&lt;/h4&gt;
+
+&lt;p&gt;With all optimizations turned on, MultiGet had the lowest latency of 508 micros/op.&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;multireadrandom : 507.533 micros/op 7881 ops/sec 60.003 seconds 472896 operations; 4.1 MB/s (117536 of 117536 found)&lt;/code&gt;
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rocksdb.db.multiget.micros P50 : 3923.819467 P95 : 7356.182075 P99 : 10880.728723 P100 : 28511.000000 COUNT : 59112 SUM : 239642721&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;scan-1&quot;&gt;Scan&lt;/h3&gt;
+
+&lt;p&gt;Benchmark command:&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;buck-out/opt/gen/rocks/tools/rocks_db_bench -use_existing_db=true —db=/rocks_db_team/prefix_scan -ben&lt;/code&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;chmarks=&quot;seekrandom&quot; -key_size=32 -value_size=512 -num=5000000 -batch_size=8 -multiread_batched=true -use_direct_reads=false -duration=60 -ops_between_duration_che&lt;/code&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;cks=1 -readonly=true -threads=4 -cache_size=300000000 -async_io=true -multiread_stride=40000 -statistics —env_uri=ws://ws.flash.ftw3preprod1 -logtostderr=false -a&lt;/code&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;daptive_readahead=true -bloom_bits=10 -seek_nexts=65536&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;with-async-scan&quot;&gt;With async scan&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seekrandom : 414442.303 micros/op 9 ops/sec 60.288 seconds 581 operations; 326.2 MB/s (145 of 145 found)&lt;/code&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;without-async-scan&quot;&gt;Without async scan&lt;/h3&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;seekrandom : 848858.669 micros/op 4 ops/sec 60.529 seconds 284 operations; 158.1 MB/s (74 of 74 found)&lt;/code&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;known-limitations&quot;&gt;Known Limitations&lt;/h2&gt;
+
+&lt;p&gt;These optimizations apply only to block based table SSTs. File system support for the &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ReadAsync&lt;/code&gt; and &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Poll&lt;/code&gt; interfaces is required. Currently, it is available only for &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PosixFileSystem&lt;/code&gt;.&lt;/p&gt;
+
+&lt;p&gt;The MultiGet async IO optimization has a few additional limitations -&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;Depends on folly, which introduces a few additional build steps&lt;/li&gt;
+  &lt;li&gt;Higher CPU overhead due to coroutines. The CPU overhead of MultiGet may increase 6-15%, with the worst case being a single threaded MultiGet batch of keys with 1 key/file intersection and 100% cache hit rate. A more realistic case of multiple threads with a few keys (~4) overlap per file should see ~6% higher CPU util.&lt;/li&gt;
+  &lt;li&gt;No parallelization of metadata reads. A metadata read will block the thread.&lt;/li&gt;
+  &lt;li&gt;A few other cases will also be in serial, such as additional block reads for merge operands.&lt;/li&gt;
+&lt;/ol&gt;
+
+</description>
+        <pubDate>Fri, 07 Oct 2022 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2022/10/07/asynchronous-io-in-rocksdb.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2022/10/07/asynchronous-io-in-rocksdb.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+      <item>
+        <title>Verifying crash-recovery with lost buffered writes</title>
+        <description>&lt;h2 id=&quot;introduction&quot;&gt;Introduction&lt;/h2&gt;
+
+&lt;p&gt;Writes to a RocksDB instance go through multiple layers before they are fully persisted.
+Those layers may buffer writes, delaying their persistence.
+Depending on the layer, buffered writes may be lost in a process or system crash.
+A process crash loses writes buffered in process memory only.
+A system crash additionally loses writes buffered in OS memory.&lt;/p&gt;
+
+&lt;p&gt;The new test coverage introduced in this post verifies there is no hole in the recovered data in either type of crash.
+A hole would exist if any recovered write were newer than any lost write, as illustrated below.
+This guarantee is important for many applications, such as those that use the newest recovered write to determine the starting point for replication.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/lost-buffered-write-recovery/happy-cat.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;&lt;em&gt;Valid (no hole) recovery: all recovered writes (1 and 2) are older than all lost writes (3 and 4)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/lost-buffered-write-recovery/angry-cat.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p style=&quot;text-align: center&quot;&gt;&lt;em&gt;Invalid (hole) recovery: a recovered write (4) is newer than a lost write (3)&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;The new test coverage assumes all writes use the same options related to buffering/persistence.
+For example, we do not cover the case of alternating writes with WAL disabled and WAL enabled (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;WriteOptions::disableWAL&lt;/code&gt;).
+It also assumes the crash does not have any unexpected consequences like corrupting persisted data.&lt;/p&gt;
+
+&lt;p&gt;Testing for holes in the recovery is challenging because there are many valid recovery outcomes.
+Our solution involves tracing all the writes and then verifying the recovery matches a prefix of the trace.
+This proves there are no holes in the recovery.
+See “Extensions for lost buffered writes” subsection below for more details.&lt;/p&gt;
+
+&lt;p&gt;Testing actual system crashes would be operationally difficult.
+Our solution simulates system crash by buffering written but unsynced data in process memory such that it is lost in a process crash.
+See “Simulating system crash” subsection below for more details.&lt;/p&gt;
+
+&lt;h2 id=&quot;scenarios-covered&quot;&gt;Scenarios covered&lt;/h2&gt;
+
+&lt;p&gt;We began testing recovery has no hole in the following new scenarios.
+This coverage is included in our internal CI that periodically runs against the latest commit on the main branch.&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;&lt;strong&gt;Process crash with WAL disabled&lt;/strong&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;WriteOptions::disableWAL=1&lt;/code&gt;), which loses writes since the last memtable flush.&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;System crash with WAL enabled&lt;/strong&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;WriteOptions::disableWAL=0&lt;/code&gt;), which loses writes since the last memtable flush or WAL sync (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;WriteOptions::sync=1&lt;/code&gt;, &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;SyncWAL()&lt;/code&gt;, or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FlushWAL(true /* sync */)&lt;/code&gt;).&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;Process crash with manual WAL flush&lt;/strong&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DBOptions::manual_wal_flush=1&lt;/code&gt;), which loses writes since the last memtable flush or manual WAL flush (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FlushWAL()&lt;/code&gt;).&lt;/li&gt;
+  &lt;li&gt;&lt;strong&gt;System crash with manual WAL flush&lt;/strong&gt; (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;DBOptions::manual_wal_flush=1&lt;/code&gt;), which loses writes since the last memtable flush or synced manual WAL flush (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FlushWAL(true /* sync */)&lt;/code&gt;, or &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;FlushWAL(false /* sync */)&lt;/code&gt; followed by WAL sync).&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&quot;issues-found&quot;&gt;Issues found&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/facebook/rocksdb/pull/10185&quot;&gt;False detection of corruption after system crash due to race condition with WAL sync and `track_and_verify_wals_in_manifest&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/facebook/rocksdb/pull/10560&quot;&gt;Undetected hole in recovery after system crash due to race condition in WAL sync&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/facebook/rocksdb/pull/10573&quot;&gt;Recovery failure after system crash due to missing directory sync for critical metadata file&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;solution-details&quot;&gt;Solution details&lt;/h2&gt;
+
+&lt;h3 id=&quot;basic-setup&quot;&gt;Basic setup&lt;/h3&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/lost-buffered-write-recovery/basic-setup.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;Our correctness testing framework consists of a stress test program (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt;) and a wrapper script (&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_crashtest.py&lt;/code&gt;).
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_crashtest.py&lt;/code&gt; manages instances of &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt;, starting them and injecting crashes.
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; operates a DB and test oracle (“Latest values file”).&lt;/p&gt;
+
+&lt;p&gt;At startup,  &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; verifies the DB using the test oracle, skipping keys that had pending writes when the last crash happened.
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; then stresses the DB with random operations, keeping the test oracle up-to-date.&lt;/p&gt;
+
+&lt;p&gt;As the name “Latest values file” implies, this test oracle only tracks the latest value for each key.
+As a result, this setup is unable to verify recoveries involving lost buffered writes, where recovering older values is tolerated as long as there is no hole.&lt;/p&gt;
+
+&lt;h3 id=&quot;extensions-for-lost-buffered-writes&quot;&gt;Extensions for lost buffered writes&lt;/h3&gt;
+
+&lt;p&gt;To accommodate lost buffered writes, we extended the test oracle to include two new files: “&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;verifiedSeqno&lt;/code&gt;.state” and “&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;verifiedSeqno&lt;/code&gt;.trace”.
+&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;verifiedSeqno&lt;/code&gt; is the sequence number of the last successful verification.
+“&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;verifiedSeqno&lt;/code&gt;.state” is the expected values file at that sequence number, and “&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;verifiedSeqno&lt;/code&gt;.trace” is the trace file of all operations that happened after that sequence number.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/lost-buffered-write-recovery/replay-extension.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;When buffered writes may have been lost by the previous &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; instance, the current &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; instance must reconstruct the latest values file before startup verification.
+M is the recovery sequence number of the current &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; instance and N is the recovery sequence number of the previous &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; instance.
+M is learned from the DB, while N is learned from the filesystem by parsing the “*.{trace,state}” filenames.
+Then, the latest values file (“LATEST.state”) can be reconstructed by replaying the first M-N traced operations (in “N.trace”) on top of the last instance’s starting point (“N.state”).&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/lost-buffered-write-recovery/trace-extension.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;When buffered writes may be lost by the current &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; instance, we save the current expected values into “M.state” and begin tracing newer operations in “M.trace”.&lt;/p&gt;
+
+&lt;h3 id=&quot;simulating-system-crash&quot;&gt;Simulating system crash&lt;/h3&gt;
+
+&lt;p&gt;When simulating system crash, we send file writes to a &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TestFSWritableFile&lt;/code&gt;, which buffers unsynced writes in process memory.
+That way, the existing &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;db_stress&lt;/code&gt; process crash mechanism will lose unsynced writes.&lt;/p&gt;
+
+&lt;p style=&quot;display: block; margin-left: auto; margin-right: auto; width: 80%&quot;&gt;&lt;img src=&quot;/static/images/lost-buffered-write-recovery/test-fs-writable-file.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TestFSWritableFile&lt;/code&gt; is implemented as follows.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Append()&lt;/code&gt; buffers the write in a local &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt; rather than calling &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write()&lt;/code&gt;.&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Sync()&lt;/code&gt; transfers the local &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;std::string&lt;/code&gt;s content to &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;PosixWritableFile::Append()&lt;/code&gt;, which will then &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;write()&lt;/code&gt; it to the OS page cache.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;next-steps&quot;&gt;Next steps&lt;/h2&gt;
+&lt;p&gt;An untested guarantee is that RocksDB recovers all writes that the user explicitly flushed out of the buffers lost in the crash.
+We may recover more writes than these due to internal flushing of buffers, but never less.
+Our test oracle needs to be further extended to track the lower bound on the sequence number that is expected to survive a crash.&lt;/p&gt;
+
+&lt;p&gt;We would also like to make our system crash simulation more realistic.
+Currently we only drop unsynced regular file data, but we should drop unsynced directory entries as well.&lt;/p&gt;
+
+&lt;h2 id=&quot;acknowledgements&quot;&gt;Acknowledgements&lt;/h2&gt;
+
+&lt;p&gt;Hui Xiao added the manual WAL flush coverage and compatibility with &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;TransactionDB&lt;/code&gt;.
+Zhichao Cao added the system crash simulation.
+Several RocksDB team members contributed to this feature’s dependencies.&lt;/p&gt;
+</description>
+        <pubDate>Wed, 05 Oct 2022 00:00:00 +0000</pubDate>
+        <link>http://rocksdb.org/blog/2022/10/05/lost-buffered-write-recovery.html</link>
+        <guid isPermaLink="true">http://rocksdb.org/blog/2022/10/05/lost-buffered-write-recovery.html</guid>
+        
+        
+        <category>blog</category>
+        
+      </item>
+    
+  </channel>
+</rss>

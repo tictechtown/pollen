@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>UX Movement</title>
+	<atom:link href="https://uxmovement.com/feed/" rel="self" type="application/rss+xml" />
+	<link>https://uxmovement.com</link>
+	<description></description>
+	<lastBuildDate>Wed, 19 Mar 2025 15:27:48 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=4.9.26</generator>
+
+<image>
+	<url>https://uxmovement.com/wp-content/uploads/2019/02/cropped-uxmovement-site-icon-32x32.png</url>
+	<title>UX Movement</title>
+	<link>https://uxmovement.com</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>How to Group Your Sidebar Items for Better Findability</title>
+		<link>https://uxmovement.com/navigation/how-to-group-your-sidebar-items-for-better-findability/</link>
+		<comments>https://uxmovement.com/navigation/how-to-group-your-sidebar-items-for-better-findability/#respond</comments>
+		<pubDate>Wed, 19 Mar 2025 15:27:48 +0000</pubDate>
+		<dc:creator><![CDATA[anthony]]></dc:creator>
+				<category><![CDATA[Navigation]]></category>
+
+		<guid isPermaLink="false">https://uxmovement.com/?p=33225</guid>
+		<description><![CDATA[<p>When a sidebar contains many items, grouping is necessary to help users find them faster. However, most designers don&#8217;t group their sidebar items and force users to scan an entire list. This results in slow navigation times and poor findability. Grouping improves findability by enabling users to spot a group and scan the items in [&#8230;]</p>
+The post <a href="https://uxmovement.com/navigation/how-to-group-your-sidebar-items-for-better-findability/">How to Group Your Sidebar Items for Better Findability</a> first appeared on <a href="https://uxmovement.com">UX Movement</a>.]]></description>
+		<wfw:commentRss>https://uxmovement.com/navigation/how-to-group-your-sidebar-items-for-better-findability/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>How to Make Any Sidebar Menu Easier to Scan</title>
+		<link>https://uxmovement.com/navigation/how-to-make-any-sidebar-menu-easier-to-scan/</link>
+		<comments>https://uxmovement.com/navigation/how-to-make-any-sidebar-menu-easier-to-scan/#respond</comments>
+		<pubDate>Wed, 19 Mar 2025 15:24:10 +0000</pubDate>
+		<dc:creator><![CDATA[anthony]]></dc:creator>
+				<category><![CDATA[Navigation]]></category>
+
+		<guid isPermaLink="false">https://uxmovement.com/?p=33221</guid>
+		<description><![CDATA[<p>How easy to scan is your sidebar menu? If you haven&#8217;t optimized the spacing, users will likely spend more time navigating and finding items. Balancing the spacing in the sidebar can help users navigate faster and easier. A typical mistake designers make is adding too much or not enough space. Both can make scanning for [&#8230;]</p>
+The post <a href="https://uxmovement.com/navigation/how-to-make-any-sidebar-menu-easier-to-scan/">How to Make Any Sidebar Menu Easier to Scan</a> first appeared on <a href="https://uxmovement.com">UX Movement</a>.]]></description>
+		<wfw:commentRss>https://uxmovement.com/navigation/how-to-make-any-sidebar-menu-easier-to-scan/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>The Optimal Design for Sidebar Indicators</title>
+		<link>https://uxmovement.com/navigation/the-optimal-design-for-sidebar-indicators/</link>
+		<comments>https://uxmovement.com/navigation/the-optimal-design-for-sidebar-indicators/#respond</comments>
+		<pubDate>Fri, 22 Nov 2024 18:05:18 +0000</pubDate>
+		<dc:creator><![CDATA[anthony]]></dc:creator>
+				<category><![CDATA[Navigation]]></category>
+
+		<guid isPermaLink="false">https://uxmovement.com/?p=33211</guid>
+		<description><![CDATA[<p>A sidebar navigation on an interface offers users multiple items to select. After making a selection, they need a visual cue to identify the chosen item. This cue is called an indicator. Every sidebar needs a clear and non-distracting selection indicator. However, many designers continue to use bad practices that make it hard for users [&#8230;]</p>
+The post <a href="https://uxmovement.com/navigation/the-optimal-design-for-sidebar-indicators/">The Optimal Design for Sidebar Indicators</a> first appeared on <a href="https://uxmovement.com">UX Movement</a>.]]></description>
+		<wfw:commentRss>https://uxmovement.com/navigation/the-optimal-design-for-sidebar-indicators/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>How to Design a Sidebar That Saves Screen Space</title>
+		<link>https://uxmovement.com/navigation/how-to-design-a-sidebar-that-saves-screen-space/</link>
+		<comments>https://uxmovement.com/navigation/how-to-design-a-sidebar-that-saves-screen-space/#respond</comments>
+		<pubDate>Fri, 22 Nov 2024 17:58:44 +0000</pubDate>
+		<dc:creator><![CDATA[anthony]]></dc:creator>
+				<category><![CDATA[Navigation]]></category>
+
+		<guid isPermaLink="false">https://uxmovement.com/?p=33206</guid>
+		<description><![CDATA[<p>Screen space on a desktop interface is more important than you think. Most designers take it for granted because a desktop screen contains so much space. However, when it comes to data display, every pixel counts. A sidebar can occupy a lot of width space and diminish the content area. As a result, users will [&#8230;]</p>
+The post <a href="https://uxmovement.com/navigation/how-to-design-a-sidebar-that-saves-screen-space/">How to Design a Sidebar That Saves Screen Space</a> first appeared on <a href="https://uxmovement.com">UX Movement</a>.]]></description>
+		<wfw:commentRss>https://uxmovement.com/navigation/how-to-design-a-sidebar-that-saves-screen-space/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>How to Handle Large-Scale Item Groups in a Sidebar</title>
+		<link>https://uxmovement.com/navigation/how-to-handle-large-scale-item-groups-in-a-sidebar/</link>
+		<comments>https://uxmovement.com/navigation/how-to-handle-large-scale-item-groups-in-a-sidebar/#respond</comments>
+		<pubDate>Wed, 28 Aug 2024 02:26:51 +0000</pubDate>
+		<dc:creator><![CDATA[anthony]]></dc:creator>
+				<category><![CDATA[Navigation]]></category>
+
+		<guid isPermaLink="false">https://uxmovement.com/?p=33198</guid>
+		<description><![CDATA[<p>A sidebar navigation with a few items is simple to design. All you have to do is display them in a list with relevant icons. But what do you do when you have multiple large-scale item groups to display? The typical approach uses disclosure arrows to collapse each item group with an accordion functionality. However, [&#8230;]</p>
+The post <a href="https://uxmovement.com/navigation/how-to-handle-large-scale-item-groups-in-a-sidebar/">How to Handle Large-Scale Item Groups in a Sidebar</a> first appeared on <a href="https://uxmovement.com">UX Movement</a>.]]></description>
+		<wfw:commentRss>https://uxmovement.com/navigation/how-to-handle-large-scale-item-groups-in-a-sidebar/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+	</channel>
+</rss>

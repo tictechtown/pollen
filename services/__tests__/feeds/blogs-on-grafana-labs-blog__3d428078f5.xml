@@ -1,0 +1,1364 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Grafana Labs blog on Grafana Labs</title><link>https://grafana.com/blog/</link><description>Recent content in Grafana Labs blog on Grafana Labs</description><generator>Hugo -- gohugo.io</generator><language>en</language><atom:link href="/blog/index.xml" rel="self" type="application/rss+xml"/><item><title>How to use AI to analyze and visualize CAN data with Grafana Assistant</title><link>https://grafana.com/blog/2025/12/12/how-to-use-ai-to-analyze-and-visualize-can-data-with-grafana-assistant/</link><pubDate>Fri, 12 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/12/how-to-use-ai-to-analyze-and-visualize-can-data-with-grafana-assistant/</guid><description>&lt;p>&lt;em>&lt;strong>Note:&lt;/strong>&lt;/em> &lt;em>A version of this post originally appeared on the&lt;/em> &lt;em>&lt;a href="https://www.csselectronics.com/pages/grafana-assistant-can-bus-data-ai-llm-dashboards" target="_blank" rel="noopener noreferrer">CSS Electronics blog&lt;/a>&lt;/em>. &lt;/p>
+&lt;p>&lt;em>Martin Falch, co-owner and head of sales and marketing at CSS Electronics, is an expert on&lt;/em> &lt;em>&lt;a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial" target="_blank" rel="noopener noreferrer">CAN bus data&lt;/a>&lt;/em>. &lt;em>Martin works closely with end users, typically OEM engineers, across diverse industries, including automotive, maritime, and industrial. He is passionate about data visualization and AI—and he&amp;rsquo;s been working extensively with Grafana Assistant.&lt;/em> &lt;/p>
+&lt;p>At CSS Electronics, we build pro specs and simple-to-use &lt;a href="https://www.csselectronics.com/pages/can-bus-hardware-products" target="_blank" rel="noopener noreferrer">CAN bus data loggers&lt;/a> including optional WiFi/LTE/GPS. In short, &lt;a href="https://www.csselectronics.com/pages/can-bus-simple-intro-tutorial" target="_blank" rel="noopener noreferrer">CAN bus&lt;/a> is a protocol used for communicating sensor data within vehicles and machinery, including &lt;a href="https://www.csselectronics.com/pages/j1939-data-logger-wifi-telematics-fleet-management" target="_blank" rel="noopener noreferrer">trucks&lt;/a>, &lt;a href="https://www.csselectronics.com/pages/obd2-data-logger-sd-memory-convert" target="_blank" rel="noopener noreferrer">cars&lt;/a>, &lt;a href="https://www.csselectronics.com/pages/marine-telematics-boat-data" target="_blank" rel="noopener noreferrer">ships&lt;/a>, and &lt;a href="https://www.csselectronics.com/pages/canopen-data-logger" target="_blank" rel="noopener noreferrer">robots&lt;/a>.&lt;/p>
+&lt;p>Our end users include engineers at automotive and industrial manufacturers (OEMs) who need to monitor assets in the field for R&amp;amp;D, diagnostics, or &lt;a href="https://www.csselectronics.com/pages/predictive-maintenance-can-bus-iot" target="_blank" rel="noopener noreferrer">predictive maintenance&lt;/a>. A large share of our users also visualize their data via Grafana dashboards using Amazon Athena or Google BigQuery data sources (see our &lt;a href="/blog/2024/09/13/how-to-visualize-vehicle-can-bus-data-with-the-amazon-athena-data-source-for-grafana/">previous blog post&lt;/a> for details).&lt;/p>
+&lt;p>In this blog, we show how &lt;a href="/docs/grafana-cloud/machine-learning/assistant/?pg=blog&amp;amp;plcmt=body-txt">Grafana Assistant&lt;/a> can be used to easily unleash the power of AI for data analysis and dashboard visualization—directly within Grafana!&lt;/p>
+&lt;h2 id="why-use-grafana-assistant-for-can-data-analyses">Why use Grafana Assistant for CAN data analyses?&lt;/h2>
+&lt;p>Our users face a challenge: They can collect tons of CAN/LIN data using the CANedge, but they have to then explore or visualize data across several devices, thousands of log files, and months (or even years) of data.&lt;/p>
+&lt;p>Most of our users are engineers, but they&amp;rsquo;re not data scientists. And even if they are, statistical data analysis/visualization can be extremely time consuming.&lt;/p>
+&lt;h3 id="why-not-use-chatgpt">Why not use ChatGPT?&lt;/h3>
+&lt;p>One solution to this challenge is to use ChatGPT to help analyze the data, which we wrote about in a &lt;a href="https://www.csselectronics.com/pages/chatgpt-can-bus-data-time-series-code-interpreter" target="_blank" rel="noopener noreferrer">2023 article&lt;/a>. However, ChatGPT has some practical limitations:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Limited to manually uploading small files (e.g. 100 MB CSV)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Analysis results are not easy to share&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Outputs are &amp;ldquo;static&amp;rdquo; (e.g., Python-generated plots)&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;h3 id="key-features-of-grafana-assistant">Key features of Grafana Assistant &lt;/h3>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/800x600/75de30d1ec/can-data-architecture.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/800x600/75de30d1ec/can-data-architecture.png/m/"alt="Architectural diagram showing data going from heavy machinery to Google Cloud to Grafana Cloud and back"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>In practice, our end users typically upload gigabytes (or terabytes) of data to their own AWS, Google Cloud, or Microsoft Azure cloud servers using our devices. Here, the data is auto-processed into Parquet data lakes, which can be queried via &lt;a href="/blog/2025/06/18/visualize-google-cloud-bigquery-data-in-grafana-the-latest-updates-key-features-and-more/">Grafana’s Athena/BigQuery data sources&lt;/a>. In other words, the complete data lake is easily accessible within Grafana. &lt;/p>
+&lt;p>With the new assistant, Grafana Cloud now enables seamless LLM access to existing data sources that are already in place. This introduces multiple powerful features:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Zero set up:&lt;/strong> If you have already deployed a Grafana integration, you can start prompting your data immediately—no set up required.&lt;/li>
+&lt;li>&lt;strong>Analyze terabytes of data:&lt;/strong> Unlike ChatGPT, you don&amp;rsquo;t have to limit your analysis to 100 MB of data. The assistant can query your entire data lake out-the-box.&lt;/li>
+&lt;li>&lt;strong>Data exploration:&lt;/strong> Simply chat your way to powerful data insights and through complex diagnostic analyses—no query language or coding knowledge required.&lt;/li>
+&lt;li>&lt;strong>Dashboard creation:&lt;/strong> The assistant can create fully customized Grafana dashboards in seconds based on high level prompts, drastically reducing time spent.&lt;/li>
+&lt;li>&lt;strong>Retain and share insights:&lt;/strong> Any data insights can be easily summarized into Grafana dashboards, enabling you to navigate the data temporally and share it with your team.&lt;/li>
+&lt;/ol>
+&lt;p>It&amp;rsquo;s basically Cursor/Windsurf for your dashboards and data lake.&lt;/p>
+&lt;h2 id="how-to-start-analyzing-can-data-with-grafana-assistant">How to start analyzing CAN data with Grafana Assistant &lt;/h2>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1920x1023/88223b6f97/can-timeseries.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1920x1023/88223b6f97/can-timeseries.png/m/"alt="Grafana dashboard showing CAN timeseries data"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>If you have already connected your data source in Grafana Cloud, no further set up is necessary.&lt;/p>
+&lt;p>To start chatting with the assistant, you can open the chat window via the left-menu Assistant tab. Alternatively, you can open the chat panel within a dashboard via the sparkle icon in the upper right corner.&lt;/p>
+&lt;p>However, to get the best experience, we recommend following these steps:&lt;/p>
+&lt;ol>
+&lt;li>&lt;strong>Use a dashboard template:&lt;/strong> At CSS we provide various dashboard templates customized for our end users, which include relevant &lt;a href="/docs/grafana/latest/visualizations/dashboards/variables/?pg=blog&amp;amp;plcmt=body-txt">Grafana variable&lt;/a> dropdowns. Using templates as the basis for LLM-based dashboard development is highly recommended as it allows dashboard users to subsequently interact with the generated dashboards (e.g. switching between different devices)&lt;/li>
+&lt;li>&lt;strong>Select data source as context:&lt;/strong> Make sure to select the relevant data source in the Grafana Assistant chat window to explicitly tell it what data to work with.&lt;/li>
+&lt;li>&lt;strong>Use a system prompt:&lt;/strong> In our documentation we provide a &amp;ldquo;system prompt&amp;rdquo; that our users can add as a &amp;ldquo;rule&amp;rdquo; within the Grafana Assistant settings. This provides context about the data lake structure, query syntax and more—and significantly improves the results. &lt;/li>
+&lt;/ol>
+&lt;h3 id="example-use-cases">Example use cases&lt;/h3>
+&lt;p>To showcase how Grafana Assistant can help with data analyses, we&amp;rsquo;ll use our &lt;a href="https://www.csselectronics.com/pages/ev-data-pack-electric-vehicles" target="_blank" rel="noopener noreferrer">public data pack&lt;/a>, which consists of 1GB of data from a Kia EV6 electric vehicle. Below we highlight example use cases for the LLM:&lt;/p>
+&lt;h4 id="example-1-see-what-data-is-available">Example 1: See what data is available&lt;/h4>
+&lt;p>First, we use the LLM to get an overview of our data lake.&lt;/p>
+&lt;p>This is a useful starting point for exploring a CAN bus data lake as you do not necessarily have a clear overview of what devices, CAN messages, and CAN signals are available. Further, constructing the SQL queries to extract this information is quite complex.&lt;/p>
+&lt;div class="code-snippet code-snippet__mini">&lt;div class="lang-toolbar__mini">
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;/div>&lt;div class="code-snippet code-snippet__border">
+&lt;pre data-expanded="false">&lt;code class="language-none">Prompt:
+My data source contains data from a Kia EV6 electric car, recorded with a CANedge CAN bus data logger with device ID 2A896980. The data includes battery data from the EV and GPS/IMU data from a sensor module. I want to know the following:
+1: What tables and columns are available for this device?
+2: What time period does the data span?&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>Grafana Assistant starts analyzing the data via multiple queries, summarizing the results in a tabular form, and in the chat. Notice how the LLM iterates through multiple queries to understand the data structure. You can of course inspect what queries are used to generate each result, ensuring full transparency. The summary provides us with a good starting point for further investigation.&lt;/p>
+&lt;figure
+class="responsive-video p-0 m-0"
+x-data="{ vimeo_is_up: false, responded: false }"
+x-init="fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/1145695358`)
+.then(response => {
+responded = true;
+response &amp;&amp; response.status === 200 ? vimeo_is_up = true : vimeo_is_up = false;
+})
+.catch(error => {
+responded = true;
+})"
+>
+&lt;div class="minh-428">
+&lt;template x-if="vimeo_is_up">
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://player.vimeo.com/video/1145695358?transparent=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="vimeo video" webkitallowfullscreen mozallowfullscreen allowfullscreen>&lt;/iframe>
+&lt;/div>
+&lt;/template>
+&lt;template x-if="responded &amp;&amp; !vimeo_is_up">
+&lt;p class="bg-gray-17 p-1">There&amp;rsquo;s supposed to be a video here, but for some reason there isn&amp;rsquo;t. Either we entered the id wrong (oops!), or Vimeo is down. If it&amp;rsquo;s the latter, we&amp;rsquo;d expect they&amp;rsquo;ll be back up and running soon. In the meantime, &lt;a href="/blog/">check out our blog&lt;/a>!&lt;/p>
+&lt;/template>
+&lt;/div>
+&lt;/figure>
+&lt;h4 id="example-2-explore-data-ad-hoc">Example 2: Explore data ad hoc&lt;/h4>
+&lt;p>In many cases you&amp;rsquo;ll want to explore the data directly in the chat window prior to creating actual panels.&lt;/p>
+&lt;p>Here, Grafana Assistant runs the relevant queries and produces the output in-chat as text or as plots. We can also prompt the LLM to create a panel that displays speed over time within our dashboard, which Grafana does successfully as shown below.&lt;/p>
+&lt;div class="code-snippet code-snippet__mini">&lt;div class="lang-toolbar__mini">
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;/div>&lt;div class="code-snippet code-snippet__border">
+&lt;pre data-expanded="false">&lt;code class="language-none">Prompt:
+What is the average speed from the CAN2_GnssSpeed message in July 2023? It&amp;#39;s in m/s. Please create a panel in this dashboard to visualize the average speed over time&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;figure
+class="responsive-video p-0 m-0"
+x-data="{ vimeo_is_up: false, responded: false }"
+x-init="fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/1145695352`)
+.then(response => {
+responded = true;
+response &amp;&amp; response.status === 200 ? vimeo_is_up = true : vimeo_is_up = false;
+})
+.catch(error => {
+responded = true;
+})"
+>
+&lt;div class="minh-428">
+&lt;template x-if="vimeo_is_up">
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://player.vimeo.com/video/1145695352?transparent=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="vimeo video" webkitallowfullscreen mozallowfullscreen allowfullscreen>&lt;/iframe>
+&lt;/div>
+&lt;/template>
+&lt;template x-if="responded &amp;&amp; !vimeo_is_up">
+&lt;p class="bg-gray-17 p-1">There&amp;rsquo;s supposed to be a video here, but for some reason there isn&amp;rsquo;t. Either we entered the id wrong (oops!), or Vimeo is down. If it&amp;rsquo;s the latter, we&amp;rsquo;d expect they&amp;rsquo;ll be back up and running soon. In the meantime, &lt;a href="/blog/">check out our blog&lt;/a>!&lt;/p>
+&lt;/template>
+&lt;/div>
+&lt;/figure>
+&lt;h4 id="example-3-create-dashboard-via-a-high-level-prompt">Example 3: Create dashboard via a high-level prompt&lt;/h4>
+&lt;p>An obvious use case for Grafana Assistant is to create a new dashboard from scratch. In this example we try a minimal-effort prompt—leaving a lot up to the imagination of the LLM.&lt;/p>
+&lt;p>The result is a functional 12-panel dashboard where all SQL queries are as expected (i.e., as per our system prompt guidance). Notice in particular that the LLM proactively identifies available (and relevant) messages/signals. Pretty cool! It&amp;rsquo;s worth reflecting on how commoditized LLMs + tools have already become. If this was 2022 we&amp;rsquo;d have been blown away.&lt;/p>
+&lt;p>However, the dashboard we get is highly inconsistent between re-runs of the same prompt. This is of course to be expected given the open-ended nature of our request. In our view, there&amp;rsquo;s not much practical value to providing prompts that are this high level if the goal is to create real Grafana dashboards.&lt;/p>
+&lt;div class="code-snippet code-snippet__mini">&lt;div class="lang-toolbar__mini">
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;/div>&lt;div class="code-snippet code-snippet__border">
+&lt;pre data-expanded="false">&lt;code class="language-none">Prompt:
+My data source contains data from a Kia EV6 electric car, recorded with a CANedge CAN bus data logger with device ID 2A896980. The data includes battery data from the EV and GPS/IMU data from a sensor module.
+Update my dashboard to include panels showing my Kia EV6 battery data and GPS/IMU data.&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;figure
+class="responsive-video p-0 m-0"
+x-data="{ vimeo_is_up: false, responded: false }"
+x-init="fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/1145695340`)
+.then(response => {
+responded = true;
+response &amp;&amp; response.status === 200 ? vimeo_is_up = true : vimeo_is_up = false;
+})
+.catch(error => {
+responded = true;
+})"
+>
+&lt;div class="minh-428">
+&lt;template x-if="vimeo_is_up">
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://player.vimeo.com/video/1145695340?transparent=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="vimeo video" webkitallowfullscreen mozallowfullscreen allowfullscreen>&lt;/iframe>
+&lt;/div>
+&lt;/template>
+&lt;template x-if="responded &amp;&amp; !vimeo_is_up">
+&lt;p class="bg-gray-17 p-1">There&amp;rsquo;s supposed to be a video here, but for some reason there isn&amp;rsquo;t. Either we entered the id wrong (oops!), or Vimeo is down. If it&amp;rsquo;s the latter, we&amp;rsquo;d expect they&amp;rsquo;ll be back up and running soon. In the meantime, &lt;a href="/blog/">check out our blog&lt;/a>!&lt;/p>
+&lt;/template>
+&lt;/div>
+&lt;/figure>
+&lt;h4 id="example-4-create-a-dashboard-via-a-detailed-prompt">Example 4: Create a dashboard via a detailed prompt&lt;/h4>
+&lt;p>Instead of using a fairly vague prompt, a much better approach is of course to provide highly detailed guidance, similar to what you would provide a human assistant if they were to design your dashboard. You can find the full detailed prompt &lt;a href="https://canlogger1000.csselectronics.com/files/guides/grafana-assistant-intro/grafana-assistant-detailed-dashboard-prompt.txt" target="_blank" rel="noopener noreferrer">here&lt;/a>.&lt;/p>
+&lt;p>As you can see, the result looks as intended. And more importantly, when we run this 10x (in new conversations each time), we get a 90%+ consistent dashboard each time.&lt;/p>
+&lt;p>You might argue that writing a prompt like this is also time consuming, but in our experience it is still five to 10 times faster than if we were to construct this dashboard from scratch. For example, notice that many of our message/signal names are approximate, leaving Grafana Assistant to figure out what the exact table and column names are. Further, some of the panels involve semi-complex queries (e.g., the consumed State of Charge and the delta distance traveled), which would require significant SQL expertise to create.&lt;/p>
+&lt;p>Most importantly, the prompt specifies no SQL syntax, which is important as 99%+ of our end users have zero SQL experience.&lt;/p>
+&lt;p>Check out the generated dashboard in our &lt;a href="https://grafana.csselectronics.stellarhosted.com/d/grafana-assistant-ev6-bigquery/grafana-assistant-ev6-bigquery?orgId=1" target="_blank" rel="noopener noreferrer">public playground&lt;/a>.&lt;/p>
+&lt;figure
+class="responsive-video p-0 m-0"
+x-data="{ vimeo_is_up: false, responded: false }"
+x-init="fetch(`https://vimeo.com/api/oembed.json?url=https://vimeo.com/1145695326`)
+.then(response => {
+responded = true;
+response &amp;&amp; response.status === 200 ? vimeo_is_up = true : vimeo_is_up = false;
+})
+.catch(error => {
+responded = true;
+})"
+>
+&lt;div class="minh-428">
+&lt;template x-if="vimeo_is_up">
+&lt;div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+&lt;iframe src="https://player.vimeo.com/video/1145695326?transparent=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border:0;" title="vimeo video" webkitallowfullscreen mozallowfullscreen allowfullscreen>&lt;/iframe>
+&lt;/div>
+&lt;/template>
+&lt;template x-if="responded &amp;&amp; !vimeo_is_up">
+&lt;p class="bg-gray-17 p-1">There&amp;rsquo;s supposed to be a video here, but for some reason there isn&amp;rsquo;t. Either we entered the id wrong (oops!), or Vimeo is down. If it&amp;rsquo;s the latter, we&amp;rsquo;d expect they&amp;rsquo;ll be back up and running soon. In the meantime, &lt;a href="/blog/">check out our blog&lt;/a>!&lt;/p>
+&lt;/template>
+&lt;/div>
+&lt;/figure>
+&lt;h3 id="our-summary-thoughts">Our summary thoughts&lt;/h3>
+&lt;p>We spent 20+ hours with Grafana Assistant. Here are our overarching thoughts.&lt;/p>
+&lt;p>&lt;strong>1: Excellent concept.&lt;/strong> For users that have already hooked up Grafana to their data, it is extremely simple to start working with the data through the LLM. This ease-of-access is a critical advantage—and the Grafana Assistant UI is great.&lt;/p>
+&lt;p>&lt;strong>2: A drunk genius.&lt;/strong> Grafana Assistant can give you that &amp;ldquo;magical experience&amp;rdquo; where you sit back and watch it produce an entire Grafana dashboard in one shot according to your specifications. However, in some cases it will produce invalid queries, get stuck or hallucinate—just like all LLMs. Make sure to always review the output.&lt;/p>
+&lt;p>&lt;strong>3: Visualization vs. analysis.&lt;/strong> The LLM is able to modify dashboards and execute SQL queries, making it an excellent tool for data visualization and light exploration. However, it is not able to run scripts (in contrast to ChatGPT, for example), making it less suitable for highly complex, multi-step data analysis—at least for now. Such functionality could be a powerful future mode/variation of the assistant.&lt;/p>
+&lt;p>&lt;strong>4: Huge potential.&lt;/strong> While the current version has limitations in terms of performance and data source support, we are confident that Grafana Assistant will become an extremely handy tool for data visualization and exploration. In just our one month of testing, Grafana added a ton of improvements to the LLM, so we are excited to see how this tool develops!&lt;/p>
+&lt;p>To learn more and see additional showcases, check out our &lt;a href="https://www.csselectronics.com/pages/grafana-assistant-can-bus-data-ai-llm-dashboards" target="_blank" rel="noopener noreferrer">full Grafana Assistant article&lt;/a>!&lt;/p>
+&lt;p>&lt;em>&lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>&lt;/em> &lt;em>is the easiest way to get started with metrics, logs, traces, dashboards, and more. We have a generous forever-free tier and plans for every use case.&lt;/em> &lt;em>&lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">Sign up for free now!&lt;/a>&lt;/em>&lt;/p></description></item><item><title>‘Grafana’s Big Tent’ podcast: Welcome to season 3!</title><link>https://grafana.com/blog/2025/12/11/grafanas-big-tent-podcast-welcome-to-season-3/</link><pubDate>Thu, 11 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/11/grafanas-big-tent-podcast-welcome-to-season-3/</guid><description>&lt;p>Sometimes the simplest questions spark the most entertaining rabbit holes. Questions like: “Can you monitor a candle without starting a fire?” or “Should your robot boat have redundancy, or just a twin?” &lt;/p>
+&lt;p>Today, we’re excited to kick off season 3 of “Grafana’s Big Tent” — the &lt;a href="https://devopsdozen.com/devops-dozen-2022-community-award-winners/" target="_blank" rel="noopener noreferrer">award-winning&lt;/a> podcast about the people, community, tools, and tech shaping observability — to answer these pressing questions (and more). &lt;/p>
+&lt;p>We launched &lt;a href="/blog/2022/04/04/welcome-to-grafanas-big-tent-a-podcast-about-people-community-tech-and-tools-around-observability/">“Grafana’s Big Tent” in 2022&lt;/a> to spark fun, open conversations across the observability community. The show embodies and celebrates our “big tent” philosophy — the belief that you should be able to access your data anywhere, and use the observability tools and strategies that work best for you. Most importantly, the podcast has resonated with the open source community, with more than 30,000 downloads across 120+ countries. &lt;/p>
+&lt;p>In the first episode of season 3, you’ll hear a live recording from &lt;a href="/blog/2025/05/07/grafanacon-2025-announcements/">GrafanaCON 2025&lt;/a> in Seattle, featuring hosts Mat Ryer, Principal Software Engineer at Grafana Labs, and Tom Wilkie, Grafana Labs CTO. The topic? Homelabs gone wild, adventures in tinkering, and IoT wins and fails. &lt;/p>
+&lt;p>Our hosts are joined by Ivana Huckova, Staff Software Engineer at Grafana Labs; Andrew McCalip, Head of Research and Development at Varda Space Industries (and builder of an &lt;a href="/events/grafanacon/2025/monitor-project-bob-droneship-with-grafana-and-tailscale/">autonomous drone-ship&lt;/a>); and Brad Fitzpatrick, Chief Engineer at Tailscale, creator of LiveJournal, and former member of the Go team. &lt;/p>
+&lt;p>The group discuss everything from a self-righting boat to dog happiness monitoring (version 2 pending) and a “magic wand” wishlist for Grafana. Oh, and we learn why switching between pounds and kilos mid-sentence is a dangerous maritime practice.&lt;/p>
+&lt;p>You can watch the full episode in the YouTube video below, or listen on &lt;a href="https://open.spotify.com/show/3beQvS8to0rYs1gxOnPrfD" target="_blank" rel="noopener noreferrer">Spotify&lt;/a> or &lt;a href="https://podcasts.apple.com/us/podcast/grafanas-big-tent/id1616725129" target="_blank" rel="noopener noreferrer">Apple Podcasts&lt;/a>.&lt;/p>
+&lt;iframe width="560" height="315" src='https://www.youtube.com/embed/p22K_Q0SAlo' title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>&lt;/iframe>
+&lt;p>&lt;em>Note: The following are highlights from episode 1, season 3 of “Grafana’s Big Tent” podcast. The transcript below has been edited for length and clarity.&lt;/em>&lt;/p>
+&lt;h2 id="first-tinkers-from-zx-spectrums-to-5000-lb-garage-surprises">First tinkers: from ZX Spectrums to 5,000-lb garage surprises&lt;/h2>
+&lt;p>&lt;strong>Mat Ryer:&lt;/strong> My dad was into computers really early, so we had a ZX Spectrum at home. That’s where I learned BASIC first. I loved it — you could make things happen in this little universe. I’ve been hooked ever since. I kind of miss when tech used to be rubbish; now everything’s shiny and just works.&lt;/p>
+&lt;p>&lt;strong>Brad Fitzpatrick:&lt;/strong> We had a bootleg Apple II my dad made from stolen parts and a stolen ROM. He taught me to program when I was like five or six, and I kind of haven’t stopped since.&lt;/p>
+&lt;p>&lt;strong>Andrew McCalip:&lt;/strong>  I sort of shocked my parents when I was 14 — I brought home this old CNC machine, a 5,000-pound monstrosity, and parked it in the garage. That was the start of my hardware career… and there’s basically always been a CNC around since.&lt;/p>
+&lt;p>&lt;strong>Ivana Huckova:&lt;/strong> I joined Grafana as a frontend engineer, so naturally my onboarding project was a little IoT monitoring solution. My manager Dan mailed me an ESP32 board in an envelope, with all the sensors. That really sparked everything — since then I’ve built monitoring for my sourdough starter, my avocado plant, my standing desk, and I once tried to build a dog happiness monitoring solution. That one failed, so it’s on the list for version two.&lt;/p>
+&lt;h2 id="useful-3d-printing-beyond-trinkets">Useful 3D printing: beyond trinkets&lt;/h2>
+&lt;p>&lt;strong>Tom Wilkie:&lt;/strong> I saw on your profile you’ve got a 3D printer. What have you actually been using it for?&lt;/p>
+&lt;p>&lt;strong>Brad:&lt;/strong> My kids wanted one for Christmas, then lost interest after about a day… so now I have a 3D printer. At this point, half our house is plastic. I’ve printed baby-proofing corner guards, a Wi-Fi mount. We had this bathtub with a tiny one-inch gap at the back where everything fell and you couldn’t reach it, so I printed a shelf that clicks together and fills it. Now nothing falls down there.&lt;/p>
+&lt;p>&lt;strong>Tom:&lt;/strong> You’re the first person I’ve asked who didn’t just say ‘I printed parts for more printers.’&lt;/p>
+&lt;p>&lt;strong>Brad:&lt;/strong> Oh no, I love CAD. Making useful stuff is the fun part.&lt;/p>
+&lt;p>&lt;strong>Tom (to Andrew):&lt;/strong> But you’ve got a &lt;em>real&lt;/em> 3D printer… or rather a CNC, right?&lt;/p>
+&lt;p>&lt;strong>Andrew:&lt;/strong> Yeah, a 17,000-pound Haas CNC. You can actually pay people to move something that big on 18-wheelers. I think of it as a metal compiler — metal goes in, parts come out. It’s super-satisfying.&lt;/p>
+&lt;h2 id="iot-wins-and-one-smoky-fail">IoT wins (and one smoky fail)&lt;/h2>
+&lt;p>&lt;strong>Ivana&lt;/strong>: With my plant monitoring, I learned more than from any blog post — how much water they need, how much sun, what the light looks like over the day. I was terrible at taking care of plants, but after wiring all this up I actually became good at it. One of my biggest failed projects was candle monitoring. I wanted to watch the PM particles when you blow a candle out, and I also wanted to know if I’d left a candle burning after leaving the apartment. The idea was that if it was still on, I could remotely shut it down. So I built a system where a wooden lid would drop on the candle. During testing, the lid… caught fire. I did at least learn that you shouldn’t mess with fire when you’re outside your apartment.&lt;/p>
+&lt;p>&lt;strong>Tom&lt;/strong>: My laser cutter is in the garage for exactly that reason — not in my office. Also, it smells terrible.&lt;/p>
+&lt;p>&lt;strong>Ivana&lt;/strong>: And as for dog happiness v1 — my dog is very hairy. Double-coated, very long hair. I tried using a heart rate monitor on him, but if you just strap a sensor onto a lot of fur, it’s not very reliable. I also put a little camera on him, and every time his heart rate went up, it took a photo. The results were mostly hair, feet, and pavement. So I need a better heart rate sensor, or a different camera placement. I’m not abandoning the idea — version 2 is definitely on the list for a future Grafana hackathon.&lt;/p>
+&lt;p>&lt;strong>Tom&lt;/strong>: I have five 3D printers in my office. I dread monitoring the air in there. I am made of microplastics now.&lt;/p>
+&lt;h2 id="the-ocean-robot-ballast-barnacles-and-redundancy">The ocean robot: ballast, barnacles, and “redundancy”&lt;/h2>
+&lt;p>&lt;strong>Tom:&lt;/strong> I want to ask about your ocean-going drone ship. How are you going to handle terrible weather? What happens when it inevitably capsizes?&lt;/p>
+&lt;p>&lt;strong>Andrew:&lt;/strong> Good question. If you’re not careful, things in the ocean don’t stay upright. So we gave the boat a really deep keel with a big lead ballast. If it flips over, the idea is it self-rights. We actually wrote a whole Python script to model the hydrodynamics and buoyancy, then tested it in water a few times — it works great.&lt;/p>
+&lt;p>&lt;strong>Brad:&lt;/strong> Did you model the keel breaking?&lt;/p>
+&lt;p>&lt;strong>Andrew:&lt;/strong> We have two models: the strong keel and the fast keel. Priority one, since we’re mechanical people more than software people, was ‘Make sure it doesn’t flip over.’ Priority two was ‘turn it off and back on again.’&lt;/p>
+&lt;p>&lt;strong>Tom:&lt;/strong> Do you have a secondary backup control system?&lt;/p>
+&lt;p>&lt;strong>Andrew:&lt;/strong> No. No backup. There was a big philosophical debate about redundancy. Is anything truly redundant? In the end we decided the easiest redundancy is: make a second boat. So we test, test, test, and when we’re happy, we ship it.&lt;/p>
+&lt;p>&lt;strong>Tom:&lt;/strong> And when it fails in the ocean, how do you get to it to reboot it?&lt;/p>
+&lt;p>&lt;strong>Andrew:&lt;/strong> We don’t. We’ll tell Twitter, ‘It was last seen at this latitude/longitude. If anybody finds it, please tow it back to Los Angeles.’ It’ll just be out there floating around.&lt;/p>
+&lt;p>&lt;strong>Tom:&lt;/strong> Does it have a name? And why is it not Boaty McBoatface?&lt;/p>
+&lt;p>&lt;strong>Andrew:&lt;/strong> Boaty McBoatface was a strong contender, but it’s kind of taken. It’s called Bob, after the Bobiverse books — sci-fi about a sentient spacecraft that makes copies of itself and explores the universe. It’s poetic, and also a pun.&lt;/p>
+&lt;h2 id="parting-words">Parting words&lt;/h2>
+&lt;p>It wouldn’t be Big Tent without a nod to history.&lt;/p>
+&lt;p>&lt;strong>Brad:&lt;/strong> LiveJournal was like Twitter in 1998. The first client was a Windows app with a single input bar across the bottom of your screen. You typed, hit Enter, and it posted. No paragraphs — hitting Enter just posted it. Somehow it ended up with millions of users. In the opening scene of that Facebook movie, the actor playing Zuckerberg is actually on LiveJournal. That’s my little movie cameo, via software.&lt;/p>
+&lt;p>&lt;strong>Tom:&lt;/strong> I don’t think anything I’ve written has ever been in a movie.&lt;/p>
+&lt;p>&lt;strong>Mat:&lt;/strong> What a flex.&lt;/p>
+&lt;p>&lt;em>“Grafana’s Big Tent” podcast wants to hear from you. If you have a great story to share, want to join the conversation, or have any feedback, please contact the Big Tent team at&lt;/em> &lt;em>&lt;a href="mailto:bigtent@grafana.com">bigtent@grafana.com&lt;/a>&lt;/em>.&lt;/p></description></item><item><title>Grafana Labs: Top 10 moments of 2025</title><link>https://grafana.com/blog/2025/12/11/grafana-labs-top-10-moments-of-2025/</link><pubDate>Thu, 11 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/11/grafana-labs-top-10-moments-of-2025/</guid><description>&lt;p>For Grafana Labs, 2025 was a year defined by innovation, growth, and the power of our community.&lt;/p>
+&lt;p>We celebrated the release of Grafana 12 at our 10th annual GrafanaCON event, and marked major milestones across open source projects, including Mimir, k6, Beyla, Faro, and Alloy. &lt;/p>
+&lt;p>It was also a year of taking bold steps forward in how teams interact with their systems and data. With the launch of our actually useful AI-powered agent Grafana Assistant, our end-to-end Adaptive Telemetry suite, and Grafana Cloud Knowledge Graph, we continued on our mission to make observability smarter, easier, and more accessible to everyone.&lt;/p>
+&lt;p>Just as importantly, 2025 was a year of strengthening the bonds across our global community. We expanded our presence in Japan and shared insights from more than 1,200 practitioners from around the world in our third annual Observability Survey. &lt;/p>
+&lt;p>“It’s really satisfying for me to sit back and realize that we’ve become a force in open source observability, but we’ve done it as part of this wider community and wider ecosystem,” said Raj Dutt, CEO and co-founder of Grafana Labs, at GrafanaCON this year. &lt;/p>
+&lt;p>Here’s a look at some of the top moments that defined 2025 at Grafana Labs. &lt;/p>
+&lt;h2 id="1-actually-useful-ai-with-grafana-assistant">1. Actually useful AI with Grafana Assistant &lt;/h2>
+&lt;p>If you don&amp;rsquo;t mention AI, are you even a tech company? &lt;/p>
+&lt;p>At Grafana Labs, though, AI is much more than the latest observability trend. It’s become essential to how organizations keep their systems running, and we want it to &lt;a href="/blog/2025/08/14/ai-in-observability-at-grafana-labs-making-observability-easy-and-accessible-for-everyone/">play a pivotal role&lt;/a> in simplifying the observability experience for every user.&lt;/p>
+&lt;p>&lt;a href="/docs/grafana-cloud/machine-learning/assistant/">Grafana Assistant&lt;/a> — our AI-powered agent in Grafana Cloud — deeply reflects this belief. What started as an internal hackathon project at the beginning of the year quickly evolved into a generally available feature that lets you query, build, and troubleshoot faster using natural language. &lt;/p>
+&lt;p>We’ve seen teams use it for &lt;a href="/blog/2025/08/14/ai-for-grafana-onboarding-get-your-teams-started-quicker-with-grafana-assistant/">simplified onboarding&lt;/a>, &lt;a href="/blog/2025/09/11/debug-query-and-build-faster-with-grafana-assistant/">faster debugging&lt;/a>, and easier dashboard building for every use case. (The color-coded &lt;a href="/blog/2025/10/03/taylor-swift-grafanas-version-how-to-track-and-visualize-data-related-to-pop-s-biggest-superstar/">Taylor Swift eras dashboard&lt;/a>? Assistant helped build that.)&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1920x1080/d0ce1ddddc/assistant-ga-ui.gif/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1920x1080/d0ce1ddddc/assistant-ga-ui.gif/m/"alt="A GIF showing Grafana Assistant responding to a request for help writing a LogQL query."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>The best part? We’re just getting started. We’ve also &lt;a href="/blog/2025/10/08/grafana-assistant-ga-assistant-investigations-preview/#get-more-from-assistant-with-our-latest-improvements">rolled out Assistant Investigations&lt;/a> (in public preview), an AI-powered feature that extends Grafana Assistant to accelerate multi-step incident investigations.  &lt;/p>
+&lt;p>For more information, check out our &lt;a href="/docs/grafana-cloud/machine-learning/assistant/?pg=blog&amp;amp;plcmt=body-txt">Assistant docs&lt;/a>. &lt;/p>
+&lt;h2 id="2-grafana-12-release-and-more-oss-milestones">2. Grafana 12 release and more OSS milestones&lt;/h2>
+&lt;p>Even as the observability market moves at warp speed, one thing remains constant for us: open source software will always be part of our DNA. &lt;/p>
+&lt;p>“We really believe, and continue to believe, that open source is going to win, and is ultimately the best way to develop software,” Raj told attendees at GrafanaCON 2025, where we &lt;a href="/blog/2025/05/07/grafana-12-release-all-the-new-features/">launched Grafana 12&lt;/a>. &lt;/p>
+&lt;p>The latest major release introduced powerful observability as code features, such as &lt;a href="/blog/2025/05/07/git-sync-grafana-12/">Git Sync&lt;/a> and &lt;a href="/blog/2025/05/07/dynamic-dashboards-grafana-12/">dynamic dashboards&lt;/a>. There were also some fun data visualization updates (who doesn’t love a new &lt;a href="/blog/2025/05/07/grafana-12-release-all-the-new-features/#new-themes-in-grafana-dashboards">dashboard theme&lt;/a>?!) and an expansion of our &lt;a href="/docs/grafana/latest/visualizations/simplified-exploration/?pg=blog&amp;amp;plcmt=body-txt">Grafana Drilldown suite of applications&lt;/a> for queryless, point-and-click data exploration.&lt;/p>
+&lt;iframe width="560" height="315" src='https://www.youtube.com/embed/mHSzaVYBh38' title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>&lt;/iframe>
+&lt;p>Many of our other open source projects hit major milestones this year — milestones we couldn’t have reached without the support of our OSS community. &lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/11/03/grafana-mimir-3-0-release-all-the-latest-updates/">Mimir 3.0&lt;/a>&lt;/strong>: This major release delivers dramatic improvements in reliability, performance, and cost efficiency, marking a new era for the open source, horizontally scalable, multi-tenant time series database (TSDB).&lt;/li>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/05/07/grafana-k6-1.0-release/">k6 1.0&lt;/a>&lt;/strong>:  k6 1.0 rolled out with TypeScript support, revamped test insights, and clear support and versioning guarantees to power the next decade of performance and reliability testing.&lt;/li>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/02/10/grafana-beyla-2.0-distributed-traces-scalable-kubernetes-deployments-and-more/">Beyla 2.0&lt;/a>&lt;/strong>: The latest major release of our vendor-agnostic, open source eBPF zero-code instrumentation tool introduced performance and functional improvements — like support for new protocols and distributed tracing — along with deeper alignment with the OpenTelemetry project (spoiler alert: more on that below). &lt;/li>
+&lt;li>&lt;strong>&lt;a href="/whats-new/2025-11-21-faro-web-sdk-v20-is-now-ga/">Faro 2.0&lt;/a>&lt;/strong>: Released in November, v2.0 of the Faro Web SDK introduces improvements to Web Vitals, simplifies configuration, cleans up deprecated internals, and more to provide a more streamlined and performant user experience. &lt;/li>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/05/08/alloy-one-year/">One-year anniversary for Alloy&lt;/a>&lt;/strong>: In May, we celebrated one year of Grafana Alloy, our open source OpenTelemetry collector with built-in Prometheus pipelines and support for metrics, logs, traces, and profiles. &lt;/li>
+&lt;/ul>
+&lt;p>You can read more about OSS updates on &lt;a href="/blog/">our blog&lt;/a>.&lt;/p>
+&lt;h2 id="3-opentelemetry-ebpf-instrumentation-beyla-donated-to-the-otel-project">3. OpenTelemetry eBPF Instrumentation: Beyla donated to the OTel project&lt;/h2>
+&lt;p>Over the years, we’ve prioritized contributing to the OpenTelemetry project and building compatibility with OpenTelemetry into our products and open source projects. &lt;a href="/oss/beyla-ebpf/?pg=blog&amp;amp;plcmt=body-txt">Beyla&lt;/a> is a leading example of both of those efforts.&lt;/p>
+&lt;p>This year, with the support from both Grafanistas and the open source community, we officially &lt;a href="/blog/2025/05/07/opentelemetry-ebpf-instrumentation-beyla-donation/">donated Beyla to OpenTelemetry&lt;/a>, under the new project name &lt;a href="https://github.com/open-telemetry/opentelemetry-ebpf-instrumentation" target="_blank" rel="noopener noreferrer">OpenTelemetry eBPF Instrumentation&lt;/a> (commonly referred to as OBI). It was a special moment for us, and one that marked a significant milestone in the evolution of zero-code eBPF instrumentation within the open source community at large.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/dc515f1400/beyla-demo.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/dc515f1400/beyla-demo.png/m/"alt="A screenshot of a Grafana dashboard in a Beyla demo, showing RED (rate, error, and duration) metrics, as well as service graph metrics, generated for the OpenTelemetry Demo Checkout service directly from Beyla"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>As part of the donation, we announced that Beyla will continue to exist as Grafana Labs’ distribution of the upstream OpenTelemetry eBPF Instrumentation. In August, &lt;a href="/blog/2025/08/04/building-on-the-foundation-of-opentelemetry-ebpf-instrumentation-what-s-new-in-grafana-beyla-2-5/">we rolled out Beyla 2.5&lt;/a>, the first Beyla release where we directly vendored most of the code from the upstream repository. &lt;/p>
+&lt;p>Looking ahead, we’re excited to continue collaborating and driving further innovation around zero-effort instrumentation within the OTel community.&lt;/p>
+&lt;p>To learn more about OpenTelemetry eBPF Instrumentation, visit &lt;a href="https://opentelemetry.io/docs/zero-code/obi/" target="_blank" rel="noopener noreferrer">OpenTelemetry docs&lt;/a>. &lt;/p>
+&lt;h2 id="4-first-ever-science-fair-at-grafanacon">4. First-ever &amp;ldquo;Science Fair&amp;rdquo; at GrafanaCON &lt;/h2>
+&lt;p>There were no exploding volcanoes, but there were 3D printers and plenty of IoT devices. &lt;/p>
+&lt;p>Our 10th annual &lt;a href="/blog/2025/05/07/grafanacon-2025-announcements/">GrafanaCON&lt;/a> featured our inaugural Science Fair, a series of interactive booths—complete with tri-fold poster boards—where attendees could check out and play with projects demonstrating all the different things you can monitor with Grafana. Highlights included the team from PRUSA monitoring a 3D printer (mini Grots for everyone!); a desktop wind tunnel built for model race cars created by Grafana Labs CTO Tom Wilkie; and the hackathon booth, where attendees could get hands-on with popular projects from &lt;a href="/blog/2024/03/01/grafana-labs-hackathon-projects-where-are-they-now/">Grafana Labs hackathons&lt;/a>, like Dash Dash Revolution and &lt;a href="/blog/2022/03/31/can-grafana-run-doom/">Doomfana&lt;/a>.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1999x1333/6fb8b42b1c/3d-printed-grots.jpg/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1999x1333/6fb8b42b1c/3d-printed-grots.jpg/m/"alt="A photo of 3D printed Grots."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>In addition to the Science Fair, GrafanaCON 2025 featured more than 32 live sessions, our Ask the Experts booth, hands-on labs, a welcome reception, and more fun, community-driven activities.&lt;/p>
+&lt;p>Want to get in on the action next year? Be sure to sign up to get notified when discount tickets are available and get an early heads-up about all the topics we&amp;rsquo;ll be highlighting at &lt;a href="/events/grafanacon/?pg=blog&amp;amp;plcmt=body-txt">GrafanaCON 2026&lt;/a>, which will take place April 20-22 in Barcelona. &lt;/p>
+&lt;h2 id="5-named-a-leader-in-the-gartner-magic-quadrant-for-observability-platforms-again">5. Named a Leader in the Gartner® Magic Quadrant™ for Observability Platforms (again!) &lt;/h2>
+&lt;p>Grafana Labs is proud to be recognized as &lt;a href="/resources/grafana-observability-platforms-gartner-magic-quadrant-2025/?pg=blog&amp;amp;plcmt=body-txt">a Leader in the 2025 Gartner® Magic Quadrant™ for Observability Platforms&lt;/a> for the second year in a row.&lt;/p>
+&lt;p>This year’s report placed Grafana Labs furthest to the right of the Magic Quadrant for “Completeness of Vision,” which we believe reflects our deep commitment to building a full-stack open observability platform that gives users flexibility, control, and the tools to own their observability strategy.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1808x1999/08e0a53d18/gartner-magic-quadrant-2025.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1808x1999/08e0a53d18/gartner-magic-quadrant-2025.png/m/"alt="A screenshot of the 2025 Gartner Magic Quadrant for Observability Platforms."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>This was one of several recognitions in 2025 that demonstrated how our company and community is playing a vital role in shaping the future of observability. We were also honored to be included in:&lt;/p>
+&lt;ul>
+&lt;li>The &lt;a href="https://www.forbes.com/cloud100" target="_blank" rel="noopener noreferrer">Forbes Cloud 100 list&lt;/a>, which recognizes the top private cloud companies in the world; Grafana Labs ranked number 13. &lt;/li>
+&lt;li>The Silicon Valley Defense Group’s NATSEC100, which &lt;a href="https://www.natsec100.org/" target="_blank" rel="noopener noreferrer">ranked Grafana Labs 26th&lt;/a> out of “the top 100 venture-backed, dual-use and defense technology companies driving forward U.S. national security.”&lt;/li>
+&lt;li>The &lt;a href="https://www.crn.com/news/software/2025/the-coolest-dataops-and-data-observability-companies-of-the-2025-big-data-100?page=7" target="_blank" rel="noopener noreferrer">Coolest DataOps and Data Observability Companies of the 2025 Big Data 100&lt;/a>, produced by CRN.&lt;/li>
+&lt;li>The &lt;a href="https://www.redpoint.com/infrared/100/" target="_blank" rel="noopener noreferrer">InfraRed 100&lt;/a>, an unranked list that honors transformative companies in cloud infrastructure.&lt;/li>
+&lt;/ul>
+&lt;p>While we’re proud of these accolades, we’ll always consider our users’ success to be the ultimate validation of our products. &lt;/p>
+&lt;p>“We&amp;rsquo;re so privileged to be at the center of this really dynamic and vibrant ecosystem and community,” Raj said at &lt;a href="/events/observabilitycon/agenda/2025/keynote/">ObservabilityCON 2025&lt;/a>. &lt;/p>
+&lt;h2 id="6-the-end-to-end-adaptive-telemetry-suite">6. The end-to-end Adaptive Telemetry suite&lt;/h2>
+&lt;p>More observability data doesn’t always bring more clarity — in fact, it often just creates more noise and costs. That’s why we built Adaptive Telemetry, a set of features in Grafana Cloud that optimizes observability data by ensuring only the most valuable telemetry is stored and surfaced. It uses intelligent classification and prioritization techniques to analyze how telemetry is used and then automatically recommends actions like aggregating, sampling, dropping, or reducing low-value data.&lt;/p>
+&lt;p>Our Adaptive Telemetry suite started with &lt;a href="/docs/grafana-cloud/cost-management-and-billing/adaptive-telemetry/adaptive-metrics/?pg=blog&amp;amp;plcmt=body-txt">Adaptive Metrics&lt;/a> and &lt;a href="/docs/grafana-cloud/cost-management-and-billing/adaptive-telemetry/adaptive-logs/?pg=blog&amp;amp;plcmt=body-txt">Adaptive Logs&lt;/a>, and this year expanded to include:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/10/08/adaptive-telemetry-suite-in-grafana-cloud/#adaptive-traces-retain-only-your-most-valuable-traces">Adaptive Traces (generally available)&lt;/a>&lt;/strong>: Automatically identifies and retains your most valuable traces using tail sampling to deliver critical performance insights. &lt;/li>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/10/08/adaptive-telemetry-suite-in-grafana-cloud/#adaptive-profiles-the-power-of-continuous-profiling-without-runaway-costs">Adaptive Profiles (private preview)&lt;/a>&lt;/strong>: Dynamically adjusts data collection based on workload behavior, enabling continuous profiling at scale without high costs. &lt;a href="https://docs.google.com/forms/d/e/1FAIpQLSeIFky5ut3g3tvhIOApTqV1yyuZ6i0Cv_Vg2G0wTbS6r98elQ/viewform" target="_blank" rel="noopener noreferrer">Sign up here&lt;/a> to join our private preview.&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1999x876/4ad7118eeb/adaptive-telemetry-suite-timeline.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1999x876/4ad7118eeb/adaptive-telemetry-suite-timeline.png/m/"alt="An image showing a timeline of product releases for the Adaptive Telemetry suite."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>“Before Adaptive Traces, we had two bad options: send everything and blow our budget, or send so little we couldn’t get meaningful insight,” said Geoff Schultz, Manager, Infrastructure Engineering at Auditboard. “Now tracing is actually usable. We can dial sampling up or down as needed, keep costs in check, and still give teams the visibility they need.” &lt;/p>
+&lt;p>With this end-to-end Adaptive Telemetry suite, you can extend the benefits of the adaptive model across all core pillars of your observability strategy, ensuring every piece of telemetry you store is truly worth the investment. &lt;/p>
+&lt;p>Check out &lt;a href="/docs/grafana-cloud/adaptive-telemetry/">our documentation&lt;/a> to learn more about Adaptive Telemetry.&lt;/p>
+&lt;h2 id="7-introducing-grafana-labs-japan">7. Introducing Grafana Labs Japan&lt;/h2>
+&lt;p>Whether it’s attending community meetups, &lt;a href="/blog/2023/12/12/the-story-of-grafana-documentary-the-community-behind-the-code/">developing Grafana data sources&lt;/a>, or even monitoring the country&amp;rsquo;s &lt;a href="/blog/2024/08/01/how-japans-space-agency-used-grafana-to-monitor-its-first-moon-landing-in-real-time/">first moon landing&lt;/a>, our users and partners in Japan have been an active and integral part of the broader Grafana community.&lt;/p>
+&lt;p>That’s why we were excited to announce &lt;a href="/about/press/2025/11/12/grafana-labs-establishes-japan-subsidiary-to-accelerate-local-market-expansion/">the establishment of Grafana Labs Japan&lt;/a>, a new subsidiary in Tokyo, this year. With this investment, we strengthen our ability to deliver localized support, foster closer collaboration with Japanese enterprises and partners, and accelerate digital transformation initiatives across the region.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1086x724/29cade6881/grafana-labs-japan-opening-event.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1086x724/29cade6881/grafana-labs-japan-opening-event.png/m/"alt="A photo of Grafana Labs employees at the Grafana Labs Japan opening event."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>“At Grafana Labs, open is not just our strategy; it’s our differentiator. With our open and flexible observability platform, we help organizations see and understand anything from anywhere — turning signals into smarter, faster action. We are excited to extend this vision to more organizations in Japan,&amp;quot; said Raj.&lt;/p>
+&lt;h2 id="8-extending-the-grafana-cloud-stack">8. Extending the Grafana Cloud stack&lt;/h2>
+&lt;p>We are consistently shipping new features for &lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a> in an effort to make our hosted open observability platform more efficient, intelligent, and easier to use.&lt;/p>
+&lt;p>In addition to Grafana Assistant and the end-to-end Adaptive Telemetry suite, here are some other ways we’ve evolved Grafana Cloud in 2025 to enable more powerful, full-stack observability strategies. &lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/10/08/observabilitycon-2025-announcements/#full-stack-observability-powered-by-the-knowledge-graph">Knowledge graph&lt;/a>&lt;/strong>: By combining telemetry from across your system’s apps, databases, and infrastructure into a single intelligent map, the knowledge graph helps you reduce MTTR and find root causes faster. &lt;/li>
+&lt;li>&lt;strong>&lt;a href="/products/fedramp-federal-cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Federal Cloud&lt;/a>&lt;/strong>: FedRAMP High authorized and DoD IL5 compliant, Grafana Federal Cloud offers organizations secure and reliable cloud-based monitoring for their infrastructure, applications, and services, ensuring data protection and compliance with stringent security standards.&lt;/li>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/12/01/improve-service-reliability-and-ops-culture-with-grafana-cloud-service-center/">Service Center&lt;/a>&lt;/strong>: This unified hub in Grafana Cloud offers a service-first view of system health to help you improve service reliability and operational culture. &lt;/li>
+&lt;li>&lt;strong>&lt;a href="/blog/2025/11/13/understand-diagnose-and-optimize-sql-queries-introducing-grafana-cloud-database-observability/">Database Observability&lt;/a>&lt;/strong>: By tracking every query across your databases and easily correlating queries with app and infrastructure signals, this solution (shown below) makes database troubleshooting faster and easier. &lt;/li>
+&lt;li>&lt;strong>Instrumentation Hub&lt;/strong>: This point-and-click experience allows you to automatically discover instrumentation gaps and deploy observability coverage at scale.&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1999x1144/c4e0215688/database-observability-dashboard.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1999x1144/c4e0215688/database-observability-dashboard.png/m/"alt="A screenshot of a Database Observability dashboard."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>You can read more about these and other new features in our &lt;a href="/tags/grafana-cloud/">Grafana Cloud blog posts&lt;/a>. &lt;/p>
+&lt;h2 id="9-the-third-annual-observability-survey">9. The third annual Observability Survey &lt;/h2>
+&lt;p>Across companies of all shapes and sizes, observability practices are maturing and getting attention at the highest levels. At the same time, cost and complexity continue to hinder efforts as teams look to emerging tools to help simplify their processes in hopes of better outcomes.&lt;/p>
+&lt;p>These were some of the key findings from the &lt;a href="/blog/2025/03/25/observability-survey-takeaways/">third annual Observability Survey&lt;/a> brought to you by Grafana Labs. In total, we collected 1,255 responses online and at industry events around the world (that&amp;rsquo;s 4x more than last year!), making it the largest community-driven survey on the state of observability. We also produced versions of the survey for &lt;a href="/blog/2025/08/12/observability-trends-in-brazil-insights-from-our-localized-survey/">Brazil&lt;/a> and &lt;a href="/blog/2025/06/13/japan-observability-survey-25/">Japan&lt;/a> to better understand how organizations there are adopting observability, and to share that information with the community.&lt;/p>
+&lt;iframe width="560" height="315" src='https://www.youtube.com/embed/wTEuti1Ica4' title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>&lt;/iframe>
+&lt;p>The survey helps us better understand the state of observability, but we also see it as an asset for our community and the broader industry. The &lt;a href="/observability-survey/2025/">report&lt;/a> is free (no email required!), and this past year we added an &lt;a href="https://play.grafana.org/d/feg4yc4qw3wn4b/third-annual-observability-survey?orgId=1&amp;amp;from=2025-03-13T02:49:20.476Z&amp;amp;to=2025-03-14T02:49:20.476Z&amp;amp;timezone=utc&amp;amp;var-region=$__all&amp;amp;var-role=$__all&amp;amp;var-size=$__all&amp;amp;var-industry=$__all&amp;amp;var-filters=%60Region%60%20in%20%28%27Europe%27,%27Asia%27,%27North%20America%27,%27Africa%27,%27South%20America%27,%27Oceania%27,%27Middle%20East%27%29%20AND%20%60Role%60%20IN%20%28%27Platform%20team%27,%27SRE%27,%27CTO%27,%27Engineering%20manager%27,%27Developer%27,%27Director%20of%20engineering%27,%27Other%27%29%20AND%20%60Size_of_organization%60%20IN%20%28%2710%20or%20fewer%20employees%27,%2711%20-%20100%20employees%27,%27101%20-%20500%20employees%27,%27501%20-%201,000%20employees%27,%271,001%20-%202,500%20employees%27,%272,501%20-%205,000%20employees%27,%275,001%2B%20employees%27%29%20AND%20%60Industry%60%20IN%20%28%27Telecommunications%27,%27Healthcare%27,%27IoT%27,%27Financial%20services%27,%27Education%27,%27Government%27,%27Applied%20Sciences%27,%27Software%20%26%20Technology%27,%27Media%20%26%20Entertainment%27,%27Travel%20%26%20Transportation%27,%27Retail%2FE-commerce%27,%27Energy%20%26%20Utilities%27,%27Automotive%20%26%20Manufacturing%27,%27Other%27%29" target="_blank" rel="noopener noreferrer">interactive Grafana dashboard&lt;/a> where you can dig into the numbers, too. &lt;/p>
+&lt;p>Didn’t get to participate in the survey last year? No worries — we are still collecting &lt;a href="/blog/2025/10/01/take-grafana-labs-4th-annual-observability-survey/">responses for next year&amp;rsquo;s survey&lt;/a>. It only takes a few minutes, all responses will be kept anonymous, and you could win some swag.&lt;/p>
+&lt;h2 id="10-raising-the-bar-on-growth">10. Raising the bar on growth &lt;/h2>
+&lt;p>In September, Grafana Labs &lt;a href="/about/press/2025/09/30/grafana-labs-surpasses-400m-arr-and-7000-customers-gains-new-investors-to-accelerate-global-expansion/">completed a secondary transaction&lt;/a> led by Ontario Teachers’ Pension Plan, with participation from Sapphire Ventures and Tiger Global. Existing investors Lightspeed Venture Partners, GIC, Coatue, Sequoia Capital, CapitalG, and Lead Edge Capital also took part. &lt;/p>
+&lt;p>It was one of several moments that underscored our growing momentum in the observability market. We also surpassed $400 million in annual recurring revenue and grew to more than 7,000 global customers. Today, some of the world’s most recognized companies — from Anthropic and NVIDIA to Salesforce and Microsoft — rely on Grafana Labs to power their observability strategies.&lt;/p>
+&lt;p>“This is really an incredible accomplishment,” Raj said on stage at ObservabilityCON. “We really appreciate you helping us get to that number.”&lt;/p>
+&lt;p>And that’s a wrap! Of course, we couldn’t have hit any of these milestones without our incredible open source community. Thank you for continuing to support and inspire us, and we can’t wait for a new year filled with fresh ideas, shared wins, and even deeper connections.&lt;/p>
+&lt;p>&lt;em>Gartner®, Magic Quadrant™ for Observability Platforms, By Gregg Siegfried, Matt Crossley, Padraig Byrne, Andre Bridges, Martin Caren, 7 July 2025&lt;/em>&lt;/p>
+&lt;p>&lt;em>GARTNER is a registered trademark and service mark of Gartner, Inc. and/or its affiliates in the U.S. and internationally, MAGIC QUADRANT is a registered trademark of Gartner, Inc. and/or its affiliates and is used herein with permission. All rights reserved.&lt;/em>&lt;/p>
+&lt;p>&lt;em>Gartner does not endorse any vendor, product or service depicted in its research publications and does not advise technology users to select only those vendors with the highest ratings or other designation. Gartner research publications consist of the opinions of Gartner’s Research &amp;amp; Advisory organization and should not be construed as statements of fact. Gartner disclaims all warranties, expressed or implied, with respect to this research, including any warranties of merchantability or fitness for a particular purpose.&lt;/em>&lt;/p>
+&lt;p>&lt;em>This graphic was published by Gartner, Inc. as part of a larger research document and should be evaluated in the context of the entire document. The Gartner document is available upon request from Grafana Labs.&lt;/em>&lt;/p></description></item><item><title>Removal of Drilldown Investigations in Grafana: What you need to know</title><link>https://grafana.com/blog/2025/12/04/removal-of-drilldown-investigations-in-grafana-what-you-need-to-know/</link><pubDate>Thu, 04 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/04/removal-of-drilldown-investigations-in-grafana-what-you-need-to-know/</guid><description>&lt;p>Back in May, we introduced the &lt;a href="/whats-new/2025-05-04-introducing-investigations/?pg=blog&amp;amp;plcmt=body-txt">public preview of Grafana Drilldown Investigations&lt;/a>, a new feature intended to help Grafana OSS and Grafana Cloud users accelerate their incident response.&lt;/p>
+&lt;p>Now, as we head into the new year, we&amp;rsquo;ve made the difficult decision to deprecate this feature from OSS and deprovision it from Grafana Cloud. &lt;/p>
+&lt;p>To be clear, your &lt;a href="/docs/grafana/latest/visualizations/simplified-exploration/?pg=blog&amp;amp;plcmt=body-txt">Drilldown apps&lt;/a> (logs, metrics, traces, profiles) will not be affected, and neither will the classic Explore. Also, Drilldown Investigations should not be confused with &lt;a href="/docs/grafana-cloud/machine-learning/assistant/introduction/investigations/?pg=blog&amp;amp;plcmt=body-txt">Grafana Assistant Investigations&lt;/a>, which remains available to all Grafana Cloud users.&lt;/p>
+&lt;p>Though this feature never became generally available, we want to be transparent about the decision. Below you’ll find the timeline, what changes, and strategies on how to preserve notes and links you’ve saved.&lt;/p>
+&lt;h2 id="background">Background&lt;/h2>
+&lt;p>Drilldown Investigations set out to give you one place to collect and correlate key findings from different signals—metrics, logs, traces, and profiles—so you could move faster during an incident or a tricky performance dive. &lt;/p>
+&lt;p>Sounds great, right? In practice, however, adoption was low compared to our core Drilldown apps and dashboards, and the extra side panel/UI surface area added complexity without enough day‑to‑day payoff for most teams. &lt;/p>
+&lt;p>Rather than take Investigations to GA, we’re making the hard call to deprecate it and re‑invest that energy where you spend the majority of your time: Drilldown apps, dashboards, and guided pivots between signals. (If you’re new to Drilldown and how it differs from classic Explore, &lt;a href="/blog/2025/02/20/grafana-drilldown-apps-the-improved-queryless-experience-formerly-known-as-the-explore-apps/">here’s the background&lt;/a>.)&lt;/p>
+&lt;h3 id="whats-not-changing">&lt;strong>What’s not changing&lt;/strong>&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>Metrics Drilldown, Logs Drilldown, Traces Drilldown, and Profiles Drilldown remain.&lt;/strong> These are the queryless, point‑and‑click experiences many of you rely on daily. They’re still the fastest way to move from “something looks off” to the relevant service, pod, span, or profile.&lt;/li>
+&lt;li>&lt;strong>Classic Explore remains.&lt;/strong> If you prefer to type queries, that workflow isn’t going anywhere.&lt;/li>
+&lt;/ul>
+&lt;h3 id="whats-changing-grafana-cloud">&lt;strong>What’s changing (Grafana Cloud)&lt;/strong>&lt;/h3>
+&lt;ul>
+&lt;li>The Drilldown Investigations app (the sidebar experience that lets you collect items across Drilldown apps, add notes/markdown, and view a timeline or time‑range comparisons) will be removed from Grafana Cloud. Existing “investigations” artifacts (your notes and item lists) will not be available after removal.&lt;/li>
+&lt;/ul>
+&lt;h3 id="whats-changing-grafana-oss">&lt;strong>What’s changing (Grafana OSS)&lt;/strong>&lt;/h3>
+&lt;ul>
+&lt;li>The Drilldown Investigations app plugin will be marked as deprecated in the Plugin Catalog and eventually removed, unavailable for future installation in OSS Grafana.&lt;/li>
+&lt;/ul>
+&lt;h3 id="when-it">&lt;strong>When it&amp;rsquo;s changing&lt;/strong>&lt;/h3>
+&lt;ul>
+&lt;li>&lt;strong>Week of January 5:&lt;/strong> Removal and decommissioning of Grafana Drilldown Investigations app&lt;/li>
+&lt;li>&lt;strong>Week of January 5:&lt;/strong> Removal of Grafana Drilldown Investigations documentation&lt;/li>
+&lt;/ul>
+&lt;h2 id="what-you-should-do-now-migration-options">What you should do now (migration options)&lt;/h2>
+&lt;p>If you&amp;rsquo;re currently using the Drilldown Investigations app, you have several options going forward. And if you have any additional questions, please reach out to your Grafana Cloud account manager. If you&amp;rsquo;re using this feature in OSS, reach out in the &lt;a href="https://slack.grafana.com/" target="_blank" rel="noopener noreferrer">Grafana community Slack&lt;/a>. &lt;/p>
+&lt;h3 id="convert-an-investigation-into-a-dashboard">Convert an investigation into a dashboard&lt;/h3>
+&lt;p>If an investigation captured the right panels and comments, &lt;a href="/docs/grafana-cloud/visualizations/simplified-exploration/investigations/investigations/?pg=blog&amp;amp;plcmt=body-txt">create a dashboard from the investigation&lt;/a> to preserve its structure in a standard dashboard. This is the best one‑click way to keep a living artifact your team can iterate on.&lt;/p>
+&lt;h3 id="copy-notes-and-links-you-want-to-keep">Copy notes and links you want to keep&lt;/h3>
+&lt;p>Investigations were mostly pointers and markdown used to add context around your telemetry data. If you have stored any important information in a Grafana Drilldown Investigation, copy any commentary you care about into runbooks, tickets, or dashboards before the removal date. (Your underlying telemetry remains unchanged.)&lt;/p>
+&lt;h3 id="use-assistant-investigations-part-of-grafana-assistant">Use Assistant Investigations, part of Grafana Assistant&lt;/h3>
+&lt;p>&lt;a href="/docs/grafana-cloud/machine-learning/assistant/introduction/investigations/?pg=blog&amp;amp;plcmt=body-txt">Grafana Assistant Investigations&lt;/a> is not a replacement for Drilldown Investigations; it&amp;rsquo;s a completely new feature that supports running investigations. &lt;/p>
+&lt;p>This feature allows you to investigate incidents autonomously and asynchronously. And thanks to a tight integration with Grafana Assistant, our AI-powered chat bot, you can also take a number of follow-up actions (build a dashboard, create queries, create an alert, etc.).&lt;/p>
+&lt;p>&lt;em>&lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>&lt;/em> &lt;em>is the easiest way to get started with metrics, logs, traces, dashboards, and more. We have a generous forever-free tier and plans for every use case.&lt;/em> &lt;em>&lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">Sign up for free now!&lt;/a>&lt;/em>&lt;/p></description></item><item><title>Send OpenTelemetry traces and logs from Cloudflare Workers to Grafana Cloud</title><link>https://grafana.com/blog/2025/12/04/send-opentelemetry-traces-and-logs-from-cloudflare-workers-to-grafana-cloud/</link><pubDate>Thu, 04 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/04/send-opentelemetry-traces-and-logs-from-cloudflare-workers-to-grafana-cloud/</guid><description>&lt;blockquote>
+&lt;p>&lt;em>Note: This blog was co-authored by Nevika Shah, a senior product manager at Cloudflare.&lt;/em>&lt;/p>&lt;/blockquote>
+&lt;p>&lt;a href="https://workers.cloudflare.com/product/workers-ai?gclsrc=aw.ds&amp;amp;&amp;amp;utm_source=google&amp;amp;utm_medium=cpc&amp;amp;utm_campaign=20580233211&amp;amp;utm_term=_go_cmp-20580233211_adg-181172125365_ad-765256143338_dsa-2446653702475_dev-c_ext-_prd-_sig-CjwKCAiAlrXJBhBAEiwA-5pgwmTZCcxaXTXcoSytbMN3_oym4BKM5tO6KVxKrIdWS8Sx-9BG89MOYxoC5_kQAvD_BwE&amp;amp;utm_content=765256143338&amp;amp;gad_source=1&amp;amp;gad_campaignid=20580233211&amp;amp;gbraid=0AAAAADnzVeSrSlN2TnL1qpVncmnPxkXEn&amp;amp;gclid=CjwKCAiAlrXJBhBAEiwA-5pgwmTZCcxaXTXcoSytbMN3_oym4BKM5tO6KVxKrIdWS8Sx-9BG89MOYxoC5_kQAvD_BwE" target="_blank" rel="noopener noreferrer">Cloudflare Workers&lt;/a> is a developer platform for deploying serverless functions, frontends, containers, and databases to a global network, spanning 330+ cities around the world. However, as your application scales, it becomes crucial to have the right observability tools to investigate issues, monitor performance, and get alerts when issues arise.&lt;/p>
+&lt;p>Last month, Cloudflare Workers announced support for &lt;a href="https://blog.cloudflare.com/workers-tracing-now-in-open-beta/" target="_blank" rel="noopener noreferrer">exporting OpenTelemetry logs and traces&lt;/a>, letting you send this data directly to &lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>. By adopting the &lt;a href="https://opentelemetry.io/" target="_blank" rel="noopener noreferrer">OpenTelemetry Protocol&lt;/a> (OTLP) as the transport layer and exposing an easy configuration workflow in both platforms, you can stream traces and logs from your Workers application directly to your Grafana Cloud stack. &lt;/p>
+&lt;p>The new &lt;a href="/docs/grafana-cloud/monitor-infrastructure/integrations/integration-reference/integration-cloudflare-workers/?pg=blog&amp;amp;plcmt=body-txt">Cloudflare Workers integration for Grafana Cloud&lt;/a> offers pre-built dashboards, allowing you to quickly visualize and get value from your data. This includes the ability to drill down into traces and logs based on attributes like request location and duration. By sending data to Grafana Cloud, you can use: &lt;/p>
+&lt;ul>
+&lt;li>&lt;a href="/products/cloud/traces/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud Traces&lt;/a>, powered by &lt;a href="/docs/tempo/latest/?pg=blog&amp;amp;plcmt=body-txt">Grafana Tempo&lt;/a>, which provides distributed tracing capabilities to follow a request through your Worker&lt;/li>
+&lt;li>&lt;a href="/products/cloud/logs/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud Logs&lt;/a>, powered by &lt;a href="/docs/loki/latest/?pg=blog&amp;amp;plcmt=body-txt">Grafana Loki&lt;/a>, which stores logs so you can search them centrally&lt;/li>
+&lt;/ul>
+&lt;h2 id="traces-logs-and-dashboards-out-of-the-box">Traces, logs, and dashboards out of the box&lt;/h2>
+&lt;p>Exporting data from your Workers application uses a push‑based pipeline that forwards telemetry directly to Grafana Cloud using Cloudflare’s built-in Workers Observability feature called &lt;strong>&lt;a href="https://developers.cloudflare.com/workers/observability/exporting-opentelemetry-data/" target="_blank" rel="noopener noreferrer">Destinations&lt;/a>&lt;/strong>. Just add your OpenTelemetry endpoint and start sending — no agent installation and no sidecar management. &lt;/p>
+&lt;p>Once configured, you can automatically investigate:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Traces:&lt;/strong> OpenTelemetry spans are automatically instrumented within the Workers runtime. Spans like subrequests to APIs and calls to &lt;a href="https://developers.cloudflare.com/workers/observability/traces/spans-and-attributes/" target="_blank" rel="noopener noreferrer">Worker bindings&lt;/a> like &lt;a href="https://developers.cloudflare.com/r2/" target="_blank" rel="noopener noreferrer">R2 Object Storage&lt;/a> and &lt;a href="https://developers.cloudflare.com/kv/" target="_blank" rel="noopener noreferrer">Workers Key-Value Store&lt;/a> are automatically emitted and ingested by Tempo. &lt;/li>
+&lt;li>&lt;strong>Logs&lt;/strong>: Logs emitted by your Workers are forwarded to Loki and indexed for search and alerting.&lt;/li>
+&lt;li>&lt;strong>Pre‑built dashboards&lt;/strong>: Grafana Cloud provides ready‑made panels tailored to Cloudflare Workers telemetry, letting you see request volumes, latency distributions, error rates, and geographical patterns without building dashboards from scratch.&lt;/li>
+&lt;/ul>
+&lt;p>Multiple Workers can send data to the same Grafana Cloud stack, and the pipeline scales automatically; there is no infrastructure to provision or maintain.&lt;/p>
+&lt;h3 id="practical-scenarios">Practical scenarios&lt;/h3>
+&lt;p>Let’s look at a few scenarios where this data is used to diagnose and manage application health: &lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Debugging performance in specific regions:&lt;/strong> If users in Europe report slowness, filter the dashboard to those colos and examine latency distributions. You can use Tempo to follow slow traces step by step, and Loki to see whether errors or long‑running operations correlate. Because telemetry is global, you can compare the European pattern to other continents to isolate the issue.&lt;/li>
+&lt;li>&lt;strong>Capacity and traffic planning:&lt;/strong> By watching request volume trends across continents and time zones, you can anticipate growth and adjust caching or compute limits accordingly. &lt;/li>
+&lt;li>&lt;strong>Security and anomaly detection:&lt;/strong> Sudden spikes from unusual HTTP methods or from unexpected countries may indicate abuse. The integration’s real‑time metrics and logs help you identify these anomalies quickly and initiate mitigations.&lt;/li>
+&lt;li>&lt;strong>User experience optimization:&lt;/strong> Client analytics reveal which browsers, OSes, or devices dominate your traffic. If you see poor performance for a particular browser version, you can reproduce and fix it. Language and locale information can inform localization decisions or A/B testing.&lt;/li>
+&lt;/ul>
+&lt;h2 id="get-set-up">Get set up &lt;/h2>
+&lt;p>At a high level, the integration consists of two pieces: &lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>&lt;a href="https://developers.cloudflare.com/workers/observability/exporting-opentelemetry-data/" target="_blank" rel="noopener noreferrer">Destination&lt;/a>&lt;/strong> set-up in your Cloudflare dashboard that points at your Grafana Cloud OTLP endpoint&lt;/li>
+&lt;li>A small snippet of configuration for your Worker, telling Cloudflare to send traces and logs to Grafana Cloud&lt;/li>
+&lt;/ul>
+&lt;h3 id="configure-otlp-destinations">Configure OTLP destinations&lt;/h3>
+&lt;ol>
+&lt;li>&lt;strong>Create a Grafana Cloud access policy token&lt;/strong> in your Grafana portal. When you add a new OTLP connection, Grafana will display an OTLP endpoint (such as &lt;code>https://otlp-gateway-prod-us-east-2.grafana.net/otlp&lt;/code>) and a header name/value pair for authentication. The header name is &lt;code>Authorization&lt;/code>, and the value is a Base64‑encoded token beginning with &lt;code>Basic …&lt;/code>&lt;/li>
+&lt;li>&lt;strong>Add destinations in Cloudflare Workers Observability.&lt;/strong> In your Cloudflare dashboard, go to the &lt;a href="https://dash.cloudflare.com/?to=/:account/workers-and-pages/observability/destinations" target="_blank" rel="noopener noreferrer">Workers Observability page&lt;/a> and add two destinations: one for traces and one for logs. For each, provide the Grafana OTLP endpoint with the appropriate suffix (&lt;code>/v1/traces&lt;/code> or &lt;code>/v1/logs&lt;/code>), and supply the &lt;code>Authorization&lt;/code> header and its value from the previous step.&lt;/li>
+&lt;/ol>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1170x1158/6e1084c117/cloudflare-destinations-ui.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1170x1158/6e1084c117/cloudflare-destinations-ui.png/m/"alt="A screenshot of the &amp;#39;Add New Destination&amp;#39; UI with Traces selected as the destination type."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h3 id="enable-observability-on-your-worker">Enable observability on your Worker&lt;/h3>
+&lt;p>Next, configure your Worker to emit telemetry. You can do this by &lt;a href="https://developers.cloudflare.com/workers/observability/exporting-opentelemetry-data/#enabling-opentelemetry-export-for-your-worker" target="_blank" rel="noopener noreferrer">editing your Wrangler configuration file&lt;/a>: &lt;/p>
+&lt;div class="code-snippet code-snippet__mini">&lt;div class="lang-toolbar__mini">
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;/div>&lt;div class="code-snippet code-snippet__border">
+&lt;pre data-expanded="false">&lt;code class="language-none">[observability.traces]
+enabled = true
+destinations = [&amp;#34;grafana-traces&amp;#34;]
+[observability.logs]
+enabled = true
+destinations = [&amp;#34;grafana-logs&amp;#34;]&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>The destination names must match the names you configured in the Cloudflare dashboard. After deployment, data will begin sending to Grafana Cloud.&lt;/p>
+&lt;h2 id="inside-the-pre-built-dashboards">Inside the pre-built dashboards&lt;/h2>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1920x1080/e8c91f0194/cloudflare-workers-panel-1.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1920x1080/e8c91f0194/cloudflare-workers-panel-1.png/m/"alt="A screenshot of a Grafana Cloud dashboard for Cloudflare Workers, showing metrics including total numbers of events, request rate, and unique countries."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>Once telemetry reaches Grafana, the pre‑built dashboard surfaces a rich set of insights:&lt;/p>
+&lt;h3 id="request-patterns-and-performance">Request patterns and performance&lt;/h3>
+&lt;p>Grafana Cloud charts total request counts, requests per second, and unique requests (based on Ray IDs) so you can spot spikes or drops in traffic. Time‑series panels compare latency metrics across methods and endpoints and show the distribution of HTTP methods (GET, POST, etc.), while bar charts visualize the most frequently accessed URL paths. You can click into an error trace and immediately view the associated log messages. &lt;/p>
+&lt;h3 id="geographic-distribution">Geographic distribution&lt;/h3>
+&lt;p>Edge‑native applications serve users all over the world, so geography matters. The dashboard includes a geomap heatmap that highlights countries by request volume. You can drill down to see which Cloudflare data centers handle the most traffic and analyze patterns by continent, time zone, region, or even by autonomous system number (ASN). These views help identify high‑latency regions or unusual traffic sources.&lt;/p>
+&lt;h3 id="client-environment">Client environment&lt;/h3>
+&lt;p>Understanding the devices and software hitting your Worker can help prioritize testing and optimization. The integration enriches logs with user‑agent details, letting you break down requests by browser family (Chrome, Firefox, Safari, Edge), operating system (Windows, macOS, Linux, iOS, Android), rendering engine, and even user‑preferred language. You can compare performance across these dimensions to detect regressions or device‑specific issues.&lt;/p>
+&lt;h3 id="execution-context-and-protocols">Execution context and protocols&lt;/h3>
+&lt;p>The dashboards also show which handlers were invoked on your Worker, such as HTTP requests, cron events, and queue consumers. Combined with latency graphs, these metrics make it easier to investigate Worker latency by handler type. &lt;/p>
+&lt;h3 id="log-trends-and-errors">Log trends and errors&lt;/h3>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1920x1080/441022f192/cloudflare-workers-panel-2.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1920x1080/441022f192/cloudflare-workers-panel-2.png/m/"alt="A Grafana Cloud logs panel for Cloudflare Workers showing a table of trace IDs and start times, and a selected trace detail panel with span timeline."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>Loki indexes all logs from your Worker and surfaces severity trends in the dashboard. Bar charts split counts of info, warning, and error messages over time. Anomalies (e.g., a sudden increase in error logs from a specific region) can trigger alerts, and because each log entry includes a trace ID, you can jump from a log line directly to the related trace in Tempo.&lt;/p>
+&lt;h2 id="want-to-learn-more">Want to learn more? &lt;/h2>
+&lt;p>To dive deeper into the tools and standards behind this integration, you can explore the following resources:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Cloudflare Workers integration documentation:&lt;/strong> Find &lt;a href="/docs/grafana-cloud/monitor-infrastructure/integrations/integration-reference/integration-cloudflare-workers/?pg=blog&amp;amp;plcmt=body-txt">detailed instructions&lt;/a> for installing and configuring the integration&lt;/li>
+&lt;li>&lt;strong>Cloudflare’s export guide:&lt;/strong> Get &lt;a href="https://developers.cloudflare.com/workers/observability/exporting-opentelemetry-data/grafana-cloud/" target="_blank" rel="noopener noreferrer">step‑by‑step guidance&lt;/a> for exporting telemetry to Grafana Cloud and other OTLP destinations&lt;/li>
+&lt;li>&lt;strong>OpenTelemetry specification:&lt;/strong> Learn how OTLP standardizes telemetry across vendors&lt;/li>
+&lt;li>&lt;strong>Tempo and Loki:&lt;/strong> Explore how Grafana’s &lt;a href="/docs/tempo/latest/?pg=blog&amp;amp;plcmt=body-txt">tracing&lt;/a> and &lt;a href="/docs/loki/latest/?pg=blog&amp;amp;plcmt=body-txt">logging&lt;/a> backends work.&lt;/li>
+&lt;/ul>
+&lt;p>&lt;em>&lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>&lt;/em> &lt;em>is the easiest way to get started with metrics, logs, traces, dashboards, and more. We have a generous forever-free tier and plans for every use case.&lt;/em> &lt;em>&lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">Sign up for free now!&lt;/a>&lt;/em>&lt;/p></description></item><item><title>What's new in the Grafana Image Renderer: higher-quality results, security enhancements, and more</title><link>https://grafana.com/blog/2025/12/03/whats-new-in-the-grafana-image-renderer-higher-quality-results-security-enhancements-and-more/</link><pubDate>Wed, 03 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/03/whats-new-in-the-grafana-image-renderer-higher-quality-results-security-enhancements-and-more/</guid><description>&lt;p>Whether it’s for an email or that upcoming presentation, many Grafana users like to share their favorite dashboards or panels outside of Grafana itself. The &lt;a href="https://github.com/grafana/grafana-image-renderer" target="_blank" rel="noopener noreferrer">Grafana Image Renderer&lt;/a> is a backend service for Grafana that helps you do just that by rendering panels and dashboards as images, such as PNGs and PDFs, via a headless browser. It’s commonly used to support Grafana features like exporting dashboards, generating images for alert notifications, and creating PDF reports.&lt;/p>
+&lt;p>Earlier this year, we started working towards improving the Grafana Image Renderer, with the overall goal of enhancing the service’s performance, reliability, and security. Recently, these efforts resulted in the &lt;a href="https://github.com/grafana/grafana-image-renderer/releases" target="_blank" rel="noopener noreferrer">v5.0 release&lt;/a>, which involved a whole rewrite of the service and included significant security improvements for our &lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a> users.&lt;/p>
+&lt;h2 id="what-is-the-grafana-image-renderer">What is the Grafana Image Renderer?&lt;/h2>
+&lt;p>As a backend service for Grafana OSS, Grafana Enterprise, and Grafana Cloud, the Grafana Image Renderer enables various use cases related to generating and sharing images from Grafana. These include:&lt;/p>
+&lt;ul>
+&lt;li>Exporting dashboards and panels as PDFs and PNG images&lt;/li>
+&lt;li>Including images in alert notifications&lt;/li>
+&lt;li>Sharing rendered images via direct links &lt;/li>
+&lt;li>Generating images for PDF exports and scheduled reports (available in Grafana Cloud and Grafana Enterprise)&lt;/li>
+&lt;/ul>
+&lt;p>For a long time, you could choose between installing the Image Renderer as a plugin for Grafana, or deploying it as a service. The plugin was deprecated in September 2025, and the Image Renderer now exists only as a service that you can deploy separately alongside Grafana; it is not bundled with Grafana out of the box. &lt;/p>
+&lt;h2 id="recent-updates-to-the-grafana-image-renderer">Recent updates to the Grafana Image Renderer&lt;/h2>
+&lt;h3 id="heuristics-for-higher-quality-results">Heuristics for higher-quality results&lt;/h3>
+&lt;p>If you’ve used the Grafana Image Renderer — or a feature that it enables, like Grafana reporting and images in alert notifications — you have possibly experienced the service returning a partially blank result. This could have been an entire blank page or a panel that wasn’t fully loaded, or, in some cases, a result that featured your login screen rather than your dashboards.&lt;/p>
+&lt;p>To address this, the service now uses more heuristics to determine when the rendered website has finished loading. It does this by tracking the number of Grafana queries, network requests, and whether the website keeps changing visually. This leads to higher-quality results in reports and similar. The details include:&lt;/p>
+&lt;ul>
+&lt;li>The service will wait for all ongoing network requests to finish, as this is generally an indicator that all API requests and data source queries are complete.&lt;/li>
+&lt;li>The service will wait for Grafana to mark all data source queries as complete. Note: this capability requires the &lt;a href="/developers/scenes/">Grafana Scenes framework&lt;/a> to be enabled.&lt;/li>
+&lt;li>The service will wait for the website to complete its rendering process. For example, if there are changes to text or other components, it will wait until everything stabilizes fully. In the configuration options, we call this “DOM hashcode stabilization.”&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1420x722/5a73285cee/grafana-image-renderer-screenshot.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1420x722/5a73285cee/grafana-image-renderer-screenshot.png/m/"alt="A screenshot of a Grafana dashboard that&amp;#39;s displaying metrics for the Grafana Image Renderer service, including browser render action durations and active browsers per cluster."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h3 id="security-improvements-in-grafana-cloud">Security improvements in Grafana Cloud&lt;/h3>
+&lt;p>In the v5.0 release, we took the opportunity to tear down the old implementation and rebuild it to be faster and hardened.&lt;/p>
+&lt;p>The Grafana Image Renderer relies on Chromium, the upstream open source project behind Chrome, Brave, and Edge. Earlier this year, we reviewed the vulnerabilities that had occurred in the Image Renderer and found they came from one source: Chromium. When a new memory bug was fixed in Chromium every few months, we would rush to fix it in our service as well. While this approach generally worked, we knew we needed a better, more stable plan. &lt;/p>
+&lt;p>To break this cycle of constantly patching vulnerabilities, we shifted gears and implemented a significantly enhanced sandbox for Chromium. While Chromium includes its own sandbox out of the box, it didn’t provide the level of isolation required for Grafana Cloud, so we built our own. It works by placing the Chromium browser inside a custom-built, highly restrictive sandbox, powered by &lt;a href="https://man7.org/linux/man-pages/man7/namespaces.7.html" target="_blank" rel="noopener noreferrer">Linux’s namespace feature&lt;/a>. &lt;/p>
+&lt;p>This new sandbox environment strengthens operational security by offering complete isolation from other services, eliminating the possibility of persistent files and terminating all processes once they are complete. If you’re interested in learning more about this, we recommend reading about &lt;a href="https://github.com/google/nsjail" target="_blank" rel="noopener noreferrer">nsjail&lt;/a> and &lt;a href="https://github.com/containers/bubblewrap" target="_blank" rel="noopener noreferrer">bubblewrap&lt;/a>, which are solutions for similar problems.&lt;/p>
+&lt;p>As of writing, we’ve since seen 23 CVEs reported for Chromium, but our team did not have to rush to release a fix; our implementation was not impacted because of the way it’s now built.&lt;/p>
+&lt;h3 id="other-noteworthy-updates">Other noteworthy updates&lt;/h3>
+&lt;p>In addition to the above changes related to heuristics and security, we’ve made the following updates to the Grafana Image Renderer:&lt;/p>
+&lt;ul>
+&lt;li>The service has been migrated to Go, meaning less memory usage at idle, and enabling us to implement lower-level security improvements.&lt;/li>
+&lt;li>The service will adjust its rate-limit according to your available memory, meaning it will not take a new request if it can’t handle the load.&lt;/li>
+&lt;li>There are now significant acceptance tests to the service: no changes can be implemented if they break the service or its interaction with Grafana.&lt;/li>
+&lt;li>The service now has &lt;em>a lot&lt;/em> of configuration options. You can now tweak every timeout and wait duration, disable heuristics, set various security features like mTLS for tracing, and much more. If you can’t find an option for something you need for your use case, please open an issue on &lt;a href="https://github.com/grafana/grafana-image-renderer/issues/new/choose" target="_blank" rel="noopener noreferrer">our issue tracker&lt;/a>.&lt;/li>
+&lt;/ul>
+&lt;h2 id="self-managed-environments">Self-managed environments&lt;/h2>
+&lt;p>Like always, if you are a Grafana Cloud user, you have already received all these updates, and don’t need to do anything at all. &lt;/p>
+&lt;p>If you run the Grafana Image Renderer on premises, you will need to do a couple things to take advantage of these updates:&lt;/p>
+&lt;ul>
+&lt;li>If you use the Grafana Image Renderer as a plugin, you need to migrate to the service deployment instead. &lt;a href="/docs/grafana/latest/setup-grafana/image-rendering/?pg=blog&amp;amp;plcmt=body-txt/#installation">Our installation guide&lt;/a> has details on how to do this.&lt;/li>
+&lt;li>The entire configuration scheme has changed, so if you use &lt;code>:latest&lt;/code> tags, please switch to pinned tags. We have kept the environment variable &lt;code>AUTH_TOKEN&lt;/code> to keep &lt;code>:latest&lt;/code> users functional until the configuration is changed to the new options.&lt;/li>
+&lt;/ul>
+&lt;h2 id="wrapping-up">Wrapping up&lt;/h2>
+&lt;p>Overall, the v5.0 release of the Grafana Image Renderer delivers a more reliable and secure image rendering service. We can’t wait to hear what you think.&lt;/p>
+&lt;p>If you run into issues, please refer to &lt;a href="/docs/grafana/latest/setup-grafana/image-rendering/troubleshooting/?pg=blog&amp;amp;plcmt=body-txt/#troubleshooting">our troubleshooting guide&lt;/a> or &lt;a href="https://github.com/grafana/grafana-image-renderer/issues/new/choose" target="_blank" rel="noopener noreferrer">open an issue&lt;/a> and we’d be happy to help.&lt;/p>
+&lt;p>&lt;em>&lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>&lt;/em> &lt;em>is the easiest way to get started with metrics, logs, traces, dashboards, and more. We have a generous forever-free tier and plans for every use case.&lt;/em> &lt;em>&lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">Sign up for free now!&lt;/a>&lt;/em>&lt;/p></description></item><item><title>Contextual, in-product guidance for every Grafana user: A closer look at Interactive Learning</title><link>https://grafana.com/blog/2025/12/02/contextual-in-product-guidance-for-every-grafana-user-a-closer-look-at-interactive-learning/</link><pubDate>Tue, 02 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/02/contextual-in-product-guidance-for-every-grafana-user-a-closer-look-at-interactive-learning/</guid><description>&lt;p>As developer advocates at Grafana Labs, we’re always looking for new ways to help our users better understand and learn observability. You might remember our previous project that brought learning to life through an &lt;a href="/blog/2024/11/20/metrics-logs-traces-and-mayhem-introducing-an-observability-adventure-game-powered-by-grafana-alloy-and-otel/">adventure-style game&lt;/a>, and now we’re really excited to share something else we’ve been working on: &lt;strong>Interactive Learning&lt;/strong>, a new way to get the technical help you need directly in Grafana.&lt;/p>
+&lt;p>If you’ve ever been deep in a dashboard or configuring a data source and hit a wall, you know how frustrating it can be to stop what you’re doing, open a browser tab, and hunt through documentation to find the answer you need. While those docs are great and go into a ton of detail, they also live outside Grafana. &lt;/p>
+&lt;p>With Interactive Learning, we bring helpful and contextual learning resources into the Grafana platform itself, so you can find what you’re looking for quickly and easily — no context switching required.&lt;/p>
+&lt;iframe width="560" height="315" src='https://www.youtube.com/embed/ZB_T2yQMR20' title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>&lt;/iframe>
+&lt;h2 id="why-we-built-interactive-learning">Why we built Interactive Learning&lt;/h2>
+&lt;p>Our goal was simple: make help available where it’s needed most. Instead of sending you away from your workflow in Grafana, we wanted to bring the right information to you.&lt;/p>
+&lt;p>That idea turned into something much bigger once we realized what was possible. Because we can render help text right inside Grafana itself, we suddenly had access to Grafana’s full runtime and Document Object Model (or DOM, which is the structure of the user interface itself). That meant help didn’t have to be static; it could be dynamic, contextual, and even &lt;strong>interactive&lt;/strong>.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1093x547/8b49769f7b/interactive-learning-recommended-documenation.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1093x547/8b49769f7b/interactive-learning-recommended-documenation.png/m/"alt="A screenshot showing the Recommended Documentation feature for Interactive Learning in Grafana."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h2 id="getting-started-with-interactive-learning">Getting started with Interactive Learning&lt;/h2>
+&lt;p>Interactive Learning became available in public preview in all editions of Grafana as part of the &lt;a href="/blog/2025/11/19/grafana-12-3-release-all-the-latest-features/">Grafana 12.3 release&lt;/a>. You can enable it by using the &lt;code>interactiveLearning&lt;/code> feature flag, or install it directly from the plugin catalog by searching for &lt;strong>Interactive Learning&lt;/strong>.&lt;/p>
+&lt;p>You’ll then find the new Interactive Learning experience by clicking the question mark icon in the top-right corner of Grafana.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/548x73/ba66b2ddde/interactive-learning-help-icon.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/548x73/ba66b2ddde/interactive-learning-help-icon.png/m/"alt="A screenshot of the Grafana UI with a red circle around the help icon, which looks like a question mark."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>That’s the same help button that’s always been there. Before Interactive Learning, it just provided a few links to places like our &lt;a href="/docs/?pg=blog&amp;amp;plcmt=body-txt">documentation&lt;/a> or the &lt;a href="https://community.grafana.com/" target="_blank" rel="noopener noreferrer">Community Forum&lt;/a>. Now, it opens a side panel that brings you contextual help, in-product documentation, and even guided learning journeys, all without leaving Grafana.&lt;/p>
+&lt;h2 id="what-interactive-learning-does">What Interactive Learning does&lt;/h2>
+&lt;p>When you open the side panel, what you see depends on where you are in Grafana; the content is completely context-aware. Whether you’re viewing a dashboard, editing a data source, or creating a visualization, Grafana will surface documentation and learning material that’s relevant to what you’re doing right then and there.&lt;/p>
+&lt;p>And this isn’t just static text. You’re seeing the full documentation rendered directly in Grafana, complete with images, videos, and step-by-step examples. No more jumping between tabs or trying to remember what you just read.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1094x717/7901c2cd88/interactive-learning-grafana-data-sources-resources.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1094x717/7901c2cd88/interactive-learning-grafana-data-sources-resources.png/m/"alt="A screenshot of the Grafana UI showing documentation text and video resources for Grafana data sources."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h3 id="interactive-learning-guides">Interactive learning guides&lt;/h3>
+&lt;p>We’ve also introduced a new type of learning content: &lt;strong>interactive learning guides&lt;/strong>. These are built right into the documentation and guide you through tasks, step by step, from within the Grafana UI.&lt;/p>
+&lt;p>Each guide breaks things down into easy, specific steps, and some steps also include a &lt;strong>Show Me&lt;/strong> and/or a &lt;strong>Do It&lt;/strong> function. &lt;strong>Show Me&lt;/strong> highlights the relevant UI element and adds extra context.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1666x1014/8de6bda836/interactive-learning-show-me-gif.gif/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1666x1014/8de6bda836/interactive-learning-show-me-gif.gif/m/"alt="A GIF demonstrating the Show Me functionality in Interactive Learning in Grafana."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>The &lt;strong>Do It&lt;/strong> function performs an action for you, such as clicking a button or filling out a field.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1666x1014/510fc0a73e/interactive-learning-do-it-gif.gif/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1666x1014/510fc0a73e/interactive-learning-do-it-gif.gif/m/"alt="A GIF demonstrating the Do It functionality in Interactive Learning in Grafana."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>You can also run entire interactive sections at once to watch the full flow unfold.&lt;/p>
+&lt;p>If you want to see an interactive learning guide in action, try the &lt;strong>&lt;a href="https://play.grafana.org/d/to6j8mh/grafana-play-home?doc=bundled:prometheus-grafana-101" target="_blank" rel="noopener noreferrer">Prometheus 101 tutorial&lt;/a>&lt;/strong>, which walks you through setting up your first Prometheus data source and dashboard in Grafana.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1232x839/30d82df244/interactive-learning-prometheus-tutorial.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1232x839/30d82df244/interactive-learning-prometheus-tutorial.png/m/"alt="A screenshot of the Grafana UI, featuring step 1 of the Prometheus 101 tutorial."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h3 id="smarter-context-aware-help">Smarter, context-aware help&lt;/h3>
+&lt;p>Interactive Learning is powered by two components: a frontend plugin and a service we call the &lt;strong>recommender&lt;/strong>. The recommender is context-aware and will surface help and interactive learning guides with the highest likelihood of relevance to you and what you’re working on in Grafana.&lt;/p>
+&lt;p>By default, Interactive Learning runs entirely in &lt;strong>offline mode&lt;/strong>, which means it still provides great, context-based help without sending any data externally. If you choose to enable the recommender service, Grafana can deliver even more tailored documentation and tutorials to match your current task, all while respecting your privacy.&lt;/p>
+&lt;h2 id="whats-next-for-interactive-learning">What’s next for Interactive Learning&lt;/h2>
+&lt;p>This is just the beginning. We’re already exploring a few exciting directions to take this feature next:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Custom interactive guides:&lt;/strong> This would enable you to create your own interactive guides inside Grafana for onboarding new teammates or walking through internal workflows. If this is something you or your team would find valuable, we’d love to hear from you on our &lt;a href="https://slack.grafana.com" target="_blank" rel="noopener noreferrer">Community Slack&lt;/a> or &lt;a href="https://community.grafana.com" target="_blank" rel="noopener noreferrer">Community Forum&lt;/a>.&lt;/li>
+&lt;li>&lt;strong>Integration with Grafana Assistant:&lt;/strong> We’re exploring ways to combine the capabilities of &lt;a href="/blog/2025/10/08/grafana-assistant-ga-assistant-investigations-preview/">Grafana Assistant&lt;/a>, our AI-powered agent in Grafana Cloud, with guided learning to make it even easier to explore and understand your data.&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/469x455/925b6ea74e/interactive-learning-assistant.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/469x455/925b6ea74e/interactive-learning-assistant.png/m/"alt="A screenshot of the Grafana UI with text that says &amp;#39;Ask Assistant&amp;#39; and then outlines next steps for navigating Grafana Cloud, understanding key areas like dashboards and data sources, and finding your way around the interface."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;ul>
+&lt;li>&lt;strong>Workshop mode:&lt;/strong> This would serve as a live session where a presenter can guide participants through Grafana, step by step. Great for team onboarding, internal training, or community workshops.&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1236x1248/c18109b987/interactive-learning-live-session-qr-code.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1236x1248/c18109b987/interactive-learning-live-session-qr-code.png/m/"alt="A screenshot of the Grafana UI with a box that says &amp;#39;Live Session&amp;#39; and a QR code."/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h2 id="try-interactive-learning-today">Try Interactive Learning today&lt;/h2>
+&lt;p>A great way to get started is to &lt;a href="https://play.grafana.org" target="_blank" rel="noopener noreferrer">try the new Interactive Learning experience in Grafana Play&lt;/a>, our sandbox environment for testing and learning Grafana, hosted on Grafana Cloud. Interactive Learning is enabled by default in Play, and comes with an introductory interactive learning guide that walks you through all that Play has to offer. &lt;/p>
+&lt;p>Or, if you’re ready to dive right in and start using this feature in your own Grafana instance, please follow the instructions in the &lt;strong>&lt;a href="/blog/2025/12/02/contextual-in-product-guidance-for-every-grafana-user-a-closer-look-at-interactive-learning/#getting-started-with-interactive-learning">Getting started with Interactive Learning&lt;/a>&lt;/strong> section above.&lt;/p>
+&lt;p>Lastly, like Grafana itself, the Interactive Learning plugin is &lt;a href="https://github.com/grafana/grafana-pathfinder-app" target="_blank" rel="noopener noreferrer">open source&lt;/a>. This feature has been shaped by community input from day one, and we’re happy to accept contributions, whether that’s general feedback or ideas for improvements. We can’t wait to see where Interactive Learning goes next. &lt;/p>
+&lt;p>&lt;em>&lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>&lt;/em> &lt;em>is the easiest way to get started with metrics, logs, traces, dashboards, and more. We have a generous forever-free tier and plans for every use case.&lt;/em> &lt;em>&lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">Sign up for free now!&lt;/a>&lt;/em>&lt;/p></description></item><item><title>Improve service reliability and ops culture with Grafana Cloud Service Center</title><link>https://grafana.com/blog/2025/12/01/improve-service-reliability-and-ops-culture-with-grafana-cloud-service-center/</link><pubDate>Mon, 01 Dec 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/12/01/improve-service-reliability-and-ops-culture-with-grafana-cloud-service-center/</guid><description>&lt;p>Today’s engineering organizations are built around service ownership. Service owners are accountable for keeping their services reliable, performant, and ready to scale. But no service operates in isolation; every team depends on others, and those dependencies form a complex web that can be hard to see, let alone understand.&lt;/p>
+&lt;p>To truly deliver reliable systems, you need visibility not only into how your own service performs, but also how it affects others. A slowdown in one service can ripple across the stack, impacting customers and the engineers responsible for keeping things running. Understanding these relationships helps teams make better decisions about managing on-call rotations, tackling technical debt, and shipping new features.&lt;/p>
+&lt;p>And there&amp;rsquo;s another pitfall that can come from this service-based approach: engineers often find themselves burning out under constant on-call pressure. Pages pile up, incidents repeat, alert storms never end, and the same people get overloaded. Engineers experience burnout when rotations aren’t balanced, services lack clear reliability goals, and teams aren’t using notification signals like SLOs to guide improvement.&lt;/p>
+&lt;p>The result? Teams are reactive instead of proactive, and systems are hard to trust.&lt;/p>
+&lt;p>These combined pressures can have deep, negative impacts on an organization, which is why we&amp;rsquo;re excited to introduce you to &lt;strong>&lt;a href="/docs/plugins/grafana-slo-app/latest/service-center/">Service Center&lt;/a>&lt;/strong>, a new Grafana Cloud feature designed to improve service reliability and operational culture.&lt;/p>
+&lt;iframe width="560" height="315" src='https://www.youtube.com/embed/BnHMsB20b5A' title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>&lt;/iframe>
+&lt;h2 id="service-center-a-new-way-to-see-and-manage-your-services">Service Center: A new way to see and manage your services&lt;/h2>
+&lt;p>Service Center serves as a comprehensive hub for all service-related activities. It establishes a solid foundation of operational service data, empowering teams to monitor performance trends, minimize disruptive alerts, analyze past incidents for ongoing service reliability enhancements, and understand on-call page load to help prevent engineer fatigue. &lt;/p>
+&lt;p>With this unified view, your teams can define their services with the same labels and identifiers that already exist in their systems. Once a service is defined, Grafana Cloud automatically builds a dedicated service page, filled with key information and direct links to all the relevant areas across Grafana:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>SLOs&lt;/strong> with clear summary data to understand how reliability is trending&lt;/li>
+&lt;li>&lt;strong>Alerts&lt;/strong> with quick insight into current or recurring issues&lt;/li>
+&lt;li>&lt;strong>Dashboards&lt;/strong> that visualize performance metrics in real time&lt;/li>
+&lt;li>&lt;strong>Incidents&lt;/strong> for context on recent or ongoing disruptions&lt;/li>
+&lt;li>&lt;strong>On-call and paging information&lt;/strong> to know who’s responding and how often they’ve been paged&lt;/li>
+&lt;/ul>
+&lt;p>Teams can quickly discern whether services are performing well, identify areas requiring attention, and set priorities for investing in increased reliability over adding more features. These operational reviews translate data into actionable insights, reduce manual effort, and help consistently cultivate a stronger reliability culture.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/850x791/9d1f29f6c6/service-center-ui.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/850x791/9d1f29f6c6/service-center-ui.png/m/"alt="Grafana Cloud Service Center UI, including panels for icnidents, SLOs, alerting, and IRM"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>Service Center makes these conversations easier, more data-driven, and more impactful. It transforms what used to be scattered across dashboards and tools into a single, shared view of operational health.&lt;/p>
+&lt;p>And by centralizing data that used to live across different tools and dashboards, Service Center helps teams quickly answer critical questions such as:&lt;/p>
+&lt;ul>
+&lt;li>How is our service performing this week?&lt;/li>
+&lt;li>Who owns it, and who’s on call?&lt;/li>
+&lt;li>What’s broken, and what’s improving?&lt;/li>
+&lt;li>What should we focus on next?&lt;/li>
+&lt;/ul>
+&lt;h2 id="a-behind-the-scenes-example-how-we-use-service-center">A behind-the-scenes example: How we use Service Center&lt;/h2>
+&lt;p>To illustrate how Service Center can help in practical terms, I want to share some internal examples. Afterall, we&amp;rsquo;re big believers that operational excellence reviews are the cornerstone of keeping services performant and engineers happy, so it makes sense that the Grafana SLO team is already using Service Center as the primary source of information during our weekly reviews.&lt;/p>
+&lt;h3 id="setting-and-achieving-goals">Setting and achieving goals&lt;/h3>
+&lt;p>We&amp;rsquo;re aggressive with our SLOs—never becoming complacent and always looking to work with our remaining error budget so our engineers can focus on other services, adding new features, and not treating every alert as a fire drill. &lt;/p>
+&lt;p>But how should you decide where to set your SLOs?&lt;/p>
+&lt;p>We recommend starting with a 99% service availability target as an achievable SLO and adjusting up or down based on each service’s requirements and real world performance. “Three nines” or 99.9% is an industry standard baseline for high availability services, although some service owners may wish to achieve even greater availability targets. You can also use our predictive functionality to see the probability that you&amp;rsquo;ll actually hit your SLO.&lt;/p>
+&lt;p>Setting lofty but achievable service targets allows our engineers to continue to improve our reliability without burning out. If you notice that you have SLOs that never burn any budget, you could be tracking the wrong indicators or your target percentage isn’t aggressive enough. The Grafana SLO team reviews our SLOs weekly, walking through each service page to view the prior week’s performance. We tune our SLOs and alerts to ensure we are continuously providing a better experience for our customers without generating too much noise. &lt;/p>
+&lt;h3 id="improving-incident-response-operations">Improving incident response operations&lt;/h3>
+&lt;p>Incidents are the next area we focus on. All Incidents tagged to our service within the service page’s timeframe are reviewed. It’s very easy after an incident is resolved to go back to your daily tasks—engineers are tired, the service is “fixed,” and budget stops burning. But often these fixes are done in haste with the intention to go back and put the real fixes in later. &lt;/p>
+&lt;p>Depending on the nature of the incident, better SLIs, alerts, or follow up changes may be needed. Reviewing previous incidents and ensuring their tasks are completed is a major part of the SLO team’s operational review. We want to learn from our incidents and prevent reoccurrence; scheduled fixes are always easier than 3 a.m. pages. &lt;/p>
+&lt;h3 id="preventing-burnout">Preventing burnout&lt;/h3>
+&lt;p>Our final service check is to ensure none of our engineers are getting burned out. Our service page shows how often each engineer was paged, and how many alert groups have fired during the set time period. &lt;/p>
+&lt;p>We review the Grafana Cloud IRM alert groups for each of our engineers. If one person is taking the brunt of on-call work, they could be suffering in silence. No one wants to call out that they&amp;rsquo;re getting too much work, especially when they designed parts of the service they’re getting paged on. &lt;/p>
+&lt;p>Ensuring there is an even spread of work going to your engineers will help prevent burnout, increasing a team’s overall engineering culture. Service Center makes it very easy for us to gauge workload balancing and manually rotate our schedule if we’re having a tough on-call week. &lt;/p>
+&lt;h3 id="a-stakeholder-self-service-landing-page">A stakeholder self service landing page&lt;/h3>
+&lt;p>Defining our services within the Service Center lets our engineers focus on building and fixing, and it provides stakeholders with direct access to the information they need. The Service Center eliminates the need for teams to compile resources for stakeholders, providing instant updates on service performance and reliability. Stakeholders can access dedicated service pages for performance insights, identify on-call personnel for immediate issues, and review cost or resource consumption dashboards.&lt;/p>
+&lt;p>Previously, stakeholders relied on chat channels for assistance, requiring our team to manually gather monthly/quarterly data. By defining services within the Service Center, engineers can prioritize development and issue resolution, while stakeholders gain direct access to essential information.&lt;/p>
+&lt;h2 id="get-started-with-service-center-today">Get started with Service Center today&lt;/h2>
+&lt;p>Grafana Service Center is free for all Grafana Cloud customers. Service pages are created by users or can be pulled in via our &lt;a href="/docs/grafana-cloud/alerting-and-irm/service-center/services/">Backstage module&lt;/a>. &lt;/p>
+&lt;p>The pages utilize the &lt;code>service_name&lt;/code> label, so the first thing you need to do to get started is to ensure you are labeling your SLOs, alerts, and incidents with the &lt;code>service_name&lt;/code> label that is set in the Service Center identifier object. Dashboards are then synced via dashboard tags, and OnCall information is derived from the team that is added to the service definition during creation. &lt;/p>
+&lt;p>While we don&amp;rsquo;t yet have a connection to your observability services in Grafana Cloud (Application Observability, Kubernetes Monitoring, Frontend Observability, Cloud Provider Observability, and Database  Observability ), we do utilize the static metadata links for our services to add the URLs to our Kubernetes Monitoring dashboards and entity catalog pages. This makes for easy navigation to the opinionated areas for our services that Grafana Cloud provides out of the box. &lt;/p>
+&lt;p>To learn more about how to use Service Center, check out &lt;a href="/docs/plugins/grafana-slo-app/latest/service-center/">our docs&lt;/a> today.&lt;/p>
+&lt;p>&lt;em>&lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>&lt;/em> &lt;em>is the easiest way to get started with metrics, logs, traces, dashboards, and more. We have a generous forever-free tier and plans for every use case.&lt;/em> &lt;em>&lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">Sign up for free now!&lt;/a>&lt;/em>&lt;/p></description></item><item><title>How to monitor Amazon Bedrock AgentCore AI agent infrastructure in Grafana Cloud</title><link>https://grafana.com/blog/2025/11/28/how-to-monitor-amazon-bedrock-agentcore-ai-agent-infrastructure-in-grafana-cloud/</link><pubDate>Fri, 28 Nov 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/11/28/how-to-monitor-amazon-bedrock-agentcore-ai-agent-infrastructure-in-grafana-cloud/</guid><description>&lt;p>Modern AI agents are now highly advanced, frequently becoming essential components of engineering workflows and deployment pipelines.&lt;/p>
+&lt;p>However, operating these systems often feels like trying to navigate a ship through a dense fog. When an agent errors, slows down, or consumes excessive resources, engineers find themselves adrift, lacking the navigational charts needed to diagnose the problem. The absence of deep insight makes debugging, performance tuning, and cost management unnecessarily difficult.&lt;/p>
+&lt;p>To address this, AWS&amp;rsquo; managed AI agent service, Amazon Bedrock AgentCore, emits rich telemetry data you can then use for deep observability insights.&lt;/p>
+&lt;p>In this post, we will explore how to leverage OpenTelemetry, Amazon CloudWatch, and Grafana Cloud to gain full, end-to-end visibility. We’ll show you how to build the dashboards you need to track essential performance and financial metrics like latency, token usage, and tool execution reliability, enabling you to confidently steer your production AI agents.&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>Note:&lt;/strong> This is the second part of our complete guide to observing AI agents on Amazon Bedrock AgentCore. While this post is about monitoring the infrastructure layer, the &lt;a href="/blog/2025/11/26/how-to-monitor-ai-agent-applications-on-amazon-bedrock-agentcore-with-grafana-cloud">first part&lt;/a> is focused on the application layer.&lt;/p>&lt;/blockquote>
+&lt;h2 id="what-is-amazon-bedrock-agentcore">What is Amazon Bedrock AgentCore?&lt;/h2>
+&lt;p>AWS Bedrock AgentCore is an AWS offering that allows developers to build and deploy generative AI agents, simplifying the creation of applications that automate complex tasks, interact with users, and reason over data. It provides a serverless runtime for these agents, integrating large language models (LLMs) with data sources and tools without requiring you to manage infrastructure.&lt;/p>
+&lt;h2 id="why-you-should-use-grafana-cloud-to-monitor-amazon-bedrock-agentcore">Why you should use Grafana Cloud to monitor Amazon Bedrock AgentCore&lt;/h2>
+&lt;p>Monitoring Amazon Bedrock AgentCore in Grafana Cloud has lots of advantages.&lt;/p>
+&lt;p>First of all, with Grafana Cloud you gain a powerful, unified platform designed to provide comprehensive observability for your entire AWS ecosystem, from infrastructure to apps. This means you can centrally monitor your underlying AWS infrastructure—compute, storage, and networking resources—alongside the performance and operational health of all your Bedrock AgentCore agents.&lt;/p>
+&lt;p>Crucially, Grafana Cloud eliminates data silos by enabling you to aggregate metrics from agents deployed across all your different AWS accounts and all AWS regions. This single-pane-of-glass view ensures you get a holistic understanding of your multi-account, multi-region agent deployment in one place. This unified approach simplifies complex monitoring challenges, accelerates troubleshooting, and ensures consistent operational standards across your entire AI infrastructure.&lt;/p>
+&lt;h3 id="cloud-provider-observability-with-grafana-cloud">Cloud Provider Observability with Grafana Cloud&lt;/h3>
+&lt;p>Another significant advantage of centralizing your monitoring data within Grafana Cloud is the immediate, out-of-the-box visibility you gain. From the moment your data starts flowing, you are equipped with pre-built, insightful views. Specifically, for monitoring your Amazon Bedrock AgentCore agents, you can leverage the robust capabilities of the &lt;a href="/docs/grafana-cloud/monitor-infrastructure/monitor-cloud-provider/">Cloud Provider Observability&lt;/a>  application in Grafana Cloud.&lt;/p>
+&lt;p>This application provides a dedicated, pre-configured dashboard and a set of alerts tailored to the metrics emitted by your AWS resources, including your Bedrock agents. You don&amp;rsquo;t have to spend valuable time building dashboards from scratch or manually configuring alert rules. Instead, you get immediate access to key performance indicators such as agent invocation rates, execution latencies, and errors.&lt;/p>
+&lt;p>This comprehensive, ready-to-use monitoring app allows you to quickly assess the health, performance, and operational status of your generative AI agents, ensuring they are operating efficiently.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1483x325/66b47312f5/bedrock-infra-cloud-provider.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1483x325/66b47312f5/bedrock-infra-cloud-provider.png/m/"alt="Amazon Bedrock AgentCore agents monitored in the Cloud Provider Observability app in Grafana Cloud"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>The dashboard, as shown above, allows for filtering by various parameters such as data source, job, account, or region. It also provides a comprehensive summary of key metrics, including error and throttle rates, in addition to the total count of Bedrock input and output tokens.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1461x971/c2b534f66c/bedrock-infra-throttle-error.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1461x971/c2b534f66c/bedrock-infra-throttle-error.png/m/"alt="Grafana Cloud UI showing panels to track different error and throttle rates"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>The dashboard&amp;rsquo;s subsequent section offers a comprehensive overview of all your Bedrock AgentCore agents, detailing their duration, invocations, latency, and rates of error and throttling. You can narrow down the results in this table by job, account, region, or name using the text filter located above the table.&lt;/p>
+&lt;p>Clicking the name of an agent will take you to a detailed view presenting key metrics specifically filtered for that agent. The image below highlights the key metrics available on the dashboard.&lt;/p>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1480x955/77e53cc4b8/bedrock-infra-latency-duration-more.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1480x955/77e53cc4b8/bedrock-infra-latency-duration-more.png/m/"alt="A Grafana Cloud UI including panels for latency, duration, invocations, token counts per model, CPU used, and memory used"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h2 id="how-to-get-started-or-how-to-get-your-data-in-grafana-cloud">How to get started (or How to get your data in Grafana Cloud)&lt;/h2>
+&lt;p>You can start monitoring your AWS Bedrock AgentCore agents in Grafana Cloud by configuring &lt;a href="/docs/grafana-cloud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/config-cw-metric-streams/">CloudWatch metric streams&lt;/a>.&lt;/p>
+&lt;h4 id="step-1-configure-metrics-streaming-in-aws">Step 1: Configure Metrics streaming in AWS&lt;/h4>
+&lt;ol>
+&lt;li>Go to Amazon Data Firehose, then on Firehose streams, and click &lt;strong>Create Firehose stream&lt;/strong>.&lt;/li>
+&lt;li>Select &lt;strong>Kinesis Data Streams&lt;/strong> as source and &lt;strong>HTTP Endpoint&lt;/strong> as the Destination.&lt;/li>
+&lt;li>Enter a name for the Firehose.&lt;/li>
+&lt;li>Enter the endpoint name according to Grafana Cloud provider’ &lt;a href="/docs/grafana-cloud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/config-cw-metric-streams/#data-firehose-delivery-stream-component">docs&lt;/a>.&lt;/li>
+&lt;li>Enter an access key according to Grafana Cloud provider’ &lt;a href="/docs/grafana-cloud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/config-cw-metric-streams/#data-firehose-delivery-stream-component">docs&lt;/a>, which is &lt;code>&amp;lt;prometheus id&amp;gt;:&amp;lt;auth token&amp;gt;&lt;/code>.&lt;/li>
+&lt;li>Click &lt;strong>Create Firehose stream&lt;/strong>.&lt;/li>
+&lt;li>Then move to &lt;strong>CloudWatch&lt;/strong>, click Streams in the left navigation and click &lt;strong>Create metric stream&lt;/strong>.&lt;/li>
+&lt;li>Select &lt;strong>Custom setup with Firehose&lt;/strong> as the Destination.&lt;/li>
+&lt;li>Click the Amazon Data Firehose stream you just created in step 6.&lt;/li>
+&lt;li>Select &lt;strong>All Metrics&lt;/strong> or &lt;strong>Select metrics&lt;/strong> and add the &lt;strong>AWS/Bedrock-AgentCore&lt;/strong> namespace.&lt;/li>
+&lt;li>Click &lt;strong>Create metric stream&lt;/strong>.&lt;/li>
+&lt;/ol>
+&lt;h4 id="step-2-configure-metrics-streaming-in-grafana-cloud">Step 2: Configure Metrics streaming in Grafana Cloud.&lt;/h4>
+&lt;p>You can start monitoring your AWS Bedrock AgentCore agents in Grafana Cloud by configuring &lt;a href="/docs/grafana-cloud/monitor-infrastructure/monitor-cloud-provider/aws/cloudwatch-metrics/config-cw-metric-streams/">CloudWatch metric streams.&lt;/a>&lt;/p>
+&lt;h4 id="step-3-view-your-data">Step 3: View your data&lt;/h4>
+&lt;ol>
+&lt;li>Navigate to your Grafana Cloud stack.&lt;/li>
+&lt;li>In the navigation, click on &lt;strong>Observability&lt;/strong> &amp;gt; &lt;strong>Cloud provider &amp;gt;&lt;/strong> &lt;strong>AWS&lt;/strong>.&lt;/li>
+&lt;li>You should start seeing &lt;strong>AWS/Bedrock-AgentCore&lt;/strong> in the &lt;strong>Services&lt;/strong> tab shortly.&lt;/li>
+&lt;/ol>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1554x532/e458b7a518/bedrock-infra-services-tab.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1554x532/e458b7a518/bedrock-infra-services-tab.png/m/"alt=""/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;p>4. Click on the name and view your data.&lt;/p>
+&lt;p>And that&amp;rsquo;s it! Once you have everything set up, your AWS telemetry will automatically get fed into your dashboards, giving you full visibility into your AI agents from one dashboard in Grafana Cloud.&lt;/p>
+&lt;p>To learn more about how you can use Cloud Provider Observability to monitor your entire AWS environment, check out our &lt;a href="/docs/grafana-cloud/monitor-infrastructure/monitor-cloud-provider/">Cloud Provider Observability documentation&lt;/a> and read about &lt;a href="/solutions/cloud-monitoring-aws/">AWS Observability&lt;/a> in Grafana Cloud.&lt;/p></description></item><item><title>How to monitor AI agent applications on Amazon Bedrock AgentCore with Grafana Cloud</title><link>https://grafana.com/blog/2025/11/26/how-to-monitor-ai-agent-applications-on-amazon-bedrock-agentcore-with-grafana-cloud/</link><pubDate>Wed, 26 Nov 2025 00:00:00 +0000</pubDate><guid>https://grafana.com/blog/2025/11/26/how-to-monitor-ai-agent-applications-on-amazon-bedrock-agentcore-with-grafana-cloud/</guid><description>&lt;p>Today&amp;rsquo;s AI agents have grown increasingly sophisticated, moving into production environments and becoming integral parts of engineering workflows. But these agents can also be black boxes for engineers, which makes observability more critical than ever.&lt;/p>
+&lt;p>Without proper monitoring, you&amp;rsquo;re often left feeling like you&amp;rsquo;re flying blind as you try to debug agent failures, understand performance bottlenecks, and track costs. We want to put our users back in control, so in this tutorial you&amp;rsquo;ll learn how to deploy an AI agent on Amazon Bedrock AgentCore with full observability powered by OpenTelemetry and &lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>.&lt;/p>
+&lt;p>More specifically, you&amp;rsquo;ll learn how to:&lt;/p>
+&lt;p>1. Deploy AI agents on AWS Bedrock AgentCore for managed, scalable production runtime&lt;/p>
+&lt;p>2. Instrument agents with OpenTelemetry using &lt;a href="https://github.com/openlit/openlit" target="_blank" rel="noopener noreferrer">OpenLit&lt;/a> for automatic, zero-code observability&lt;/p>
+&lt;p>3. Monitor agent performance in Grafana Cloud with AI Observability dashboards&lt;/p>
+&lt;p>4. Debug production issues using distributed tracing&lt;/p>
+&lt;p>5. Optimize costs by tracking token usage and model performance&lt;/p>
+&lt;blockquote>
+&lt;p>&lt;strong>Note:&lt;/strong> This post focuses on AI application observability. The second part of this guide will focus on &lt;a href="/blog/2025/11/28/how-to-monitor-amazon-bedrock-agentcore-ai-agent-infrastructure-in-grafana-cloud/">AI observability at the infrastructure layer&lt;/a>.&lt;/p>&lt;/blockquote>
+&lt;h1 id="what-is-amazon-bedrock-agentcore">What is Amazon Bedrock AgentCore?&lt;/h1>
+&lt;p>&lt;a href="https://aws.amazon.com/bedrock/agentcore/" target="_blank" rel="noopener noreferrer">Amazon Bedrock AgentCore&lt;/a> is a managed service that simplifies deploying and running AI agents in production. Think of it as a serverless runtime for your AI agents. You provide the agent code, and AWS handles the infrastructure, scaling, and execution environment.&lt;/p>
+&lt;p>Key benefits include:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>Managed infrastructure:&lt;/strong> No need to provision servers or manage Kubernetes clusters&lt;/li>
+&lt;li>&lt;strong>Amazon Bedrock integration:&lt;/strong> Native access to foundation models like Llama 3, Claude, and others&lt;/li>
+&lt;li>&lt;strong>Container-based deployment:&lt;/strong> Package your agent with all dependencies using Docker&lt;/li>
+&lt;li>&lt;strong>Enterprise-ready:&lt;/strong> Built-in security, IAM integration, and compliance features&lt;/li>
+&lt;/ul>
+&lt;p>AgentCore is particularly powerful for orchestration frameworks like CrewAI, LangGraph, or Strands, where coordinating multiple agents or complex workflows is necessary.&lt;/p>
+&lt;h2 id="why-use-opentelemetry-for-ai-agents">Why use OpenTelemetry for AI agents?&lt;/h2>
+&lt;p>AI agents can be notoriously difficult to debug. A single user query might trigger:&lt;/p>
+&lt;ul>
+&lt;li>Multiple LLM API calls&lt;/li>
+&lt;li>Tool invocations and external API requests&lt;/li>
+&lt;li>Multi-step reasoning chains&lt;/li>
+&lt;li>Retry logic and error handling&lt;/li>
+&lt;/ul>
+&lt;p>When something goes wrong (or worse), when performance silently degrades, you need visibility into every step. To address this, we recommend using OpenTelemetry (&lt;a href="https://opentelemetry.io/" target="_blank" rel="noopener noreferrer">OTel&lt;/a>), the industry-standard observability framework, which provides unified instrumentation for distributed applications and infrastructure.&lt;/p>
+&lt;p>For AI agents specifically, OpenTelemetry helps you answer critical questions:&lt;/p>
+&lt;ul>
+&lt;li>Which LLM calls are slowest?&lt;/li>
+&lt;li>How many tokens am I consuming per request?&lt;/li>
+&lt;li>Where are errors occurring in my agent workflow?&lt;/li>
+&lt;li>What&amp;rsquo;s the end-to-end latency for user requests?&lt;/li>
+&lt;/ul>
+&lt;p>And while OpenTelemetry is powerful, manually instrumenting every LLM call and agent step is tedious and error-prone. This is where &lt;a href="https://github.com/openlit/openlit" target="_blank" rel="noopener noreferrer">OpenLit&lt;/a> shines.&lt;/p>
+&lt;p>OpenLit provides automatic instrumentation for AI frameworks:&lt;/p>
+&lt;ul>
+&lt;li>Zero code changes required; wrap your Python command with &lt;code>openlit-instrument&lt;/code>&lt;/li>
+&lt;li>Automatically capture LLM calls (OpenAI, Anthropic, Bedrock, etc.)&lt;/li>
+&lt;li>Support for agent frameworks (CrewAI, LangChain, LlamaIndex)&lt;/li>
+&lt;li>Export OpenTelemetry-compatible data to any OTLP backend&lt;/li>
+&lt;/ul>
+&lt;h2 id="tutorial-deploy-and-monitor-a-crewai-agent">Tutorial: deploy and monitor a CrewAI agent&lt;/h2>
+&lt;p>To illustrate how this works, let&amp;rsquo;s build a complete example: a research assistant agent powered by CrewAI and Meta&amp;rsquo;s Llama 3, deployed on AWS Bedrock AgentCore, with full observability in Grafana Cloud.&lt;/p>
+&lt;h3 id="prerequisites">Prerequisites&lt;/h3>
+&lt;p>Before starting, ensure you have:&lt;/p>
+&lt;ol>
+&lt;li>Python 3.12+** installed&lt;/li>
+&lt;li>AWS CLI configured with credentials:&lt;/li>
+&lt;/ol>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">Bash&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-bash"> aws configure&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>You&amp;rsquo;ll need permissions for:&lt;/p>
+&lt;ul>
+&lt;li>
+&lt;p>Bedrock AgentCore&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Amazon ECR (Elastic Container Registry)&lt;/p>
+&lt;/li>
+&lt;li>
+&lt;p>Bedrock model access (specifically &lt;code>meta.llama3-8b-instruct-v1:0&lt;/code>)&lt;/p>
+&lt;/li>
+&lt;/ul>
+&lt;p>4. Grafana Cloud account (If you don&amp;rsquo;t have one, you can &lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">sign up for our forever-free tier&lt;/a> now.)&lt;/p>
+&lt;p>5. AgentCore CLI installed:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">Bash&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-bash">  python -m venv .venv &amp;amp;&amp;amp; source .venv/bin/activate
+pip install bedrock-agentcore-starter-toolkit&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;h3 id="step-1-create-a-crewai-agent">Step 1: Create a CrewAI Agent&lt;/h3>
+&lt;p>Let&amp;rsquo;s create an example AI Agent using CrewAI:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">Python&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-python">import os
+from bedrock_agentcore import BedrockAgentCoreApp
+from crewai import Agent, Task, Crew, Process
+# Initialize AgentCore runtime
+app = BedrockAgentCoreApp()
+# Define a simple research assistant agent
+researcher = Agent(
+role=&amp;#34;Research Assistant&amp;#34;,
+goal=&amp;#34;Provide helpful, accurate answers, with concise summaries.&amp;#34;,
+backstory=(&amp;#34;You are a knowledgeable research assistant who answers clearly &amp;#34;
+&amp;#34;and cites facts when relevant.&amp;#34;),
+# Use Llama 3 8B via AWS Bedrock
+llm=&amp;#34;bedrock/meta.llama3-8b-instruct-v1:0&amp;#34;,
+verbose=False,
+max_iter=2
+)
+@app.entrypoint
+def invoke(payload: dict):
+&amp;#34;&amp;#34;&amp;#34;AgentCore entrypoint. Expects {&amp;#39;prompt&amp;#39;: &amp;#39;&amp;#39;}&amp;#34;&amp;#34;&amp;#34;
+user_message = payload.get(&amp;#34;prompt&amp;#34;, &amp;#34;Hello!&amp;#34;)
+task = Task(
+description=user_message,
+agent=researcher,
+expected_output=&amp;#34;A helpful, well-structured response.&amp;#34;
+)
+crew = Crew(
+agents=[researcher],
+tasks=[task],
+process=Process.sequential,
+verbose=False,
+)
+result = crew.kickoff()
+return {&amp;#34;result&amp;#34;: result.raw}
+if __name__ == &amp;#34;__main__&amp;#34;:
+app.run()&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;strong>Key components:&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>BedrockAgentCoreApp:&lt;/strong> Integrates CrewAI with the Amazon Bedrock AgentCore runtime&lt;/li>
+&lt;li>&lt;strong>Agent definition:&lt;/strong> Single agent with a research assistant role using Llama 3&lt;/li>
+&lt;li>&lt;code>@app.entrypoint&lt;/code>&lt;strong>:&lt;/strong> Decorator that marks the function as the agent&amp;rsquo;s entry point&lt;/li>
+&lt;li>&lt;strong>Crew orchestration:&lt;/strong> CrewAI manages task execution and agent coordination&lt;/li>
+&lt;/ul>
+&lt;p>The agent accepts JSON input like &lt;code>{&amp;quot;prompt&amp;quot;: &amp;quot;your question&amp;quot;}&lt;/code> and returns a JSON response.&lt;/p>
+&lt;h3 id="step-2-configure-dependencies">Step 2: Configure dependencies&lt;/h3>
+&lt;p>Create a requirements.txt that includes:&lt;/p>
+&lt;div class="code-snippet code-snippet__mini">&lt;div class="lang-toolbar__mini">
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;/div>&lt;div class="code-snippet code-snippet__border">
+&lt;pre data-expanded="false">&lt;code class="language-none">crewai&amp;gt;=1.0.0
+openlit&amp;gt;=1.35
+litellm
+bedrock-agentcore&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;h3 id="step-3-configure-agentcore-deployment">Step 3: Configure AgentCore deployment&lt;/h3>
+&lt;p>Run the AgentCore configuration command:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">Bash&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-bash">agentcore configure \
+--deployment-type container \
+--entrypoint crewai_agent.py \
+--name crewai_agent \
+--non-interactive&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>This generates a &lt;code>.bedrock_agentcore/crewai_agent/&lt;/code> directory with:&lt;/p>
+&lt;p>- &lt;code>Dockerfile&lt;/code>: Container build configuration&lt;/p>
+&lt;p>- &lt;code>agent_config.json&lt;/code>: Metadata for AgentCore&lt;/p>
+&lt;h3 id="step-4-add-opentelemetry-configuration">Step 4: Add OpenTelemetry configuration&lt;/h3>
+&lt;p>Now comes the observability magic. Edit the generated Dockerfile at &lt;code>.bedrock_agentcore/crewai_agent/Dockerfile&lt;/code> and add these environment variables:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">dockerfile&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-dockerfile"># Disable AWS ADOT observability to use OpenLIT exclusively
+ENV DISABLE_ADOT_OBSERVABILITY=&amp;#34;true&amp;#34;
+# OpenTelemetry configuration for Grafana Cloud
+ENV OTEL_SERVICE_NAME=&amp;#34;my_service&amp;#34;
+ENV OTEL_DEPLOYMENT_ENVIRONMENT=&amp;#34;my_environment&amp;#34;
+ENV OTEL_EXPORTER_OTLP_ENDPOINT=&amp;#34;your_grafana_cloud_otlp_endpoint&amp;#34;
+ENV OTEL_EXPORTER_OTLP_HEADERS=&amp;#34;Authorization=Basic%20&amp;#34;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;strong>Important:&lt;/strong> Replace the OTLP endpoint and headers with your Grafana Cloud credentials:&lt;/p>
+&lt;ol>
+&lt;li>Sign in to the Grafana Cloud portal and select your Grafana Cloud stack.&lt;/li>
+&lt;li>Click &lt;strong>Configure&lt;/strong> in the OpenTelemetry section.&lt;/li>
+&lt;li>In the Password / API Token section, click &lt;strong>Generate&lt;/strong> to create a new API token&lt;/li>
+&lt;li>Give the API token a name&lt;/li>
+&lt;li>Click on &lt;strong>Create token&lt;/strong>&lt;/li>
+&lt;li>Click on &lt;strong>Close without copying the token&lt;/strong>&lt;/li>
+&lt;li>Copy and replace the values for &lt;code>OTEL_EXPORTER_OTLP_ENDPOINT&lt;/code> and &lt;code>OTEL_EXPORTER_OTLP_HEADERS&lt;/code> in the Dockerfile ENVs&lt;/li>
+&lt;/ol>
+&lt;p>For more information, refer to our &lt;a href="/docs/grafana-cloud/send-data/otlp/send-data-otlp/#manual-opentelemetry-setup-for-advanced-users">guide on manually setting up OpenTelemetry&lt;/a> for Grafana Cloud.&lt;/p>
+&lt;p>Next, ensure the CMD line in the Dockerfile uses OpenLit&amp;rsquo;s instrumentation wrapper:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">dockerfile&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-dockerfile"># Use OpenLit to automatically instrument the agent
+CMD [&amp;#34;openlit-instrument&amp;#34;, &amp;#34;python&amp;#34;, &amp;#34;-m&amp;#34;, &amp;#34;crewai_agent&amp;#34;]&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>&lt;strong>What&amp;rsquo;s happening here?&lt;/strong>&lt;/p>
+&lt;ul>
+&lt;li>openlit-instrument wraps your Python command&lt;/li>
+&lt;li>At runtime, OpenLit automatically monitors the CrewAI agent operations&lt;/li>
+&lt;li>Every LLM request and agent task is traced and exported to Grafana via OTLP&lt;/li>
+&lt;/ul>
+&lt;h3 id="step-5-build-and-deploy">Step 5: Build and deploy&lt;/h3>
+&lt;p>Build the Docker image and deploy to AgentCore:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">Bash&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-bash">agentcore launch --local-build&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>This command will:&lt;/p>
+&lt;p>1. Build the Docker image locally with all dependencies&lt;/p>
+&lt;p>2. Push the image to Amazon ECR&lt;/p>
+&lt;p>3. Deploy the agent to Bedrock AgentCore&lt;/p>
+&lt;p>4. Set up IAM execution roles&lt;/p>
+&lt;p>5. Configure the runtime environment&lt;/p>
+&lt;p>The deployment process takes two to five minutes. You&amp;rsquo;ll see output like:&lt;/p>
+&lt;div class="code-snippet code-snippet__mini">&lt;div class="lang-toolbar__mini">
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;/div>&lt;div class="code-snippet code-snippet__border">
+&lt;pre data-expanded="false">&lt;code class="language-none">✓ Pushing to ECR...
+✓ Deploying to AgentCore...
+✓ Agent deployed successfully!
+Agent ID: agt_abc123xyz&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;h3 id="step-6-invoke-the-agent">Step 6: Invoke the agent&lt;/h3>
+&lt;p>Test your deployed agent:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">Bash&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-bash"># Simple test
+agentcore invoke &amp;#39;{&amp;#34;prompt&amp;#34;: &amp;#34;hi&amp;#34;}&amp;#39;
+# Research query
+agentcore invoke &amp;#39;{&amp;#34;prompt&amp;#34;: &amp;#34;Explain AI Observability&amp;#34;}&amp;#39;
+# Complex request
+agentcore invoke &amp;#39;{&amp;#34;prompt&amp;#34;: &amp;#34;Compare supervised and unsupervised learning with examples&amp;#34;}&amp;#39;&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>Response:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">JSON&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-json">{
+&amp;#34;result&amp;#34;: &amp;#34;Quantum computing is a revolutionary approach to computation that...&amp;#34;
+}&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;p>Response:&lt;/p>
+&lt;div class="code-snippet ">&lt;div class="lang-toolbar">
+&lt;span class="lang-toolbar__item lang-toolbar__item-active">JSON&lt;/span>
+&lt;span class="code-clipboard">
+&lt;button x-data="app_code_snippet()" x-init="init()" @click="copy()">
+&lt;img class="code-clipboard__icon" src="/media/images/icons/icon-copy-small-2.svg" alt="Copy code to clipboard" width="14" height="13">
+&lt;span>Copy&lt;/span>
+&lt;/button>
+&lt;/span>
+&lt;div class="lang-toolbar__border">&lt;/div>
+&lt;/div>&lt;div class="code-snippet ">
+&lt;pre data-expanded="false">&lt;code class="language-json">{
+&amp;#34;result&amp;#34;: &amp;#34;Quantum computing is a revolutionary approach to computation that...&amp;#34;
+}&lt;/code>&lt;/pre>
+&lt;/div>
+&lt;/div>
+&lt;h3 id="step-7-explore-grafana-cloud-ai-observability">Step 7: Explore Grafana Cloud AI Observability&lt;/h3>
+&lt;p>Once you have telemetry flowing from CrewAI Agent on AgentCore to Grafana Cloud, you can use the pre-built dashboards from &lt;strong>Grafana Cloud AI Observability&lt;/strong>.&lt;/p>
+&lt;p>Navigate to &lt;strong>Connections&lt;/strong> → search for &lt;strong>AI Observability&lt;/strong> and click on it → go to &lt;strong>GenAI Observability&lt;/strong>, scroll down, and install the dashboards.&lt;/p>
+&lt;p>Here&amp;rsquo;s a breakdown of what you can see in the dashboards:&lt;/p>
+&lt;ul>
+&lt;li>&lt;strong>End-to-end latency:&lt;/strong> Total time from request to response&lt;/li>
+&lt;li>&lt;strong>LLM call details:&lt;/strong> Which model, how many tokens, latency, cost&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1999x869/701851b721/bedrock-app-grafana-ai.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1999x869/701851b721/bedrock-app-grafana-ai.png/m/"alt="The Grafana AI Observability dashboard with data on request rates, token usage, usage cost, and more"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;ul>
+&lt;li>&lt;strong>Agent workflow:&lt;/strong> Task creation, execution, and response formatting&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1999x816/3f30723e9d/bedrock-app-consumption-vs-cost.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1999x816/3f30723e9d/bedrock-app-consumption-vs-cost.png/m/"alt="A Grafana Cloud dashboard shows token consumption vs. average usage cost, as well as traces"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;ul>
+&lt;li>&lt;strong>Error traces:&lt;/strong> If something fails, you&amp;rsquo;ll see the exact step and error message&lt;/li>
+&lt;/ul>
+&lt;figure
+class="figure-wrapper figure-wrapper__lightbox w-100p "
+style="max-width: none;"
+itemprop="associatedMedia"
+itemscope=""
+itemtype="http://schema.org/ImageObject"
+>&lt;a
+class="lightbox-link"
+href="https://a-us.storyblok.com/f/1022730/1999x822/0113778bf4/bedrock-app-span-filters.png/m/"
+itemprop="contentUrl"
+>&lt;div class="img-wrapper w-100p h-auto">&lt;img
+class="lazyload "
+src="https://a-us.storyblok.com/f/1022730/1999x822/0113778bf4/bedrock-app-span-filters.png/m/"alt="A list of error traces in Grafana Cloud"/>
+&lt;/div>&lt;/a>&lt;/figure>
+&lt;h1 id="next-steps">Next steps&lt;/h1>
+&lt;p>The combination of AWS Bedrock AgentCore, OpenTelemetry, and Grafana Cloud provides a production-ready stack for AI agents with enterprise-grade observability. Explore our &lt;a href="/docs/grafana-cloud/monitor-applications/ai-observability/%29/">Grafana Cloud AI Observability documentation&lt;/a> to learn more.&lt;/p>
+&lt;p>&lt;em>&lt;a href="/products/cloud/?pg=blog&amp;amp;plcmt=body-txt">Grafana Cloud&lt;/a>&lt;/em> &lt;em>is the easiest way to get started with metrics, logs, traces, dashboards, and more. We have a generous forever-free tier and plans for every use case.&lt;/em> &lt;em>&lt;a href="/auth/sign-up/create-user/?pg=blog&amp;amp;plcmt=body-txt">Sign up for free now!&lt;/a>&lt;/em>&lt;/p></description></item></channel></rss>

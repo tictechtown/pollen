@@ -1,0 +1,996 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Irrational Exuberance</title><link>https://lethain.com/</link><description>Recent content on Irrational Exuberance</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>Will Larson</copyright><lastBuildDate>Thu, 18 Dec 2025 10:00:00 -0700</lastBuildDate><atom:link href="https://lethain.com/feeds.xml" rel="self" type="application/rss+xml"/><item><title>2025 in review.</title><link>https://lethain.com/2025-in-review/</link><pubDate>Thu, 18 Dec 2025 10:00:00 -0700</pubDate><guid>https://lethain.com/2025-in-review/</guid><description>&lt;p&gt;Yet another edition of my annual recap!
+This year brought my son to kindergarten,
+me to forty and to a new job at Imprint,
+my fourth book to bookstores,
+and a lot more time in the weeds of developing software.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;Previously:&lt;/em&gt;
+&lt;em&gt;&lt;a href="https://lethain.com/2024-in-review/"&gt;2024&lt;/a&gt;, &lt;a href="https://lethain.com/2023-in-review/"&gt;2023&lt;/a&gt;, &lt;a href="https://lethain.com/2022-in-review/"&gt;2022&lt;/a&gt;, &lt;a href="https://lethain.com/2021-in-review/"&gt;2021&lt;/a&gt;,&lt;/em&gt;
+&lt;em&gt;&lt;a href="https://lethain.com/2020-in-review/"&gt;2020&lt;/a&gt;, &lt;a href="https://lethain.com/2019-in-review/"&gt;2019&lt;/a&gt;, &lt;a href="https://lethain.com/2018-in-review/"&gt;2018&lt;/a&gt;, &lt;a href="https://lethain.com/things-learned-in-2017/"&gt;2017&lt;/a&gt;&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id="goals"&gt;Goals&lt;/h2&gt;
+&lt;p&gt;Evaluating my goals for this year and decade:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;[Completed]&lt;/strong&gt;
+&lt;em&gt;Write at least four good blog posts each year.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://lethain.com/orchestration-heavy-leadership-heavy/"&gt;Moving from an orchestration-heavy to leadership-heavy management role&lt;/a&gt;,
+&lt;a href="good-eng-mgmt-is-a-fad/"&gt;Good engineering management is a fad&lt;/a&gt;,
+&lt;a href="https://lethain.com/competitive-advantage-author-llms/"&gt;What is the competitive advantage of authors in the age of LLMs?&lt;/a&gt;,
+&lt;a href="https://lethain.com/company-ai-adoption/"&gt;Facilitating AI adoption at Imprint&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;[Completed]&lt;/strong&gt;
+&lt;em&gt;Write three books about engineering or leadership in 2020s.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;This year I finished &lt;a href="https://craftingengstrategy.com/"&gt;&lt;em&gt;Crafting Engineering Strategy&lt;/em&gt;&lt;/a&gt;
+with O&amp;rsquo;Reilly. This is my third engineering book in the 2020s.
+More about this in the &lt;em&gt;Writing&lt;/em&gt; section below.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;[Completed]&lt;/strong&gt;
+&lt;em&gt;Do something substantial and new every year that provides new perspective or deeper practice.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;After almost a decade of not submitting a substantial pull request at work,
+&lt;a href="https://lethain.com/coding-at-work/"&gt;I&amp;rsquo;ve been back in the mix since joining Imprint&lt;/a&gt;.
+I&amp;rsquo;ve submitted a solid handful of real pull requests that implement
+production features, and have used Claude Code widely in their creation.
+I&amp;rsquo;ve missed this a lot, and have learned a bunch about developing software with LLMs.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;[In progress]&lt;/strong&gt;
+&lt;em&gt;20+ folks who I’ve managed or meaningfully supported move into VPE or CTO roles at 50+ person or $100M+ valuation companies.&lt;/em&gt;&lt;/p&gt;
+&lt;p&gt;This is a decade goal ending in 2029. I previously increased the goal in 2022 from &lt;code&gt;3-5&lt;/code&gt; to &lt;code&gt;20&lt;/code&gt;.
+In 2024, the count was at &lt;code&gt;10&lt;/code&gt;.
+Things haven&amp;rsquo;t moved too much since then, but I&amp;rsquo;ll refresh next year.&lt;/p&gt;
+&lt;p&gt;I think that I&amp;rsquo;m on track, but I will say that I think getting into these roles is markedly
+harder than it was three years ago. There are just fewer of these roles available recently,
+and they tend to be both more demanding and more difficult than the standard VPE/CTO role
+a few years ago.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For backstory on these goals: I originally
+&lt;a href="https://lethain.com/2019-in-review/"&gt;set them in 2019&lt;/a&gt;, and then &lt;a href="https://lethain.com/2022-in-review/"&gt;revised them in 2022&lt;/a&gt;.
+I&amp;rsquo;ve come to believe that I should be revising these every year,
+but also that it&amp;rsquo;s not that interesting to revise them every year.
+I&amp;rsquo;ll revise them again in a few years.&lt;/p&gt;
+&lt;h2 id="writing"&gt;Writing&lt;/h2&gt;
+&lt;p&gt;I finished my fourth book, &lt;a href="https://www.amazon.com/Crafting-Engineering-Strategy-Thoughtful-Decisions/dp/B0FBRJY116"&gt;&lt;em&gt;Crafting Engineering Strategy&lt;/em&gt;&lt;/a&gt;,
+and wrote &lt;a href="https://lethain.com/crafting-engineering-strategy/"&gt;some notes on writing it&lt;/a&gt;.
+I&amp;rsquo;m really excited for this book to be done, because I think it&amp;rsquo;s been a missing book
+in the industry, and I hope it will change how the industry thinks about &amp;ldquo;engineering strategy.&amp;rdquo;
+In particular, I hope it&amp;rsquo;ll pull us away from the frequent gripe that &amp;ldquo;we have no engineering strategy!&amp;rdquo;
+You &lt;em&gt;do&lt;/em&gt; have an engineering strategy, it&amp;rsquo;s just not written down yet.&lt;/p&gt;
+&lt;p&gt;As part of finishing this book, I&amp;rsquo;ve also recognized that
+if I write another book, it will be far into the future.
+After publishing four books in six years, I&amp;rsquo;m booked out,
+and I&amp;rsquo;m pretty sure I&amp;rsquo;ve tapped out my last decade&amp;rsquo;s path of
+&lt;a href="https://lethain.com/advancing-the-industry-pt2/"&gt;writing books to advance the industry&lt;/a&gt;.
+I&amp;rsquo;ll definitely keep writing, but it&amp;rsquo;ll be posts focused on the stuff
+I&amp;rsquo;m concretely working on, without trying to map them into a larger book structure.&lt;/p&gt;
+&lt;p&gt;(Last year I mentioned adding &lt;a href="https://lethain.com/high-context-triad/"&gt;The High-Context Triad&lt;/a&gt; to a second
+edition of &lt;em&gt;Staff Engineer&lt;/em&gt;, which I still plan to do, but I&amp;rsquo;m not quite sure when.
+Probably in a few years.)&lt;/p&gt;
+&lt;h2 id="work"&gt;Work&lt;/h2&gt;
+&lt;p&gt;I &lt;a href="https://lethain.com/stuff-learned-at-carta/"&gt;left Carta in May&lt;/a&gt; after two years there, and joined Imprint.
+Imprint has just been a lot of fun for me. I&amp;rsquo;ve written a small number of real pull requests
+that implement meaningful things.
+That&amp;rsquo;s something I haven&amp;rsquo;t done since working at Uber,
+and aligns with my desire to be working in the details again.
+There&amp;rsquo;s nothing more energizing to me than getting to solve real, concrete problems,
+and that&amp;rsquo;s exactly the sort of job Imprint has been for me.
+I just haven&amp;rsquo;t been spenting time on stuff like &lt;a href="https://lethain.com/notion-agent/"&gt;implementing internal workflow agents&lt;/a&gt;
+or &lt;a href="https://lethain.com/dependabot-auto-merge/"&gt;automatically merging Dependabot pull requests&lt;/a&gt; in a long time,
+and I missed it.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s also, after some years spent on making teams more efficient,
+been an opportunity to really hire again, which I haven&amp;rsquo;t gotten to do
+since my first couple years at Calm.
+It&amp;rsquo;s &lt;a href="https://lethain.com/productivity-in-the-age-of-hypergrowth/"&gt;never easy working at a fast growing company&lt;/a&gt;,
+but you do learn a lot, and quite quickly.&lt;/p&gt;
+&lt;h2 id="family"&gt;Family&lt;/h2&gt;
+&lt;p&gt;My son entered kindergarten this year. I turned 40.
+My wife is starting to explore the world of fractional software development,
+and she&amp;rsquo;s figuring out its rules.
+We&amp;rsquo;ve had a fair amount of health issues in the immediate
+and extended family, but altogether everything is going well.&lt;/p&gt;
+&lt;h2 id="speaking"&gt;Speaking&lt;/h2&gt;
+&lt;p&gt;I didn&amp;rsquo;t do much public speaking, although I spoke on
+&lt;a href="https://www.youtube.com/watch?v=RBPtGtMY8bE"&gt;Book Overflow about Staff Engineer&lt;/a&gt;,
+which was a fun discussion.&lt;/p&gt;
+&lt;p&gt;I also spoke at several private events, and recorded practice runs on YouTube
+of &lt;a href="https://www.youtube.com/watch?v=IJlrX4Z4QWs&amp;amp;t=968s&amp;amp;pp=0gcJCTwKAYcqIYzv"&gt;Good engineering management is a fad&lt;/a&gt;
+and &lt;a href="https://www.youtube.com/watch?v=2Q98TAMoiMI"&gt;CTOs must earn the right to specialize&lt;/a&gt;.
+Those are very similar talks, where I&amp;rsquo;ve been iterating on the core
+idea of how engineering managers need to adapt to the current era.&lt;/p&gt;
+&lt;h2 id="reading"&gt;Reading&lt;/h2&gt;
+&lt;p&gt;In 2024, I read 27 profession-adjacent books. In 2023, I read 11.
+I&amp;rsquo;m not quite sure how many I read in 2022, because I put together a
+&lt;a href="https://lethain.com/books-2022/"&gt;2019-2022 professional reading recap&lt;/a&gt;, but it was about
+50 over four years. This year I didn&amp;rsquo;t do much professional reading,
+mostly because I was too busy with the new job and polishing my most recent book.&lt;/p&gt;
+&lt;p&gt;What I did read was:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;em&gt;&lt;a href="https://www.amazon.com/AI-Engineering-Building-Applications-Foundation/dp/1098166302"&gt;AI Engineering&lt;/a&gt;&lt;/em&gt; by Chip Huyen&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;&lt;a href="https://www.recodingamerica.us/"&gt;Recoding America&lt;/a&gt;&lt;/em&gt; by Jennifer Pahlka&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;&lt;a href="https://www.amazon.com/Facilitating-Software-Architecture-Empowering-Architectural-ebook/dp/B0DMHGWCPN/"&gt;Facilitating Software Architecture&lt;/a&gt;&lt;/em&gt; by Andrew Harmel-Law&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;&lt;a href="https://www.amazon.com/Turning-Flywheel-Monograph-Accompany-Great/dp/0062933795"&gt;Turning the Flywheel&lt;/a&gt;&lt;/em&gt; by Jim Collins&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;It&amp;rsquo;s interesting to note the drop in volume, but I feel fine about it.
+I don&amp;rsquo;t read to hit a goal, I read to learn or understand a particular problem,
+and found myself mostly working on topics that didn&amp;rsquo;t align well with that
+approach this year.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;If you&amp;rsquo;ve written something about your year, send it my way!&lt;/p&gt;</description></item><item><title>Automatically merging dependabot PRs</title><link>https://lethain.com/dependabot-auto-merge/</link><pubDate>Thu, 18 Dec 2025 08:00:00 -0700</pubDate><guid>https://lethain.com/dependabot-auto-merge/</guid><description>&lt;p&gt;One of the recurring themes of software development is patching security issues.
+Most repository hosting services have fairly good issue reporting at this point, but many
+organizations still struggle to apply those fixes in a timely fashion.
+This past week we were discussing how to reduce the overhead of this process,
+and I was curious: can you just auto-merge &lt;a href="https://docs.github.com/en/code-security/getting-started/dependabot-quickstart-guide"&gt;Github Dependabot pull-requests&lt;/a&gt;?&lt;/p&gt;
+&lt;p&gt;It turns out, [the answer is yes], and it works pretty well.
+You get control over which types of updates (patches, minor updates, major updates, etc) you want
+to auto-merge, and it will also respect your automated checks.
+If you have great CI/CD that runs blocking linting, typing and tests, then this works
+particularly well.
+If you don&amp;rsquo;t, then, well, this will be an effective mechanism
+to get you to having good linting, typing, and tests afer traversing a small ocean of tears.&lt;/p&gt;
+&lt;p&gt;I got this running for about a dozen repositories at work over the past few days,
+but I&amp;rsquo;ll show an example of setting up the same mechanism for my blog.&lt;/p&gt;
+&lt;p&gt;First, add a &lt;code&gt;.github/workflows/dependabot-auto-merge.yml&lt;/code&gt; file to your repository
+that looks like this:&lt;/p&gt;
+&lt;pre tabindex="0"&gt;&lt;code&gt;# Automatically approve and merge Dependabot PRs for minor and patch updates
+name: Dependabot auto-merge
+on: pull_request
+permissions:
+contents: write
+pull-requests: write
+jobs:
+dependabot:
+runs-on: ubuntu-latest
+if: github.event.pull_request.user.login == &amp;#39;dependabot[bot]&amp;#39; &amp;amp;&amp;amp; github.repository == &amp;#39;lethain/irrational_hugo&amp;#39;
+steps:
+- name: Dependabot metadata
+id: metadata
+uses: dependabot/fetch-metadata@v2
+with:
+github-token: &amp;#34;${{ secrets.GITHUB_TOKEN }}&amp;#34;
+- name: Approve Dependabot PR
+run: gh pr review --approve &amp;#34;$PR_URL&amp;#34;
+env:
+PR_URL: ${{ github.event.pull_request.html_url }}
+GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+- name: Enable auto-merge for Dependabot PRs
+if: steps.metadata.outputs.update-type == &amp;#39;version-update:semver-patch&amp;#39; || steps.metadata.outputs.update-type == &amp;#39;version-update:semver-minor&amp;#39;
+run: gh pr merge --auto --squash &amp;#34;$PR_URL&amp;#34;
+env:
+PR_URL: ${{ github.event.pull_request.html_url }}
+GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;Then go to your repository settings (something like
+&lt;code&gt;https://github.com/lethain/irrational_hugo/settings&lt;/code&gt;), and enable auto-merging
+for your repository. This still respects all required branch rules, like required test passes
+or approvals, etc.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/dep-automerge.png" alt=""&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Then make sure you have appropriate status checks for whatever
+linting, typing and tests you have in your repository.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/dep-status-checks.png" alt=""&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Then enable Dependabot (something like &lt;code&gt;https://github.com/lethain/irrational_hugo/settings/security_analysis&lt;/code&gt;).
+Even the default settings are just find.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/dep-enable-prs.png" alt=""&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Then you&amp;rsquo;re done. The PRs from dependabot will automatically merge going forward.
+There are lots of nuances here&amp;ndash;I already found one issues that automatically merged
+despite an issue because of a missing test&amp;ndash;but ultimately I think that&amp;rsquo;s valuable pressure
+to improve the testing quality, rather than a reason to avoid, or backtrack, on the approach.&lt;/p&gt;</description></item><item><title>Facilitating AI adoption at Imprint</title><link>https://lethain.com/company-ai-adoption/</link><pubDate>Sun, 07 Dec 2025 08:00:00 -0700</pubDate><guid>https://lethain.com/company-ai-adoption/</guid><description>&lt;p&gt;I&amp;rsquo;ve been working on internal &amp;ldquo;AI&amp;rdquo; adoption, which is really LLM-tooling and agent adoption,
+for the past 18 months or so.
+This is a problem that I think is, at minimum, a side-quest for every engineering leader in the current era.
+Given the sheer number of folks working on this problem within their own company, I wanted to write up my “working notes”
+of what I’ve learned.&lt;/p&gt;
+&lt;p&gt;This isn&amp;rsquo;t a recommendation about what you should do, merely a recap of how I&amp;rsquo;ve approached the problem thus far,
+and what I&amp;rsquo;ve learned through ongoing iteration. I hope the thinking here will be useful to you, or at least validates
+some of what you&amp;rsquo;re experiencing in your rollout. The further you read, the more specific this will get,
+ending with cheap-turpentine-esque topics like getting agents to reliably translate human-readable text representations of Slack entities into &lt;code&gt;mrkdwn&lt;/code&gt; formatting of the correct underlying entity.&lt;/p&gt;
+&lt;div class="bg-light-gray br4 ph3 pv1"&gt;
+&lt;p&gt;&lt;strong&gt;I am hiring:&lt;/strong&gt;
+If you&amp;rsquo;re interested in working together with me on internal agent and AI adoption at Imprint,
+we are hiring our founding &lt;a href="https://jobs.ashbyhq.com/imprint/2c83c162-40d4-4b27-91e5-a1a2e81262ab"&gt;Senior Software Engineer, AI&lt;/a&gt;.
+The ideal candidate is a product engineer who&amp;rsquo;s spent some time experimenting with agents,
+and wants to spend the next year or two digging into this space.&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="prework-building-my-intuition"&gt;Prework: building my intuition&lt;/h2&gt;
+&lt;p&gt;As technologists, I think one of the basics we owe our teams is spending time
+working directly with new tools to develop an intuition for how they do, and don&amp;rsquo;t work.
+AI adoption is no different.&lt;/p&gt;
+&lt;p&gt;Towards that end, I started with a bit of reading, especially Chip Huyen&amp;rsquo;s &lt;em&gt;&lt;a href="https://www.amazon.com/AI-Engineering-Building-Applications-Foundation/dp/1098166302"&gt;AI Engineering&lt;/a&gt;&lt;/em&gt;,
+and then dove in a handful of bounded projects: building &lt;a href="https://lethain.com/our-own-agents-our-own-tools/"&gt;my rudimentary own agent platform&lt;/a&gt;
+using Claude code for implementation,
+creating &lt;a href="https://lethain.com/library-mcp/"&gt;a trivial MCP for searching my blog posts&lt;/a&gt;,
+and &lt;a href="https://lethain.com/notion-agent/"&gt;an agent to comment on Notion documents&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Each of these projects was two to ten hours, and extremely clarifying.
+Tool use is, in particular, something that seemed like magic until I
+implemented a simple tool-using agent, at which point it become something extremely non-magical
+that I could reason about and understand.&lt;/p&gt;
+&lt;h2 id="our-ai-adoption-strategy"&gt;Our AI adoption strategy&lt;/h2&gt;
+&lt;p&gt;Imprint&amp;rsquo;s general approach to refining AI adoption is &lt;a href="https://lethain.com/testing-strategy-iterative-refinement/"&gt;strategy testing&lt;/a&gt;:
+identify a few goals, pick an initial approach, and then iterate rapidly in the details until the approach genuinely works.
+In an era of crushing optics, senior leaders immersing themselves in the details is one of our few defenses.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/ai-strategy.png" alt="First draft of Imprint&amp;rsquo;s strategy for AI adoption"&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Shortly after joining, I partnered with the executive team to draft the above strategy for AI adoption.
+After a modest amount of debate, the pillars we landed on were:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Pave the path to adoption&lt;/strong&gt; by removing obstacles to adoption, especially things like
+having to explicitly request access to tooling. There&amp;rsquo;s significant internal and industry
+excitemetn for AI adoption, and we should believe in our teams. If they aren&amp;rsquo;t adopting
+tooling, we predominantly focus on making it &lt;em&gt;easier&lt;/em&gt; rather than spending time being
+skeptical or dismissive of their efforts towards adoption.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Opportunity for adoption is everywhere&lt;/strong&gt;, rather than being isolated to engineering,
+customer service, or what not. To become a company that widely benefits from AI,
+we need to be solving the problem of adoption across all teams. It&amp;rsquo;s not that I believe
+we should take the same approach everywhere, but we need &lt;em&gt;some&lt;/em&gt; applicable approach for each team.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Senior leadership leads from the front&lt;/strong&gt; to ensure what we&amp;rsquo;re doing is genuinely useful,
+rather than getting caught up in what we&amp;rsquo;re measuring.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;As you see from those principles, and my earlier comment, my biggest fear for AI adoption is
+that they can focus on creating the impression of adopting AI, rather than focusing on creating additional productivity.
+Optics are a core part of any work, but almost all interesting work occurs where optics and reality
+intersect, which these pillars aimed to support.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;As an aside, in terms of the &lt;a href="https://lethain.com/components-of-eng-strategy/"&gt;components of strategy&lt;/a&gt; in
+&lt;em&gt;&lt;a href="https://craftingengstrategy.com/"&gt;Crafting Engineering Strategy&lt;/a&gt;&lt;/em&gt;, this is really just
+the &lt;a href="https://lethain.com/policy-for-strategy/"&gt;strategy&amp;rsquo;s policy&lt;/a&gt;.
+In addition, we used &lt;a href="https://lethain.com/testing-strategy-iterative-refinement/"&gt;strategy testing&lt;/a&gt; to refine our approach,
+defined a concrete set of initial actions to operationalize it (they&amp;rsquo;re a bit too specific to share externally),
+and did some brief &lt;a href="https://lethain.com/exploring-for-strategy/"&gt;exploration&lt;/a&gt; to make sure I wasn&amp;rsquo;t overfitting on
+my prior work at Carta.&lt;/p&gt;
+&lt;h2 id="documenting-tips--tricks"&gt;Documenting tips &amp;amp; tricks&lt;/h2&gt;
+&lt;p&gt;My first step towards adoption was collecting as many internal examples of tips and tricks as possible into
+a single Notion database. I took a very broad view on what qualified, with the belief that showing
+many different examples of using tools&amp;ndash;especially across different functions&amp;ndash;is both useful and inspiring.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/ai-tips.png" alt="The image is a table listing AI tips and trainings with columns for the name of the tip and the relevant team. It includes topics like using Claude Code, adding Slack bots, and employing ChatGPT for marketing."&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;I&amp;rsquo;ve continued extending this, with contributions from across the company, and it&amp;rsquo;s become a useful resource
+for both humans and bots alike to provide suggestions on approaching problems with AI tooling.&lt;/p&gt;
+&lt;h2 id="centralizing-our-prompts"&gt;Centralizing our prompts&lt;/h2&gt;
+&lt;p&gt;One of my core beliefs in our approach is that making prompts discoverable
+within the company is extremely valuable.
+Discoverability solves four distinct problems:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Creating visibility into what prompt&amp;rsquo;s can do (so others can be inspired to use them in similar scenarios).
+For example, that you can use our agents to comment on a Notion doc when it&amp;rsquo;s created,
+respond in Slack channels effectively, triage Jira tickets, etc&lt;/li&gt;
+&lt;li&gt;Showing what a good prompt looks like (so others can improve their prompts).
+For example, you can start moving complex configuration into tables and out of lists which are harder to read and accurately modify&lt;/li&gt;
+&lt;li&gt;Serving as a repository of copy-able sections to reuse across prompts.
+For example, you can copy one of our existing &amp;ldquo;Jira-issue triaging prompts&amp;rdquo; to start
+triaging a new Jira project&lt;/li&gt;
+&lt;li&gt;Prompts are joint property of a team or function, not the immutable construct of one person.
+For example, anyone on our Helpdesk team can improve the prompt responding to Helpdesk requests,
+not just one person with access to the prompt, and it&amp;rsquo;s not locked behind being comfortable with Git or Github (although I do imagine we&amp;rsquo;ll end up with more restrictions around editing our
+most important internal agents over time)&lt;/li&gt;
+&lt;li&gt;Identifying repeating prompt sub-components that imply missing or hard to use tools.
+For example, earlier versions of our prompts had a lot of confusion around how to specify
+Slack users and channels, which I got comfortable working around, but others did not&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;My core approach is that &lt;em&gt;every&lt;/em&gt; agent&amp;rsquo;s prompt is stored in a single Notion database
+which is readable by everyone in the company. &lt;em&gt;Most&lt;/em&gt; prompts are editable by everyone,
+but some have editing restrictions.&lt;/p&gt;
+&lt;p&gt;Here&amp;rsquo;s an example of a prompt we use for routing incoming Jira issues from Customer Support
+to the correct engineering team.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/ai-routing-prompt.png" alt="The image provides instructions for triaging Jira tickets, detailing steps for retrieving comments, updating labels, and determining responsible teams. It includes guidelines for using Slack for communication and references, and lists teams with their on-call aliases and areas of responsibility."&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Here&amp;rsquo;s a second example, this time of responding to requests in our Infrastructure Engineering
+team&amp;rsquo;s request channel.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/ai-infra-prompt.png" alt="The image contains detailed instructions for service desk agents on handling Slack messages related to access requests for tools such as AWS, VPN, NPM, and more. It provides step-by-step guidelines for different scenarios, including retrieving user IDs, handling specific requests, and directing users to appropriate resources or teams."&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Pretty much all prompts end with an instruction to include a link to the prompt
+in the generated message. This ensures it&amp;rsquo;s easy to go from a mediocre response
+to the prompt-driving the response, so that you can fix it.&lt;/p&gt;
+&lt;h2 id="adopting-standard-platform"&gt;Adopting standard platform&lt;/h2&gt;
+&lt;p&gt;In addition to collecting tips and prompts, the next obvious step for AI adoption
+is identifying a standard AI platform to be used within the company, e.g. ChatGPT,
+Claude, Gemini or what not.&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;ve gone with OpenAI for everyone.
+In addition to standardizing on a platform, we made sure account provisioning was
+automatic and in place on day one.
+To the surprise of no one who&amp;rsquo;s worked in or adjacent to IT,
+a lot of revolutionary general AI adoption is&amp;hellip; really just account provisioning and access controls.
+These are the little details that can so easily derail the broader plan if you don&amp;rsquo;t dive into them.&lt;/p&gt;
+&lt;p&gt;Within Engineering, we also provide both Cursor and Claude.
+That said, the vast majority of our Claude usage is done via AWS Bedrock,
+which we use to power Claude Code&amp;hellip; and we use Claude Code quite a bit.&lt;/p&gt;
+&lt;h2 id="other-ai-tooling"&gt;Other AI tooling&lt;/h2&gt;
+&lt;p&gt;While there&amp;rsquo;s a general industry push towards adopting more AI tooling,
+I find that a significant majority of &amp;ldquo;AI tools&amp;rdquo; are just SaaS vendors that
+talk about AI in their marketing pitches. We have continued to adopt vendors,
+but have worked internally to help teams evaluate which &amp;ldquo;AI tools&amp;rdquo; are meaningful.&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;ve spent a fair amount of time going deep on integrating with AI tooling for chat and IVR
+tooling, but that&amp;rsquo;s a different post entirely.&lt;/p&gt;
+&lt;h2 id="metrics"&gt;Metrics&lt;/h2&gt;
+&lt;p&gt;Measuring AI adoption is, like all measurement topics, fraught.
+Altogether, I&amp;rsquo;ve found measuring tool adoption very useful for identifying the right
+questions to ask. Why &lt;em&gt;haven&amp;rsquo;t&lt;/em&gt; you used Cursor? Or Claude Code? Or whatever? These are fascinating
+questions to dig into. I try to look at usage data at least once a month, with a particular focus
+on two questions:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;For power adopters, what are they actually doing? Why do they find it useful?&lt;/li&gt;
+&lt;li&gt;For low or non-adopters, why aren&amp;rsquo;t they using the tooling? How could we help solve that for them?&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;At the core, I believe folks who aren&amp;rsquo;t adopting tools are rational non-adopters,
+and spending some time understanding the (appearance of) resistance goes further than
+top-down mandate. I think it&amp;rsquo;s often an education gap that is bridged easily enough.
+Conceivably, at some point I&amp;rsquo;ll discover a point of diminishing returns, where the lack
+of progress is stymied on folks who are rejecting AI tooling&amp;ndash;or because the AI tooling
+isn&amp;rsquo;t genuinely useful&amp;ndash;but I haven&amp;rsquo;t found that point yet.&lt;/p&gt;
+&lt;h2 id="building-internal-agents"&gt;Building internal agents&lt;/h2&gt;
+&lt;p&gt;The next few sections are about building internal agents.
+The core implementation is a single stateless lambda which handles a wide variety of HTTP requests,
+similar-ish to Zapier.
+This is currently implemented in Python, and is roughly 3,000 lines of code,
+much of it dedicated to oddities like formatting Slack messages, etc.&lt;/p&gt;
+&lt;p&gt;For the record, I did originally attempt to do this &lt;a href="https://lethain.com/commenting-notion-open-ai-zapier/"&gt;within Zapier&lt;/a&gt;,
+but I found that Zapier simply doesn&amp;rsquo;t facilitate the precision I believe is necessary to do this effectively.
+I also think that Zapier isn&amp;rsquo;t particularly approachable for a non-engineering audience.&lt;/p&gt;
+&lt;h3 id="what-has-fueled-adoption-especially-for-agents"&gt;What has fueled adoption (especially for agents)&lt;/h3&gt;
+&lt;p&gt;As someone who spent a long time working in platform engineering,
+I still &lt;em&gt;want to believe&lt;/em&gt; that you can build a platform, and users will come.
+Indeed, I think it&amp;rsquo;s true that a small number of early adopters &lt;em&gt;will come&lt;/em&gt;,
+if the problem is sufficiently painful for them,
+as was the case for &lt;a href="https://lethain.com/uber-service-migration-strategy/"&gt;Uber&amp;rsquo;s service migration (2014)&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;However, what we&amp;rsquo;ve found effective for driving adoption is basically the opposite of that.
+What&amp;rsquo;s really worked is the intersection of platform engineering and old-fashioned product engineering:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;(product eng) find a workflow with a lot of challenges or potential impact&lt;/li&gt;
+&lt;li&gt;(product eng) work closely with domain experts to get the first version working&lt;/li&gt;
+&lt;li&gt;(platform eng) ensure that working solution is extensible by the team using it&lt;/li&gt;
+&lt;li&gt;(both) monitor adoption as indicator of problem-solution fit, or lack thereof&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Some examples of the projects where we&amp;rsquo;ve gotten traction internally:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Writing software with effective &lt;code&gt;AGENTS.md&lt;/code&gt; files guiding use of tests, typechecking and linting&lt;/li&gt;
+&lt;li&gt;Powering initial customer questions through chat and IVR&lt;/li&gt;
+&lt;li&gt;Routing chat bots to steer questions to solve the problem, provide the the answer,
+or notify the correct responder&lt;/li&gt;
+&lt;li&gt;Issue triaging for incoming tickets: tagging them, and assigning them to the appropriate teams&lt;/li&gt;
+&lt;li&gt;Providing real-time initial feedback on routine compliance and legal questions (e.g. questions which occur frequently
+and with little deviation)&lt;/li&gt;
+&lt;li&gt;Writing weekly priorities updates after pulling a wide range of resources (Git commits, Slack messages, etc)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;For all of these projects that have worked, the formula has been
+the opposite of &amp;ldquo;build a platform and they will come.&amp;rdquo; Instead it&amp;rsquo;s
+required deep partnership from folks with experience building AI agents and
+using AI tooling to make progress. The learning curve for effective AI adoption
+in important or production-like workflows remains meaningfully high.&lt;/p&gt;
+&lt;h3 id="configuring-agents"&gt;Configuring agents&lt;/h3&gt;
+&lt;p&gt;Agents that use powerful tools represent a complex configuration problem.
+First, exposing too many tools&amp;ndash;especially tools that the prompt author doesn&amp;rsquo;t effectively understand&amp;ndash;makes
+it very difficult to create reliable workflows. For example, we have an &lt;code&gt;exit_early&lt;/code&gt; command that allows terminating
+the agent early: this is very effective in many cases, but is also easy to break your bot.
+Similarly, we have a &lt;code&gt;slack_chat&lt;/code&gt; command that allows posting across channels, which can support a variety of useful
+workflows (e.g. warm-handoffs of a question in one channel into a more appropriate alternative),
+but can also spam folks.
+Second, as tools get more powerful, they can introduce complex security scenarios.&lt;/p&gt;
+&lt;p&gt;To address both of these, we currently store configuration in a code-reviewed Git repository.
+Here&amp;rsquo;s an example of a JIRA project.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/ai-jira-config.png" alt="This image shows a configuration script for a Jira setup with specified project keys, a prompt ID, a list of allowed tools such as &amp;ldquo;notion_search&amp;rdquo; and &amp;ldquo;slack_chat,&amp;rdquo; and a model set to &amp;ldquo;gpt-4.1&amp;rdquo;. The configuration also has a setting &amp;ldquo;respond_to_issue&amp;rdquo; set to False."&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Here&amp;rsquo;s another for specifying a Slack responder bot.&lt;/p&gt;
+&lt;div class="ba b--light-gray"&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/ai-slack-config.png" alt="This image shows a code snippet configuring a channel in Slack for &amp;ldquo;eng-new-hires,&amp;rdquo; with specified Slack channel IDs, a Notion prompt ID, and a list of allowed tools like &amp;ldquo;notion_search&amp;rdquo; and &amp;ldquo;jira_search_jql.&amp;rdquo; The model specified is &amp;ldquo;gpt-4.1.&amp;rdquo;"&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;Compared to a JSON file, we can statically type the configuration, and it&amp;rsquo;s easy to extend over time.
+For example, we might want to extend &lt;code&gt;slack_chat&lt;/code&gt; to restrict which channels a given bot is allowed to
+publish into, which would be easy enough.
+For most agents today, the one thing not under Git-version control is the prompts themselves, which are versioned by Notion.
+However, we can easily require specific agents to use prompts within the Git-managed repository for sensitive scenarios.&lt;/p&gt;
+&lt;p&gt;After passing tests, linting and typechecking, the configurations are automatically deployed.&lt;/p&gt;
+&lt;h3 id="resolving-foreign-keys"&gt;Resolving foreign keys&lt;/h3&gt;
+&lt;p&gt;It&amp;rsquo;s sort of funny to mention, but one thing that has in practice really interfered with
+easily writing effective prompts is making it easy to write things like &lt;code&gt;@Will Larson&lt;/code&gt; which
+is then translated into &lt;code&gt;&amp;lt;@U12345&amp;gt;&lt;/code&gt; or whatever the appropriate Slack identifier is for a given
+user, channel, or user group. The same problem exists for Jira groups, Notion pages and databases,
+and so on.&lt;/p&gt;
+&lt;p&gt;This is a good example of where centralizing prompts is useful. I got comfortable pulling the unique
+identifiers myself, but it became evident that most others were not.
+This eventually ended with three tools for Slack resolution: &lt;code&gt;slack_lookup&lt;/code&gt; which takes a list
+of references to lookup, &lt;code&gt;slack_lookup_prefix&lt;/code&gt; which finds all Slack entities that start with
+a given prefix (useful to pull all channels or groups starting with &lt;code&gt;@oncall-&lt;/code&gt;, for example, rather than having to hard-code the list in your prompt), and &lt;code&gt;slack_search_name&lt;/code&gt; which uses string-distance to find potential matches (again, useful for dealing with typos).&lt;/p&gt;
+&lt;p&gt;If this sounds bewildering, it&amp;rsquo;s largely the result of Slack not exposing relevant APIs for this sort of lookup.
+Slack&amp;rsquo;s APIs want to use IDs to retrieve users, groups and channels, so you have to maintain your own cache of
+these items to perform a lookup. Performing the lookups, especially for users, is itself messy. Slack users have
+a minimum of three ways they might be referenced: &lt;code&gt;user.profile.display_name&lt;/code&gt;, &lt;code&gt;user.name&lt;/code&gt;, and &lt;code&gt;user.real_name&lt;/code&gt;,
+only a subset of which are set for any given user.
+The correct logic here is, as best I can tell, to find a match against &lt;code&gt;user.profile.display_name&lt;/code&gt;, then use that if it exists.
+Then do the same for &lt;code&gt;user.name&lt;/code&gt; and finally &lt;code&gt;user.real_name&lt;/code&gt;. If you take the first user that matches one of those three,
+you&amp;rsquo;ll use the wrong user in some scenarios.&lt;/p&gt;
+&lt;p&gt;In addition to providing tools to LLMs for resolving names, I also have a final mandatory check for each response
+to ensure the returned references refer to real items. If not, I inject which ones are invalid into the context window and perform an additional agent loop with only entity-resolution tools available.
+This feels absurd, but it was only at this point that things really started working consistently.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;As an aside, I was embarassed by these screenshots, and earlier today I made the same changes for Notion pages and databases
+as I had previously for Slack.&lt;/p&gt;
+&lt;h2 id="formatting"&gt;Formatting&lt;/h2&gt;
+&lt;p&gt;Similarly to foreign entity resolution,
+there&amp;rsquo;s a similar problem with &lt;a href="https://docs.slack.dev/messaging/formatting-message-text/"&gt;Slack&amp;rsquo;s &lt;code&gt;mrkdwn&lt;/code&gt; variant of Markdown&lt;/a&gt;
+and JIRA&amp;rsquo;s &lt;a href="https://developer.atlassian.com/cloud/jira/platform/apis/document/structure/"&gt;Atlassian Document Format&lt;/a&gt;:
+they&amp;rsquo;re both strict.&lt;/p&gt;
+&lt;p&gt;The tools that call into those APIs now have strict instructions on formatting. These &lt;em&gt;had&lt;/em&gt; been contained in individual
+prompts, but they started showing up in every prompt, so I knew I needed to bring them into the agent framework itself
+rather than forcing every prompt-author to understand the problem.&lt;/p&gt;
+&lt;p&gt;My guess is that I need to add a validation step similar to the one I added for entity-resolution,
+and that until I do so, I&amp;rsquo;ll continue to have a small number of very infrequent but annoying rendering issues,
+To be honest, I personally don&amp;rsquo;t mind the rendering issues, but that creates a lot of uncertainty for others using agents, so I think solving them is a requirement.&lt;/p&gt;
+&lt;h3 id="logging-and-debugging"&gt;Logging and debugging&lt;/h3&gt;
+&lt;p&gt;Today, all logs, especially tool usage, are fed into two places. First, it goes into Datadog for full logging visibility.
+Second, and perhaps more usefully for non-engineers, they feed into a Slack channel, &lt;code&gt;#ai-logs&lt;/code&gt; which create visibility
+into which tools are used and with which (potentially truncated) parameters.&lt;/p&gt;
+&lt;p&gt;Longer term, I imagine this will be exposed via a dedicated internal web UX, but generally speaking I&amp;rsquo;ve found that
+the subset of folks who are actively developing agents are pretty willing to deal with a bit of cruft.
+Similarly the folks who aren&amp;rsquo;t developing agents directly don&amp;rsquo;t really care, they want it to work perfectly every time,
+and aren&amp;rsquo;t spending time looking at logs.&lt;/p&gt;
+&lt;h2 id="biggest-remaining-gap-universal-platform-for-accessing-user-scope-mcp-servers"&gt;Biggest remaining gap: universal platform for accessing user-scope MCP servers&lt;/h2&gt;
+&lt;p&gt;The biggest internal opportunity that I see today is figuring out how to
+get non-engineers an experience equivalent to running Claude Code locally with
+all their favorite MCP servers plugged in.
+I&amp;rsquo;ve wanted ChatGPT or Claude.ai to provide this, but they don&amp;rsquo;t &lt;em&gt;really&lt;/em&gt; quite get there,
+Claude Desktop is close, but is somewhat messy to configure as we think about finding a tool
+that we can easily allow everyone internally to customize and use on a daily basis.&lt;/p&gt;
+&lt;p&gt;I&amp;rsquo;m still looking for what the right tool is here. If anyone has any great suggestions
+that we can be somewhat confident will still exist in two years, and don&amp;rsquo;t require sending
+a bunch of internal data to a very early stage company, then I&amp;rsquo;m curious to hear!&lt;/p&gt;
+&lt;h2 id="whats-next"&gt;What&amp;rsquo;s next?&lt;/h2&gt;
+&lt;p&gt;You&amp;rsquo;re supposed to start a good conclusion with some sort of punchy anecdote that
+illuminates your overall thesis in a new way. I&amp;rsquo;m not sure if I can quite meet that bar,
+but the four most important ideas for me are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;We are still very early on AI adoption, so focusing on rate of learning is more valuable than anything else&lt;/li&gt;
+&lt;li&gt;If you want to lead an internal AI initiative, you simply &lt;em&gt;must&lt;/em&gt; be using the tools, and &lt;em&gt;not&lt;/em&gt; just ChatGPT,
+but building your own tool-using agent using only an LLM API&lt;/li&gt;
+&lt;li&gt;My experience is that &lt;em&gt;real&lt;/em&gt; AI adoption on &lt;em&gt;real&lt;/em&gt; problems is a complex blend of: domain context on the problem, domain experience with AI tooling,
+and old-fashioned IT issues. I&amp;rsquo;m deeply skeptical of any initiative for internal AI adoption that doesn&amp;rsquo;t anchor on all three of those.
+This is an advantage of earlier stage companies, because you can often find aspects of all three of those in a single person,
+or at least across two people. In larger companies, you need three different &lt;em&gt;organizations&lt;/em&gt; doing this work together, this is just objectively hard&lt;/li&gt;
+&lt;li&gt;I think model selection matters a lot, but there are only 2-3 models you need at any given moment in time,
+and someone can just tell you what those 2-3 models are at any given moment. For example, &lt;a href="https://platform.openai.com/docs/models/gpt-4.1"&gt;GPT-4.1&lt;/a&gt;
+is just exceptionally good at following rules quickly. It&amp;rsquo;s a &lt;em&gt;great&lt;/em&gt; model for most latency-sensitive agents&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;I&amp;rsquo;m curious what other folks are finding!&lt;/p&gt;</description></item><item><title>Coding at work (after a decade away).</title><link>https://lethain.com/coding-at-work/</link><pubDate>Wed, 19 Nov 2025 08:00:00 -0700</pubDate><guid>https://lethain.com/coding-at-work/</guid><description>&lt;p&gt;Since joining Imprint a bit over six months ago as the CTO of a ~50 engineer team,
+I&amp;rsquo;ve merged 104 pull requests, which is slightly over four per week. Many of them are very minimal
+configuration and documentation tweaks, and none were &lt;em&gt;the hardest&lt;/em&gt; or even &lt;em&gt;most time-sensitive&lt;/em&gt; task available
+at any given time; I&amp;rsquo;m much more of a pull request scavenger finding opportunities that don&amp;rsquo;t
+disrupt the operating teams&amp;rsquo; rhythms.&lt;/p&gt;
+&lt;p&gt;That said, a decent chunk represent meaningful software development tasks, and
+these 104 pull requests are more pull requests than I&amp;rsquo;ve completed
+&lt;em&gt;combined&lt;/em&gt; in my prior decade of work, where Uber was the last time I was substantially submitting
+pull requests (well, whatever Phabricator called its pull request equvialent).
+Since then, I&amp;rsquo;ve been predominantly managing managers, and &lt;em&gt;not&lt;/em&gt; writing software with my own hands at work.&lt;/p&gt;
+&lt;p&gt;This has been a fascinating shift, and I wanted to write dome some
+thoughts on whether this is good for software, good for me, whether it&amp;rsquo;s fun,
+and how I&amp;rsquo;ve personally worked to adapt to &lt;a href="https://lethain.com/good-eng-mgmt-is-a-fad/"&gt;the current era&lt;/a&gt;.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;em&gt;Unrelatedly, I did enjoy Peter Seibel&amp;rsquo;s &lt;a href="https://codersatwork.com/"&gt;Coders at Work&lt;/a&gt; (2009).&lt;/em&gt;&lt;/p&gt;
+&lt;h2 id="dubious-return-on-effort-of-manager-coding"&gt;Dubious return-on-effort of manager coding&lt;/h2&gt;
+&lt;p&gt;I was a computer science major, and worked as a software engineer prior to becoming an engineering manager.
+I continued to write software when I was a line manager, and
+continued to write small projects in my free time after becoming a manager.
+The idea of writing software at work has always appealing to me.&lt;/p&gt;
+&lt;p&gt;However, when I became a manager of managers, I stopped writing software at work.
+I &lt;em&gt;wanted&lt;/em&gt; to write software, but it simply felt like a lower return on time
+than doing something else. For example, if I focusd my time hiring another engineer
+onto the team, they would undoubtedly do more than I would.
+Similarly, if I spent time improving our plans, that would have a higher impact
+than me writing a piece of software.
+Ultimately, I got stuck in the trap that it was always clear that writing software would be valuable,
+but it would always be less valuable than another endeavor.
+Each hour I spent writing software was bad for the business overall,
+and a sign of questionable judgment.&lt;/p&gt;
+&lt;p&gt;The same wasn&amp;rsquo;t true when it came to &lt;em&gt;understanding&lt;/em&gt; the codebase,
+and I&amp;rsquo;ve tried&amp;ndash;to various degrees of success&amp;ndash;to build a workable
+degree of awareness of the codebases I&amp;rsquo;ve managed. That being said,
+since I left line management roles,
+I&amp;rsquo;ve never been truly successful at doing this beyond the superficial
+level.
+My experience is that only writing software can build
+a truly effective understanding of &lt;a href="https://lethain.com/reclaim-unreasonable-software/"&gt;unreasonable software&lt;/a&gt;,
+and that most startup software is unreasonable due to its origin of being
+iteratively designed by a shifting cast of characters with an evolving
+understanding of the domain they are modeling.&lt;/p&gt;
+&lt;p&gt;You can get very far with a minimal understanding of a codebase
+and surrounding yourself with strong engineers who you can ask useful questions to
+and get honest answers. For the big things, this is generally sufficient,
+but it means you can&amp;rsquo;t really engage with the small questions without
+spending engineers&amp;rsquo; time on it or making low-judgment decisions.&lt;/p&gt;
+&lt;p&gt;Whether manager coding is valuable comes down to
+whether you believe making large decisions more quickly with fewer interrupts for context pulling&amp;ndash;and the ability to make numerous small decisions that are otherwise
+too expensive to make effectively&amp;ndash;builds into meaningfully more impactful management.
+This isn&amp;rsquo;t a proclimation for others, but for me, I&amp;rsquo;ve really enjoyed
+getting back to writing software at work, in large part because the
+time commitment to do so has dropped significantly over the past
+couple years.&lt;/p&gt;
+&lt;h2 id="finding-small-pockets-of-time-to-write-software"&gt;Finding small pockets of time to write software&lt;/h2&gt;
+&lt;p&gt;The biggest specific challenge for me when it came to writing software as a manager
+was finding blocks of thinking time to either understand a problem, or to implement
+the solution. Even simple fixes require an effective mental model of the codebase
+being worked on.&lt;/p&gt;
+&lt;p&gt;This becomes inescapably true when you&amp;rsquo;re focused on long-term impact of your work.
+For example, adding a bunch of tests &lt;em&gt;might&lt;/em&gt; be useful, but it&amp;rsquo;s often the case that
+poorly designed tests get throw away over time because they overlap with other existing
+tests, are flaky, or are slow in aggregate. I think traditionally, a lot of manager coding
+has fallen into this bucket of optically useful with somewhat dubious long-term value.
+Doing high quality work simply requires too complete a mental model for folks jumping in and
+out of writing software.&lt;/p&gt;
+&lt;p&gt;The new wave of AI tooling like Claude Code or OpenAI Codex are extremely susceptive to
+creating low-quality commits, but my experience is that used effectively they also provide
+several opportunities for creating useful code contributions are well.
+They are effective at:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;answering questions into a codebase, e.g. &amp;ldquo;what are our most common patterns for working with authn and authz? what are good examples of each?&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;writing code that fits the existing codebase&amp;rsquo;s patterns and structure, particularly with a well-written &lt;code&gt;AGENTS.md&lt;/code&gt;&amp;rsquo;s guidance&lt;/li&gt;
+&lt;li&gt;taking general feedback to revise the approach, e.g. &amp;ldquo;look for existing utilities that solve date math within our codebase and reuse those&amp;rdquo;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Most importantly, you can do each of those in a few minutes at a time.
+Between meetings at work, I generally pop back into one of several Claude Code
+sessions to see where it got to on a given task, review the code, and suggest
+next steps.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s worth acknowledging that there&amp;rsquo;s a significant learning curve to doing this well.
+I&amp;rsquo;ve spent a meaningful amount of time in the last year learning to write software this way,
+and each month there are new caveats that I&amp;rsquo;ve had to understand.
+Slowly but surely, I&amp;rsquo;ve built a mental model of both how writing software with AI
+works, and how Imprint&amp;rsquo;s codebases work.&lt;/p&gt;
+&lt;p&gt;As I&amp;rsquo;ve gotten more knowledgable at both, I&amp;rsquo;ve refound my ability to write software
+at work because I can make progress in the small chunks of time between other projects,
+combined with an hour or two over the week to think more deeply about my approach
+to more complex issues.&lt;/p&gt;
+&lt;h2 id="judgment--problem-selection"&gt;Judgment / problem selection&lt;/h2&gt;
+&lt;p&gt;While new AI tools make it easier than ever for managers to write useful software at work,
+they also make it easier than ever to write unhelpful software at work.
+Particularly in senior roles, it&amp;rsquo;s very easy to write software that makes you feel helpful,
+but is genuinely unhelpful to the team, and leaves them busier than they were before.&lt;/p&gt;
+&lt;p&gt;The handful of rules that I&amp;rsquo;ve found useful for myself here are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Never contribute to something that is truly time sensitive unless
+it&amp;rsquo;s a very constrained thing that I can solve end-to-end &lt;em&gt;today&lt;/em&gt;.
+When that isn&amp;rsquo;t the case, I&amp;rsquo;m usually going to slow things down despite
+trying to help.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Prioritize projects that are hard for teams to get to, but are obviously valuable
+over time. For example, technical debt clean up, small user-requested features,
+or missing instrumentation.&lt;/p&gt;
+&lt;p&gt;Infrequently take on a strategic company project which doesn&amp;rsquo;t have an owner,
+and which I am able to complete &lt;em&gt;myself&lt;/em&gt;.
+A real example of this has been writing our first pass of a new
+&lt;a href="https://en.wikipedia.org/wiki/Interactive_voice_response"&gt;Interactive Voice Response&lt;/a&gt;
+built on an AI agent, which was clearly valuable but difficult to prioritize over
+the team&amp;rsquo;s existing work.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Hold myself to a higher bar than I would hold others in terms of fully
+releasing my software, monitoring its release, and solving bugs it creates.
+If I don&amp;rsquo;t have time to do those things,
+then I am stealing time from the team rather than helping them.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Err towards implementing feedback in pull requests, even if I consider it
+generally neutral. The cost of giving feedback to me is so high for folks,
+that I&amp;rsquo;m responsible for going out of my way to incorporate it when it is
+given.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;These rules &lt;em&gt;have&lt;/em&gt; meant that I didn&amp;rsquo;t work on some projects that I wanted to,
+but I think they&amp;rsquo;ve done a fairly good job of allowing me to build my judgment
+about how our software works without getting in the way of the teams who are
+doing the vast majority of the heavy lifting.
+I&amp;rsquo;m sure there are better versions of these rules, but in general I&amp;rsquo;d guess that
+managers ignoring them are close to the border of being unhelpful.&lt;/p&gt;
+&lt;h2 id="should-you-be-coding-at-work"&gt;Should you be coding at work?&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;m pretty sure that &amp;ldquo;Should managers be coding at work?&amp;rdquo; isn&amp;rsquo;t nearly as interesting a question as folks want it to be,
+and a meaningful answer depends on each situation&amp;rsquo;s details.
+However, what&amp;rsquo;s been clearly true for me is that the overhead of writing software
+at work is substantially lower than it was a few years ago.
+If you weren&amp;rsquo;t writing software at work because it simply took too much time away
+from managing the team directly: the constraints have shifted in a profound way
+after you learn the new wave of tooling.&lt;/p&gt;
+&lt;p&gt;The learning loop for writing software with agents is definitely not zero,
+but it&amp;rsquo;s something you can learn for a few dollars of tokens and a couple dozen hours
+spent writing personal projects that are safe to throw away afterwards.
+That feels like a worthwhile investment to remain effective in one&amp;rsquo;s chosen profession.&lt;/p&gt;</description></item><item><title>"Good engineering management" is a fad</title><link>https://lethain.com/good-eng-mgmt-is-a-fad/</link><pubDate>Sun, 26 Oct 2025 04:00:00 -0700</pubDate><guid>https://lethain.com/good-eng-mgmt-is-a-fad/</guid><description>&lt;p&gt;As I get older, I increasingly think about
+whether I&amp;rsquo;m spending my time the right way
+to advance my career and my life.
+This is also a question that your company
+asks about you every performance cycle:
+is this engineering manager spending their
+time effectively to advance the company or their organization?&lt;/p&gt;
+&lt;p&gt;Confusingly, in my experience, answering these nominally similar questions
+has surprisingly little in common.
+This piece spends some time exploring both questions in the particularly
+odd moment we live in today, where managers are being told they&amp;rsquo;ve
+spent the last decade doing the wrong things, and need to engage
+with a new model of engineering management in order to be
+valued by the latest iteration of the industry.&lt;/p&gt;
+&lt;div class="bg-light-gray br4 ph3 pv1"&gt;
+&lt;p&gt;If you&amp;rsquo;d be more interested in a video version of this,
+here is the recording of a practice run I gave for a talk
+centered on these same ideas
+(&lt;a href="https://docs.google.com/presentation/d/17lTreuVdYMNOr7k2XLzrshEJnB-StaNUzAyh9tE0b5w/edit?slide=id.g39f551c2725_0_0#slide=id.g39f551c2725_0_0"&gt;slides from talk&lt;/a&gt;).&lt;/p&gt;
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/IJlrX4Z4QWs?si=m9HgL7y0AvdOSUq6" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen&gt;&lt;/iframe&gt;
+&lt;/div&gt;
+&lt;h2 id="good-leadership-is-a-fad"&gt;Good leadership is a fad&lt;/h2&gt;
+&lt;p&gt;When I started my software career at Yahoo in the late 2000s, I had two 1:1s with my manager over the course of two
+years. The first one came a few months after I started, and he mostly asked me about a colleague&amp;rsquo;s work quality.
+The second came when I gave notice that I was leaving to &lt;a href="https://lethain.com/digg-v4/"&gt;join Digg&lt;/a&gt;.
+A modern evaluation of this manager would be scathing, but his management style closely resembled that of the
+team leader in &lt;a href="https://www.amazon.com/Soul-New-Machine-Tracy-Kidder/dp/0316491977"&gt;&lt;em&gt;The Soul of A New Machine&lt;/em&gt;&lt;/a&gt;:
+identifying an important opportunity for the team, and navigating the broader organization that might impede progress
+towards that goal.
+He was, in the context we were working in, an effective manager.&lt;/p&gt;
+&lt;p&gt;Compare that leadership style to the expectations of the 2010s, where attracting, retaining, and motivating engineers
+was emphasized as the most important leadership criteria in many organizations.
+This made sense in &lt;a href="https://lethain.com/productivity-in-the-age-of-hypergrowth/"&gt;the era of hypergrowth&lt;/a&gt;, where budgets were uncapped
+and many companies viewed hiring strong engineers as their constraint on growth.
+This was an era where managers were explicitly told to stop writing software as the first step of their transition into management,
+and it was good advice! Looking back we can argue it was bad guidance by today&amp;rsquo;s standards, but it aligned the managers with the leadership expectations
+of the moment.&lt;/p&gt;
+&lt;p&gt;Then think about our current era, that started in late 2022, where higher interest rates killed &lt;a href="https://www.readmargins.com/p/zirp-explains-the-world"&gt;zero-interest-rate-policy (ZIRP)&lt;/a&gt;
+and productized large language models are positioned as killing deep Engineering organizations.
+We&amp;rsquo;ve flattened Engineering organizations where many roles that previously focused on coordination
+are now expected to be hands-on keyboard, working deep in the details.
+Once again, the best managers of the prior era&amp;ndash;who did exactly what the industry asked them to do&amp;ndash;are now reframed as bureaucrats
+rather than integral leaders.&lt;/p&gt;
+&lt;p&gt;In each of these transitions, the business environment shifted, leading to a new formulation of ideal leadership.
+That makes a lot of sense: of course we want leaders to fit the necessary patterns of today.
+Where things get weird is that in each case a morality tale was subsequently superimposed on top of the transition:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;In the 2010s, the morality tale was that it was all about empowering engineers as a fundamental good.
+Sure, I can get excited for that, but I don&amp;rsquo;t really believe that narrative: it happened because hiring was competitive.&lt;/li&gt;
+&lt;li&gt;In the 2020s, the morality tale is that bureaucratic middle management have made organizations stale and inefficient.
+The lack of experts has crippled organizational efficiency.
+Once again, I can get behind that&amp;ndash;there&amp;rsquo;s truth here&amp;ndash;but the much larger drivers aren&amp;rsquo;t about morality,
+it&amp;rsquo;s about ZIRP-ending and optimism about productivity gains from AI tooling.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The conclusion here is clear: the industry will want different things from you as it evolves,
+and it will tell you that each of those shifts is because of some complex moral change,
+but it&amp;rsquo;s pretty much always about business realities changing.
+If you take any current morality tale as true, then you&amp;rsquo;re setting yourself up
+to be severely out of position when the industry shifts again in a few years,
+because &amp;ldquo;good leadership&amp;rdquo; is just a fad.&lt;/p&gt;
+&lt;div class="bg-light-gray br4 ph3 pv1"&gt;
+&lt;p&gt;Earlier this summer, I also gave a presentation at the YCombinator CTO summit
+on this specific topic of the evolution of engineering management.
+You can watch a &lt;a href="https://www.youtube.com/watch?v=2Q98TAMoiMI"&gt;recorded practice run of &lt;strong&gt;that&lt;/strong&gt; talk on YouTube&lt;/a&gt; as well,
+and &lt;a href="https://docs.google.com/presentation/d/1Du-oNGoN92mMQWj8EeS36ktOrDqxZbbhAmNexYkjod4/edit?slide=id.g24afdb76500_0_415#slide=id.g24afdb76500_0_415"&gt;see the slides&lt;/a&gt;.&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="self-development-across-leadership-fads"&gt;Self-development across leadership fads&lt;/h2&gt;
+&lt;p&gt;If you accept the argument that the specifically desired leadership skills of today
+are the result of fads that frequently shift, then it leads to an important followup question:
+what are the right skills to develop in to be effective today and to be impactful across fads?&lt;/p&gt;
+&lt;p&gt;Having been and worked with engineering managers for some time, I think there are
+&lt;a href="https://lethain.com/categories-engineering-leadership/"&gt;eight foundational engineering management skills&lt;/a&gt;,
+which I want to personally group into two clusters: core skills that are essential to operate in all roles
+(including entry-level management roles), and growth skills whose presence&amp;ndash;or absence&amp;ndash;determines
+how far you can go in your career.&lt;/p&gt;
+&lt;p&gt;The core skills are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Execution&lt;/strong&gt;: lead team to deliver expected tangible and intangible work.
+Fundamentally, management is about getting things done, and you&amp;rsquo;ll neither
+get an opportunity to begin managing, nor stay long as a manager, if your
+teams don&amp;rsquo;t execute.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: ship projects, manage on-call rotation, sprint planning, manage incidents&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Team&lt;/strong&gt;: shape the team and the environment such that they succeed.
+This is &lt;em&gt;not&lt;/em&gt; working for the team, nor is it working for your leadership, it is
+finding the balance between the two that works for both.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: hiring, coaching, performance management, advocate with your management&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Ownership&lt;/strong&gt;: navigate reality to make consistent progress, even when reality is difficult
+Finding a way to get things done, rather than finding a way that it not getting done is someone else&amp;rsquo;s fault.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: doing hard things, showing up when it&amp;rsquo;s uncomfortable, being accountable despite systemic issues&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Alignment&lt;/strong&gt;: build shared understanding across leadership, stakeholders, your team, and the problem space.
+Finding a realistic plan that meets the moment, without surprising or being surprised by those around you.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: document and share top problems, and updates during crises&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;The growth skills are:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Taste&lt;/strong&gt;: exercise discerning judgment about what &amp;ldquo;good&amp;rdquo; looks like—technically, in business terms, and in process/strategy.
+Taste is a broadchurch, and my experience is that broad taste is an somewhat universal criteria for truly senior roles.
+In some ways, taste is a prerequisite to Amazon&amp;rsquo;s &lt;a href="https://www.amazon.jobs/content/en/our-workplace/leadership-principles"&gt;Are Right, A Lot&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: refine proposed product concept,
+avoid high-risk rewrite,
+find usability issues in team’s work&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Clarity&lt;/strong&gt;: your team, stakeholders, and leadership know what you&amp;rsquo;re doing and why, and agree that it makes sense.
+In particular, they understand how you are overcoming your biggest problems. So clarity is not, &amp;ldquo;Struggling with scalability issues&amp;rdquo;
+but instead &amp;ldquo;Sharding the user logins database in a new cluster to reduce load.&amp;rdquo;&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: identify levers to progress,
+create plan to exit a crisis,
+show progress on implementing that plan&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Navigating ambiguity&lt;/strong&gt;: work from complex problem to opinionated, viable approach.
+If you&amp;rsquo;re given an extremely messy, open-ended problem, can you still find a way to make progress?
+(I&amp;rsquo;ve &lt;a href="https://lethain.com/navigating-ambiguity/"&gt;written previously about this topic&lt;/a&gt;.)&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: launching a new business line,
+improving developer experience,
+going from 1 to N cloud regions&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Working across timescales&lt;/strong&gt;: ensure your areas of responsibility make progress across both the short and long term.
+There are many ways to appear successful by cutting corners today, that end in disaster tomorrow.
+Success requires understanding, and being accountable for, how different timescales interact.&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;Examples&lt;/em&gt;: have an explicit destination,
+ensure short-term work steers towards it,
+be long-term rigid and short-term flexible&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Having spent a fair amount of time pressure testing these, I&amp;rsquo;m pretty sure most effective managers, and manager archetypes, can be fit into these boxes.&lt;/p&gt;
+&lt;h3 id="self-assessing-on-these-skills"&gt;Self-assessing on these skills&lt;/h3&gt;
+&lt;p&gt;There&amp;rsquo;s no perfect way to measure anything complex, but here are some thinking
+questions for you to spend time with as you assess where you stand on each of these skills:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;Execution&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;When did your team last have friction delivering work? Is that a recurring issue?&lt;/li&gt;
+&lt;li&gt;What’s something hard you shipped that went really, really well?&lt;/li&gt;
+&lt;li&gt;When were you last pulled onto solving a time-sensitive, executive-visible project?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Team&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Who was the last strong performer you hired?&lt;/li&gt;
+&lt;li&gt;Have you retained your strongest performers?&lt;/li&gt;
+&lt;li&gt;What strong performers want to join your team?&lt;/li&gt;
+&lt;li&gt;Which peers consider your team highly effective?&lt;/li&gt;
+&lt;li&gt;When did an executive describe your team as exceptional?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Ownership&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;When did you or your team overcome the odds to deliver something important? (Would your stakeholders agree?)&lt;/li&gt;
+&lt;li&gt;What’s the last difficult problem you solved that stayed solved (rather than reoccurring)?&lt;/li&gt;
+&lt;li&gt;When did you last solve the problem first before addressing cross-team gaps?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Alignment&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;When was the last time you were surprised by a stakeholder? What could you do to prevent that reoccuring?&lt;/li&gt;
+&lt;li&gt;How does a new stakeholder understand your prioritization tradeoffs (incl rationale)?&lt;/li&gt;
+&lt;li&gt;When did you last disappoint a stakeholder without damaging your relationship?&lt;/li&gt;
+&lt;li&gt;What stakeholders would join your company because they trust you?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Taste&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;What’s a recent decision that is meaningfully better because you were present?&lt;/li&gt;
+&lt;li&gt;If your product counterpart left, what decisions would you struggle to make?&lt;/li&gt;
+&lt;li&gt;Where’s a subtle clarification that significantly changed a design or launch?&lt;/li&gt;
+&lt;li&gt;How have you inflected team’s outcomes by seeing around corners?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Clarity&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;What’s a difficult trade-off you recently helped your team make?&lt;/li&gt;
+&lt;li&gt;How could you enable them to make that same trade-off without your direct participation?&lt;/li&gt;
+&lt;li&gt;What’s a recent decision you made that was undone? How?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Navigating ambiguity&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;What problem have you worked on that was stuck before assisted, and unstuck afterwards?&lt;/li&gt;
+&lt;li&gt;How did you unstick it?&lt;/li&gt;
+&lt;li&gt;Do senior leaders bring ambiguous problems to you? Why?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Working across timescales&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;What’s a recent trade off you made between short and long-term priorities?&lt;/li&gt;
+&lt;li&gt;How do you inform these tradeoffs across timescales?&lt;/li&gt;
+&lt;li&gt;What long-term goals are you protecting at significant short-term cost?&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Most of these questions stand on their own, but it&amp;rsquo;s worth briefly explaining
+the &amp;ldquo;Have you ever been pulled into a SpecificSortOfProject by an executive?&amp;rdquo; questions.
+My experience is that in most companies, executives will try to poach you onto their most
+important problems that correspond to your strengths.
+So if they&amp;rsquo;re never attempting to pull you in then either you&amp;rsquo;re not considered as particularly
+strong on that dimensions, or you&amp;rsquo;re already very saturated with other work such that it doesn&amp;rsquo;t
+seem possible to pull you in.&lt;/p&gt;
+&lt;h3 id="are-core-skills-the-same-over-time"&gt;Are &amp;ldquo;core skills&amp;rdquo; the same over time?&lt;/h3&gt;
+&lt;p&gt;While those groupings of &amp;ldquo;core&amp;rdquo; and &amp;ldquo;growth&amp;rdquo; skills are obvious groupings to me,
+what I came to appreciate while writing this is that some skills swap between core to growth
+as the fads evolve.
+Where &lt;em&gt;execution&lt;/em&gt; is a foundational skill today, it was less of a core skill in the hypergrowth era,
+and even less in the investor era.&lt;/p&gt;
+&lt;p&gt;This is the fundamentally tricky part of succeeding as an engineering manager across fads:
+you need a sufficiently broad base across each of these skills to be successful, otherwise
+you&amp;rsquo;re very likely to be viewed as a weak manager when the eras unpredictably end.&lt;/p&gt;
+&lt;h2 id="stay-energized-to-stay-engaged"&gt;Stay energized to stay engaged&lt;/h2&gt;
+&lt;p&gt;The &amp;ldquo;&lt;a href="https://lethain.com/frameworks-decision-making/"&gt;Manage your priorities and energy&lt;/a&gt;&amp;rdquo; chapter in
+&lt;a href="https://www.amazon.com/Engineering-Executives-Primer-Impactful-Leadership/dp/1098149483/"&gt;&lt;em&gt;The Engineering Executive&amp;rsquo;s Primer&lt;/em&gt;&lt;/a&gt;
+captures an important reality that took me too long to understand:
+the perfect allocation of work is not the mathematically ideal allocation that maximizes impact.
+Instead, it&amp;rsquo;s the balance between that mathematical ideal and doing
+things that energize you enough to stay motivated over the long haul.
+If you&amp;rsquo;re someone who loves writing software, that might involve writing a bit more than helpful to your team.
+If you&amp;rsquo;re someone who loves streamlining an organization, it might be improving a friction-filled process that is a personal affront, even if it&amp;rsquo;s not causing &lt;em&gt;that much&lt;/em&gt; overall inefficiency.&lt;/p&gt;
+&lt;h2 id="forty-year-career"&gt;Forty-year career&lt;/h2&gt;
+&lt;p&gt;Similarly to the question of prioritizing activities to stay energized, there&amp;rsquo;s also understanding
+where you are in your career, an idea I explored in &lt;a href="https://lethain.com/forty-year-career/"&gt;A forty-year career&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2019/40-year-hero.png" alt="Diagram of different ways to prioritize roles across your career"&gt;&lt;/p&gt;
+&lt;p&gt;For each role, you have the chance to prioritize across different dimensions like pace, people, prestige, profit, or learning.
+There&amp;rsquo;s no &amp;ldquo;right decision,&amp;rdquo; and there are always tradeoffs.
+The decisions you make early in your career will compound over the following forty years.
+You also have to operate within the constraints of your life today and your possible lives tomorrow.
+Early in my career, I had few responsibilities to others, and had the opportunity to work extremely hard
+at places like Uber. Today, with more family responsibilities, I am unwilling to make the tradeoffs to
+consistently work that way, which has real implications on how I think about which roles to prioritize
+over time.&lt;/p&gt;
+&lt;p&gt;Recognizing these tradeoffs, and making them deliberately, is one of the highest value things you can do
+to shape your career. Most importantly, it&amp;rsquo;s extremely hard to have a career at all if you don&amp;rsquo;t think about
+these dimensions and have a healthy amount of self-awareness to understand the tradeoffs that will allow you
+to stay engaged over half a lifetime.&lt;/p&gt;</description></item><item><title>Crafting Engineering Strategy!</title><link>https://lethain.com/crafting-engineering-strategy/</link><pubDate>Sat, 25 Oct 2025 04:00:00 -0700</pubDate><guid>https://lethain.com/crafting-engineering-strategy/</guid><description>&lt;p&gt;On November 3rd, 2023, I posted &lt;a href="https://lethain.com/publishing-eng-execs-primer/"&gt;Thoughts on writing and publishing &lt;em&gt;Primer&lt;/em&gt;&lt;/a&gt;
+to celebrate the completion of my work on my prior book, &lt;em&gt;&lt;a href="https://www.amazon.com/Engineering-Executives-Primer-Impactful-Leadership/dp/1098149483/"&gt;The Engineering Executive&amp;rsquo;s Primer&lt;/a&gt;&lt;/em&gt;.
+Three weeks later, I posted &lt;a href="https://lethain.com/strategy-notes/"&gt;Engineering strategy notes&lt;/a&gt; on November 21st, 2023,
+as I started to pull together thoughts to write my upcoming book, &lt;em&gt;&lt;a href="https://craftingengstrategy.com/"&gt;Crafting Engineering Strategy&lt;/a&gt;&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;Those initial thoughts turned into my first chapter draft, &lt;a href="https://lethain.com/llm-adoption-strategy/"&gt;How should you adopt LLMs?&lt;/a&gt; on May 14th, 2024.
+Writing continued all the way through the &lt;a href="https://lethain.com/api-deprecation-strategy/"&gt;Stripe API deprecation strategy&lt;/a&gt;,
+which was my final &lt;em&gt;draft&lt;/em&gt;, completed the afternoon of April 5th, 2025.
+In between there were another 35 chapters:
+two of which were &lt;a href="https://lethain.com/wardley-mapping/"&gt;Wardley maps&lt;/a&gt;,
+four of which are &lt;a href="https://lethain.com/strategy-systems-modeling/"&gt;systems models&lt;/a&gt;,
+and two of which are short section introductions.&lt;/p&gt;
+&lt;p&gt;This post is a collection of notes on writing &lt;em&gt;Crafting Engineering Strategy&lt;/em&gt;,
+how I decided to publish it,
+ways that I did and did not use foundational models in writing it,
+and so on.&lt;/p&gt;
+&lt;div class="bg-light-gray br4 ph3 pv1"&gt;
+&lt;p&gt;&lt;em&gt;Buy on &lt;a href="https://www.amazon.com/dp/B0FBRJY116"&gt;Amazon&lt;/a&gt;. Read online on &lt;a href="https://craftingengstrategy.com/"&gt;craftingengstrategy.com&lt;/a&gt;.&lt;/em&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;h2 id="why-write-this-book"&gt;Why write this book?&lt;/h2&gt;
+&lt;p&gt;One of my decade goals for the 2020s, last updated in my &lt;a href="https://lethain.com/2024-in-review/"&gt;2024 year in review&lt;/a&gt;,
+is to write three books on some aspect of engineering. I published &lt;em&gt;An Elegant Puzzle&lt;/em&gt; in 2019,
+so that one doesn&amp;rsquo;t count, but have two other books published in the 2020s: &lt;em&gt;Staff Engineer&lt;/em&gt; in 2021,
+and &lt;em&gt;The Engineering Executive&amp;rsquo;s Primer&lt;/em&gt; in 2024. So I knew I needed one more to complete this decade goal.
+At one point, I was planning on finishing &lt;em&gt;&lt;a href="https://infraeng.dev/"&gt;Infrastructure Engineering&lt;/a&gt;&lt;/em&gt; as my fourth book,
+but honestly I&amp;rsquo;ve lost traction on that topic a bit over the past few years.&lt;/p&gt;
+&lt;p&gt;Instead, the thing I&amp;rsquo;d been thinking about a lot instead was engineering strategy.
+I&amp;rsquo;ve written chapters on this topic in my last two books, and each of those chapter was tortured by the
+sheer volume of things I wanted to write.
+By the end of 2024, I&amp;rsquo;d done enough strategy work myself that I was pretty confident I could take the
+best ideas from &lt;em&gt;Staff Engineer&lt;/em&gt;&amp;ndash;anchoring the essays in amazing stories&amp;ndash;and the topic I&amp;rsquo;d spent
+so much time on over the past there years, and turn it into a pretty good book.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s also a topic that, like &lt;em&gt;Staff Engineer&lt;/em&gt; in 2020 when I started writing it, was missing an
+anchor book pulling the ideas together for discussion. There are &lt;em&gt;so many&lt;/em&gt; great books about
+strategy out there. There &lt;em&gt;are&lt;/em&gt; some great books on engineering strategy,
+but few of them are widely read. My aspiration in writing this book was to potentially write
+that anchor book. It&amp;rsquo;ll take a decade or two to determine whether or not I&amp;rsquo;ve succeeded.
+At the minimum I think this book will either become that anchor or annoy someone enough that they write a better anchor instead.
+Either way, I&amp;rsquo;ll mark it as a win for advancing the industry&amp;rsquo;s discussion a bit.&lt;/p&gt;
+&lt;h2 id="llm-optimized-edition"&gt;LLM-optimized edition&lt;/h2&gt;
+&lt;div class="bg-light-gray br4 ph3 pv1"&gt;
+&lt;p&gt;&lt;em&gt;Buy the &lt;a href="https://www.amazon.com/dp/B0FXN2J4PJ"&gt;AI Companion to Crafting Engineering Strategy&lt;/a&gt; on Amazon.&lt;/em&gt;&lt;/p&gt;
+&lt;/div&gt;
+&lt;p&gt;While I was writing this book, I was also increasingly using foundational models at work.
+Then I was using them to write tools for managing this book. Over time, I became increasingly
+fascinated with the idea of having a version of this book optimized for usage with large language
+models.&lt;/p&gt;
+&lt;p&gt;For this book in particular, the idea that you could collaborate with it on creating your own engineering
+strategy was a very appealing idea. I&amp;rsquo;m excited that this ultimately translated into
+an LLM-optimized edition that &lt;a href="https://www.amazon.com/dp/B0FXN2J4PJ"&gt;you can also purchase on Amazon&lt;/a&gt;,
+or you can read the &lt;a href="https://craftingengstrategy.com/aic/preface/"&gt;AI companion&amp;rsquo;s text on craftingengineeringstrategy.com&lt;/a&gt;,
+although you&amp;rsquo;ll have to buy the actual book to get the foundational model optimized file itself (e.g. a markdown version of the book
+that plays well with foundational models).&lt;/p&gt;
+&lt;p&gt;This is the culmination of &lt;a href="https://lethain.com/competitive-advantage-author-llms/"&gt;my thinking about the advantage of authors in the age of LLMs&lt;/a&gt;,
+where I see a path to book turning into things that are both read and also collaborated with.&lt;/p&gt;
+&lt;p&gt;Regarding the foundational model optimized-version, at its core, this is just running &lt;a href="https://repomix.com/"&gt;repomix&lt;/a&gt;
+against the repository of Markdown files, but there are a number of interesting optimizations for a better product.
+For example, it&amp;rsquo;s adding absolute paths to every referenced
+file and link, including adding a link to each chapter at its beginning to help models detect to them as references.&lt;/p&gt;
+&lt;p&gt;It&amp;rsquo;s also translating images into text descriptions. For example, here&amp;rsquo;s an image from one of the chapters.&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/strategy/uber-provis-model-errors.png" alt="Original image of a systems model"&gt;&lt;/p&gt;
+&lt;p&gt;Then here is the representation after I wrote a script to pull out every image and replace it with a description.&lt;/p&gt;
+&lt;p&gt;&lt;img src="https://lethain.com/static/blog/2025/txt-description-image-llm.png" alt="Example of gpt-4o translating an image from book into text description"&gt;&lt;/p&gt;
+&lt;p&gt;My guess is that many books are going to move in the direction of having an LLM-optimized edition,
+and I&amp;rsquo;m quite excited to see where this goes. I&amp;rsquo;ll likely work on an LLM-optimized edition of &lt;em&gt;Staff Engineer&lt;/em&gt;
+at some point in the near-ish future as well.&lt;/p&gt;
+&lt;h2 id="role-of-llms"&gt;Role of LLMs&lt;/h2&gt;
+&lt;p&gt;When non-authors talk about LLMs making it easier to write books,
+they often think about LLMs &lt;em&gt;literally writing books&lt;/em&gt;. As a fairly experienced
+author, I have absolutely no interest in an LLM writing any part of my book.
+If I don&amp;rsquo;t bring something unique to the book, the sort of thing that an LLM would not bring,
+then generally either it isn&amp;rsquo;t a book worth writing or I am the wrong author to write it.
+As a result, I wrote every word in this book.
+I didn&amp;rsquo;t use LLMs to expand bullets into paragraphs.
+I didn&amp;rsquo;t use LLMs to outline or assemble topics.
+I didn&amp;rsquo;t use LLMs to find examples to substantiate my approach.
+Again, this is what I know how to do fairly well at this point.&lt;/p&gt;
+&lt;p&gt;However, there are many things that I&amp;rsquo;m not that good at, where I relied heavily on an LLM.
+In particular, I used LLMs to copy-edit for typos, grammatical errors and hard-to-read sentences.
+I also used LLMs to write several scripts that I used in writing this book:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;grammar.py&lt;/code&gt; which sent one or more chapters to an LLM for grammatical and spelling correction,
+returning the identified errors as regular expressions that I could individually accept or reject&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;import.py&lt;/code&gt; which translated from my blog post version of the posts into the &lt;a href="https://craftingengstrategy.com/"&gt;craftingengstrategy.com&lt;/a&gt;
+optimized version&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="https://lethain.com/links-script-book/"&gt;&lt;code&gt;links.py&lt;/code&gt;&lt;/a&gt; which I used for standardizing
+format of chapter references, and balancing the frequency that strategies were referenced&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Generated &lt;a href="https://craftingengstrategy.com/faq/"&gt;craftingengstrategy.com&amp;rsquo;s FAQ&lt;/a&gt; by attaching full
+LLM-optimized version to Anthropic Claude 3.7 thinking and running this prompt:&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt; I want to make a frequently asked questions featuring topics from this book. What are twenty good question and answer pairs based on this book, formatted as markdown (questions should be H2, and answers in paragraphs). Answers should include links to relevant chapters at the end of each answer.
+Some example questions that I think would be helpful are:
+1. Is engineering strategy a real thing?
+2. How is engineering strategy different from strategy in general?
+3. What are examples of engineering strategy?
+4. What template should I use to create an engineering strategy?
+5. Can engineers do engineering strategy? Is engineering strategy only for executives?
+6. How to get better at engineering strategy?
+7. Are there jobs in engineering strategy?
+8. What are other engineering strategy resources?
+Please directly answer those 8 questions, and then include another 10-15 question/answer pairs as well.
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This worked quite well, in my opinion. Generating a better FAQ than the one I created for
+&lt;a href="https://staffeng.com/faq/"&gt;Staff Engineer&amp;rsquo;s FAQ&lt;/a&gt; in a very small amount of time.
+SEO seems well and truly &amp;ldquo;cooked&amp;rdquo; based on this experience.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;Just like I don&amp;rsquo;t see software engineers being replaced by LLMs, I don&amp;rsquo;t see authors being replaced either.&lt;/p&gt;
+&lt;h2 id="craftingengstrategycom"&gt;craftingengstrategy.com&lt;/h2&gt;
+&lt;p&gt;For &lt;em&gt;Staff Engineer&lt;/em&gt;, I put up &lt;a href="https://staffeng.com/"&gt;staffeng.com&lt;/a&gt;.
+For &lt;em&gt;The Engineering Executive&amp;rsquo;s Primer&lt;/em&gt; I just posted things on this blog,
+without making a dedicated, standalone site.
+For &lt;em&gt;Crafting Engineering Strategy&lt;/em&gt;, I decided to put together a dedicated site again,
+which maybe deserves an explanation.&lt;/p&gt;
+&lt;p&gt;My writing over the past few years is anchored in my goal of
+&lt;a href="https://lethain.com/advancing-the-industry/"&gt;advancing the industry&lt;/a&gt;, and I think that
+having a well-structured, referencable version of the book online is
+a valuable part of that. If people want to recommend someone read &lt;em&gt;Staff Engineer&lt;/em&gt;,
+they can simply point them to staffeng.com, and they can read the whole book.
+They might also buy it, which is great, but it&amp;rsquo;s fine if they don&amp;rsquo;t.
+&lt;em&gt;The Engineering Executive&amp;rsquo;s Primer&lt;/em&gt; is just much less referencable online,
+so someone ultimately has to decide to buy it before testing the content,
+which undermines its ability to advance the industry.&lt;/p&gt;
+&lt;p&gt;For the record, that wasn&amp;rsquo;t an O&amp;rsquo;Reilly limitation, just poor planning on my
+part. &lt;em&gt;An Elegant Puzzle&lt;/em&gt; didn&amp;rsquo;t require a standalone site, so I thought that
+&lt;em&gt;Primer&lt;/em&gt; wouldn&amp;rsquo;t either, but I think that&amp;rsquo;s more a reflection of &lt;em&gt;An Elegant Puzzle&lt;/em&gt;
+being a collection of this blog&amp;rsquo;s writing in the 2010s rather than the best way to support the typical book.&lt;/p&gt;
+&lt;p&gt;At this point, my experience is that most books benefit from having a dedicated site,
+and that it doesn&amp;rsquo;t detract from sales numbers. Rather, if properly done
+with clear calls to action on the site, it supports sales very effectively.&lt;/p&gt;
+&lt;h2 id="decision-to-publish-vs-self-publish"&gt;Decision to publish vs self-publish&lt;/h2&gt;
+&lt;p&gt;I worked with O&amp;rsquo;Reilly to publish this book, same as I did for my previous
+book, &lt;em&gt;The Engineering Executive&amp;rsquo;s Primer&lt;/em&gt;. My continued experience is that
+it&amp;rsquo;s harder to create a book with a publisher, the financial outcomes are
+significantly muted, but the book itself is almost always a much better book
+than you would have created on your own.&lt;/p&gt;
+&lt;p&gt;For me, that was the right tradeoff for this book.&lt;/p&gt;
+&lt;h2 id="my-last-book-of-2020s"&gt;My last book of 2020s&lt;/h2&gt;
+&lt;p&gt;I&amp;rsquo;m not at all sure this is the last book that I&amp;rsquo;ll ever write,
+but I&amp;rsquo;ve completed my decade writing goal for the 2020s, and
+I&amp;rsquo;m committed to this being my last book of the 2020s.
+For the past seven years I have been continually writing, editing or promoting a book,
+and I am exhausted with that process. I&amp;rsquo;ve &lt;em&gt;loved&lt;/em&gt; getting to do it,
+and am grateful for having had the chance to do this four times. But, I&amp;rsquo;m still exhausted with it!&lt;/p&gt;
+&lt;p&gt;I could imagine eventually having another book to write, and that is definitely not now.
+Instead I want to spend more time with my family, my son,
+personally writing software professionally (rather than exclusively leading teams doing the writing),
+and other projects that are anything but writing another book.&lt;/p&gt;</description></item></channel></rss>

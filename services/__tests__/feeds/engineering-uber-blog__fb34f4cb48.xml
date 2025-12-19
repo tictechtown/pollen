@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<rss version="2.0">
+  <channel>
+    <title>
+      <![CDATA[Engineering | Uber Blog]]>
+    </title>
+    <link>https://www.uber.com</link>
+    <description>
+      <![CDATA[]]>
+    </description>
+    <lastBuildDate>Fri Dec 19 2025 22:36:24 GMT+0000 (Coordinated Universal Time)</lastBuildDate>
+    <language>en</language>
+    <item>
+      <title>
+        <![CDATA[Powering Billion-Scale Vector Search with OpenSearch]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/powering-billion-scale-vector-search-with-opensearch/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-12-18 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Data / ML]]>
+      </category>
+      <description>
+        <![CDATA[<p>Uber powers billion-scale vector search with OpenSearch. Discover the innovative optimizations we designed to boost search efficiency, scalability, and reliability for massive datasets.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[How Uber Indexes Streaming Data with Pull-Based Ingestion in OpenSearch™]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/how-uber-indexes-streaming-data-with-pull-based-ingestion-in-opensearch/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-12-16 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Discover how Uber uses OpenSearch™’s streaming ingestion architecture for powerful search, and learn about our contributions to a pull-based ingestion framework in the OpenSearch project.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[How Uber, OCI™, and Ampere® Co-Optimized OCI AmpereOne® M A4 Compute]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/how-uber-oci-and-ampere-co-optimized-oci-ampereone-m-a4-compute/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-12-15 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>By co-designing the new OCI™ AmpereOne-M® A4 instances, Uber has moved beyond adapting to existing hardware and is now shaping the next generation of compute, optimized for its real-world workloads.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[From Batch to Streaming: Accelerating Data Freshness in Uber’s Data Lake]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/from-batch-to-streaming-accelerating-data-freshness-in-ubers-data-lake/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-12-11 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Learn how Uber moved from batch to streaming ingestion with IngestionNext, reducing data latency and unlocking real-time analytics across its petabyte-scale data lake.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Blazing Fast OLAP on Uber’s Inventory and Catalog Data with Apache Pinot™]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/blazing-fast-olap-on-ubers-inventory-and-catalog-data-with-apache-pinot/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-12-09 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Discover how Uber used Apache Pinot™ to build a real-time index on its massive inventory of billions of items to power search use cases, internal tools, and operational workflows.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Improving MySQL® Cluster Uptime: Making MGR Viable at Scale]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/improving-mysql-cluster-uptime-part2/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-12-04 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Dive into the implementation, automation and failover logic that made MySQL® Group Replication viable at Uber scale.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Improving MySQL® Cluster Uptime: Designing Advanced Detection, Mitigation, and Consensus with Group Replication]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/improving-mysql-cluster-uptime-part1/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-12-02 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>At Uber, high availability is non-negotiable. Learn how we’ve adopted MySQL® Group Replication in single-primary mode to achieve a less than 10 second failover time  and massively improve reliability and write availability during failures.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Evolution and Scale of Uber’s Delivery Search Platform]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/evolution-and-scale-of-ubers-delivery-search-platform/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-11-24 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>How does Uber Eats power search across billions of stores, dishes, and grocery items? We built a next-gen semantic search platform that understands meaning, not just keywords—handling typos, synonyms, and multiple languages.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Ceilometer: Uber’s Adaptive Benchmarking Framework]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/ceilometer-ubers-adaptive-benchmarking-framework/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-11-20 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Dig into Ceilometer, Uber’s adaptive benchmarking framework for ensuring system performance and reliability at scale. Learn how it automates performance testing while providing production-like insights and continuous validation.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Enhancing Uber’s Guidance Heatmap with Deep Probabilistic Models]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/enhancing-ubers-guidance-heatmap-with-deep-probabilistic-models/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-11-18 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>How does Uber forecast earnings for drivers? Our latest deep dive explores the probabilistic prediction models behind earnings insights in the Driver app, from dynamic heatmaps to trends and alerts.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[I/O Observability for Uber’s Massive Petabyte-Scale Data Lake]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/i-o-observability-for-ubers-massive-petabyte-scale-data-lake/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-11-13 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Backend]]>
+      </category>
+      <description>
+        <![CDATA[<p>Learn how Uber powers real-time, petabyte-scale I/O observability for its data lake powering 2 million compute jobs.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Building Zone Failure Resilience in Apache Pinot™ at Uber]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/building-zone-failure-resilience-in-apache-pinot-at-uber/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-11-06 14:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Data / ML]]>
+      </category>
+      <description>
+        <![CDATA[<p>By building zone failure resilience into Apache Pinot™, Uber strengthened reliability for real-time analytics, sped up release cycles, and created a foundation for future failure recovery. Now queries and ingestion stay strong, even when zones go dark.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Raising the Bar on ML Model Deployment Safety]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/raising-the-bar-on-ml-model-deployment-safety/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-10-30 13:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Data / ML]]>
+      </category>
+      <description>
+        <![CDATA[<p>How do you safely ship thousands of ML models without slowing teams down? At Uber, we’ve built guardrails that catch issues early, prevent rollbacks, and raise the bar on reliability. Discover how safety became a measurable standard across our ML ecosystem.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Enabling Deep Model Explainability with Integrated Gradients at Uber]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/enabling-deep-model-explainability-with-integrated-gradients/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-10-23 13:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Uber’s ML platform Michelangelo now supports Integrated Gradients, enabling scalable, interpretable deep model explainability across TensorFlow™ and PyTorch™. Learn how this powers trust, debugging, and decision-making throughout the ML life cycle.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Requirement Adherence: Boosting Data Labeling Quality Using LLMs]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/requirement-adherence-boosting-data-labeling-quality-using-llms/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-10-21 13:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Harnessing the power of LLMs, Uber AI Solutions developed a system to reduce data labeling audits by 80%. Learn how the system detects labeling errors, boosting data quality.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Rebuilding Uber’s Apache Pinot™ Query Architecture]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/rebuilding-ubers-apache-pinot-query-architecture/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-10-16 13:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>The next chapter of real-time analytics at Uber. Uncover how Uber restructured its Apache Pinot™ query architecture to unlock a ton of new features, redefining the capabilities of a mature OLAP platform.</p>
+]]>
+      </description>
+    </item>
+    <item>
+      <title>
+        <![CDATA[Cadence Workflow Joins the Cloud Native Computing Foundation]]>
+      </title>
+      <link>
+        <![CDATA[https://www.uber.com/blog/cadence-workflow-joins-the-cloud-native-computing-foundation/]]>
+      </link>
+      <pubDate>
+        <![CDATA[2025-10-06 13:00:00]]>
+      </pubDate>
+      <category>
+        <![CDATA[Engineering]]>
+      </category>
+      <description>
+        <![CDATA[<p>Cadence Workflow is now part of the Cloud Native Computing Foundation®. This milestone strengthens our commitment to open source and ensures continued investment in the project’s future.</p>
+]]>
+      </description>
+    </item>
+  </channel>
+</rss>

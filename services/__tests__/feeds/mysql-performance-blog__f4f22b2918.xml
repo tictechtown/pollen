@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Percona Database Performance Blog</title>
+	<atom:link href="https://www.percona.com/blog/feed/" rel="self" type="application/rss+xml" />
+	<link>https://www.percona.com/blog/</link>
+	<description></description>
+	<lastBuildDate>Fri, 19 Dec 2025 14:05:05 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.8.3</generator>
+
+<image>
+	<url>https://www.percona.com/blog/wp-content/uploads/2023/02/cropped-percona-favicon-32x32.png</url>
+	<title>Percona Database Performance Blog</title>
+	<link>https://www.percona.com/blog/</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>Improve Developer Velocity with Kubernetes Databases</title>
+		<link>https://www.percona.com/blog/improve-developer-velocity-with-kubernetes-databases/</link>
+					<comments>https://www.percona.com/blog/improve-developer-velocity-with-kubernetes-databases/#respond</comments>
+		
+		<dc:creator><![CDATA[David Quilty]]></dc:creator>
+		<pubDate>Fri, 19 Dec 2025 14:05:05 +0000</pubDate>
+				<category><![CDATA[Cloud]]></category>
+		<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[Open Source]]></category>
+		<category><![CDATA[cloud]]></category>
+		<category><![CDATA[cloud-native]]></category>
+		<category><![CDATA[Developer Velocity]]></category>
+		<category><![CDATA[Kubernetes]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=104118</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Improve-Developer-Velocity-with-Kubernetes-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Improve Developer Velocity with Kubernetes" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" />Your company has invested heavily in agile development, microservices, and Kubernetes to move faster. Your app teams can spin up a new service in minutes. So why can it still take a week to get a database for it? The bottleneck has shifted. It’s no longer compute; it’s the database. Manual, ticket-based provisioning still dominates, [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/improve-developer-velocity-with-kubernetes-databases/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Introducing Percona Load Generator for MongoDB Clusters: The Benchmark Tool That Simulates Your Actual Application</title>
+		<link>https://www.percona.com/blog/introducing-percona-load-generator-for-mongodb-clusters-the-benchmark-tool-that-simulates-your-actual-application/</link>
+					<comments>https://www.percona.com/blog/introducing-percona-load-generator-for-mongodb-clusters-the-benchmark-tool-that-simulates-your-actual-application/#respond</comments>
+		
+		<dc:creator><![CDATA[Daniel Almeida]]></dc:creator>
+		<pubDate>Thu, 18 Dec 2025 13:38:13 +0000</pubDate>
+				<category><![CDATA[Benchmarks]]></category>
+		<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[MongoDB]]></category>
+		<category><![CDATA[Percona Software]]></category>
+		<category><![CDATA[Performance]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=104148</guid>
+
+					<description><![CDATA[<img width="200" height="86" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Percona-Load-Generator-for-MongoDB-Clusters-200x86.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Percona Load Generator for MongoDB Clusters" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />If you have ever tuned a MongoDB cluster that passed every synthetic benchmark with flying colors, only to choke the moment real user traffic hit, you are not alone. For years, database administrators and developers have relied on a standard suite of tools to test MongoDB performance (YCSB, Sysbench, POCDriver and mgodatagen –  just to [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/introducing-percona-load-generator-for-mongodb-clusters-the-benchmark-tool-that-simulates-your-actual-application/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Bridging the Gap: Querying PostgreSQL Tables from an Oracle Database</title>
+		<link>https://www.percona.com/blog/bridging-the-gap-querying-postgresql-tables-from-an-oracle-database/</link>
+					<comments>https://www.percona.com/blog/bridging-the-gap-querying-postgresql-tables-from-an-oracle-database/#respond</comments>
+		
+		<dc:creator><![CDATA[Nam Dinh Phuong]]></dc:creator>
+		<pubDate>Wed, 17 Dec 2025 13:15:38 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[PostgreSQL]]></category>
+		<category><![CDATA[dblink]]></category>
+		<category><![CDATA[Nam PP]]></category>
+		<category><![CDATA[Oracle]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=104049</guid>
+
+					<description><![CDATA[<img width="200" height="86" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Querying-PostgreSQL-Tables-from-an-Oracle-Database-200x86.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Querying PostgreSQL Tables from an Oracle Database" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Database interoperability is a common requirement in enterprise environments. For users seeking to access Oracle data from a PostgreSQL instance, the native PostgreSQL extension oracle_fdw (Foreign Data Wrapper) is an excellent and efficient solution. However, the question often arises: How do we perform the reverse? How can an Oracle SQL query execute a SELECT statement [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/bridging-the-gap-querying-postgresql-tables-from-an-oracle-database/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Managed Database vs. Kubernetes: Taking Back Control of Your Cloud Costs and Agility</title>
+		<link>https://www.percona.com/blog/managed-database-vs-kubernetes-taking-back-control-of-your-cloud-costs-and-agility/</link>
+					<comments>https://www.percona.com/blog/managed-database-vs-kubernetes-taking-back-control-of-your-cloud-costs-and-agility/#respond</comments>
+		
+		<dc:creator><![CDATA[David Quilty]]></dc:creator>
+		<pubDate>Tue, 16 Dec 2025 13:46:53 +0000</pubDate>
+				<category><![CDATA[Benchmarks]]></category>
+		<category><![CDATA[Cloud]]></category>
+		<category><![CDATA[Open Source]]></category>
+		<category><![CDATA[cloud]]></category>
+		<category><![CDATA[DBaaS]]></category>
+		<category><![CDATA[Kubernetes]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=104099</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Managed-Database-vs.-Kubernetes-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Managed Database vs. Kubernetes" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Enterprises have spent years modernizing applications for the cloud, yet databases often remain a holdout. Many teams turn to managed database services for convenience, only to find that hidden markups, unpredictable scaling fees, and vendor lock-in erode the financial and operational benefits cloud adoption was meant to deliver. Pressure to control spend, meet evolving compliance [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/managed-database-vs-kubernetes-taking-back-control-of-your-cloud-costs-and-agility/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Perform Point-In-Time-Recovery (PITR) in Valkey/Redis</title>
+		<link>https://www.percona.com/blog/perform-point-in-time-recovery-pitr-in-valkey-redis/</link>
+					<comments>https://www.percona.com/blog/perform-point-in-time-recovery-pitr-in-valkey-redis/#respond</comments>
+		
+		<dc:creator><![CDATA[Hieu Nguyen]]></dc:creator>
+		<pubDate>Mon, 15 Dec 2025 14:14:07 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[Valkey]]></category>
+		<category><![CDATA[insight for DBAs]]></category>
+		<category><![CDATA[pitr]]></category>
+		<category><![CDATA[Redis]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=104003</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Point-In-Time-Recovery-PITR-in-ValkeyRedis-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Point-In-Time-Recovery (PITR) in Valkey/Redis" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />This article explains how you can perform Point-in-time-Recovery (PITR) in Valkey/Redis. Requirements To perform PITR, you need to have append-only logging enabled. By default, AOF in Valkey/Redis only records the operations that have been executed against the instance, not when they were executed. For that, we need to enable the aof-timestamp-enabled parameter. So your Valkey/Redis [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/perform-point-in-time-recovery-pitr-in-valkey-redis/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Support for Crunchy Hardened PostgreSQL Ends Soon: Don’t Get Caught Off Guard.</title>
+		<link>https://www.percona.com/blog/support-for-crunchy-hardened-postgresql-ends-soon-dont-get-caught-off-guard/</link>
+					<comments>https://www.percona.com/blog/support-for-crunchy-hardened-postgresql-ends-soon-dont-get-caught-off-guard/#respond</comments>
+		
+		<dc:creator><![CDATA[David Quilty]]></dc:creator>
+		<pubDate>Fri, 12 Dec 2025 13:11:28 +0000</pubDate>
+				<category><![CDATA[Percona Software]]></category>
+		<category><![CDATA[PostgreSQL]]></category>
+		<category><![CDATA[Crunchy Data]]></category>
+		<category><![CDATA[Percona for PostgreSQL]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=104039</guid>
+
+					<description><![CDATA[<img width="200" height="86" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Support-for-Crunchy-Hardened-PostgreSQL-200x86.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Support shifts for hardened builds draw quick attention in regulated sectors, so when discussions surface about the future of a distribution, teams responsible for compliance and continuity take notice. Recent community discussions and rumors suggest that Crunchy Hardened PostgreSQL may reach end of support sometime around April 2026, and, while this has not been formally [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/support-for-crunchy-hardened-postgresql-ends-soon-dont-get-caught-off-guard/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>A Christmas Carol of Two Databases</title>
+		<link>https://www.percona.com/blog/a-christmas-carol-of-two-databases/</link>
+					<comments>https://www.percona.com/blog/a-christmas-carol-of-two-databases/#respond</comments>
+		
+		<dc:creator><![CDATA[Pep Pla]]></dc:creator>
+		<pubDate>Thu, 11 Dec 2025 13:36:00 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[MySQL]]></category>
+		<category><![CDATA[PostgreSQL]]></category>
+		<category><![CDATA[Backups]]></category>
+		<category><![CDATA[binary logs]]></category>
+		<category><![CDATA[insight for DBAs]]></category>
+		<category><![CDATA[WAL archiving]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=104017</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/MySQL-Postgres-DBA-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="MySQL Postgres DBA" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Being a Tale of Databases, Binary Logs, WAL Files, and the Redemption of Ebenezer Scrooge, DBA Part the First — In Which We Meet Ebenezer Scrooge, Database Administrator Extraordinary It was a cold, dark, and CPU-bound night. The wind blew fierce across the datacenter racks, and the disks did rattle in their trays like bones. [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/a-christmas-carol-of-two-databases/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Rotate SSL/TLS Certificates in Valkey/Redis Without Downtime</title>
+		<link>https://www.percona.com/blog/rotate-ssl-tls-certificates-in-valkey-redis-without-downtime/</link>
+					<comments>https://www.percona.com/blog/rotate-ssl-tls-certificates-in-valkey-redis-without-downtime/#respond</comments>
+		
+		<dc:creator><![CDATA[Hieu Nguyen]]></dc:creator>
+		<pubDate>Wed, 10 Dec 2025 13:49:42 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[Open Source]]></category>
+		<category><![CDATA[Valkey]]></category>
+		<category><![CDATA[insight for DBAs]]></category>
+		<category><![CDATA[Redis]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103999</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Rotate-SSLTLS-Certificates-in-ValkeyRedis-Without-Downtime-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />If your Valkey/Redis deployments use SSL/TLS, you will eventually need to rotate the TLS certificates. Perhaps it is because the certificates are expiring, or you made mistakes when creating them, or it could be that the private key has been leaked. This article explains the process of rotating the TLS/SSL certificates used by Valkey/Redis deployments [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/rotate-ssl-tls-certificates-in-valkey-redis-without-downtime/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>How to Turn a MySQL Unique Key Into a Primary Key</title>
+		<link>https://www.percona.com/blog/how-to-turn-a-mysql-unique-key-into-a-primary-key/</link>
+					<comments>https://www.percona.com/blog/how-to-turn-a-mysql-unique-key-into-a-primary-key/#respond</comments>
+		
+		<dc:creator><![CDATA[Pep Pla]]></dc:creator>
+		<pubDate>Tue, 09 Dec 2025 13:14:22 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[MySQL]]></category>
+		<category><![CDATA[InnoDB]]></category>
+		<category><![CDATA[mysql-and-variants]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103978</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/How-to-Turn-a-MySQL-Unique-Key-Into-a-Primary-Key-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />A unique constraint specifies, one or more columns as unique it identifies. It is satisfied only when no two rows store the same non-null values at its core. A primary key constraint is a unique one that will say PRIMARY KEY in its defined way. It is satisfied only when rows unfold, and none may [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/how-to-turn-a-mysql-unique-key-into-a-primary-key/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Unlocking Secure Connections: SSL/TLS Support in Percona Toolkit</title>
+		<link>https://www.percona.com/blog/unlocking-secure-connections-ssl-tls-support-in-percona-toolkit/</link>
+					<comments>https://www.percona.com/blog/unlocking-secure-connections-ssl-tls-support-in-percona-toolkit/#respond</comments>
+		
+		<dc:creator><![CDATA[Sveta Smirnova]]></dc:creator>
+		<pubDate>Mon, 08 Dec 2025 14:48:00 +0000</pubDate>
+				<category><![CDATA[MySQL]]></category>
+		<category><![CDATA[Open Source]]></category>
+		<category><![CDATA[Percona Software]]></category>
+		<category><![CDATA[Percona Toolkit]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103966</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/SSLTLS-Support-in-Percona-Toolkit-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="SSL/TLS Support in Percona Toolkit" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />In today&#8217;s interconnected world, data security is paramount. Protecting sensitive information transmitted between applications and databases is crucial, and SSL/TLS (Secure Sockets Layer/Transport Layer Security) plays a vital role in achieving this. Percona Toolkit, a collection of command-line tools for MySQL, MongoDB, and other databases, has long been a go-to resource for database administrators. In [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/unlocking-secure-connections-ssl-tls-support-in-percona-toolkit/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Community Erosion Post License Change: Quantifying the Power of Open Source</title>
+		<link>https://www.percona.com/blog/community-erosion-post-license-change-quantifying-the-power-of-open-source/</link>
+					<comments>https://www.percona.com/blog/community-erosion-post-license-change-quantifying-the-power-of-open-source/#respond</comments>
+		
+		<dc:creator><![CDATA[Martin Visser]]></dc:creator>
+		<pubDate>Fri, 05 Dec 2025 14:24:45 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[Open Source]]></category>
+		<category><![CDATA[Valkey]]></category>
+		<category><![CDATA[Redis]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103921</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Community-Erosion-Post-License-Change-Quantifying-the-Power-of-Open-Source-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Community Erosion Post License Change: Quantifying the Power of Open Source" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Summary This article is a detailed analysis of the impact of the Redis license change to a non-open-source one on its community. To summarize the findings:  37.5% of contributors (9 of 24) stopped contributing to Redis after the fork Valkey grew from 18 to 49 contributors in 18 months Valkey averages 80 PRs/month in 2025 [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/community-erosion-post-license-change-quantifying-the-power-of-open-source/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Cloud-Native MySQL High Availability: Understanding Virtually SYNC and ASYNC Replication</title>
+		<link>https://www.percona.com/blog/cloud-native-mysql-high-availability-understanding-virtually-sync-and-async-replication/</link>
+					<comments>https://www.percona.com/blog/cloud-native-mysql-high-availability-understanding-virtually-sync-and-async-replication/#respond</comments>
+		
+		<dc:creator><![CDATA[Edith Puclla]]></dc:creator>
+		<pubDate>Thu, 04 Dec 2025 14:21:54 +0000</pubDate>
+				<category><![CDATA[Cloud]]></category>
+		<category><![CDATA[MySQL]]></category>
+		<category><![CDATA[cloud-native]]></category>
+		<category><![CDATA[kubernetes operators]]></category>
+		<category><![CDATA[mysql-and-variants]]></category>
+		<category><![CDATA[Open Source]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103809</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Cloud-Native-MySQL-High-Availability-Understanding-Virtually-SYNC-and-ASYNC-Replication-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />When we run databases in Kubernetes, we quickly learn one important truth: things will fail, and we need to be prepared for this. Pods are ephemeral; nodes can come and go, storage is abstracted behind PersistentVolumes and can be either local to a node or backed by network storage, and Kubernetes moves workloads as needed [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/cloud-native-mysql-high-availability-understanding-virtually-sync-and-async-replication/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Expanding Our Reach: Percona Server for MongoDB Now Officially Supports Rocky Linux 8 and 9!</title>
+		<link>https://www.percona.com/blog/expanding-our-reach-percona-server-for-mongodb-now-officially-supports-rocky-linux-8-and-9/</link>
+					<comments>https://www.percona.com/blog/expanding-our-reach-percona-server-for-mongodb-now-officially-supports-rocky-linux-8-and-9/#respond</comments>
+		
+		<dc:creator><![CDATA[Radoslaw Szulgo]]></dc:creator>
+		<pubDate>Wed, 03 Dec 2025 14:09:50 +0000</pubDate>
+				<category><![CDATA[MongoDB]]></category>
+		<category><![CDATA[Percona Software]]></category>
+		<category><![CDATA[percona server for MongoDB]]></category>
+		<category><![CDATA[Rocky Linux]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103856</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/Percona-Server-for-MongoDB-Now-Officially-Supports-Rocky-Linux-8-and-9-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Your stack, Your rules. That’s our belief, and it’s non-negotiable.  We see the landscape changing. With the massive community migration from CentOS and CentOS Stream to Rocky Linux, we heard your requests loud and clear. You need a trusted, enterprise-ready database on your preferred platform. Our telemetry data, which we receive from you, also confirms [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/expanding-our-reach-percona-server-for-mongodb-now-officially-supports-rocky-linux-8-and-9/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>We Believe in Freedom</title>
+		<link>https://www.percona.com/blog/we-believe-in-freedom/</link>
+					<comments>https://www.percona.com/blog/we-believe-in-freedom/#respond</comments>
+		
+		<dc:creator><![CDATA[Peter Zaitsev]]></dc:creator>
+		<pubDate>Tue, 02 Dec 2025 15:27:57 +0000</pubDate>
+				<category><![CDATA[Open Source]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103947</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/12/We-Believe-in-Freedom-of-open-source-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="We Believe in Freedom of open source" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Percona is built on the belief that Freedom matters, especially in how organizations run and evolve their database infrastructure. Our mission is to help customers and the broader community maximize that Freedom by giving them control, transparency, and choice at every layer. Here is what that means in practice: Open Source Software At Percona, we [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/we-believe-in-freedom/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Impact of Starting PostgreSQL Service Manually in an Active Patroni Cluster</title>
+		<link>https://www.percona.com/blog/impact-of-starting-postgresql-service-manually-in-an-active-patroni-cluster/</link>
+					<comments>https://www.percona.com/blog/impact-of-starting-postgresql-service-manually-in-an-active-patroni-cluster/#respond</comments>
+		
+		<dc:creator><![CDATA[Ashish Joshi]]></dc:creator>
+		<pubDate>Mon, 01 Dec 2025 14:12:54 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[PostgreSQL]]></category>
+		<category><![CDATA[Ash]]></category>
+		<category><![CDATA[Patroni]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103903</guid>
+
+					<description><![CDATA[<img width="200" height="86" src="https://www.percona.com/blog/wp-content/uploads/2025/11/Starting-PostgreSQL-Service-Manually-in-an-Active-Patroni-Cluster-200x86.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />A Nightmare no DBA wants One day, I had a nightmare, the kind every DBA fears. My manager called me and said, “Hey… Mr. Clever. We don’t need you on the team anymore.” I panicked. “What did I do wrong?!” He replied, “You tell me. Think about your ‘great’ work yesterday.” Trying to defend myself, [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/impact-of-starting-postgresql-service-manually-in-an-active-patroni-cluster/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Let&#8217;s Rebuild the MySQL Community Together</title>
+		<link>https://www.percona.com/blog/lets-rebuild-the-mysql-community-together/</link>
+					<comments>https://www.percona.com/blog/lets-rebuild-the-mysql-community-together/#comments</comments>
+		
+		<dc:creator><![CDATA[Vadim Tkachenko]]></dc:creator>
+		<pubDate>Wed, 26 Nov 2025 13:56:21 +0000</pubDate>
+				<category><![CDATA[MySQL]]></category>
+		<category><![CDATA[Open Source]]></category>
+		<category><![CDATA[mysql-and-variants]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103880</guid>
+
+					<description><![CDATA[<img width="200" height="86" src="https://www.percona.com/blog/wp-content/uploads/2025/11/Lets-Rebuild-the-MySQL-Community-Together-200x86.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Let&#039;s Rebuild the MySQL Community Together" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Where We Are We can all agree that the MySQL ecosystem isn&#8217;t in great shape right now. Take a look at Julia&#8217;s blog post [Analyzing the Heartbeat of the MySQL Server: A Look at Repository Statistics], which confirms what many of us have felt: Oracle isn&#8217;t as committed to MySQL and its ecosystem as it [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/lets-rebuild-the-mysql-community-together/feed/</wfw:commentRss>
+			<slash:comments>4</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Building the Future of MySQL: Announcing Plans for MySQL Vector Support and a MySQL Binlog Server</title>
+		<link>https://www.percona.com/blog/building-the-future-of-mysql-announcing-plans-for-mysql-vector-support-and-a-mysql-binlog-server/</link>
+					<comments>https://www.percona.com/blog/building-the-future-of-mysql-announcing-plans-for-mysql-vector-support-and-a-mysql-binlog-server/#respond</comments>
+		
+		<dc:creator><![CDATA[Dennis Kittrell]]></dc:creator>
+		<pubDate>Tue, 25 Nov 2025 13:08:16 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[MySQL]]></category>
+		<category><![CDATA[Percona Software]]></category>
+		<category><![CDATA[AI]]></category>
+		<category><![CDATA[Vector Search]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103860</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/11/MySQL-Vector-Support-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="MySQL Vector Support" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />At Percona, our mission has always been to help you succeed with open source databases. We do that by listening to the community, understanding the challenges you face, and building the solutions you need. Now, after a comprehensive review of market trends and direct feedback from our customers and the MySQL community, we are excited [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/building-the-future-of-mysql-announcing-plans-for-mysql-vector-support-and-a-mysql-binlog-server/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Analyzing the Heartbeat of the MySQL Server: A Look at Repository Statistics</title>
+		<link>https://www.percona.com/blog/analyzing-the-heartbeat-of-the-mysql-server-a-look-at-repository-statistics/</link>
+					<comments>https://www.percona.com/blog/analyzing-the-heartbeat-of-the-mysql-server-a-look-at-repository-statistics/#comments</comments>
+		
+		<dc:creator><![CDATA[Julia Vural]]></dc:creator>
+		<pubDate>Mon, 24 Nov 2025 13:56:21 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[MySQL]]></category>
+		<category><![CDATA[mysql-and-variants]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103832</guid>
+
+					<description><![CDATA[<img width="200" height="112" src="https://www.percona.com/blog/wp-content/uploads/2025/11/MySQL-Repository-Statistics-200x112.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="MySQL Repository Statistics" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />The MySQL database server is a foundational component of the open-source world. While its impact is undeniable, looking at the raw statistics of its core source code repository reveals a dynamic and sometimes surprising development history. By analyzing the total lines of code inserted, the number of commits over the years, and unique contributors, we [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/analyzing-the-heartbeat-of-the-mysql-server-a-look-at-repository-statistics/feed/</wfw:commentRss>
+			<slash:comments>3</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>How to Deploy a Stand-By/Ad-Hoc Cluster Based on Percona Operator for PostgreSQL</title>
+		<link>https://www.percona.com/blog/how-to-deploy-a-stand-by-ad-hoc-cluster-based-on-percona-operator-for-postgresql/</link>
+					<comments>https://www.percona.com/blog/how-to-deploy-a-stand-by-ad-hoc-cluster-based-on-percona-operator-for-postgresql/#respond</comments>
+		
+		<dc:creator><![CDATA[Anil Joshi]]></dc:creator>
+		<pubDate>Fri, 21 Nov 2025 13:54:14 +0000</pubDate>
+				<category><![CDATA[Cloud]]></category>
+		<category><![CDATA[Hardware and Storage]]></category>
+		<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[PostgreSQL]]></category>
+		<category><![CDATA[k8s operator]]></category>
+		<category><![CDATA[Percona postgresql operator]]></category>
+		<category><![CDATA[postgres backup]]></category>
+		<category><![CDATA[postgres restore]]></category>
+		<category><![CDATA[Postgres standby]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103799</guid>
+
+					<description><![CDATA[<img width="200" height="86" src="https://www.percona.com/blog/wp-content/uploads/2025/11/How-to-Deploy-a-Stand-ByAd-Hoc-Cluster-Based-on-Percona-Operator-for-PostgreSQL-200x86.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="How to Deploy a Stand-By/Ad-Hoc Cluster Based on Percona Operator for PostgreSQL" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />This short blog post discusses how to use the capabilities of pgBackRest and streaming replication to set up both a stand-by and a separate standalone cluster as needed]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/how-to-deploy-a-stand-by-ad-hoc-cluster-based-on-percona-operator-for-postgresql/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+		<item>
+		<title>Performing Standby Datacentre Promotions of a Patroni Cluster</title>
+		<link>https://www.percona.com/blog/performing-standby-datacentre-promotions-of-a-patroni-cluster/</link>
+					<comments>https://www.percona.com/blog/performing-standby-datacentre-promotions-of-a-patroni-cluster/#respond</comments>
+		
+		<dc:creator><![CDATA[Robert Bernier]]></dc:creator>
+		<pubDate>Thu, 20 Nov 2025 13:15:55 +0000</pubDate>
+				<category><![CDATA[Insight for DBAs]]></category>
+		<category><![CDATA[Insight for Developers]]></category>
+		<category><![CDATA[PostgreSQL]]></category>
+		<category><![CDATA[Robert PP]]></category>
+		<guid isPermaLink="false">https://www.percona.com/blog/?p=103795</guid>
+
+					<description><![CDATA[<img width="200" height="86" src="https://www.percona.com/blog/wp-content/uploads/2025/11/Performing-Standby-Datacentre-Promotions-of-a-Patroni-Cluster-200x86.jpg" class="webfeedsFeaturedVisual wp-post-image" alt="Performing Standby Datacentre Promotions of a Patroni Cluster" style="display: block; margin-bottom: 5px; clear:both;max-width: 100%;" link_thumbnail="" decoding="async" loading="lazy" />Unlike the standard multi-node Postgres replication cluster, when managed by Patroni, all failovers are automatically executed. However, this is not the case when dealing with inter-datacentre failovers when for instance a standby datacentre must take over from a failed primary. The following describes the mechanisms required to perform such a procedure when the case arises. [&#8230;]]]></description>
+		
+					<wfw:commentRss>https://www.percona.com/blog/performing-standby-datacentre-promotions-of-a-patroni-cluster/feed/</wfw:commentRss>
+			<slash:comments>0</slash:comments>
+		
+		
+			</item>
+	</channel>
+</rss>
+
+<!--
+Performance optimized by W3 Total Cache. Learn more: https://www.boldgrid.com/w3-total-cache/
+
+Object Caching 333/396 objects using Redis
+Page Caching using Redis{w3tc_pagecache_reject_reason}
+Lazy Loading (feed)
+Minified using Redis
+Database Caching 5/45 queries in 0.058 seconds using Redis
+
+Served from: www.percona.com @ 2025-12-19 17:16:35 by W3 Total Cache
+-->

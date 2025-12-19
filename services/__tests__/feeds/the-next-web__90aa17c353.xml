@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+>
+<channel>
+	<title>The Next Web</title>
+	<atom:link href="https://thenextweb.com/feed" rel="self" type="application/rss+xml" />
+	<link>https://thenextweb.com</link>
+	<description>Original and proudly opinionated perspectives for Generation T</description>
+	<lastBuildDate>Fri, 19 Dec 2025 05:59:13 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+    <generator>TNW-API</generator>
+<item>
+	<title>Letter from the Editor-in-Chief</title>
+	<link>https://thenextweb.com/news/letter-from-the-editor-in-chief</link>
+	<pubDate>Tue, 16 Dec 2025 20:31:00 +0000</pubDate>
+		<dc:creator><![CDATA[Ana-Maria Stanciuc]]></dc:creator>
+			<category><![CDATA[Next Featured]]></category>
+		<category><![CDATA[Media]]></category>
+		<category><![CDATA[Ecosystems]]></category>
+		<guid isPermaLink="false">TheNextWeb=1415052</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FTNW-new-Editor-in-Chief.png&signature=ace3fe9752016fc238ce587e6d510da3" width="796" height="417"><br />Not long ago, like many of you, I read what I feared might be The Next Web’s final article. In late September, TNW’s co-founder announced that the tech conference and news site would be winding down, no more events, no new stories. It felt like the end of an era; the news hit hard. Yet, just a few weeks ago, a twist arrived: the tech platform Tekpon acquired 100% of TNW’s media and events brand from the Financial Times, ensuring that this nearly two-decade legacy will continue to thrive. While, myself, trying to read people’s opinions on this topic, I&#8230;<br /><br /><a href="https://thenextweb.com/news/letter-from-the-editor-in-chief?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FTNW-new-Editor-in-Chief.png&amp;signature=ace3fe9752016fc238ce587e6d510da3" type="image/png" length="0" />
+</item>
+<item>
+	<title>Is ChatGPT’s New Shopping Research Solving a Problem, or Creating One?</title>
+	<link>https://thenextweb.com/news/is-chatgpts-new-shopping-research-solving-a-problem-or-creating-one</link>
+	<pubDate>Thu, 11 Dec 2025 22:37:55 +0000</pubDate>
+		<dc:creator><![CDATA[Viviane Mendes]]></dc:creator>
+			<category><![CDATA[Artificial Intelligence]]></category>
+		<guid isPermaLink="false">TheNextWeb=1415033</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FChatGPTs-New-Shopping-Research.png&signature=2eeed9ea07926978f9ba07860cb02621" width="796" height="417"><br />When OpenAI announced its new shopping search capabilities, I took the news with a grain of salt (perhaps the whole shaker). For the past decade, we have watched the slow evolution of traditional search engines. What began as tools for pure information discovery gradually morphed into ecosystems dominated by SEO-optimized content and sponsored results. My initial fear with ChatGPT’s update was simple: Are we seeing the beginning of a similar shift? Is the purity of the “reasoning engine” being diluted by the necessity of commerce? After testing the new shopping integration, the results suggest that we are at a pivotal&#8230;<br /><br /><a href="https://thenextweb.com/news/is-chatgpts-new-shopping-research-solving-a-problem-or-creating-one?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FChatGPTs-New-Shopping-Research.png&amp;signature=2eeed9ea07926978f9ba07860cb02621" type="image/png" length="0" />
+</item>
+<item>
+	<title>Tekpon acquires TNW (The Next Web) brand from The Financial Times</title>
+	<link>https://thenextweb.com/news/tekpon-acquires-tnw-the-next-web-brand-from-the-financial-times</link>
+	<pubDate>Mon, 08 Dec 2025 19:27:33 +0000</pubDate>
+		<dc:creator><![CDATA[Alexandru Stan]]></dc:creator>
+			<category><![CDATA[Insider]]></category>
+		<category><![CDATA[Next Featured]]></category>
+		<category><![CDATA[Media]]></category>
+		<category><![CDATA[Ecosystems]]></category>
+		<guid isPermaLink="false">TheNextWeb=1415024</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FTNW.png&signature=4dda5700d704c3e91f87dd2877214159" width="796" height="417"><br />Tekpon has acquired 100% of the TNW media and events brands, which cover and convene the European technology ecosystem, from the FT. The transaction is Tekpon’s largest investment in media and events so far. It broadens the company’s reach across SaaS and AI and strengthens its role in the global innovation landscape. TNW’s brand and editorial standards will be maintained, while its events and digital platforms will be integrated into Tekpon’s wider strategy. The FT will continue to own and operate TNW Spaces, Amsterdam’s dynamic tech hub, offering private offices and coworking spaces that support a thriving community of startups,&#8230;<br /><br /><a href="https://thenextweb.com/news/tekpon-acquires-tnw-the-next-web-brand-from-the-financial-times?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FTNW.png&amp;signature=4dda5700d704c3e91f87dd2877214159" type="image/png" length="0" />
+</item>
+<item>
+	<title>Ending graciously</title>
+	<link>https://thenextweb.com/news/tnw-boris-signs-out</link>
+	<pubDate>Mon, 29 Sep 2025 12:00:55 +0000</pubDate>
+		<dc:creator><![CDATA[Boris Veldhuijzen van Zanten]]></dc:creator>
+			<category><![CDATA[Startups and technology]]></category>
+		<category><![CDATA[Ecosystems]]></category>
+		<guid isPermaLink="false">TheNextWeb=1414983</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2023%2F06%2FUntitled-design-3-6.jpg&signature=632e67ede77d1bf816f29841fd481057" width="796" height="417"><br />A few decades ago, when I was raising funding for a startup, I made a lasting impression on an investor by not only talking about how successful we would be, but also highlighting what would happen if we weren’t. Later, in an informal setting, I asked him what had persuaded him to invest in us. He told me that during the pitch, I had said, “And if all our predictions and expectations are wrong, we will use the last of our funding for a magnificent farewell dinner for all our investors. You’ll have lost your money, but at least you’ll&#8230;<br /><br /><a href="https://thenextweb.com/news/tnw-boris-signs-out?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2023%2F06%2FUntitled-design-3-6.jpg&amp;signature=632e67ede77d1bf816f29841fd481057" type="image/jpeg" length="0" />
+</item>
+<item>
+	<title>How robotics could turn e-waste into a tech goldmine</title>
+	<link>https://thenextweb.com/news/denmark-robot-e-waste-recycling</link>
+	<pubDate>Wed, 24 Sep 2025 09:00:37 +0000</pubDate>
+		<dc:creator><![CDATA[Ray Fernandez]]></dc:creator>
+			<category><![CDATA[Insider]]></category>
+		<category><![CDATA[Startups and technology]]></category>
+		<category><![CDATA[Sustainability]]></category>
+		<category><![CDATA[Next Featured]]></category>
+		<guid isPermaLink="false">TheNextWeb=1415006</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F09%2FUntitled-design-3-1.jpg&signature=e510a2a817aedfe8da3bb3caefbac5be" width="796" height="417"><br />E-waste has become a global problem. Unfortunately, the majority of discarded used technology, known as e-waste, is dumped or processed in unsafe conditions. Around 78% of electronic products aren’t properly recycled — and the garbage pile keeps growing. In 2024, the world churned out 1.22 billion smartphones. Add this to the billions of TVs, laptops, and computers, and what we have is a saturated market that fuels a throwaway cycle.  A United Nations report forecasts that e-waste will grow to 80 million tonnes by 2030. “That’s enough to fill 1.5 million 40-ton trucks, which could circle the planet,” says Eric&#8230;<br /><br /><a href="https://thenextweb.com/news/denmark-robot-e-waste-recycling?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F09%2FUntitled-design-3-1.jpg&amp;signature=e510a2a817aedfe8da3bb3caefbac5be" type="image/jpeg" length="0" />
+</item>
+<item>
+	<title>Startup wisdom: 5 prompt engineering tips for vibe coding success</title>
+	<link>https://thenextweb.com/news/vibe-coding-tips-prompt-engineering-practices</link>
+	<pubDate>Wed, 24 Sep 2025 06:03:18 +0000</pubDate>
+		<dc:creator><![CDATA[Dainius Kavoliūnas]]></dc:creator>
+			<category><![CDATA[Startups and technology]]></category>
+		<category><![CDATA[Future of work]]></category>
+		<guid isPermaLink="false">TheNextWeb=1414581</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F07%2FUntitled-design-3-1.jpg&signature=ea48bb9f3feecce621521ed6fec53604" width="796" height="417"><br />Startup wisdom is a new TNW series offering practical lessons from experts who’ve helped build great companies. This week, Dainius Kavoliūnas, head of no-code platform Hostinger Horizons, shares his tips on vibe coding. Vibe coding has become an indispensable tool, especially for entrepreneurial thinkers building apps and platforms for solving everyday problems, streamlining business processes, or enhancing digital experiences. It represents a paradigm shift in software development. Instead of writing lines of code, you can now describe your requirement and have AI bring it to life. Vibe coding is fast, intuitive and opens up a new realm of possibilities where code&#8230;<br /><br /><a href="https://thenextweb.com/news/vibe-coding-tips-prompt-engineering-practices?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F07%2FUntitled-design-3-1.jpg&amp;signature=ea48bb9f3feecce621521ed6fec53604" type="image/jpeg" length="0" />
+</item>
+<item>
+	<title>How European battery startups can thrive alongside Asian giants</title>
+	<link>https://thenextweb.com/news/how-european-battery-startups-can-compete</link>
+	<pubDate>Tue, 23 Sep 2025 09:00:30 +0000</pubDate>
+		<dc:creator><![CDATA[Joseba Villate]]></dc:creator>
+			<category><![CDATA[Insider]]></category>
+		<category><![CDATA[Startups and technology]]></category>
+		<category><![CDATA[Sustainability]]></category>
+		<category><![CDATA[Government and policy]]></category>
+		<guid isPermaLink="false">TheNextWeb=1414963</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F09%2FUntitled-design.jpg&signature=a811c839f09102c60d5d57f077e56336" width="796" height="417"><br />The global battery market is experiencing unprecedented growth, with projections showing the sector will reach $400bn by 2030. Yet European entrepreneurs often feel locked out, watching Chinese giants like CATL dominate headlines with record-breaking IPOs while homegrown champions like Northvolt file for bankruptcy, exposing the harsh realities of competing against established Asian supply chains. Still,  Europe will never be entirely independent in green energy and will want to cooperate with Asia. Yet the continent has strong demand for on-shoring supply, including green power and critical manufacturing.  There are also genuine competitive advantages available to European green battery startups: proximity to&#8230;<br /><br /><a href="https://thenextweb.com/news/how-european-battery-startups-can-compete?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F09%2FUntitled-design.jpg&amp;signature=a811c839f09102c60d5d57f077e56336" type="image/jpeg" length="0" />
+</item>
+<item>
+	<title>The EU&#8217;s €2T budget overlooks a key tech pillar: Open source</title>
+	<link>https://thenextweb.com/news/eu-budget-open-source</link>
+	<pubDate>Tue, 23 Sep 2025 08:30:32 +0000</pubDate>
+		<dc:creator><![CDATA[Daniel Stenberg]]></dc:creator>
+			<category><![CDATA[Insider]]></category>
+		<category><![CDATA[Startups and technology]]></category>
+		<category><![CDATA[Next Featured]]></category>
+		<category><![CDATA[Government and policy]]></category>
+		<category><![CDATA[Data and security]]></category>
+		<guid isPermaLink="false">TheNextWeb=1414989</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2023%2F09%2FUntitled-design-1-2.jpg&signature=69913cdebe8fe550edb6f738ee58115a" width="796" height="417"><br />On July 16, the European Commission proposed a €2tn seven-year budget – the largest in the EU’s history – to boost autonomy, competitiveness, and resilience. The spending plan addresses cybersecurity, innovation, and other key digital pillars, but omits a crucial component: open source. Open source software – built and maintained by communities rather than private companies alone, and free to edit and modify – is the foundation of today’s digital infrastructure. Since the 1990s, it has been ever-present in the digital infrastructure that European industry and public sector institutions depend on, creating huge dependencies on open source applications and libraries. From&#8230;<br /><br /><a href="https://thenextweb.com/news/eu-budget-open-source?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2023%2F09%2FUntitled-design-1-2.jpg&amp;signature=69913cdebe8fe550edb6f738ee58115a" type="image/jpeg" length="0" />
+</item>
+<item>
+	<title>Opinion: Europe’s VCs must embrace risk — or resign the AI era to US control</title>
+	<link>https://thenextweb.com/news/vcs-holding-back-european-ai-startups</link>
+	<pubDate>Mon, 22 Sep 2025 08:00:41 +0000</pubDate>
+		<dc:creator><![CDATA[Alex Menn]]></dc:creator>
+			<category><![CDATA[Insider]]></category>
+		<category><![CDATA[Deep tech]]></category>
+		<category><![CDATA[Startups and technology]]></category>
+		<category><![CDATA[Investors and funding]]></category>
+		<guid isPermaLink="false">TheNextWeb=1414903</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2023%2F08%2FUntitled-design-9-1.jpg&signature=e5ee583938a8a8e2c7f54839e2a3da8e" width="796" height="417"><br />Europe’s AI startups are losing ground to the US — and their own investors are to blame. Only 5% of global venture capital is raised in the EU, according to the European Commission. The US, by contrast, attracts more than half, while China takes 40%. Yet Europe isn’t capital-poor: households save €1.4tn a year, nearly twice as much as in America. Still, very little of that money finds its way into startups, despite a plethora of incentives like the UK’s EIS tax relief for business angels.   Even when funding is available, Europe’s venture capital firms are slow and cautious. Funds&#8230;<br /><br /><a href="https://thenextweb.com/news/vcs-holding-back-european-ai-startups?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2023%2F08%2FUntitled-design-9-1.jpg&amp;signature=e5ee583938a8a8e2c7f54839e2a3da8e" type="image/jpeg" length="0" />
+</item>
+<item>
+	<title>VCs are growing wary of &#8216;AI-washing&#8217; – but real innovation is still winning investors</title>
+	<link>https://thenextweb.com/news/ai-washing-investors-real-startup-innovation</link>
+	<pubDate>Thu, 18 Sep 2025 10:00:37 +0000</pubDate>
+		<dc:creator><![CDATA[Dimitri Masin]]></dc:creator>
+			<category><![CDATA[Insider]]></category>
+		<category><![CDATA[Deep tech]]></category>
+		<category><![CDATA[Startups and technology]]></category>
+		<category><![CDATA[Investors and funding]]></category>
+		<guid isPermaLink="false">TheNextWeb=1414952</guid>
+	<description><![CDATA[<img src="https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F09%2FUntitled-design-6.jpg&signature=ddc6cc5c7d2a1d93ea2e013a6f24196b" width="796" height="417"><br />Venture capital investment surged to a 10-quarter high of €108.3bn in Q1 2025, fuelled by artificial intelligence, which accounted for over  €44.6bn raised. In recent years, AI has felt like a money-printing machine. Investors, eager to avoid missing out on the next big thing, were quick to back almost any startup that mentioned AI in their pitch deck. The idea didn’t need to be particularly well-implemented or useful. In some cases, even the illusion of innovation was enough to earn a unicorn valuation. But investors are now wising up to AI-washing. As the CEO of Gradient Labs — an AI&#8230;<br /><br /><a href="https://thenextweb.com/news/ai-washing-investors-real-startup-innovation?utm_source=social&#038;utm_medium=feed&#038;utm_campaign=profeed">This story continues</a> at The Next Web]]></description>
+	<enclosure url="https://img-cdn.tnwcdn.com/image?fit=796%2C417&amp;url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F09%2FUntitled-design-6.jpg&amp;signature=ddc6cc5c7d2a1d93ea2e013a6f24196b" type="image/jpeg" length="0" />
+</item>
+</channel>
+</rss>

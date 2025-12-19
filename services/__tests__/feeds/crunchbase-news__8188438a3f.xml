@@ -1,0 +1,543 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Crunchbase News</title>
+	<atom:link href="https://news.crunchbase.com/feed/" rel="self" type="application/rss+xml" />
+	<link>https://news.crunchbase.com/</link>
+	<description>Data-driven reporting on private markets, startups, founders, and investors</description>
+	<lastBuildDate>Fri, 19 Dec 2025 19:28:33 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.8.3</generator>
+
+<image>
+	<url>https://news.crunchbase.com/wp-content/uploads/cb_news_favicon-150x150.png</url>
+	<title>Crunchbase News</title>
+	<link>https://news.crunchbase.com/</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>The Week’s 10 Biggest Funding Rounds: Security And Energy Deals Top The List</title>
+		<link>https://news.crunchbase.com/venture/biggest-funding-rounds-databricks-cyera/</link>
+		
+		<dc:creator><![CDATA[Joanna Glasner]]></dc:creator>
+		<pubDate>Fri, 19 Dec 2025 19:28:33 +0000</pubDate>
+				<category><![CDATA[Artificial intelligence]]></category>
+		<category><![CDATA[Cybersecurity]]></category>
+		<category><![CDATA[Defense tech]]></category>
+		<category><![CDATA[Fintech]]></category>
+		<category><![CDATA[Health, Wellness & Biotech]]></category>
+		<category><![CDATA[SaaS]]></category>
+		<category><![CDATA[Semiconductors and 5G]]></category>
+		<category><![CDATA[Startups]]></category>
+		<category><![CDATA[Venture]]></category>
+		<category><![CDATA[AI]]></category>
+		<category><![CDATA[biotech]]></category>
+		<category><![CDATA[clean energy]]></category>
+		<category><![CDATA[fintech]]></category>
+		<category><![CDATA[healthcare]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92951</guid>
+
+					<description><![CDATA[Perennial megaround raiser Databricks was the top funding recipient by far this week, securing a fresh $4 billion in Series L funding (yes, that is a thing) at a $134 billion valuation. Next on the list were a data security platform and a nuclear microreactor company.]]></description>
+										<content:encoded><![CDATA[<p><em>Want to keep track of the largest startup funding deals in 2025 with our curated list of $100 million-plus venture deals to U.S.-based companies? Check out <a href="https://news.crunchbase.com/biggest-us-vc-startup-funding-deals-2023/">The Crunchbase Megadeals Board</a>.</em></p>
+<p><em>This is a weekly feature that runs down the week’s top 10 announced funding rounds in the U.S. Check out last week’s biggest funding deal roundup <a href="https://news.crunchbase.com/venture/biggest-funding-rounds-security-energy-ai-saviynt/">here</a>.</em></p>
+<p>With the winter holiday season nearly upon us, this was likely the last busy week of 2025 for big funding announcements. And as weeks go, it was certainly an active one.</p>
+<p>Perennial megaround raiser <a href="https://www.crunchbase.com/organization/databricks">Databricks</a> was the top funding recipient by far, securing a fresh $4 billion in Series L funding (yes, that is a thing) at a $134 billion valuation. Next on the list were data security platform <a href="https://www.crunchbase.com/organization/cyera">Cyera</a> and nuclear microreactor company <a href="https://www.crunchbase.com/organization/radiant">Radiant</a>, followed by startups in healthcare, biotech, fintech and AI.</p>
+<p>1. <strong><a href="https://www.crunchbase.com/organization/databricks">Databricks</a>, $4B, data and AI:</strong> Databricks <a href="https://www.databricks.com/company/newsroom/press-releases/databricks-surpasses-4-8b-revenue-run-rate-growing-55-year-over-year">announced</a> that it is raising over $4 billion in a Series L financing at a $134 billion valuation, led by <a href="https://www.crunchbase.com/organization/insight-partners">Insight Partners</a>, <a href="https://www.crunchbase.com/organization/fidelity-investments">Fidelity</a> and <a href="https://www.crunchbase.com/organization/j-p-morgan-asset-management">J.P. Morgan Asset Management</a>. The 12-year-old, San Francisco-headquartered company also said it crossed the $4.8 billion revenue run-rate in its third quarter,  growing  over 55% year over year.</p>
+<p>2. <strong><a href="https://www.crunchbase.com/organization/cyera">Cyera</a>, $400M, cybersecurity:</strong> New York-based Cyera, provider of an AI-enabled data security platform, reportedly <a href="https://www.wsj.com/tech/ai/blackstone-leads-400-million-investment-in-cyber-startup-cyera-a6b74b91">secured</a> $400 million in a funding round led by <a href="https://www.crunchbase.com/organization/blackstone">Blackstone Group</a> at a $9 billion valuation. The financing brings total funding to date for the 4-year-old company to $1.7 billion.</p>
+<p>3. <strong><a href="https://www.crunchbase.com/organization/radiant">Radiant</a>, $300M, nuclear power:</strong> Radiant, a maker of portable nuclear microreactors, <a href="https://radiantnuclear.com/blog/series-d-announcement/">says</a> it closed on over $300 million in Series D funding led by <a href="https://www.crunchbase.com/organization/draper-associates-2">Draper Associates</a> and <a href="https://www.crunchbase.com/organization/boostfunder">Boost VC</a>. The El Segundo, California-based company said it plans to break ground early next year on a factory in Oak Ridge, Tennessee.</p>
+<p>4. <strong><a href="https://www.crunchbase.com/organization/tebra">Tebra</a>, $250M, healthcare software:</strong> Tebra, a provider of patient record software for healthcare private practices, says it raised $250 million in equity and debt financing to invest in AI and automation. <a href="https://www.crunchbase.com/organization/hildred-capital-management-llc">Hildred Capital Management</a> led the equity financing, which constituted most of the round, while <a href="https://www.crunchbase.com/organization/jp-morgan-chase">JP Morgan</a> provided the debt funding for the Corona del Mar, California-based company.</p>
+<p>5. (tied) <strong><a href="https://www.crunchbase.com/organization/imprint-cd0f">Imprint</a>, $150M, fintech:</strong> New York-based Imprint, a provider of credit cards affiliated with consumer brands, raised $150 million in Series D funding at a $1.2 billion valuation. <a href="https://www.crunchbase.com/organization/khosla-ventures">Khosla Ventures</a> led the round, with participation from <a href="https://www.crunchbase.com/organization/thrive-capital">Thrive Capital</a>, <a href="https://www.crunchbase.com/organization/ribbit-capital">Ribbit Capital</a>, <a href="https://www.crunchbase.com/organization/kleiner-perkins-caufield-byers">Kleiner Perkins</a>, <a href="https://www.crunchbase.com/organization/hedosophia">Hedosophia</a> and <a href="https://www.crunchbase.com/organization/timeless-efa5">Timeless</a>.</p>
+<p>5. (tied) <strong><a href="https://www.crunchbase.com/organization/hawkeye-360-2">HawkEye 360</a>, $150M, satellite intelligence:</strong> HawkEye 360, a provider of technology to detect, geolocate and characterize radio-frequency emissions, says it landed $150 million in Series E equity and debt financing. <a href="https://www.crunchbase.com/organization/nightdragon-security">NightDragon</a> and <a href="https://www.crunchbase.com/organization/center15-capital">Center15 Capital</a> co-led the equity funding, while <a href="https://www.crunchbase.com/organization/silicon-valley-bank">Silicon Valley Bank</a> provided the debt. The Herndon, Virginia company says it also completed its acquisition of <a href="https://www.crunchbase.com/organization/innovative-signal-analysis">Innovative Signal Analysis</a>.</p>
+<p>7. <strong><a href="https://www.crunchbase.com/organization/chai-discovery#overview">Chai Discovery</a>, $130M, biotech and AI:</strong> Chai Discovery, a startup that uses AI to predict and reprogram interactions between biochemical molecules, landed $130 million in a Series B round. <a href="https://www.crunchbase.com/organization/oak-hc-ft-partners">Oak HC/FT</a> and <a href="https://www.crunchbase.com/organization/general-catalyst-partners">General Catalyst</a> led the financing, which set a $1.3 billion valuation for the San Francisco-based company.</p>
+<p>8. (tied) <strong><a href="https://www.crunchbase.com/organization/ambros-therapeutics">Ambros Therapeutics</a>, $125M, biotech:</strong> Irvine, California-based Ambros Therapeutics launched publicly with a $125 million Series A financing co-led by <a href="https://www.crunchbase.com/organization/ra-capital-management">RA Capital Management</a> and <a href="https://www.crunchbase.com/organization/patient-square-capital">Patient Square Capital</a>&#8216;s strategic health care investment arm <a href="https://www.crunchbase.com/organization/enavate-sciences">Enavate Sciences</a>. The company licensed the rights to neridronate, which is used to treat Complex Regional Pain Syndrome.</p>
+<p>8. (tied) <strong><a href="https://www.crunchbase.com/organization/mythic-ai">Mythic</a>, $125M, microprocessors:</strong> Mythic, an Austin-based startup developing semiconductor architecture to make AI computing more energy efficient, raised $125 million in a funding round led by <a href="https://www.crunchbase.com/organization/data-collective">DCVC</a> and joined by a long list of venture investors.</p>
+<p>10. <strong><a href="https://www.crunchbase.com/organization/atavistik-bio">Atavistik Bio</a>, $120M, biotech:</strong> Cambridge, Massachusetts-based Atavistik Bio, a developer of  allosteric small molecule therapeutics, raised $120 million in Series B funding led by <a href="https://www.crunchbase.com/organization/the-column-group">The Column Group</a> and <a href="https://www.crunchbase.com/organization/nextech-invest">Nextech Invest</a>. Founded in 2021, Atavistik has raised $220 million in known funding to date, per <a href="https://www.crunchbase.com/organization/atavistik-bio#financials">Crunchbase data</a>.</p>
+<h2>Methodology</h2>
+<p>We tracked the largest announced rounds in the Crunchbase database that were raised by U.S.-based companies for the period of Dec. 13-19. Although most announced rounds are represented in the database, there could be a small time lag as some rounds are reported late in the week.</p>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/Top_10_.jpeg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/venture/biggest-funding-rounds-databricks-cyera/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/Top_10_.jpeg" data-pin-description="The Week’s 10 Biggest Funding Rounds: Security And Energy Deals Top The List"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/Top_10_.jpeg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/Top_10_.jpeg</image>	</item>
+		<item>
+		<title>These Startups Went From Zero To Unicorn In Under 3 Years</title>
+		<link>https://news.crunchbase.com/startups/funding-zero-to-unicorn-ai-robotics-eoy-2025/</link>
+		
+		<dc:creator><![CDATA[Joanna Glasner]]></dc:creator>
+		<pubDate>Fri, 19 Dec 2025 12:00:28 +0000</pubDate>
+				<category><![CDATA[Artificial intelligence]]></category>
+		<category><![CDATA[Clean tech and energy]]></category>
+		<category><![CDATA[Media & entertainment tech]]></category>
+		<category><![CDATA[Robotics]]></category>
+		<category><![CDATA[Startups]]></category>
+		<category><![CDATA[Venture]]></category>
+		<category><![CDATA[AI]]></category>
+		<category><![CDATA[startups]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<category><![CDATA[venture]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92932</guid>
+
+					<description><![CDATA[Forty-six companies founded in the past three years both held or obtained unicorn status in 2025 and raised fresh funding, per Crunchbase data. Collectively, they pulled in nearly $39 billion in new investment this year. Predictably, it’s an AI-centric group.]]></description>
+										<content:encoded><![CDATA[<p>Every year, some young startups manage to secure ultra-high valuations. Still others quickly raise multiple big funding rounds. And a few manage to do both.</p>
+<p>It looks like this year was a boom period for the latter category. Forty-six companies founded in the past three years both held or obtained unicorn status in 2025 and raised fresh funding, per Crunchbase data. (See full list <a href="https://www.crunchbase.com/discover/saved/unicorns-3-yrs-old-that-raised-funding/f50ea604-56eb-4fe6-9e60-ffec7d225894">here</a>.) Collectively, they pulled in nearly $39 billion in new investment this year.</p>
+<p>Predictably, it’s an AI-centric group. The three most highly valued among recently funded unicorns <a href="#footnote-1-92932" id="note-1-92932" rel="footnote">1</a> founded in the past three years — <a href="https://www.crunchbase.com/organization/xai">xAI</a>, <a href="https://www.crunchbase.com/organization/mistral-ai">Mistral AI</a> and <a href="https://www.crunchbase.com/organization/safe-superintelligence">Safe Superintelligence</a> — are all generative AI companies. Overall, a whopping 36 out of the 46 companies on the list are in AI industry categories.</p>
+<p>The heady sums the most sought-after startups are raising these days can lead one to forget just how young many of these businesses really are. But really, even by startup standards, these are fresh-faced newbies.</p>
+<p>Take xAI. Founder <a href="https://www.crunchbase.com/person/elon-musk">Elon Musk</a> made the first public announcement about it in July 2023 — less than two-and-half years ago. Since then it’s raised more than $12 billion in venture funding as well as billions more in combined debt and equity financings.</p>
+<p>Or consider <a href="https://www.crunchbase.com/organization/mistral-ai">Mistral</a>, founded in April 2023. In that short time, the Paris-based generative AI unicorn has raised over $3 billion and <a href="https://www.cnbc.com/2025/09/09/ai-firm-mistral-valued-at-14-billion-as-asml-takes-major-stake.html">secured</a> a $14 billion valuation.</p>
+<p><a href="https://www.crunchbase.com/organization/safe-superintelligence">Safe Superintelligence</a>, the startup founded by former <a href="https://www.crunchbase.com/organization/openai">OpenAI</a> chief scientist <a href="https://www.crunchbase.com/person/ilya-sutskever">Ilya Sutskever</a> is an even faster climber. Founded just 18 months ago, it&#8217;s already raised at least $3 billion in known funding. On a similar note, <a href="https://www.crunchbase.com/organization/thinking-machines-lab">Thinking Machines Lab</a>, co-founded by onetime <a href="https://www.crunchbase.com/organization/openai">OpenAI</a> CTO <a href="https://www.crunchbase.com/person/mira-murati">Mira Murati</a>, launched just 10 months ago and has already <a href="https://news.crunchbase.com/venture/biggest-seed-round-ai-thinking-machines-mira-murati/">picked up $2 billion</a>.</p>
+<h2>Young companies raised record sums in megarounds this year</h2>
+<p>The numbers illustrate a rising trend in the AI startup era: An increasing share of venture funding is going to young companies raising megarounds.</p>
+<p>To quantify this, we used Crunchbase data to tally the number and total value of rounds of $100 million or more to companies less than three years old at the time. The results, charted below, show that 2025 is a record-setting year for total funding to this category.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 59.43% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="$100M+ Funding Rounds For Companies Less Than 3 Years Old At The Time-12/19/2025" src="https://e.infogram.com/2528d2f8-64c4-4e26-984c-ab93aac661cd?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<p>Strikingly, more than $115 billion has gone to these megarounds for younger companies this year — exceeding the prior high mark during the 2021 market peak. The largesse is being spread across fewer rounds, however, with concentration among the hottest AI upstarts.</p>
+<h2>Not just GenAI (although that is where the most funding is going)</h2>
+<p>Still, it would be inaccurate to walk away with the impression that giant rounds for nascent startups are solely a GenAI thing.</p>
+<p>In sectors including robotics, energy tech and storage, we’re seeing capital pile up. Robotics was a particularly active area, with <a href="https://www.crunchbase.com/organization/skild-ai">Skild AI</a>, <a href="https://www.crunchbase.com/organization/physical-intelligence-834b">Physical Intelligence</a> and <a href="https://www.crunchbase.com/organization/field-ai">Field AI</a> all scoring large rounds.</p>
+<p><a href="https://www.crunchbase.com/organization/base-power">Base Power</a> — provider of residential battery backup systems — is another fast-scaling newcomer. And cloud backup provider <a href="https://www.crunchbase.com/organization/eon-e96e">Eon</a>, founded less than two years ago, has already raised $300 million.</p>
+<h2>Pick early, invest generously</h2>
+<p>Young startups securing more giant rounds signals that venture investors are looking to bet early and big. Having identified who they perceive as the most promising founders and what they see as the leading areas for scalable innovation, they’re not waiting around or taking incremental steps.</p>
+<p>Of course, it’s to be expected that not all these wagers will work out. But it’s also likely that at least a few will grow into something remarkable, if they haven’t already.</p>
+<h2>Related Crunchbase list:</h2>
+<ul>
+<li aria-level="1"><a href="https://www.crunchbase.com/discover/saved/unicorns-3-yrs-old-that-raised-funding/f50ea604-56eb-4fe6-9e60-ffec7d225894">Unicorns &lt; 3 Yrs Old That Raised Funding In 2025</a></li>
+</ul>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/biggest-seed-round-ai-thinking-machines-mira-murati/">Thinking Machines Lab’s $2B Seed Round Is Biggest By A Long Shot</a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<div class="footnotes"><hr /><ol><li id="footnote-1-92932" class="footnote"><p>We did not include <a href="https://www.crunchbase.com/organization/project-prometheus">Project Prometheus</a>, a <a href="https://www.crunchbase.com/person/jeff-bezos">Jeff Bezos</a>-led startup applying AI to solve physical world problems in the top three because it appears to be mostly operating in stealth mode at present.<a href="#note-1-92932" class="footnote-return">&#8617;</a></p></li><!--/#footnote-1.footnote--></ol></div><!--/#footnotes--><img src="https://news.crunchbase.com/wp-content/uploads/Unicorn-1.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/startups/funding-zero-to-unicorn-ai-robotics-eoy-2025/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/Unicorn-1.jpg" data-pin-description="These Startups Went From Zero To Unicorn In Under 3 Years"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/Unicorn-1.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/Unicorn-1.jpg</image>	</item>
+		<item>
+		<title>A Little Background On Fusion Funding And TAE Technologies, The Company Merging With Trump Media</title>
+		<link>https://news.crunchbase.com/ma/fusion-tae-technologies-merger-trump-media/</link>
+		
+		<dc:creator><![CDATA[Joanna Glasner]]></dc:creator>
+		<pubDate>Thu, 18 Dec 2025 19:18:29 +0000</pubDate>
+				<category><![CDATA[Clean tech and energy]]></category>
+		<category><![CDATA[M&A]]></category>
+		<category><![CDATA[Media & entertainment tech]]></category>
+		<category><![CDATA[Public Markets]]></category>
+		<category><![CDATA[Commonwealth Fusion]]></category>
+		<category><![CDATA[social media]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92942</guid>
+
+					<description><![CDATA[There’s no hyperbole in stating that Trump Media and Technology Group, the company behind social media platform Truth Social, is breaking new ground with this morning’s announcement that it plans to combine with fusion company TAE Technologies.]]></description>
+										<content:encoded><![CDATA[<p>There’s a long history of media companies merging with other media brands. But with a fusion company? Well, there’s a first.</p>
+<p>So, there’s no hyperbole in stating that <a href="https://www.crunchbase.com/organization/trump-media-technology-group">Trump Media and Technology Group</a>, the company behind social media platform <a href="https://www.crunchbase.com/organization/truth-social">Truth Social</a>, is breaking new ground with this morning’s <a href="https://s3.amazonaws.com/b2icontent.irpass.cc/2660/rl160597.pdf">announcement</a> that it plans to combine with fusion company <a href="https://www.crunchbase.com/organization/tae-technologies">TAE Technologies</a>.</p>
+<p>The two signed a merger agreement to combine in what TMTG called a stock transaction valued at more than $6 billion. Once the deal closes, it says, shareholders of each company will own approximately half of the combined company.</p>
+<p>So far, public investors seem to like the proposal, with shares of Trump Media closing up 42% on Thursday. That said, shares are well below where the company made its <a href="https://www.crunchbase.com/organization/nasdaq">Nasdaq</a> debut in March, following a SPAC merger, with its latest market cap around $4 billion.</p>
+<p>But while markets may favor the deal now, no one would describe it as an obvious match-up. And with media insiders, energy tech aficionados and the general public all broadly scratching their heads about how to put this deal in context, we looked to see if Crunchbase data could offer relevant background.</p>
+<p>Turns out, while we didn’t see this one coming, funding data does show the fusion space continuing to attract megarounds, with TAE exhibiting several characteristics that differentiate it from the competition.</p>
+<p>Here are some of findings on both TAE specifically and fusion startup funding more broadly:</p>
+<ul>
+<li aria-level="1">Founded in 1998, Foothill Ranch, California-based TAE is the oldest operating venture-backed fusion energy company in the Crunchbase dataset. The next-oldest is British Columbia-based <a href="https://www.crunchbase.com/organization/general-fusion">General Fusion</a>, founded in 2002.</li>
+<li aria-level="1">To date, TAE has raised close to $1.5 billion in known equity funding. It raised its most recent round — a $150 million venture financing — in June with backing from <a href="https://www.crunchbase.com/organization/google">Google</a>, <a href="https://www.crunchbase.com/organization/chevron-technology-ventures">Chevron Technology Ventures</a> and <a href="https://www.crunchbase.com/organization/new-enterprise-associates">New Enterprise Associates</a>.</li>
+<li aria-level="1">In the past five years, fusion-focused startups have raised more than $7 billion in venture funding, per <a href="https://www.crunchbase.com/discover/saved/fusion-startup-funding/d416e525-c8ab-4e6c-b15f-cddd742b2f39">Crunchbase data</a>. Of that, a little less than half has closed in the past two years.</li>
+<li aria-level="1">A handful of fusion startups have secured a big chunk of funding to the space. Besides TAE, the most heavily funded are <a href="https://www.crunchbase.com/organization/commonwealth-fusion-systems">Commonwealth Fusion Systems</a> ($2.86 billion in equity funding), <a href="https://www.crunchbase.com/organization/helion-energy#overview">Helion Energy</a> ($1 billion), <a href="https://www.crunchbase.com/organization/pacific-fusion">Pacific Fusion</a> ($900 million), and General Fusion ($357 million).</li>
+<li aria-level="1">This year, the standout for funding was Commonwealth Fusion, which raised $863 million in an August Series B2 round. The Devens, Massachusetts-based company also said it is moving closer to being the first in the world to commercialize fusion power.</li>
+<li aria-level="1">Everett, Washington-based Helion Energy also locked up a <a href="https://news.crunchbase.com/clean-tech-and-energy/venture-fusion-startup-helion-raise-lightspeed-softbank/">$425 million Series F</a> early this year as it looks to commercialize its fusion technology.</li>
+</ul>
+<p>Do any of these findings explain why you should have had Truth Social merging with a Google-backed fusion company on your bingo card for 2025? Probably not. But they do at least offer support for the notion that Trump Media is entering a space that’s attracted a lot of capital of late from a lot of known smart money investors.</p>
+<h2>Related Crunchbase query:</h2>
+<nav>
+<div class="ng-star-inserted">
+<p><a href="https://www.crunchbase.com/discover/saved/fusion-startup-funding/d416e525-c8ab-4e6c-b15f-cddd742b2f39">Fusion Startup Funding</a></p>
+</div>
+</nav>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/clean-tech-and-energy/venture-fusion-startup-helion-raise-lightspeed-softbank/">Fusion Startup Helion Powers Up With $425M Series F</a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/just-merged.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/ma/fusion-tae-technologies-merger-trump-media/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/just-merged.jpg" data-pin-description="A Little Background On Fusion Funding And TAE Technologies, The Company Merging With Trump Media"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/just-merged-1024x576.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/just-merged-1024x576.jpg</image>	</item>
+		<item>
+		<title>Exclusive: AI Insurance Startup Nirvana Nearly Doubles Valuation To $1.5B with $100M Series D</title>
+		<link>https://news.crunchbase.com/ai/insurance-platform-nirvana-valuation-nearly-doubles/</link>
+		
+		<dc:creator><![CDATA[Judy Rider]]></dc:creator>
+		<pubDate>Thu, 18 Dec 2025 14:30:55 +0000</pubDate>
+				<category><![CDATA[Artificial intelligence]]></category>
+		<category><![CDATA[Insurance tech]]></category>
+		<category><![CDATA[Startups]]></category>
+		<category><![CDATA[Transportation & Logistics]]></category>
+		<category><![CDATA[Venture]]></category>
+		<category><![CDATA[AI]]></category>
+		<category><![CDATA[insurtech]]></category>
+		<category><![CDATA[startups]]></category>
+		<category><![CDATA[transportation]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<category><![CDATA[venture]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92937</guid>
+
+					<description><![CDATA[Nirvana Insurance, an AI-based commercial insurance platform for the trucking industry, has raised a $100 million Series D round at a $1.5 billion valuation, it tells Crunchbase News exclusively. The raise comes just over nine months after the startup raised $80 million in a Series C round of funding at an $830 million valuation.]]></description>
+										<content:encoded><![CDATA[<p><a href="https://www.crunchbase.com/organization/nirvana-insurance">Nirvana Insurance</a>, an AI-based commercial insurance platform for the trucking industry, has raised a $100 million Series D round at a $1.5 billion valuation, it tells Crunchbase News exclusively. The raise comes just over nine months after the startup raised $80 million in a Series C round of funding at an $830 million valuation.</p>
+<p><a href="https://www.crunchbase.com/organization/valor-equity-partners">Valor Equity Partners</a> led the latest financing, which the company described as “preemptive.” Previous lead backers <a href="https://www.crunchbase.com/organization/lightspeed-venture-partners">Lightspeed Venture Partners</a> and <a href="https://www.crunchbase.com/organization/general-catalyst-partners">General Catalyst</a> also doubled down “significantly.”</p>
+<p>Put simply, Nirvana’s goal is to build “the world’s first AI-powered operating system for insurance.” The startup uses real-time driving telematics and 30 billion miles of truck-driving data to build and manage insurance policies for truckers.</p>
+<p>CEO <a href="https://www.crunchbase.com/person/rushil-goel">Rushil Goel</a> started Nirvana in 2021 after spending years running product at <a href="https://www.crunchbase.com/organization/samsara-2">Samsara</a>, an AI-powered fleet management and safety platform. There, he said, he saw firsthand how heavily safe and responsible trucking fleets “were penalized by the rising costs of one-size-fits-all insurance rates based on old industry data.”</p>
+<p>“It was survival stakes,” he recalled. “Expensive policies literally drove some fleets out of business.”</p>
+<p>His goal with Nirvana is to use the telematics data those fleets already generate “to build a more fair and transparent model.” Nirvana has trained its models on more than 30 billion driving miles and vehicles’ telematics that show details such as speed, selected routes and driver behavior.</p>
+<p>“This allows us to reward safe fleets with more accurate and often lower premiums, helping them save money and making roads safe,” Goel told Crunchbase News. He also claims the company is able to underwrite “with speed and precision” and “price risk in real time.”</p>
+<p>On top of providing insurance, Nirvana claims it gives fleets the tools to reduce accidents before they happen.</p>
+<p>The raise comes at a time when <a href="https://news.crunchbase.com/venture/sector-snapshot-insurtech-funding-down-ai-deals/">insurtech funding overall is down</a>, and deal counts are at a multiyear record low. So far in 2025, global insurance-related startups have pulled in about $4 billion in seed-through growth-stage financing, per Crunchbase <a href="https://www.crunchbase.com/discover/saved/insurtech-startup-funding-2025/b51d9096-e1d7-4606-90cb-81598a62d913">data</a> — less than one-fourth of the 2021 peak dollars raised — with deal counts also on the decline.</p>
+<h2>VCs bet Nirvana can transform ‘trillion-dollar industry stuck in the past’</h2>
+<p>Nirvana raised its $3.2 million seed round in January 2021, co-led by General Catalyst and Lightspeed. In total, it has raised more than $260 million in funding.</p>
+<p>While Goel declined to reveal hard revenue figures, he said that Nirvana has doubled its year-over-year premium growth. It has also doubled its staff to around 200 compared to a year ago.</p>
+<p>Nirvana says it serves “thousands” of motor carriers. Its customers range from single-owner and -operator carriers to fleets with more than 500 trucks.</p>
+<p>The startup’s revenue model is to charge an annual insurance term with upfront discounts based on the historical telematics data it analyzes with its proprietary models.</p>
+<p>Interestingly, Nirvana is not Goel’s first startup venture. Besides serving as the VP/GM of fleet at Samsara, he also co-founded <a href="https://www.crunchbase.com/organization/aircare">AirCare</a>, a digital health startup.</p>
+<p><a href="https://www.crunchbase.com/person/vivek-pattipati">Vivek Pattipati</a>, partner at Valor Equity Partners, said in a release that this round isn’t just about reinforcing Nirvana’s approach to proprietary telematics data, deep machine learning expertise, and execution in underwriting and claims.</p>
+<p>“It’s an opportunity for us to stake a claim in redefining an industry and exploring how Nirvana will apply its “N of 1” AI capabilities to benefit customers beyond market-leading insurance products,” he said.</p>
+<p>Lightspeed partner <a href="https://www.crunchbase.com/person/raviraj-jain">Raviraj Jain</a> believes that Nirvana has “executed flawlessly” since the firm first invested in its seed round. He said: “Commercial insurance is a trillion-dollar industry stuck in the past, and it’s been incredible to see how quickly Nirvana’s AI models have been able to deliver material benefits to customers.”</p>
+<h2>Related Crunchbase query:</h2>
+<ul>
+<li aria-level="1"><a href="https://www.crunchbase.com/discover/saved/insurtech-startup-funding-2025/b51d9096-e1d7-4606-90cb-81598a62d913">Insurtech Startup Funding, 2025</a></li>
+</ul>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/fintech-ecommerce/insuretech/inclined-technologies-whole-life-insurance-startup-funding/">Exclusive: Insurtech Startup Inclined Raises $8M For Offering That Was ‘Historically Reserved For The Wealthy’</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/sector-snapshot-insurtech-funding-down-ai-deals/">Sector Snapshot: Insurtech Funding Is Way Down, But AI Is Still Driving Some Big Deals</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/transportation/logistics-software-startup-seriesb-alvys/">Exclusive: Trucker&#8217;s Son Bucks Logistics Funding Decline With $40M Raise For Startup Alvys </a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/Autonomous-truck-hero.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/ai/insurance-platform-nirvana-valuation-nearly-doubles/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/Autonomous-truck-hero.jpg" data-pin-description="Exclusive: AI Insurance Startup Nirvana Nearly Doubles Valuation To $1.5B with $100M Series D"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/Autonomous-truck-hero.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/Autonomous-truck-hero.jpg</image>	</item>
+		<item>
+		<title>M&#038;A The Highest On Record For Unicorn Exits In 2025</title>
+		<link>https://news.crunchbase.com/ma/record-breaking-unicorn-exits-eoy-2025/</link>
+		
+		<dc:creator><![CDATA[Gené Teare]]></dc:creator>
+		<pubDate>Thu, 18 Dec 2025 12:00:34 +0000</pubDate>
+				<category><![CDATA[Artificial intelligence]]></category>
+		<category><![CDATA[M&A]]></category>
+		<category><![CDATA[Public Markets]]></category>
+		<category><![CDATA[AI]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92929</guid>
+
+					<description><![CDATA[After three slow years, unicorn exits have finally picked up in 2025, an analysis of Crunchbase data shows. IPO counts for unicorn-valued companies were back up to pre-2021 levels, and 2025 M&#038;A deals were at the highest count and values of all time for unicorns.]]></description>
+										<content:encoded><![CDATA[<p>After three slow years, unicorn exits have finally picked up in 2025, an analysis of Crunchbase data shows. IPO counts for unicorn-valued companies were back up to pre-2021 levels. And 2025 M&amp;A deals were at the highest count and values of all time for unicorns, or private companies valued at a billion dollars or more.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 51.25% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Global Exited Unicorn Counts By Type" src="https://e.infogram.com/d2cb647a-1e72-4163-a9d9-95024f3ea96f?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<h2>M&amp;A</h2>
+<p>M&amp;A exit numbers this year are the highest ever for unicorn companies, with 36 deals in 2025 totaling $67 billion in value. The largest deals were:</p>
+<ul>
+<li aria-level="1">New York-based cloud security company <a href="https://www.crunchbase.com/organization/wiz-inc">Wiz</a> <a href="https://news.crunchbase.com/ma/google-bid-wiz-klarna-ipo-ai-big-exits/">was acquired</a> by <a href="https://www.crunchbase.com/organization/google">Google</a> for $32 billion.</li>
+<li aria-level="1">South Korea-based crypto exchange <a href="https://www.crunchbase.com/organization/dunamu">Dunamu</a> was acquired by fintech <a href="https://www.crunchbase.com/organization/naver-financial-corp">Naver Financial Corp.</a> for $10.3 billion.</li>
+<li aria-level="1">New York-based observability platform <a href="https://www.crunchbase.com/organization/chronosphere">Chronosphere</a> was acquired by cybersecurity company <a href="https://www.crunchbase.com/organization/palo-alto-networks">Palo Alto Networks</a> for $3.4 billion.</li>
+<li aria-level="1">Silicon Valley-based <a href="https://www.crunchbase.com/organization/celestial-ai">Celestial AI</a>, developer of optical interconnect for AI datacenters, was acquired by data center networking company <a href="https://www.crunchbase.com/organization/marvell-technology">Marvell</a> for $3.3 billion.</li>
+<li aria-level="1">Silicon Valley-based AI workflow company <a href="https://www.crunchbase.com/organization/moveworks">Moveworks</a> <a href="https://news.crunchbase.com/ma/servicenow-acquiring-moveworks-ai-unicorn-exit-lightspeed/">was acquired</a> by IT operations giant <a href="https://www.crunchbase.com/organization/service-now-com">ServiceNow</a> for $2.9 billion.</li>
+</ul>
+<p>In 2024, we counted 22 unicorns that were acquired, the second-highest count over all time,  but at $7 billion, it was a far lower exit value than this year.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 62.63% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Global Exited Unicorn M&amp;A Value By Year" src="https://e.infogram.com/21f34f08-e8d8-4794-aa02-cda4de9f46cd?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<h2>IPOs</h2>
+<p>IPO counts and valuations for unicorn companies also picked up year over year. A total of 40 unicorn companies debuted via a traditional IPO, and two companies listed via a SPAC or reverse merger.</p>
+<p>These IPO counts are in line with 2018 through 2020. The collective value at the listing price was around $207 billion — $90 billion below 2020 values but on par with 2019 and 2018 valuations at $215 billion and $197 billion, respectively.</p>
+<p>The largest exited unicorns via IPO in 2025 were <a href="https://www.crunchbase.com/organization/coreweave">CoreWeave</a>, <a href="https://www.crunchbase.com/organization/figma">Figma</a>, <a href="https://www.crunchbase.com/organization/klarna">Klarna</a>, <a href="https://www.crunchbase.com/organization/chime-2">Chime</a> and <a href="https://www.crunchbase.com/organization/mixuebingcheng">Mixue Group</a>.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 62.63% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Global Exited Unicorns Value By Year" src="https://e.infogram.com/1a11ca1f-0547-4200-9d5f-149bc9d28304?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<h2>The unicorn overhang</h2>
+<p>Despite the increase in exits this year, <a href="https://news.crunchbase.com/unicorn-company-list/">The Crunchbase Unicorn Board</a> keeps growing as a greater number of companies join than exit each year.</p>
+<p>As we near the end of 2025, the<a href="https://news.crunchbase.com/venture/hot-tech-deals-ai-grow-unicorn-board-eoy-2025/"> board is approaching $7 trillion in value</a>, with around 1,640 companies that have raised $1.16 trillion collectively this year. (It’s worth noting, however, that 840 companies have not raised funding in three years.)</p>
+<p>More than 800 of these still-private companies joined in the peak market of 2021 and into 2022. The unicorn board represents a huge buildup of companies that will need to exit, while a newer cohort joined the ranks.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 75.21% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="The Unicorn Overhang: Still Private Unicorns By Year They Joined The Board" src="https://e.infogram.com/868a3e2b-ab7e-4c78-942c-f42b222310c3?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<p>As the unicorn board grew, IPOs were the biggest driver of exits from 2017 through 2021. That has slowed since 2022. With rumors that a company as pivotal as <a href="https://www.crunchbase.com/organization/anthropic">Anthropic</a> could <a href="https://www.ft.com/content/3254fa30-5bdb-4c30-8560-7cd7ebbefc5f">list as early as 2026</a>, anticipation is building that the IPO markets will more fully rebound next year.</p>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/ma/google-bid-wiz-klarna-ipo-ai-big-exits/">With Google’s $32B Bid For Wiz, Big Exits Are Finally Picking Up</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/ma/servicenow-acquiring-moveworks-ai-unicorn-exit-lightspeed/">Moveworks Delivers Big Exit For Early VCs</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/hot-tech-deals-ai-grow-unicorn-board-eoy-2025/">Hottest Deals In Tech Push Crunchbase Unicorn Board Toward $7T In Value</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/ai/coreweave-ipo-crwv-opening-day-trade/">CoreWeave Closes Flat In First-Day Trading</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/public/saas-figma-first-day-ipo-trading-triples/">Figma More Than Triples In First-Day Trading</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/public/fintech-klarna-shares-pop-nyse-market/">Klarna Shares Pop In Long-Awaited Public Market Entry</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/fintech-ecommerce/chime-climbs-nasdaq-market-debut-chym/">Chime Climbs In Market Debut</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/unicorn-company-list/">The Crunchbase Unicorn Board</a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/Exits_2023.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/ma/record-breaking-unicorn-exits-eoy-2025/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/Exits_2023.jpg" data-pin-description="M&#038;A The Highest On Record For Unicorn Exits In 2025"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/Exits_2023.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/Exits_2023.jpg</image>	</item>
+		<item>
+		<title>The Crunchbase Tech Layoffs Tracker</title>
+		<link>https://news.crunchbase.com/startups/tech-layoffs/</link>
+		
+		<dc:creator><![CDATA[Crunchbase News]]></dc:creator>
+		<pubDate>Wed, 17 Dec 2025 17:42:30 +0000</pubDate>
+				<category><![CDATA[Economy]]></category>
+		<category><![CDATA[Job market]]></category>
+		<category><![CDATA[Layoffs]]></category>
+		<category><![CDATA[Public Markets]]></category>
+		<category><![CDATA[Startups]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=84369</guid>
+
+					<description><![CDATA[At least 126,352 workers at U.S.-based tech companies have been laid off in mass job cuts so far in 2025, per a Crunchbase News tally, and the cuts are anticipated to continue into 2026. See who the latest companies are to cut roles.]]></description>
+										<content:encoded><![CDATA[<h3>Methodology</h3>
+<p><span style="font-weight: 400;">This tracker includes layoffs conducted by U.S.-based companies or those with a strong U.S. presence and is updated at least bi-weekly. We’ve included both startups and publicly traded, tech-heavy companies. We’ve also included companies based elsewhere that have a sizable team in the United States, such as </span><a href="https://www.crunchbase.com/organization/klarna"><span style="font-weight: 400;">Klarna</span></a><span style="font-weight: 400;">, even when it’s unclear how much of the U.S. workforce has been affected by layoffs.</span></p>
+<p><span style="font-weight: 400;">Layoff and workforce figures are best estimates based on reporting. We source the layoffs from media reports, our own reporting, social media posts and </span><a href="https://layoffs.fyi/"><span style="font-weight: 400;">layoffs.fyi</span></a><span style="font-weight: 400;">, a crowdsourced database of tech layoffs.</span></p>
+<p><span style="font-weight: 400;">We recently updated our layoffs tracker to reflect the most recent round of layoffs each company has conducted. This allows us to quickly and more accurately track layoff trends, which is why you might notice some changes in our most recent numbers.</span></p>
+<p><span style="font-weight: 400;">If an employee headcount cannot be confirmed to our standards, we note it as “unclear.”</span></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/Layoffs-scissors.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/startups/tech-layoffs/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/Layoffs-scissors.jpg" data-pin-description="The Crunchbase Tech Layoffs Tracker"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/Layoffs-scissors.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/Layoffs-scissors.jpg</image>	</item>
+		<item>
+		<title>Cleantech’s Rough Year Ends On An Up Note</title>
+		<link>https://news.crunchbase.com/clean-tech-and-energy/venture-funding-ends-year-up-eoy-2025/</link>
+		
+		<dc:creator><![CDATA[Joanna Glasner]]></dc:creator>
+		<pubDate>Wed, 17 Dec 2025 12:00:40 +0000</pubDate>
+				<category><![CDATA[Artificial intelligence]]></category>
+		<category><![CDATA[Clean tech and energy]]></category>
+		<category><![CDATA[Startups]]></category>
+		<category><![CDATA[Venture]]></category>
+		<category><![CDATA[AI]]></category>
+		<category><![CDATA[cleantech]]></category>
+		<category><![CDATA[starttups]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<category><![CDATA[venture]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92926</guid>
+
+					<description><![CDATA[This year, investors put just over $24 billion across all stages into startups in Crunchbase's cleantech, electric vehicle and sustainability-related categories. That’s by far the lowest annual total in five years, but in a quarter-over-quarter comparison the picture looks sunnier, with cleantech investment moving higher after hitting a low in Q1.]]></description>
+										<content:encoded><![CDATA[<p>By many measures, both positive and negative, this looks like the kind of investment climate that would favor cleantech startups.</p>
+<p>For starters, global investment in clean technologies is running high. Spending on the category, which includes renewables, grids, low-emissions power sources, and energy efficiency, is on course to hit $2.2 trillion this year, <a href="https://www.iea.org/news/global-energy-investment-set-to-rise-to-33-trillion-in-2025-amid-economic-uncertainty-and-energy-security-concerns">per</a> <a href="https://www.crunchbase.com/organization/the-international-energy-agency-iea">The International Energy Agency</a>. That’s twice what is invested in fossil fuels.</p>
+<p>Venture capital is pretty flush as well. Global venture funding in the first three quarters of the year <a href="https://news.crunchbase.com/venture/global-vc-funding-biggest-deals-q3-2025-ai-ma-data/">topped</a> $300 billion, the highest level in years. Moreover, a record share of this funding is going to companies focused on AI, a technology whose immense power demands will require massive new energy infrastructure.</p>
+<p>The environmental case for cleantech is also only getting more urgent. Concentrations of greenhouse gases and ocean heat content both reached record levels this year, <a href="https://wmo.int/publication-series/state-of-climate-update-cop30">per</a> the World Meteorological Organization, with the past three years being the warmest on record.</p>
+<p>All this is to say that the macro picture, a bullish one for cleantech investment, contrasts sharply with the actual numbers, which show this was an unusually weak year for the space.</p>
+<h2>Lowest funding in years</h2>
+<p>How weak? This year, investors put just over $24 billion across all stages into startups in Crunchbase&#8217;s cleantech-, electric vehicle- and sustainability-related categories. That’s by far the lowest annual total in five years.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 59.43% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Annual Cleantech-, EV- And Sustainability-Related Funding-12/17/2025" src="https://e.infogram.com/200f4d20-e666-4b9d-8b0b-34399bbb6311?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<p>Quarter over quarter, the picture looks sunnier. Cleantech investment actually hit a low in Q1 and has since been moving higher.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 56.11% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Quarterly Cleantech-, EV- And Sustainability-Related Funding-12/17/25" src="https://e.infogram.com/42bac33a-91d6-4633-92fa-ec1d1f0adbe6?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<p>One interpretation is that U.S. investors paused on some dealmaking around Q1. With the incoming <a href="https://www.crunchbase.com/person/donald-trump">Trump</a> administration taking a hostile stance to the <a href="https://www.crunchbase.com/person/joseph-biden">Biden</a> administration’s cleantech- and climate-friendly subsidies and policies, startups and their backers needed to recalibrate strategy for an altered political environment. Once that happened, the pace picked up some.</p>
+<p>Some of the year’s largest rounds, meanwhile, are for companies in sectors with fairly broad support across the political spectrum. In this category is <a href="https://news.crunchbase.com/venture/public-private-nuclear-fission-funding-2025/">nuclear</a> — both fusion and fission <a href="#footnote-1-92926" id="note-1-92926" rel="footnote">1</a> — which was a particularly popular investment theme. We also saw good-sized deals around geothermal power, energy storage and electric aircraft.</p>
+<h2>Largest rounds</h2>
+<p>For a broader sense of where big-ticket investment was going, we put together a list of 12 of the largest cleantech-, EV- and sustainability-related funding rounds of 2025.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 110.83% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Largest 2025 Cleantech, EV And Sustainability-Related Funding Rounds-12/17/2025" src="https://e.infogram.com/8fc12f7a-d5a7-486a-9437-682f4c3fd59e?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<p>Clearly, investors were still enthused about backing jumbo-sized rounds in some cases.</p>
+<p>Case in point: The leading funding recipient this year was Austin’s <a href="https://www.crunchbase.com/organization/base-power?_gl=1*dtdnlm*_gcl_au*ODY0MTMzNDQ2LjE3NTkxNTAxNDguMTYzNDQ1MDk3MC4xNzY1MzgzMzY0LjE3NjUzODMzNjQ.*_ga*MjAzODAwMzgwMi4xNzQzNDI5MzYx*_ga_97DKWJJNRK*czE3NjU4MTQ1MjMkbzEwMzEkZzAkdDE3NjU4MTQ1MjMkajYwJGwwJGgw#overview">Base Power</a>, which provides battery backup power for residential properties. The 3-year-old company landed $1.2 billion across two rounds this year, with <a href="https://www.crunchbase.com/organization/addition-7af4">Addition</a> as a repeat lead backer.</p>
+<p>The next three biggest rounds, notably, were all for startups focused on nuclear power. Among them, the standout for funding was <a href="https://www.crunchbase.com/organization/commonwealth-fusion-systems#overview">Commonwealth Fusion</a>, which raised $863 million in an August Series B2 round. The Devens, Massachusetts-based company also said it is moving closer to being the first in the world to commercialize fusion power.</p>
+<p>Nuclear fission is also a <a href="https://news.crunchbase.com/venture/public-private-nuclear-fission-funding-2025/?_gl=1*12i8000*_gcl_au*ODY0MTMzNDQ2LjE3NTkxNTAxNDguMTYzNDQ1MDk3MC4xNzY1MzgzMzY0LjE3NjUzODMzNjQ.*_ga*MjAzODAwMzgwMi4xNzQzNDI5MzYx*_ga_97DKWJJNRK*czE3NjU4MTQ1MjMkbzEwMzEkZzEkdDE3NjU4MTc5NzQkajU5JGwwJGgw">popular category</a> for venture investors of late. In this cohort, <a href="https://www.crunchbase.com/organization/xenergy">X-energy</a>, which develops small modular nuclear reactors and nuclear fuels, was another power fundraiser. The Rockville, Maryland, company secured a $700 million Series D in late November led by <a href="https://www.crunchbase.com/organization/jane-street-capital?_gl=1*7096et*_gcl_au*ODY0MTMzNDQ2LjE3NTkxNTAxNDguMTYzNDQ1MDk3MC4xNzY1MzgzMzY0LjE3NjUzODMzNjQ.*_ga*MjAzODAwMzgwMi4xNzQzNDI5MzYx*_ga_97DKWJJNRK*czE3NjU4MTQ1MjMkbzEwMzEkZzEkdDE3NjU4MTc5NzgkajU1JGwwJGgw">Jane Street Capital</a>. And nuclear startup <a href="https://www.crunchbase.com/organization/terrapower?_gl=1*ud2pok*_gcl_au*ODY0MTMzNDQ2LjE3NTkxNTAxNDguMTYzNDQ1MDk3MC4xNzY1MzgzMzY0LjE3NjUzODMzNjQ.*_ga*MjAzODAwMzgwMi4xNzQzNDI5MzYx*_ga_97DKWJJNRK*czE3NjU4MTQ1MjMkbzEwMzEkZzEkdDE3NjU4MTc5NzgkajU1JGwwJGgw">TerraPower</a> also landed a huge follow-on financing this summer, picking up $650 million, with <a href="https://www.crunchbase.com/organization/nvidia?_gl=1*ud2pok*_gcl_au*ODY0MTMzNDQ2LjE3NTkxNTAxNDguMTYzNDQ1MDk3MC4xNzY1MzgzMzY0LjE3NjUzODMzNjQ.*_ga*MjAzODAwMzgwMi4xNzQzNDI5MzYx*_ga_97DKWJJNRK*czE3NjU4MTQ1MjMkbzEwMzEkZzEkdDE3NjU4MTc5NzgkajU1JGwwJGgw">Nvidia</a>’s <a href="https://www.crunchbase.com/organization/nventures-0731?_gl=1*ud2pok*_gcl_au*ODY0MTMzNDQ2LjE3NTkxNTAxNDguMTYzNDQ1MDk3MC4xNzY1MzgzMzY0LjE3NjUzODMzNjQ.*_ga*MjAzODAwMzgwMi4xNzQzNDI5MzYx*_ga_97DKWJJNRK*czE3NjU4MTQ1MjMkbzEwMzEkZzEkdDE3NjU4MTc5NzgkajU1JGwwJGgw">NVentures</a> as a backer.</p>
+<p>Battery investment, on the other hand, has been less robust. Investors braced for a heavy loss last year when Swedish EV battery maker <a href="https://www.crunchbase.com/organization/northvolt-ab#overview">Northvolt</a>, one of the most heavily funded companies in the space, initially filed for bankruptcy.</p>
+<p>Still, deals were getting done. Besides Base Power, there were three other battery-related companies on our top rounds list for 2025. These were Dutch battery storage startup <a href="https://www.crunchbase.com/organization/return-095b">Return</a>, Woodinville, Washington-based silicon battery material producer <a href="https://www.crunchbase.com/organization/group14-technologies">Group14 Technologies</a>, and battery recycling company <a href="https://www.crunchbase.com/organization/redwood-materials-3">Redwood Materials</a>.</p>
+<h2>Perking up at year’s end</h2>
+<p>Probably the most encouraging signal for cleantech investment is it closed 2025 in a much stronger position than when it began the year. Given that drivers of demand are only strengthening, it looks reasonable to be optimistic about a continued rise.</p>
+<h2>Related Crunchbase queries:</h2>
+<ul>
+<li aria-level="1"><a href="https://www.crunchbase.com/discover/saved/cleantech-ev-sustainability-related/216a7a8b-2892-422e-b2d3-efcc19cb550a?_gl=1*1tgjv47*_gcl_au*ODY0MTMzNDQ2LjE3NTkxNTAxNDguMTcwMjIxNDM4OC4xNzYxNTY5NjA2LjE3NjE1Njk2MDU.*_ga*MjAzODAwMzgwMi4xNzQzNDI5MzYx*_ga_97DKWJJNRK*czE3NjE1NjgwNDUkbzkwOSRnMSR0MTc2MTU3NzkyNCRqNDUkbDAkaDA">Cleantech, EV &amp; Sustainability-Related Funding, 2025 YTD</a></li>
+<li aria-level="1"><a href="https://www.crunchbase.com/lists/largest-2025-cleantech-ev-and/193c5140-d332-4c3d-995a-96a94e7ed1b2/funding_rounds">Largest 2025 Cleantech, EV And Sustainability-Related Funding Rounds</a></li>
+</ul>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/clean-tech-and-energy/2025-startup-venture-funding-down/">Crunchbase Sector Snapshot: Cleantech Isn’t Having A Great Year</a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<div class="footnotes"><hr /><ol><li id="footnote-1-92926" class="footnote"><p>Nuclear fission isn’t a clear fit within the clean energy category, given its history of drawing opposition from environmental activists and past accidents such as Three Mile Island, Chernobyl and Fukushima. However, nuclear power does not emit greenhouse gases and thus is included in Crunchbase clean energy categories.<a href="#note-1-92926" class="footnote-return">&#8617;</a></p></li><!--/#footnote-1.footnote--></ol></div><!--/#footnotes--><img src="https://news.crunchbase.com/wp-content/uploads/Clean_Tech.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/clean-tech-and-energy/venture-funding-ends-year-up-eoy-2025/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/Clean_Tech.jpg" data-pin-description="Cleantech’s Rough Year Ends On An Up Note"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/Clean_Tech.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/Clean_Tech.jpg</image>	</item>
+		<item>
+		<title>6 Charts That Show The Big AI Funding Trends Of 2025</title>
+		<link>https://news.crunchbase.com/ai/big-funding-trends-charts-eoy-2025/</link>
+		
+		<dc:creator><![CDATA[Gené Teare]]></dc:creator>
+		<pubDate>Tue, 16 Dec 2025 12:00:17 +0000</pubDate>
+				<category><![CDATA[Artificial intelligence]]></category>
+		<category><![CDATA[Startups]]></category>
+		<category><![CDATA[Venture]]></category>
+		<category><![CDATA[AI]]></category>
+		<category><![CDATA[startups]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<category><![CDATA[venture]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92922</guid>
+
+					<description><![CDATA[AI was the leading sector for startup funding globally from 2023 through 2025. As the sector reshapes the venture industry, here are six charts to visualize the transformation via Crunchbase data.]]></description>
+										<content:encoded><![CDATA[<p>AI was the leading sector for startup funding globally from 2023 through 2025. In each year, funding amounts to this sector have gone up dramatically and proportions have increased.</p>
+<p>At the close of 2025, <a href="https://www.crunchbase.com/organization/openai">OpenAI</a> is the most valuable private company of all time, valued at $500 billion. Not far down the list is rival <a href="https://www.crunchbase.com/organization/anthropic">Anthropic</a>, the fourth-most valuable at $183 billion. Together, those two companies alone make up close to 10% of the value on <a href="https://news.crunchbase.com/unicorn-company-list/">The Crunchbase Unicorn Board</a>.</p>
+<p>As AI reshapes the venture industry, here are six charts to visualize the transformation via Crunchbase data.</p>
+<h2>AI funding surges in 2025</h2>
+<p>AI captured close to 50% of all global funding in 2025, up from 34% in 2024, Crunchbase data shows. A total of $202.3 billion has been invested in the AI sector in 2025 so far, which includes the whole stack — AI infrastructure, foundation labs and applications.</p>
+<p>All told, funding to AI increased more than 75% year over year from the $114 billion invested in 2024.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 50.53% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Funding To AI Grows" src="https://e.infogram.com/525c7240-58d6-4783-976c-818976171000?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<h2>Foundation labs raise a greater share</h2>
+<p>The foundation model companies have raised $80 billion in 2025 to date, representing 40% of global AI funding, per Crunchbase data. Model company funding this year has more than doubled from $31 billion in 2024, when that investment totaled about 27% of all AI funding.</p>
+<p>The two largest foundation companies, OpenAI and Anthropic, alone captured 14% of global venture investment this year.</p>
+<p>One trend to watch in 2026: Will the leading model developers continue to raise tens of billions through equity investment to address their voracious appetite for compute in 2026, or will partnerships meet that gap?</p>
+<p>The hyperscalers have <a href="https://www.businessinsider.com/big-tech-spending-on-ai-capex-q3-2025-10#microsoft-spent-a-record-34-9-billion-in-capex-in-the-first-quarter-of-its-fiscal-year-1">committed an estimated $300 billion-plus</a> to capex in 2025 and have increased that investment commitment for 2026.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 50.65% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Foundation Model &amp; Rest of AI" src="https://e.infogram.com/dcb92ea1-b353-4ece-b5c6-0a13bbe43f4b?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<div style="position: relative; width: 100%; height: 0px; padding: 51.84% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="OpenAI, Anthropic And Rest of AI" src="https://e.infogram.com/5998accf-ceba-44b0-a7f4-0443074527db?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<h2>US sets a high bar</h2>
+<p>The U.S. has dominated AI funding. A total of $159 billion — or 79% of funding — to the sector has gone to U.S-based companies in 2025. The San Francisco Bay Area alone raised $122 billion of that, or more than three quarters of AI funding in the U.S.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 50.65% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="US Versus Rest Of World Funding To AI" src="https://e.infogram.com/e0ea4c89-7eb7-4959-b435-8e9bf2293c1a?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<h2>For sole lead investors, PE dominated</h2>
+<p>A list of corporate investors — <a href="https://www.crunchbase.com/organization/meta">Meta</a>, <a href="https://www.crunchbase.com/organization/space-exploration-technologies">SpaceX</a>, <a href="https://www.crunchbase.com/organization/nvidia">Nvidia</a>, <a href="https://www.crunchbase.com/organization/intercontinentalexchange">Intercontinental Exchange</a>, <a href="https://www.crunchbase.com/organization/asml">ASML</a>, <a href="https://www.crunchbase.com/organization/the-walt-disney-company">The Walt Disney Co.</a> and <a href="https://www.crunchbase.com/organization/google">Google</a> — have led billion-dollar rounds into AI companies this year, Crunchbase data shows.</p>
+<p>Meta notably led a $14.3 billion investment into <a href="https://www.crunchbase.com/organization/scale-2">Scale AI</a>, with around 10 key team members leaving the startup to join Meta, including CEO <a href="https://www.crunchbase.com/person/alexandr-wang-2">Alexandr Wang</a>.</p>
+<p>However, despite leading the largest number of billion-dollar AI funding deals this year, it was not that class of corporate investors that led the largest amounts in AI-related companies in 2025.</p>
+<p>Rather, private equity and alternative investors dominated, with <a href="https://www.crunchbase.com/organization/softbank">SoftBank</a> leading the biggest deal in 2025 with its $40 billion investment into OpenAI. PE-led deals with a single lead investor in rounds of $1 million or more in 2025 totaled $63 billion across around 300 rounds.</p>
+<p>By contrast, venture capital firms led rounds totaling $38 billion in deals with a sole lead investor across 1,600 fundings of $1 million or more. While VC led fewer billion-dollar rounds, it was the most active, the driver of this asset class, leading 75% of the deals analyzed.</p>
+<p>The three venture firms to lead billion dollar deals in AI in 2025 were <a href="https://www.crunchbase.com/organization/lightspeed-venture-partners">Lightspeed Venture Partners</a>, <a href="https://www.crunchbase.com/organization/founders-fund">Founders Fund</a> and <a href="https://www.crunchbase.com/organization/andreessen-horowitz">Andreessen Horowitz</a>.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 60.14% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="Corporate, VC And PE Lead Investors In AI By Amount, By Year" src="https://e.infogram.com/a61a06c4-3ff1-4994-802a-8c2d40866e60?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<h2>Large rounds concentrate at the top</h2>
+<p>The bulk of larger startup funding rounds in 2025 were invested in AI-related companies. In AI, 58% of funding was in megarounds of $500 million or more.</p>
+<div style="position: relative; width: 100%; height: 0px; padding: 55.75% 0px 0px; overflow: hidden; will-change: transform;"><iframe style="position: absolute; width: 100%; height: 100%; top: 0px; left: 0px; border: none; padding: 0px; margin: 0px;" title="AI Funding Concentration: Rounds $500M Or More In AI Vs Non AI" src="https://e.infogram.com/3df731bc-9433-44a4-bbfc-bd3385fe2548?src=embed&amp;embed_type=responsive_iframe" allowfullscreen="allowfullscreen"></iframe></div>
+<p>According to <a href="https://www.crunchbase.com/organization/menlo-ventures">Menlo Ventures</a>&#8216; recently published <a href="https://menlovc.com/perspective/2025-the-state-of-generative-ai-in-the-enterprise/#b80db139-f442-4176-8179-56de9fa744e8-link">generative AI report</a>, enterprise AI revenue reached $37 billion in 2025, up more than 3x year over year with $19 billion in user-facing products and $18 billion in AI infrastructure.</p>
+<p>Global venture capital grew in 2025 after a slower funding year in 2024 and 2023. Our data illustrates the extent to which AI dominated the venture capital landscape in 2025, with capital concentrating into the biggest startups.</p>
+<h2>Related Crunchbase query:</h2>
+<ul>
+<li><a href="https://www.crunchbase.com/lists/rounds-raised-by-startups-using-ai/8198decf-525c-4372-8cae-fb9d972b940d/funding_rounds/">Rounds Raised By Startups Using AI</a></li>
+</ul>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/global-vc-funding-biggest-deals-q3-2025-ai-ma-data/">Q3 Venture Funding Jumps 38% As More Massive Rounds Go To AI Giants And Exits Gain Steam</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/active-investors-ai-q3-2025/">Active Investors Kept Busy In An AI-Centric Quarter</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/state-of-startups-q3-2025-ai-megarounds-charts-data/">The State Of Startups In 7 Charts: These Sectors And Stages Are Down As AI Megarounds Dominate In 2025</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/accel-globalscape-outlines-ai-race-for-compute-botteri/">Accel’s Report Outlines The Race For Compute Amid Surging Values</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/record-breaking-seed-funding-us-ai-eoy-2025/">Seed Funding In 2025 Broke Records Around Big Rounds And AI, With US Far In The Lead</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/venture/hot-tech-deals-ai-grow-unicorn-board-eoy-2025/">Hottest Deals In Tech Push Crunchbase Unicorn Board Toward $7T In Value</a></li>
+<li aria-level="1"><a href="https://news.crunchbase.com/unicorn-company-list/">The Crunchbase Unicorn Board</a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/rise-of-massive-funding-blank-check.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/ai/big-funding-trends-charts-eoy-2025/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/rise-of-massive-funding-blank-check.jpg" data-pin-description="6 Charts That Show The Big AI Funding Trends Of 2025"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/rise-of-massive-funding-blank-check.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/rise-of-massive-funding-blank-check.jpg</image>	</item>
+		<item>
+		<title>The Rise Of The AI Executive</title>
+		<link>https://news.crunchbase.com/ai/innovation-executive-decisions-drucker-morse-strattam/</link>
+		
+		<dc:creator><![CDATA[Guest Author]]></dc:creator>
+		<pubDate>Tue, 16 Dec 2025 12:00:12 +0000</pubDate>
+				<category><![CDATA[Artificial intelligence]]></category>
+		<category><![CDATA[AI]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92915</guid>
+
+					<description><![CDATA[AI is moving from an era of heavy investment in invention toward an innovation phase where systems take on true decision-making roles, writes guest author Bob Morse, who believes the shift will upend traditional SaaS economics, replacing per-seat pricing with outcomes-based models.]]></description>
+										<content:encoded><![CDATA[<p><em>By <a href="https://www.crunchbase.com/person/robert-l-morse-jr">Bob Morse</a> </em></p>
+<p>In an <a href="https://news.crunchbase.com/ai/invention-innovation-private-equity-morse-strattam/">article</a> a few months ago, I assessed AI against the framework of invention vs. innovation. Invention is about creating new capabilities, whereas innovation turns those capabilities into tangible, commercial value.</p>
+<p>Tremendous capital is flowing into the “invention” around AI, some $5 trillion at latest count in announced infrastructure to support the compute, largely for frontier models advancing the boundaries of the possible.</p>
+<p>This over-investment in invention compares with a relative under-investment in innovation.</p>
+<p>How should we even think about the innovation phase, the applications that will be introduced into the real economy with a sustainable long-run profitable model?</p>
+<figure id="attachment_92865" aria-describedby="caption-attachment-92865" style="width: 231px" class="wp-caption alignright"><img fetchpriority="high" decoding="async" class="wp-image-92865 size-medium" src="https://news.crunchbase.com/wp-content/uploads/Bob-Morse-e1765319046274-231x300.jpg" alt="Bob Morse co-founded Strattam Capital" width="231" height="300" srcset="https://news.crunchbase.com/wp-content/uploads/Bob-Morse-e1765319046274-231x300.jpg 231w, https://news.crunchbase.com/wp-content/uploads/Bob-Morse-e1765319046274.jpg 438w" sizes="(max-width: 231px) 100vw, 231px" /><figcaption id="caption-attachment-92865" class="wp-caption-text">Bob Morse</figcaption></figure>
+<p>I’d like to propose a framework for the innovation phase of AI — applying Peter Drucker’s lessons from the rise of the knowledge worker to the age of AI.</p>
+<p>As AI systems become trusted to make some decisions previously taken by human employees, they are best thought of as acting like a knowledge worker. The term “knowledge worker” was famously coined by management theorist Peter Drucker in 1959. Previously, corporations had large workforces with primarily manual skills; in the mid-20th century, corporations began building large labor forces with primarily thinking skills. These knowledge workers could not be managed with the same techniques used to manage manual workers. Drucker’s contribution was to define the knowledge worker and educate a generation about how to manage, measure and compensate folks who think for a living. Those frameworks for managing are still the backbone of organizational design today.</p>
+<p>For AI to deliver on its promise as an innovation, it must move beyond chatbots of whom we ask questions. It will become systems which can actually make decisions. In common usage today, the term “agentic AI” means an AI system to whom you delegate a certain decision-making authority. (If the system cannot make decisions, it is merely a tool.)</p>
+<h2>What is an ‘executive,’ anyway?</h2>
+<p>To understand AI systems that we trust to make decisions, let’s look back at how Drucker defined what makes a knowledge worker an “executive.”</p>
+<p><em>&#8220;Every knowledge worker in a modern organization is an ‘executive’ if, by virtue of his position or knowledge, he is responsible for a contribution that materially affects the capacity of the organization to perform and to obtain results.&#8221; – Peter Drucker, “The Effective Executive” (1967) </em></p>
+<p>Today the language on the future of AI applications uses words like co-pilot, agent or AI assistant, which implies a smart but junior and subservient employee. That is the wrong model. As we delegate decisions that matter to AI, which must happen for AI to earn its keep over the long haul, then those systems are not interns or co-pilots. They are, by definition, AI Executives.</p>
+<p>The form innovation will take, making good the massive capital put into the invention phase, will be the rise of the AI Executive.</p>
+<p>Thinking about your AI system as an executive (or perhaps many executives) is a bit of a scary concept at first. Let’s look a bit closer at this analogy and see how it holds up.</p>
+<p>One defining characteristic of a knowledge worker is that typically they know much more about how to complete their task than their boss. The international transfer tax pricing expert knows much more about how to do that specific task than the CFO does. The CFO can’t tell the knowledge worker exactly how to do their job, they instead set the goals and outcomes, provide the support, and appropriately reward the results.</p>
+<p>Again, in the words of Drucker (“Management: Tasks, Responsibilities, Practices” 1973):</p>
+<p>“The knowledge worker cannot be supervised closely or in detail. He can only be helped. But he must direct himself, and he must direct himself toward performance and contribution, that is, toward effectiveness.”</p>
+<h2>Paying for outcomes vs. time worked</h2>
+<p>The analogy to LLMs is strong. No one knows exactly how LLMs reach the decisions they reach. We as the “boss” of LLM can only direct them toward effectiveness. Classic SaaS workflow software functions more like the manual skill worker, where the designer of the software knows how each action is taken and defines each branch on a decision tree. So far, so good.</p>
+<p>Now let’s look briefly at how Drucker measured the knowledge worker (from “The Effective Executive,” again) and evaluate the analogy to the AI Executive.</p>
+<p><em>&#8220;For the manual worker, we need only efficiency, that is, the ability to do things right rather than the ability to get the right things done. The knowledge worker is certainly not defined by quantity. Neither is he defined by his costs. He is defined by his results.&#8221;</em></p>
+<p>With knowledge work, we measure, value and pay for the output. If the knowledge work is the design of a new fashionable sneaker, we want the best design. Whether the design was  produced by one genius in the basement over a long weekend, or a team of 200 in a global product management hierarchy, we care about the best design, not how much labor went into it. In shorthand:</p>
+<p>Physical labor &#8211;&gt; measure by time worked</p>
+<p>Knowledge work &#8211;&gt; measure by output</p>
+<p>&nbsp;</p>
+<p>The read-across to the shift from classic SaaS to Agentic AI, then, will be:</p>
+<p>SaaS  &#8211;&gt; pay per user per month</p>
+<p>Agentic AI &#8211;&gt; pay for outcomes</p>
+<p>This change is revolutionary, not evolutionary, for the investment community which has been investing in SaaS software.</p>
+<p>Considering just the sphere I know best, the private equity industry is by my count now leveraged long more than $1 trillion in the seat-license model. For a SaaS company with little customer churn and the ability to raise prices, the so-called net retention for Annual recurring revenue typically exceeds 100%. That is for an annual cohort of signed customers, the price rises on renewing customers offset the departing customers, so that annual vintage of customers in total has revenue that is flat to slightly growing over time.</p>
+<p>And because it is recurring and has high margins, the lending community and the over time equity investing community began to think of those as bond-like streams of payments, against which loans are advanced and valuations are set.</p>
+<p>Shifting from ARR to outcomes-based pricing is terrifying to some in that it pulls away the struts supporting this idea they are financing a bond-like stream of payments. If it is variable, even if in direction it is growing, that is much less popular to lend against or place a valuation multiple on. Moving from ARR to outcomes-based pricing will upend the foundation on which so much of the SaaS investment community has relied.</p>
+<h2>Delegating decisions to the machines</h2>
+<p>Let’s wrap this up with an example. We are indeed now seeing users for some of our AI software platforms beginning to feel comfortable delegating some decisions to the machine.</p>
+<p>For instance, one of our portfolio companies, <a href="https://www.crunchbase.com/organization/netstock">Netstock</a>, provides inventory management software to midsized companies. Over the past few years, we have gone from “just” really great inventory management analytics to a conversational AI interface that suggests the order to change or cancel. Users have grown to trust those recommendations.</p>
+<p>Indeed, in the Netstock annual survey, 24% of users now say they would be comfortable completely delegating inventory decisions to Netstock AI, and another 50% say they would be willing to partially delegate, with oversight or shared control. This is a recognition that the Netstock AI engine has gotten reliably very good at the game of optimizing inventory, and so here some version of “human + machine” seems a likely path of agentic AI adoption. Those employees can now turn their attention to other initiatives at their companies.</p>
+<p>How do you pay for an AI system that is managing your inventory? It’s not per user per month, I think we can all agree on that as there are no longer users in the traditional sense. The answer is that the value is defined by the improvements in fill rate and reduced inventory carrying costs, hard data economic measures, which the customer can see and pay for on the basis of value received, not the number of employees using a software package. In considering pay, we must acknowledge some fundamental differences in the risk-bearing ability of human executives, who have mortgages and risk preferences, as compared to AI programs, which do not.</p>
+<p>These are the great opportunities of our day: to not just create but to manage AI Executives so that they in fact produce useful outputs in the world, and to price these AI Executives in a new way, graduating beyond the user-seat-license model.</p>
+<p>It is possible. At Netstock, we took a great “classic” SaaS company and introduced an AI agent that users grew to trust and rely upon. Today three quarters of the clients are willing to delegate their inventory management decisions to the Netstock system (and some to delegate completely).</p>
+<p>Build software clients trust with their decisions. No longer a system of record, your software will become a system of agency. That is a huge opportunity and the one we are spending all our time and capital pursuing.</p>
+<hr />
+<p><em><a href="https://www.crunchbase.com/person/robert-l-morse-jr">Bob Morse</a> co-founded <a href="https://www.crunchbase.com/organization/strattam-capital">Strattam Capital</a> in 2014 and is managing partner. He has served on numerous private and public technology company boards, and currently is a director of <a href="https://www.crunchbase.com/organization/cloudhesive">CloudHesive</a>, <a href="https://www.crunchbase.com/organization/contegix">Contegix</a>, <a href="https://www.crunchbase.com/organization/daxtra-technologies">Daxtra</a>, <a href="https://www.crunchbase.com/organization/green-security">Green Security</a>, <a href="https://www.crunchbase.com/organization/resource-navigation-partners">Resource Navigation</a> and <a href="https://www.crunchbase.com/organization/trax-group">Trax Group</a>. Previously, he was a partner and member of the investment committee at <a href="https://www.crunchbase.com/organization/oak-hill-capital-partners">Oak Hill Capital Partners</a>. He also worked at <a href="https://www.crunchbase.com/organization/gcc-investments-llc">GCC Investments</a> and <a href="https://www.crunchbase.com/organization/morgan-stanley">Morgan Stanley</a>. Morse serves on the board of directors of <a href="https://crunchbase.com/organization/austin-pbs">Austin PBS</a> and as member of the advisory board for the HMTF Center for Private Equity Finance at <a href="https://www.crunchbase.com/organization/mccombs-school-of-business">The University of Texas at Austin McCombs School of Business</a>. He attended <a href="https://www.crunchbase.com/organization/princeton-university">Princeton University</a>, graduating summa cum laude with a B.S.E., and <a href="https://www.crunchbase.com/organization/stanford-graduate-school-of-business">Stanford Graduate School of Business</a>, where he earned his MBA and was an Arjay Miller Scholar. Morse lives in Austin.</em></p>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/ai/invention-innovation-private-equity-morse-strattam/">Invention To Innovation: Making Sense Of AI’s Moment </a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/SoftBank_Ai_Investment-2.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/ai/innovation-executive-decisions-drucker-morse-strattam/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/SoftBank_Ai_Investment-2.jpg" data-pin-description="The Rise Of The AI Executive"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/SoftBank_Ai_Investment-2.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/SoftBank_Ai_Investment-2.jpg</image>	</item>
+		<item>
+		<title>Exclusive: Octane Lands $100M Series F At $1.3B Valuation To Help People Finance Large Lifestyle And Recreational Purchases</title>
+		<link>https://news.crunchbase.com/venture/recreational-lifestyle-fintech-octane-lands-seriesf-unicorn-valuation/</link>
+		
+		<dc:creator><![CDATA[Judy Rider]]></dc:creator>
+		<pubDate>Mon, 15 Dec 2025 14:00:56 +0000</pubDate>
+				<category><![CDATA[Fintech]]></category>
+		<category><![CDATA[Startups]]></category>
+		<category><![CDATA[Venture]]></category>
+		<category><![CDATA[fintech]]></category>
+		<category><![CDATA[unicorn]]></category>
+		<guid isPermaLink="false">https://news.crunchbase.com/?p=92918</guid>
+
+					<description><![CDATA[Octane, a startup that offers “instant” financing for large recreational and lifestyle purchases, has raised $100 million in a Series F round with a post-money valuation of $1.3 billion, it tells Crunchbase News exclusively.]]></description>
+										<content:encoded><![CDATA[<p><a href="https://www.crunchbase.com/organization/octane-lending">Octane</a>, a startup that offers “instant” financing for large recreational and lifestyle purchases, has raised $100 million in a Series F round with a post-money valuation of $1.3 billion, it tells Crunchbase News exclusively.</p>
+<p>Repeat backer <a href="https://www.crunchbase.com/organization/valar-ventures">Valar Ventures</a> led the raise, which included participation from <a href="https://www.crunchbase.com/organization/upper90">Upper90</a>, <a href="https://www.crunchbase.com/organization/huntington-national-bank">Huntington National Bank</a>, <a href="https://www.crunchbase.com/organization/camping-world">Camping World</a>, <a href="https://www.crunchbase.com/organization/holler-classic-family-of-dealerships">Holler-Classic Family</a> and others. Half of the raise was primary financing, and the other half went toward a secondary share sale to provide existing shareholders, including current and former employees, liquidity, according to CEO and co-founder <a href="https://www.crunchbase.com/person/jason-guss">Jason Guss</a>.</p>
+<p><span style="font-weight: 400;">Prior to this round, New York-based Octane had raised $242 million in funding — not including debt financing — since it was founded in 2014, according to Guss. The company says it has also completed $4.7 billion in asset-backed securitizations since 2019.</span></p>
+<p>Octane’s latest round comes amid a busy period for fintech investment overall: Global venture funding to financial technology startups in 2025 has, as of Dec. 11, reached $49.4 billion across 3,545 deals, per Crunchbase <a href="https://www.crunchbase.com/discover/saved/financial-services-global-funding-2025/1878ffda-502a-4f3e-bd94-6d0f10749dc3">data</a>. That’s a 30% increase in dollars raised compared to the $38 billion raised across 4,630 deals during the same time period in 2024.</p>
+<p>Octane started as a secured point-of-sale lender to give consumers more financing options for powersports items such as motorcycles, ATVs and snowmobiles. It has since expanded into the RV, marine, mower, tractor, trailer and auto markets. And it has also evolved its model to include a white-label captive lending platform, dubbed “Captive-as-a-Service,” that allows retailers and manufacturers to offer financing to their customers under the brand of their choice.</p>
+<figure id="attachment_92917" aria-describedby="caption-attachment-92917" style="width: 240px" class="wp-caption alignright"><img decoding="async" class="wp-image-92917 size-medium" src="https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-240x300.jpg" alt="Jason Guss, CEO and co-founder of Octane" width="240" height="300" srcset="https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-240x300.jpg 240w, https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-820x1024.jpg 820w, https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-768x959.jpg 768w, https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-1230x1536.jpg 1230w, https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-1641x2048.jpg 1641w, https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-990x1236.jpg 990w, https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257-1320x1648.jpg 1320w, https://news.crunchbase.com/wp-content/uploads/JasonGussHeadshot_FULLSIZE-scaled-e1765563641257.jpg 1933w" sizes="(max-width: 240px) 100vw, 240px" /><figcaption id="caption-attachment-92917" class="wp-caption-text">Jason Guss, CEO and co-founder of Octane. Courtesy photo.</figcaption></figure>
+<p>“Captive-as-a-Service brings together technology, underwriting, loan processing and servicing, and capital markets execution in a single platform under the partner’s chosen brand,” Guss told Crunchbase News. The advantage for the retailer, he said, is to give them a way to diversify their revenue streams, build long-term enterprise value, and strengthen their customer retention.</p>
+<p>The company has various partnerships with OEMs, or original equipment manufacturers, and dealer partners in the markets it serves. It also offers a variety of products, such as <a href="https://octane.co/o/prequal/">Octane Prequal</a> and<a href="https://octane.co/o/prequal-flex-soft-pull-prequalification-tool/"> Prequal Flex</a>, designed to help retailers land customers.</p>
+<p>“A lot of VCs believe SaaS companies should just focus on pure tech and lenders should just do lending,” Guss said. “We believe that the best companies need to do both. … By offering various services typically not offered by lenders integrated with a lending product, we are able to add value beyond simply selling money cheaper.”</p>
+<h2>Growing reach</h2>
+<p>Refreshingly, Octane is open to providing some details on its financials. The startup says it was GAAP net income profitable in 2021, 2023 and 2024. Guss projects the company will have about $80 million in adjusted EBITDA for 2025.</p>
+<p>Since its inception, Octane has generated over $7.5 billion in loans. In 2024, it originated over $1.6 billion in loans and is on pace to originate over $2.1 billion this year, according to Guss.</p>
+<p>It has over 4,000 dealer partners, and works with over 60 original equipment manufacturing brand partners. Presently, it has over 600 employees.</p>
+<p>The company makes money through platform fees, paid by either merchants or OEM partners primarily for promotional financing. It also makes money by selling loans, through servicing income and performance fees. For loans it holds it earns interest income.</p>
+<p>Guss believes that some fintechs are “afraid” to admit they are a lender or “avoid it entirely because some VCs believe lending is bad.”</p>
+<p>“Lending isn’t bad, bad lending is bad,” he said. “Good lending is one of the oldest and most robust business models in the world.”</p>
+<p>Looking ahead, Guss believes Octane can provide value to any market where consumers make a large-ticket purchase and where retailers and manufacturers can benefit from owning and integrating their own financial products.</p>
+<p>For his part, Valar founding partner <a href="https://www.crunchbase.com/person/james-fitzgerald">James Fitzgerald</a> described Octane’s offering, which combines software and financing products, as “unique.”</p>
+<p>“We expect Octane to continue to take market share — both in its existing markets and in those it’s only begun to enter — for a very long time,” he said in a release. “One of the investing lessons of the past two decades is that the best tech companies can compound for far longer than expected.”</p>
+<h2>Related Crunchbase query:</h2>
+<ul>
+<li aria-level="1"><a href="https://www.crunchbase.com/discover/saved/financial-services-global-funding-2025/1878ffda-502a-4f3e-bd94-6d0f10749dc3">Financial Services Global Funding 2025</a></li>
+</ul>
+<h2>Related reading:</h2>
+<ul>
+<li aria-level="1"><a href="https://news.crunchbase.com/fintech/investor-optimism-funding-rising-ai-ma-ipo-h1-2025-data/">Fintech Comeback? IPOs Reignite Investor Optimism, But VC Funding Still Trails 2021 Highs</a></li>
+</ul>
+<p><em>Illustration: <a href="https://www.domguzman.com/">Dom Guzman</a></em></p>
+<img src="https://news.crunchbase.com/wp-content/uploads/Unicorn_Money_v1.jpg" class="ss-hidden-pin-image" data-pin-url="https://news.crunchbase.com/venture/recreational-lifestyle-fintech-octane-lands-seriesf-unicorn-valuation/" data-pin-media="https://news.crunchbase.com/wp-content/uploads/Unicorn_Money_v1.jpg" data-pin-description="Exclusive: Octane Lands $100M Series F At $1.3B Valuation To Help People Finance Large Lifestyle And Recreational Purchases"/>]]></content:encoded>
+					
+		
+		
+		<enclosure url='https://news.crunchbase.com/wp-content/uploads/Unicorn_Money_v1.jpg' length='0' type='image/jpeg' /><image>https://news.crunchbase.com/wp-content/uploads/Unicorn_Money_v1.jpg</image>	</item>
+	</channel>
+</rss>

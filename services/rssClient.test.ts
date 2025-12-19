@@ -1,7 +1,8 @@
 // Tests for RSS parsing utilities.
+import { readFileSync } from 'node:fs'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-
-import { encodeBase64, extractImage } from './rssClient'
+import Manifest from './__tests__/feeds/manifest.json'
+import { encodeBase64, extractImage, fetchFeed } from './rssClient'
 
 describe('encodeBase64', () => {
   it('encodes plain text to base64', () => {
@@ -58,5 +59,103 @@ describe('extractImage', () => {
     const url = await extractImage(item)
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(url).toBe('https://example.org/og.jpg')
+  })
+})
+
+describe('fetchFeed', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  type ExpectedFeed = {
+    id: string | null
+    title: string | null
+    url: string | null
+    image: string | null
+    description: string | null
+    lastUpdated: string | null
+    lastPublishedAt: string | null
+  }
+
+  type ExpectedArticle = {
+    id: string | null
+    title: string | null
+    description: string | null
+    link: string | null
+    source: string | null
+    thumbnail: string | null
+    feedId: string | null
+    seen: boolean | null
+    saved: boolean | null
+    publishedAt: string | null
+    updatedAt: string | null
+  }
+
+  type ManifestEntry = {
+    title: string
+    url: string
+    file: string
+    ok: boolean
+    error?: string
+    expectedFeed: ExpectedFeed
+    expectedArticleCount: number
+    expectedArticles: ExpectedArticle[]
+  }
+
+  type Manifest = { results: ManifestEntry[] }
+
+  const manifest: Manifest = Manifest
+
+  const fixtures = manifest.results.filter((entry) => entry.ok)
+  const failures = manifest.results.filter((entry) => !entry.ok)
+
+  const normalizeFeed = (feed: any): ExpectedFeed => ({
+    id: feed?.id ?? null,
+    title: feed?.title ?? null,
+    url: feed?.url ?? null,
+    image: feed?.image ?? null,
+    description: feed?.description ?? null,
+    lastUpdated: feed?.lastUpdated ?? null,
+    lastPublishedAt: feed?.lastPublishedAt ?? null,
+  })
+
+  const normalizeArticle = (article: any): ExpectedArticle => ({
+    id: article?.id ?? null,
+    title: article?.title ?? null,
+    description: article?.description ?? null,
+    link: article?.link ?? null,
+    source: article?.source ?? null,
+    thumbnail: article?.thumbnail ?? null,
+    feedId: article?.feedId ?? null,
+    seen: article?.seen ?? null,
+    saved: article?.saved ?? null,
+    publishedAt: article?.publishedAt ?? null,
+    updatedAt: article?.updatedAt ?? null,
+  })
+
+  it.each(fixtures)('parses $title', async (entry) => {
+    const xml = readFileSync(new URL(`./__tests__/feeds/${entry.file}`, import.meta.url), 'utf8')
+
+    vi.spyOn(console, 'log').mockImplementation(() => {})
+
+    const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      text: async () => xml,
+    } as any)
+
+    const { feed, articles } = await fetchFeed(entry.url, { metadataBudget: { remaining: 0 } })
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock).toHaveBeenCalledWith(entry.url)
+
+    expect(normalizeFeed(feed)).toEqual(entry.expectedFeed)
+    expect(articles.length).toEqual(entry.expectedArticleCount)
+
+    const expectedArticles = entry.expectedArticles ?? []
+    const actualArticles = articles.slice(0, expectedArticles.length).map(normalizeArticle)
+    expect(actualArticles).toEqual(expectedArticles)
+  })
+
+  it('downloads all OPML feeds', () => {
+    expect(failures).toEqual([])
   })
 })

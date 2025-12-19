@@ -1,0 +1,789 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:media="http://search.yahoo.com/mrss/" xmlns:slash="http://purl.org/rss/1.0/modules/slash/" xmlns:sy="http://purl.org/rss/1.0/modules/syndication/" version="2.0">
+    <channel>
+        <title>Ars Technica - All content</title>
+        <atom:link href="https://arstechnica.com/feed/" rel="self" type="application/rss+xml"/>
+        <link>https://arstechnica.com</link>
+        <description>All Ars Technica stories</description>
+        <lastBuildDate>Fri, 19 Dec 2025 22:05:52 +0000</lastBuildDate>
+        <language>en-US</language>
+        <sy:updatePeriod>
+            hourly        </sy:updatePeriod>
+        <sy:updateFrequency>
+            1        </sy:updateFrequency>
+        
+<image>
+	<url>https://cdn.arstechnica.net/wp-content/uploads/2016/10/cropped-ars-logo-512_480-60x60.png</url>
+	<title>Ars Technica</title>
+	<link>https://arstechnica.com</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+            <item>
+                <title>The evolution of expendability: Why some ants traded armor for numbers</title>
+                <link>https://arstechnica.com/science/2025/12/the-evolution-of-expendability-why-some-ants-traded-armor-for-numbers/</link>
+                
+                <dc:creator>
+                    <![CDATA[Jacek Krywko]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 22:05:52 +0000</pubDate>
+                		<category><![CDATA[Science]]></category>
+		<category><![CDATA[ants]]></category>
+		<category><![CDATA[Biology]]></category>
+		<category><![CDATA[evolution]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/science/2025/12/the-evolution-of-expendability-why-some-ants-traded-armor-for-numbers/</guid>
+
+                                    <description>
+                        <![CDATA[Ants with lots of workers tend to put less energy into making them armored.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>The trade-off between quality and quantity is a fundamental economic dilemma. Now, a team of British, American, and Japanese researchers describes how it applies to biology, as well. They have discovered that this dilemma most likely shaped the evolutionary trajectory of ants, one of Earth’s most successful groups of organisms.</p>
+<p>Their study reveals that, as ant societies grew in complexity and numbers, they didn’t just make their workers smaller—they also made them cheaper.</p>
+<h2>The cost of armor</h2>
+<p>In the insect world, the exoskeleton known as the cuticle serves as a protective barrier against predators, pathogens, and desiccation, while providing the structural framework for muscle attachment. But this protection comes at a price. Building a robust cuticle requires significant amounts of nitrogen and rare minerals like zinc and manganese. While skimping on armor for an individual insect may be a death sentence, the evolution of ants apparently found a way around it.</p><p><a href="https://arstechnica.com/science/2025/12/the-evolution-of-expendability-why-some-ants-traded-armor-for-numbers/">Read full article</a></p>
+<p><a href="https://arstechnica.com/science/2025/12/the-evolution-of-expendability-why-some-ants-traded-armor-for-numbers/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2247196489-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2247196489-500x500.jpg" width="500"/>
+<media:credit>Pebi WMF / 500px</media:credit></media:content>
+            </item>
+                    <item>
+                <title>Switch 2 pub backs off Game Key Cards after leaking lower-cost cartridge options</title>
+                <link>https://arstechnica.com/gaming/2025/12/cheaper-lower-capacity-switch-2-cartridges-could-mean-fewer-game-key-cards/</link>
+                                    <comments>https://arstechnica.com/gaming/2025/12/cheaper-lower-capacity-switch-2-cartridges-could-mean-fewer-game-key-cards/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Kyle Orland]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 21:30:08 +0000</pubDate>
+                		<category><![CDATA[Gaming]]></category>
+		<category><![CDATA[cartridges]]></category>
+		<category><![CDATA[cost]]></category>
+		<category><![CDATA[game key cards]]></category>
+		<category><![CDATA[memory]]></category>
+		<category><![CDATA[Nintendo]]></category>
+		<category><![CDATA[production]]></category>
+		<category><![CDATA[switch 2]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/gaming/2025/12/cheaper-lower-capacity-switch-2-cartridges-could-mean-fewer-game-key-cards/</guid>
+
+                                    <description>
+                        <![CDATA[Inin suggests new low-cost options allowed it to "recalculate production" for full cartridge.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>The Switch 2’s <a href="https://arstechnica.com/gadgets/2025/04/a-begrudging-defense-of-nintendos-game-key-cards-for-the-switch-2/">data-free, download-enabling Game Key Cards</a> have proved <a href="https://arstechnica.com/civis/threads/a-begrudging-defense-of-nintendo%E2%80%99s-%E2%80%9Cgame-key-cards%E2%80%9D-for-the-switch-2.1506662/#post-43644552">controversial with players</a> who worry about long-term ownership and access issues to their purchases. But they’ve remained <a href="https://arstechnica.com/gaming/2025/04/nintendo-switch-2s-gameless-game-key-cards-are-going-to-be-very-common/">popular with publishers</a> that want to save production costs on a boxed Switch 2 game release, since Game Key Cards don’t include any of the expensive flash memory found on a standard Switch 2 cartridge.</p>
+<p>Now, though, at least one publisher has publicly suggested that Nintendo is offering cheaper Switch 2 cartridge options with smaller storage capacities, lowering production costs in a way that could make full cartridge releases more viable for many games on the console.</p>
+<p><a href="https://iningames.com/blogs/news/regarding-the-physical-format-on-nintendo-switch-2-please-read-carefully">Earlier this week</a>, <em>R-Type Dimensions III </em>publisher Inin Games explained to customers that it couldn’t switch from Game Key Cards to a “full physical cartridge” for the retail version of the Switch 2 game without “significantly rais[ing] manufacturing costs.” Those additional costs would “force us to increase the retail price by at least €15 [about $20],” Inin Games wrote at the time.</p><p><a href="https://arstechnica.com/gaming/2025/12/cheaper-lower-capacity-switch-2-cartridges-could-mean-fewer-game-key-cards/">Read full article</a></p>
+<p><a href="https://arstechnica.com/gaming/2025/12/cheaper-lower-capacity-switch-2-cartridges-could-mean-fewer-game-key-cards/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>5</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/png" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/switch2gkc-1152x648-1766176952.png" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/switch2gkc-500x500-1766176972.png" width="500"/>
+<media:credit>Inin Games</media:credit><media:text>That about sums it up</media:text></media:content>
+            </item>
+                    <item>
+                <title>LG TVs’ unremovable Copilot shortcut is the least of smart TVs’ AI problems</title>
+                <link>https://arstechnica.com/gadgets/2025/12/lg-tvs-unremovable-copilot-shortcut-is-the-least-of-smart-tvs-ai-problems/</link>
+                                    <comments>https://arstechnica.com/gadgets/2025/12/lg-tvs-unremovable-copilot-shortcut-is-the-least-of-smart-tvs-ai-problems/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Scharon Harding]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 21:18:07 +0000</pubDate>
+                		<category><![CDATA[AI]]></category>
+		<category><![CDATA[Tech]]></category>
+		<category><![CDATA[chatbots]]></category>
+		<category><![CDATA[copilot]]></category>
+		<category><![CDATA[generative ai]]></category>
+		<category><![CDATA[LG]]></category>
+		<category><![CDATA[microsoft]]></category>
+		<category><![CDATA[Samsung]]></category>
+		<category><![CDATA[TVs]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/gadgets/2025/12/lg-tvs-unremovable-copilot-shortcut-is-the-least-of-smart-tvs-ai-problems/</guid>
+
+                                    <description>
+                        <![CDATA[LG says it'll let people delete the Copilot icon. But TV chatbots aren't going away. ]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>Online fury erupted this week after an LG TV owner claimed that a firmware update installed unremovable generative AI software on their smart TV.</p>
+<p>The controversy began on Saturday, when a Reddit user <a href="https://www.reddit.com/r/mildlyinfuriating/comments/1plldqo/my_lg_tvs_new_software_update_installed_microsoft/?" target="_blank" rel="noopener">posted</a> about the sudden appearance of a Microsoft Copilot icon on their device (something Windows users are all too familiar with). The Reddit user <a href="https://www.reddit.com/r/mildlyinfuriating/comments/1plldqo/my_lg_tvs_new_software_update_installed_microsoft/?">claimed</a> that a “new software update installed Copilot” onto their LG TV and that it couldn’t be deleted.</p>
+<p>“Pre-installed crap is universally dogshit. If I wanted it, I’d have installed it myself eventually. The whole reason it’s bundled is because no one would choose it… Burn your television,” another Reddit user <a href="https://www.reddit.com/r/mildlyinfuriating/comments/1plldqo/comment/ntt7z2y/?utm_source=share&amp;utm_medium=web3x&amp;utm_name=web3xcss&amp;utm_term=1&amp;utm_content=share_button">responded</a> in the thread, which has 36,000 upvotes as of this writing.</p><p><a href="https://arstechnica.com/gadgets/2025/12/lg-tvs-unremovable-copilot-shortcut-is-the-least-of-smart-tvs-ai-problems/">Read full article</a></p>
+<p><a href="https://arstechnica.com/gadgets/2025/12/lg-tvs-unremovable-copilot-shortcut-is-the-least-of-smart-tvs-ai-problems/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>25</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-1603701301-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-1603701301-500x500.jpg" width="500"/>
+<media:credit>Getty</media:credit></media:content>
+            </item>
+                    <item>
+                <title>Riot Games is making an anti-cheat change that could be rough on older PCs</title>
+                <link>https://arstechnica.com/gadgets/2025/12/some-valorant-players-need-to-update-their-pc-bios-to-keep-anti-cheat-software-happy/</link>
+                                    <comments>https://arstechnica.com/gadgets/2025/12/some-valorant-players-need-to-update-their-pc-bios-to-keep-anti-cheat-software-happy/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Andrew Cunningham]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 20:27:36 +0000</pubDate>
+                		<category><![CDATA[Gaming]]></category>
+		<category><![CDATA[Tech]]></category>
+		<category><![CDATA[AMD]]></category>
+		<category><![CDATA[anti-cheat]]></category>
+		<category><![CDATA[Intel]]></category>
+		<category><![CDATA[Riot games]]></category>
+		<category><![CDATA[valorant]]></category>
+		<category><![CDATA[Vanguard]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/gadgets/2025/12/some-valorant-players-need-to-update-their-pc-bios-to-keep-anti-cheat-software-happy/</guid>
+
+                                    <description>
+                        <![CDATA[BIOS checks will only affect a limited subset of <em>Valorant</em> players for now. ]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>At this point, most competitive online multiplayer games on the PC come with some kind of <a href="https://arstechnica.com/gaming/2020/04/ring-0-of-fire-does-riot-games-new-anti-cheat-measure-go-too-far/">kernel-level anti-cheat software</a>. <a href="https://arstechnica.com/gaming/2022/09/eas-new-anti-cheat-tools-dip-into-the-dreaded-kernel-mode/">As we’ve written before</a>, this is software that runs with more elevated privileges than most other apps and games you run on your PC, allowing it to load in earlier and detect advanced methods of cheating. More recently, anti-cheat software has started to require more Windows security features like <a href="https://arstechnica.com/gaming/2025/08/battlefield-6-dev-apologizes-for-requiring-secure-boot-to-power-anti-cheat-tools/">Secure Boot</a>, a TPM 2.0 module, and <a href="https://learn.microsoft.com/en-us/windows/security/hardware-security/enable-virtualization-based-protection-of-code-integrity?tabs=security">virtualization-based memory integrity protection</a>.</p>
+<p>Riot Games, best known for titles like <em>Valorant</em> and <em>League of Legends </em>and the Vanguard anti-cheat software, has often been one of the earliest to implement new anti-cheat requirements. There’s already <a href="https://support-valorant.riotgames.com/hc/en-us/articles/22291331362067-Vanguard-Restrictions">a long list of checks</a> that systems need to clear before they’ll be allowed to play Riot’s games online, and now the studio is announcing <a href="https://www.riotgames.com/en/news/vanguard-security-update-motherboard">a new one</a>: a BIOS update requirement that will be imposed on “certain players” following <a href="https://www.kb.cert.org/vuls/id/382314">Riot’s discovery of a UEFI bug</a> that could allow especially dedicated and motivated cheaters to circumvent certain memory protections.</p>
+<p>In short, the bug affects the input-output memory management unit (IOMMU) “on some UEFI-based motherboards from multiple vendors.” One feature of the IOMMU is to protect system memory from direct access during boot by external hardware devices, which otherwise might manipulate the contents of your PC’s memory in ways that could enable cheating.</p><p><a href="https://arstechnica.com/gadgets/2025/12/some-valorant-players-need-to-update-their-pc-bios-to-keep-anti-cheat-software-happy/">Read full article</a></p>
+<p><a href="https://arstechnica.com/gadgets/2025/12/some-valorant-players-need-to-update-their-pc-bios-to-keep-anti-cheat-software-happy/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>27</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/riot-valorant-vanguard-1152x648-1766172890.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/riot-valorant-vanguard-500x500-1766172878.jpg" width="500"/>
+<media:credit>Riot Games</media:credit></media:content>
+            </item>
+                    <item>
+                <title>Not too big, not too expensive: The Chevrolet Equinox EV</title>
+                <link>https://arstechnica.com/cars/2025/12/the-chevrolet-equinox-ev-is-high-on-comfort-and-convenience/</link>
+                                    <comments>https://arstechnica.com/cars/2025/12/the-chevrolet-equinox-ev-is-high-on-comfort-and-convenience/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Jonathan M. Gitlin]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 20:09:30 +0000</pubDate>
+                		<category><![CDATA[Cars]]></category>
+		<category><![CDATA[car review]]></category>
+		<category><![CDATA[Chevrolet Equinox EV]]></category>
+		<category><![CDATA[First drive]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/cars/2025/12/the-chevrolet-equinox-ev-is-high-on-comfort-and-convenience/</guid>
+
+                                    <description>
+                        <![CDATA[You get quite a lot of EV for the Equinox's sub-$35,000 starting price.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>There’s a lot of goodwill out there for <a href="https://arstechnica.com/cars/2017/02/its-a-really-good-car-our-first-100-miles-in-a-2017-chevrolet-bolt/">the Chevrolet Bolt</a>. As maybe the first properly affordable longer-range electric car on the market, the Bolt wasn’t perfect. It didn’t charge very fast, and people found the seats quite uncomfortable. But it could get more than 230 miles on a single charge—a lot in 2017—and you didn’t have to be flush to afford one. Oh, and it was also pretty good to drive. I know I was a fan from the first time <a href="https://arstechnica.com/cars/2016/01/chevrolets-bolt-is-an-electric-vehicle-for-the-masses-and-weve-driven-it/">I tried a prototype</a> at CES in 2016.</p>
+<p>Understandably, Bolt fans were upset when Chevy <a href="https://arstechnica.com/cars/2023/04/gm-confirms-chevy-bolt-will-die-this-year-making-way-for-electric-pickups/">decided to kill off the car</a>. Yes, <a href="https://arstechnica.com/cars/2020/04/the-2020-chevrolet-bolt-ev-is-solid-but-lacks-advanced-features/">it lacked features</a> compared to more modern EVs, but it is also the brand‘s bestselling EV by quite a country mile. “Not to worry,” said the executives, who told us they had something better coming built on the platform they used to call Ultium but don’t anymore. Starting at around the same $35,000 price tag the Bolt launched with, this would be the new Equinox EV.</p>
+<p>That $34,995 price tag was perhaps a bit more appealing when the car was eligible for the now-dead $7,500 IRS clean vehicle tax credit. Truth be told, the LT1 spec is a little bare-boned, and you’ll need to step up to the LT2 we tested—which starts at $40,295—if you want things like heated seats or wireless charging for your devices. (The good news here is that people looking for a bargain should know that used Equinox EVs with decent specs are already much cheaper, just a year after the car’s launch.) And let’s not forget, when the Bolt was young, the more expensive trim was almost $42,000.</p><p><a href="https://arstechnica.com/cars/2025/12/the-chevrolet-equinox-ev-is-high-on-comfort-and-convenience/">Read full article</a></p>
+<p><a href="https://arstechnica.com/cars/2025/12/the-chevrolet-equinox-ev-is-high-on-comfort-and-convenience/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>44</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/2024-Chevrolet-Equinox-EV-1LT-100-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/2024-Chevrolet-Equinox-EV-1LT-100-500x500.jpg" width="500"/>
+<media:credit>Chevrolet</media:credit><media:text>The weather was lousy during our time with the Equinox EV, and unfortunately the images on Chevrolet's media site aren't much better. But this metallic gray looked quite good in real life, even if was raining.</media:text></media:content>
+            </item>
+                    <item>
+                <title>Trump’s energy secretary orders a Washington state coal plant to remain open</title>
+                <link>https://arstechnica.com/science/2025/12/trumps-energy-secretary-orders-a-washington-state-coal-plant-to-remain-open/</link>
+                                    <comments>https://arstechnica.com/science/2025/12/trumps-energy-secretary-orders-a-washington-state-coal-plant-to-remain-open/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Blaine Harden, Inside Climate News]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 18:29:04 +0000</pubDate>
+                		<category><![CDATA[Science]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/science/2025/12/trumps-energy-secretary-orders-a-washington-state-coal-plant-to-remain-open/</guid>
+
+                                    <description>
+                        <![CDATA[Chris Wright declared an energy “emergency” in the Pacific Northwest.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>SEATTLE—The last coal-fired power plant in Washington state was set to go cold at the end of the year. It would then switch to natural gas, cutting carbon emissions in half.</p>
+<p>The shutdown had been in the works for 15 years and was mandated by state law. It required the Canadian energy company that owns the power plant, TransAlta, to retrain workers and ease the local community’s economic transition.</p>
+<p>But the farewell to coal was canceled this week by the Trump administration. In furtherance of the president’s crusade to keep America’s coal plants burning, the Department of Energy announced Tuesday that an “emergency exists” in the Pacific Northwest “due to a shortage of electricity.” To keep the lights on, Energy Secretary Chris Wright said that the Centralia electric generating facility in southwest Washington must continue to burn coal for at least 90 more days.</p><p><a href="https://arstechnica.com/science/2025/12/trumps-energy-secretary-orders-a-washington-state-coal-plant-to-remain-open/">Read full article</a></p>
+<p><a href="https://arstechnica.com/science/2025/12/trumps-energy-secretary-orders-a-washington-state-coal-plant-to-remain-open/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>58</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/WashingtonPower-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/WashingtonPower-500x500.jpg" width="500"/>
+<media:credit>David McNew/Newsmakers</media:credit><media:text>In Washington state, power lines carry electricity near Diablo Dam and the North Cascades National Park. The Trump administration says there is an emergency in the Pacific Northwest because of a shortage of electricity. </media:text></media:content>
+            </item>
+                    <item>
+                <title>Instacart agrees to refund subscribers $60 million in FTC settlement</title>
+                <link>https://arstechnica.com/tech-policy/2025/12/instacart-agrees-to-refund-subscribers-60-million-in-ftc-settlement/</link>
+                                    <comments>https://arstechnica.com/tech-policy/2025/12/instacart-agrees-to-refund-subscribers-60-million-in-ftc-settlement/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Ashley Belanger]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 18:10:04 +0000</pubDate>
+                		<category><![CDATA[Policy]]></category>
+		<category><![CDATA[Consumer protection]]></category>
+		<category><![CDATA[federal trade commission]]></category>
+		<category><![CDATA[FTC]]></category>
+		<category><![CDATA[grocery delivery]]></category>
+		<category><![CDATA[instacart]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/tech-policy/2025/12/instacart-agrees-to-refund-subscribers-60-million-in-ftc-settlement/</guid>
+
+                                    <description>
+                        <![CDATA[The grocery app will also stop hiding refund options and obscuring delivery costs.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>Instacart has agreed to pay out $60 million in subscriber refunds, the Federal Trade Commission <a href="https://www.ftc.gov/news-events/news/press-releases/2025/12/instacart-pay-60-million-consumer-refunds-settle-ftc-lawsuit-over-allegations-it-engaged-deceptive">announced </a>on Thursday.</p>
+<p>The refunds will help settle a <a href="https://www.ftc.gov/system/files/ftc_gov/pdf/Instacart-Complaint.pdf">lawsuit</a> the FTC raised, accusing the grocery delivery app of engaging in “numerous unlawful tactics that harmed shoppers and raised the cost of grocery shopping for Americans.”</p>
+<p>Under the settlement—which expires after 10 years—Instacart agreed to stop marketing its app with allegedly deceptive claims. That includes supposedly offering “free delivery,” when customers actually paid up to 15 percent in “service fees” not charged for pickup orders. Those service fees, the FTC alleged, were “just delivery fees by another name.”</p><p><a href="https://arstechnica.com/tech-policy/2025/12/instacart-agrees-to-refund-subscribers-60-million-in-ftc-settlement/">Read full article</a></p>
+<p><a href="https://arstechnica.com/tech-policy/2025/12/instacart-agrees-to-refund-subscribers-60-million-in-ftc-settlement/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>13</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2156103533-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2156103533-500x500.jpg" width="500"/>
+<media:credit>wildpixel | 	iStock / Getty Images Plus</media:credit></media:content>
+            </item>
+                    <item>
+                <title>Strava puts popular “Year in Sport” recap behind an $80 paywall</title>
+                <link>https://arstechnica.com/culture/2025/12/strava-puts-popular-year-in-sport-recap-behind-an-80-paywall/</link>
+                                    <comments>https://arstechnica.com/culture/2025/12/strava-puts-popular-year-in-sport-recap-behind-an-80-paywall/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Cyrus Farivar]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 17:43:30 +0000</pubDate>
+                		<category><![CDATA[Culture]]></category>
+		<category><![CDATA[paywalls]]></category>
+		<category><![CDATA[strava]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/culture/2025/12/strava-puts-popular-year-in-sport-recap-behind-an-80-paywall/</guid>
+
+                                    <description>
+                        <![CDATA[Strava’s most viral feature is suddenly locked away.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>Earlier this month, Strava, the popular fitness-tracking app, released its annual “Year in Sport” wrap-up—a cutesy, animated series of graphics summarizing each user’s athletic achievements.</p>
+<p>But this year, for the first time, Strava made this feature available only to users with subscriptions ($80 per year), rather than making it free to everyone, as it had been historically since the review’s debut in 2016.</p>
+<p>This decision has roiled numerous Strava users, particularly those who have relished the app’s social encouragement features. One Strava user in India, Shobhit Srivastava, “<a href="https://x.com/mushymushymula/status/2001117038769566088">begged</a>” Strava to “let the plebs see their Year in Sport too, please.” He later explained to Ars that having this little animated video is more than just a collection of raw numbers.</p><p><a href="https://arstechnica.com/culture/2025/12/strava-puts-popular-year-in-sport-recap-behind-an-80-paywall/">Read full article</a></p>
+<p><a href="https://arstechnica.com/culture/2025/12/strava-puts-popular-year-in-sport-recap-behind-an-80-paywall/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>69</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2193480664-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2193480664-500x500.jpg" width="500"/>
+<media:credit>Jakub Porzycki/NurPhoto/Getty Images</media:credit></media:content>
+            </item>
+                    <item>
+                <title>We asked four AI coding agents to rebuild Minesweeper—the results were explosive</title>
+                <link>https://arstechnica.com/ai/2025/12/the-ars-technica-ai-coding-agent-test-minesweeper-edition/</link>
+                                    <comments>https://arstechnica.com/ai/2025/12/the-ars-technica-ai-coding-agent-test-minesweeper-edition/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Kyle Orland and Benj Edwards]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 17:29:40 +0000</pubDate>
+                		<category><![CDATA[AI]]></category>
+		<category><![CDATA[Gaming]]></category>
+		<category><![CDATA[agent]]></category>
+		<category><![CDATA[AI gaming]]></category>
+		<category><![CDATA[Claude Code]]></category>
+		<category><![CDATA[coding]]></category>
+		<category><![CDATA[gemini]]></category>
+		<category><![CDATA[test]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/ai/2025/12/the-ars-technica-ai-coding-agent-test-minesweeper-edition/</guid>
+
+                                    <description>
+                        <![CDATA[How do four modern LLMs do at re-creating a simple Windows gaming classic?]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>The idea of using AI to help with computer programming has become a contentious issue. On the one hand, coding agents can make <a href="https://arstechnica.com/information-technology/2025/07/ai-coding-assistants-chase-phantoms-destroy-real-user-data/">horrific mistakes</a> that require <a href="https://arstechnica.com/ai/2025/07/study-finds-ai-tools-made-open-source-software-developers-19-percent-slower/">a lot of inefficient human oversight</a> to fix, leading many developers to <a href="https://arstechnica.com/ai/2025/07/developer-survey-shows-trust-in-ai-coding-tools-is-falling-as-usage-rises/">lose trust in the concept altogether</a>. On the other hand, some coders insist that <a href="https://arstechnica.com/ai/2025/01/how-i-program-with-llms/">AI coding agents can be powerful tools</a> and that frontier models are <a href="https://arstechnica.com/ai/2025/05/anthropic-calls-new-claude-4-worlds-best-ai-coding-model/">quickly</a> <a href="https://arstechnica.com/ai/2025/12/how-openai-is-using-gpt-5-codex-to-improve-the-ai-tool-itself/">getting</a> <a href="https://arstechnica.com/ai/2025/05/anthropic-calls-new-claude-4-worlds-best-ai-coding-model/">better</a> at coding in ways that overcome some of the common problems of the past.</p>
+<p>To see how effective these modern AI coding tools are becoming, we decided to test four major models with a simple task: re-creating the classic Windows game <em>Minesweeper</em>. Since it’s relatively easy for pattern-matching systems like LLMs to play off of existing code to re-create famous games, we added in one novelty curveball as well.</p>
+<p>Our straightforward prompt:</p><p><a href="https://arstechnica.com/ai/2025/12/the-ars-technica-ai-coding-agent-test-minesweeper-edition/">Read full article</a></p>
+<p><a href="https://arstechnica.com/ai/2025/12/the-ars-technica-ai-coding-agent-test-minesweeper-edition/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>63</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/ai-gpu-minsweeper-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/ai-gpu-minsweeper-500x500.jpg" width="500"/>
+<media:credit>Aurich Lawson | Getty Images</media:credit><media:text>Which mines are mine, and which are AI?</media:text></media:content>
+            </item>
+                    <item>
+                <title>Russia is about to do the most Russia thing ever with its next space station</title>
+                <link>https://arstechnica.com/space/2025/12/russia-is-about-to-do-the-most-russia-thing-ever-with-its-next-space-station/</link>
+                                    <comments>https://arstechnica.com/space/2025/12/russia-is-about-to-do-the-most-russia-thing-ever-with-its-next-space-station/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Eric Berger]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 16:04:35 +0000</pubDate>
+                		<category><![CDATA[Space]]></category>
+		<category><![CDATA[iss]]></category>
+		<category><![CDATA[nauka]]></category>
+		<category><![CDATA[rOS]]></category>
+		<category><![CDATA[russia]]></category>
+		<category><![CDATA[space]]></category>
+		<category><![CDATA[space station]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/space/2025/12/russia-is-about-to-do-the-most-russia-thing-ever-with-its-next-space-station/</guid>
+
+                                    <description>
+                        <![CDATA["Russia, meanwhile, will be left to carry on the legacy of the ISS, with all its problems."]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>For several years now, in discussing plans for its human spaceflight program beyond the International Space Station, Russian officials would proudly bring up the <a href="https://www.leonarddavid.com/42571-2/">Russian Orbital Station</a>, or ROS.</p>
+<p>The first elements of ROS were to launch in 2027 so it would be ready for human habitation in 2028. Upon completion in the mid-2030s, the station would encompass seven shiny new modules, potentially including a private habitat for space tourists. It would be so sophisticated that the station could fly autonomously for months if needed.</p>
+<p>Importantly, the Russian station was also to fly in a polar orbit at about 400 km. This would allow the station to fly over the entirety of Russia, observing the whole country. It would be important for national pride because cosmonauts would not need to launch from Kazakhstan anymore. Rather, rockets launching from the country’s new spaceport in eastern Russia, the Vostochny Cosmodrome, would easily reach the ROS in its polar orbit.</p><p><a href="https://arstechnica.com/space/2025/12/russia-is-about-to-do-the-most-russia-thing-ever-with-its-next-space-station/">Read full article</a></p>
+<p><a href="https://arstechnica.com/space/2025/12/russia-is-about-to-do-the-most-russia-thing-ever-with-its-next-space-station/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>107</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/Photo-1-Basic-Characteristics-Russian-Orbital-Station-Development-Stage-2-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/Photo-1-Basic-Characteristics-Russian-Orbital-Station-Development-Stage-2-500x500.jpg" width="500"/>
+<media:credit>Roscosmos</media:credit><media:text>This is what the Russian Orbital Station was supposed to look like.</media:text></media:content>
+            </item>
+                    <item>
+                <title>Rocket Report: Russia pledges quick fix for Soyuz launch pad; Ariane 6 aims high</title>
+                <link>https://arstechnica.com/space/2025/12/rocket-report-russia-pledges-quick-fix-for-soyuz-launch-pad-ariane-6-aims-high/</link>
+                                    <comments>https://arstechnica.com/space/2025/12/rocket-report-russia-pledges-quick-fix-for-soyuz-launch-pad-ariane-6-aims-high/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Stephen Clark]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 15:30:51 +0000</pubDate>
+                		<category><![CDATA[Science]]></category>
+		<category><![CDATA[Space]]></category>
+		<category><![CDATA[ariane 6]]></category>
+		<category><![CDATA[Arianespace]]></category>
+		<category><![CDATA[atlas v]]></category>
+		<category><![CDATA[china]]></category>
+		<category><![CDATA[falcon 9]]></category>
+		<category><![CDATA[launch]]></category>
+		<category><![CDATA[rocket lab]]></category>
+		<category><![CDATA[rocket report]]></category>
+		<category><![CDATA[spacex]]></category>
+		<category><![CDATA[starship]]></category>
+		<category><![CDATA[united launch alliance]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/space/2025/12/rocket-report-russia-pledges-quick-fix-for-soyuz-launch-pad-ariane-6-aims-high/</guid>
+
+                                    <description>
+                        <![CDATA[South Korean rocket startup Innospace is poised to debut a new nano-launcher.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>Welcome to Edition 8.23 of the Rocket Report! Several new rockets made their first flights this year. Blue Origin’s New Glenn was the most notable debut, with a successful inaugural launch in January followed by an impressive second flight in November, culminating in the booster’s first landing on an offshore platform. Second on the list is China’s Zhuque-3, a partially reusable methane-fueled rocket developed by the quasi-commercial launch company LandSpace. The medium-lift Zhuque-3 successfully reached orbit on its first flight earlier this month, and its booster narrowly missed landing downrange. We could add China’s Long March 12A to the list if it flies before the end of the year. This will be the final Rocket Report of 2025, but we’ll be back in January with all the news that’s fit to lift.</p>
+<p>As always, we <a href="https://arstechnica.wufoo.com/forms/launch-stories/">welcome reader submissions</a>. If you don’t want to miss an issue, please subscribe using the box below (the form will not appear on AMP-enabled versions of the site). Each report will include information on small-, medium-, and heavy-lift rockets, as well as a quick look ahead at the next three launches on the calendar.</p>
+<figure class="ars-img-shortcode id-1314289 align-center">
+    <div>
+                        <img decoding="async" width="560" height="81" src="https://cdn.arstechnica.net/wp-content/uploads/2018/05/smalll.png" class="center full" alt="" srcset="https://cdn.arstechnica.net/wp-content/uploads/2018/05/smalll.png 560w, https://cdn.arstechnica.net/wp-content/uploads/2018/05/smalll-300x43.png 300w" sizes="(max-width: 560px) 100vw, 560px">
+                  </div>
+      </figure>
+
+<p><b>Rocket Lab delivers for Space Force and NASA. </b>Four small satellites rode a Rocket Lab Electron launch vehicle into orbit from Virginia early Thursday, beginning a government-funded technology demonstration mission to test the performance of a new spacecraft design, <a href="https://arstechnica.com/science/2025/12/heres-why-nasa-and-the-space-force-are-interested-in-pizza-shaped-satellites/">Ars reports</a>. The satellites were nestled inside a cylindrical dispenser on top of the 59-foot-tall (18-meter) Electron rocket when it lifted off from NASA’s Wallops Flight Facility. A little more than an hour later, the rocket’s upper stage released the satellites one at a time at an altitude of about 340 miles (550 kilometers). The launch was the starting gun for a proof-of-concept mission to test the viability of a new kind of satellite called DiskSats, designed by the Aerospace Corporation.</p><p><a href="https://arstechnica.com/space/2025/12/rocket-report-russia-pledges-quick-fix-for-soyuz-launch-pad-ariane-6-aims-high/">Read full article</a></p>
+<p><a href="https://arstechnica.com/space/2025/12/rocket-report-russia-pledges-quick-fix-for-soyuz-launch-pad-ariane-6-aims-high/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>29</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/ariane6_va266-1152x648-1766131813.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/ariane6_va266-500x500-1766131777.jpg" width="500"/>
+<media:credit>ESA-CNES-Arianespace</media:credit><media:text>The fifth Ariane 6 rocket climbs away from Kourou, French Guiana, with two European Galileo navigation satellites.</media:text></media:content>
+            </item>
+                    <item>
+                <title>ByteDance confirms TikTok will be controlled by US owners</title>
+                <link>https://arstechnica.com/tech-policy/2025/12/bytedance-confirms-tiktok-will-be-sold-to-us-owners/</link>
+                                    <comments>https://arstechnica.com/tech-policy/2025/12/bytedance-confirms-tiktok-will-be-sold-to-us-owners/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Ashley Belanger]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 15:22:04 +0000</pubDate>
+                		<category><![CDATA[Policy]]></category>
+		<category><![CDATA[bytedance]]></category>
+		<category><![CDATA[china]]></category>
+		<category><![CDATA[Donald Trump]]></category>
+		<category><![CDATA[national security]]></category>
+		<category><![CDATA[tiktok]]></category>
+		<category><![CDATA[tiktok us]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/tech-policy/2025/12/bytedance-confirms-tiktok-will-be-sold-to-us-owners/</guid>
+
+                                    <description>
+                        <![CDATA[Closing TikTok deal avoids 2026 ban, but app may be buggy, “100% MAGA.”]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>After a year of stalled negotiations, TikTok owner ByteDance has reportedly agreed to Donald Trump’s deal giving US owners majority ownership of the app.</p>
+<p>By signing the agreements, ByteDance has ended a prolonged period of uncertainty for millions of Americans who rely on TikTok for news, entertainment, social connection, and income. Under a law that Trump declined to enforce—which lawmakers <a href="https://arstechnica.com/tech-policy/2025/01/supreme-court-rules-tiktok-can-be-banned/">convinced the Supreme Court</a> was critical for national security—TikTok risked a US ban next year if the sale did not go through.</p>
+<p>According <a href="https://www.reuters.com/business/american-investor-consortium-acquire-tiktok-us-entity-axios-reports-2025-12-18/">to Reuters</a>, terms of the deal match what was reported in September when Trump controversially confirmed that <a href="https://arstechnica.com/tech-policy/2025/09/china-keeps-the-algorithm-critics-attack-trumps-tiktok-deal/">ByteDance would keep the algorithm</a>. Under the deal, US investors and allies—including cloud computing firm Oracle, private equity group Silver Lake, and Abu Dhabi-based MGX—will likely license the algorithm.</p><p><a href="https://arstechnica.com/tech-policy/2025/12/bytedance-confirms-tiktok-will-be-sold-to-us-owners/">Read full article</a></p>
+<p><a href="https://arstechnica.com/tech-policy/2025/12/bytedance-confirms-tiktok-will-be-sold-to-us-owners/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>66</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2208585264-1024x648.jpg" width="1024">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2208585264-500x500-1766156870.jpg" width="500"/>
+<media:credit>VCG / Contributor | Visual China Group</media:credit></media:content>
+            </item>
+                    <item>
+                <title>Two space startups prove you don’t need to break the bank to rendezvous in space</title>
+                <link>https://arstechnica.com/space/2025/12/two-space-startups-prove-you-dont-need-to-break-the-bank-to-rendezvous-in-space/</link>
+                                    <comments>https://arstechnica.com/space/2025/12/two-space-startups-prove-you-dont-need-to-break-the-bank-to-rendezvous-in-space/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Eric Berger]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 15:02:37 +0000</pubDate>
+                		<category><![CDATA[Space]]></category>
+		<category><![CDATA[impulse space]]></category>
+		<category><![CDATA[mira]]></category>
+		<category><![CDATA[otter]]></category>
+		<category><![CDATA[space]]></category>
+		<category><![CDATA[Starfish]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/space/2025/12/two-space-startups-prove-you-dont-need-to-break-the-bank-to-rendezvous-in-space/</guid>
+
+                                    <description>
+                        <![CDATA["We had to push the envelope a little bit here."]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>It may be happening quietly, but there is a revolution taking place with in-space transportation, and it opens up a world of possibilities.</p>
+<p>In January, a small spacecraft built by a California-based company called Impulse Space launched along with a stack of other satellites on a Falcon 9 rocket. Upon reaching orbit, the rocket’s upper stage sent the satellites zipping off on their various missions.</p>
+<p>And so it went with the Mira spacecraft built by Impulse, which is known as an orbital transfer vehicle. Mira dropped off several small CubeSats and then performed a number of high-thrust maneuvers to demonstrate its capabilities. This was the second flight by a Mira spacecraft, so Impulse Space was eager to continue testing the vehicle in flight.</p><p><a href="https://arstechnica.com/space/2025/12/two-space-startups-prove-you-dont-need-to-break-the-bank-to-rendezvous-in-space/">Read full article</a></p>
+<p><a href="https://arstechnica.com/space/2025/12/two-space-startups-prove-you-dont-need-to-break-the-bank-to-rendezvous-in-space/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>12</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/webp" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/4371bd04b6be161792492d5223ebb212400cdf82-1920x1080-1-1152x648.webp" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/4371bd04b6be161792492d5223ebb212400cdf82-1920x1080-1-500x500.webp" width="500"/>
+<media:credit>Starfish Space/Impulse Space</media:credit><media:text>The view of an older Mira spacecraft as Starfish space got close.</media:text></media:content>
+            </item>
+                    <item>
+                <title>These are the flying discs the government wants you to know about</title>
+                <link>https://arstechnica.com/science/2025/12/heres-why-nasa-and-the-space-force-are-interested-in-pizza-shaped-satellites/</link>
+                                    <comments>https://arstechnica.com/science/2025/12/heres-why-nasa-and-the-space-force-are-interested-in-pizza-shaped-satellites/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Stephen Clark]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 03:18:51 +0000</pubDate>
+                		<category><![CDATA[Science]]></category>
+		<category><![CDATA[Space]]></category>
+		<category><![CDATA[aerospace]]></category>
+		<category><![CDATA[DiskSat]]></category>
+		<category><![CDATA[electron rocket]]></category>
+		<category><![CDATA[rocket lab]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/science/2025/12/heres-why-nasa-and-the-space-force-are-interested-in-pizza-shaped-satellites/</guid>
+
+                                    <description>
+                        <![CDATA[DiskSat's design offers "a power-to-weight ratio unmatched by traditional aluminum satellites."]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>Four small satellites rode a Rocket Lab Electron launch vehicle into orbit from Virginia early Thursday, beginning a government-funded technology demonstration mission to test the performance of a new spacecraft design.</p>
+<p>The satellites were nestled inside a cylindrical dispenser on top of the 59-foot-tall (18-meter) Electron rocket when it lifted off from NASA’s Wallops Flight Facility at 12:03 am EST (05:03 UTC). A little more than an hour later, the rocket’s upper stage released the satellites one at a time at an altitude of about 340 miles (550 kilometers).</p>
+<p>The launch was the starting gun for a proof-of-concept mission to test the viability of a new kind of satellite called <a href="https://files01.core.ac.uk/download/533934642.pdf">DiskSats</a>. These satellites were designed by the Aerospace Corporation, a nonprofit federally funded research and development center. The project is jointly financed by NASA and the US Space Force, which paid for DiskSat’s development and launch, respectively.</p><p><a href="https://arstechnica.com/science/2025/12/heres-why-nasa-and-the-space-force-are-interested-in-pizza-shaped-satellites/">Read full article</a></p>
+<p><a href="https://arstechnica.com/science/2025/12/heres-why-nasa-and-the-space-force-are-interested-in-pizza-shaped-satellites/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>76</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/webp" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/disksat-deploying-101-1152x648-1766112150.webp" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/disksat-deploying-101-500x500.webp" width="500"/>
+<media:credit>NASA</media:credit><media:text>An artist's illustration of DiskSats deploying from a rocket in low-Earth orbit.</media:text></media:content>
+            </item>
+                    <item>
+                <title>Parasites plagued Roman soldiers at Hadrian’s Wall</title>
+                <link>https://arstechnica.com/science/2025/12/study-roman-soldiers-battled-parasites-at-hadrians-wall/</link>
+                                    <comments>https://arstechnica.com/science/2025/12/study-roman-soldiers-battled-parasites-at-hadrians-wall/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Jennifer Ouellette]]>
+                </dc:creator>
+                <pubDate>Fri, 19 Dec 2025 00:00:36 +0000</pubDate>
+                		<category><![CDATA[Science]]></category>
+		<category><![CDATA[Archaeology]]></category>
+		<category><![CDATA[archaeoparasitology]]></category>
+		<category><![CDATA[Hadrian's Wall]]></category>
+		<category><![CDATA[paleoparasitology]]></category>
+		<category><![CDATA[parasitology]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/science/2025/12/study-roman-soldiers-battled-parasites-at-hadrians-wall/</guid>
+
+                                    <description>
+                        <![CDATA[They were infected by roundworm, whipworm, and microscopic protozoans called <em>Giardia duodenalis</em>.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>It probably sucked to be a Roman soldier guarding Hadrian’s Wall circa the third century CE. W.H. Auden imagined the likely harsh conditions in his poem “<a href="https://hellopoetry.com/poem/788/roman-wall-blues/">Roman Wall Blues</a>,” in which a soldier laments enduring wet wind and rain with “lice in my tunic and a cold in my nose.” We can now add chronic nausea and bouts of diarrhea to his list of likely woes, thanks to parasitic infections, according to a new paper published in the journal Parasitology.</p>
+<p>As <a href="https://arstechnica.com/science/2022/02/this-ancient-roman-ceramic-pot-was-probably-a-portable-toilet-study-finds/">previously reported</a>, archaeologists can learn a great deal by studying the remains of intestinal parasites in ancient feces. For instance, in 2022, <a href="https://arstechnica.com/science/2022/01/intestinal-parasites-plagued-jerusalems-wealthy-elite-toilet-excavation-reveals/">we reported</a> on an analysis of soil samples collected from a stone toilet found within the ruins of a swanky 7th-century BCE villa just outside Jerusalem. That analysis revealed the presence of parasitic eggs from four different species: whipworm, beef/pork tapeworm, roundworm, and pinworm. (It’s the earliest record of roundworm and pinworm in ancient Israel.)</p>
+<p>Later that same year, researchers from the University of Cambridge and the University of British Columbia <a href="https://arstechnica.com/science/2022/02/this-ancient-roman-ceramic-pot-was-probably-a-portable-toilet-study-finds/">analyzed</a> the residue on an ancient Roman ceramic pot excavated at the site of a 5th-century CE Roman villa at Gerace, a rural district in Sicily. They identified the eggs of intestinal parasitic worms commonly found in feces—strong evidence that the 1,500-year-old pot in question was most likely used as a chamber pot.</p><p><a href="https://arstechnica.com/science/2025/12/study-roman-soldiers-battled-parasites-at-hadrians-wall/">Read full article</a></p>
+<p><a href="https://arstechnica.com/science/2025/12/study-roman-soldiers-battled-parasites-at-hadrians-wall/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>79</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/hadrian1-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/hadrian1-500x500.jpg" width="500"/>
+<media:credit>Vindolanda Trust</media:credit><media:text>Third-century baths and latrine block at Vindolanda, the Roman fort close to Hadrian’s Wall in the UK. </media:text></media:content>
+            </item>
+                    <item>
+                <title>Trump commits to Moon landing by 2028, followed by a lunar outpost two years later</title>
+                <link>https://arstechnica.com/space/2025/12/trump-commits-to-moon-landing-by-2028-followed-by-a-lunar-outpost-two-years-later/</link>
+                                    <comments>https://arstechnica.com/space/2025/12/trump-commits-to-moon-landing-by-2028-followed-by-a-lunar-outpost-two-years-later/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Eric Berger]]>
+                </dc:creator>
+                <pubDate>Thu, 18 Dec 2025 23:05:42 +0000</pubDate>
+                		<category><![CDATA[Space]]></category>
+		<category><![CDATA[2028]]></category>
+		<category><![CDATA[artemis]]></category>
+		<category><![CDATA[isaacman]]></category>
+		<category><![CDATA[space]]></category>
+		<category><![CDATA[space policy]]></category>
+		<category><![CDATA[Trump]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/space/2025/12/trump-commits-to-moon-landing-by-2028-followed-by-a-lunar-outpost-two-years-later/</guid>
+
+                                    <description>
+                        <![CDATA[Also, the Trump administration wants to put some nuclear power reactors there, too.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>A couple of hours after a judge formally swore in private astronaut Jared Isaacman as the next administrator of NASA on Thursday, President Donald Trump signed an executive order outlining his space policy objectives for the next three years.</p>
+<p>The executive order, titled “<a href="https://www.whitehouse.gov/presidential-actions/2025/12/ensuring-american-space-superiority/">Ensuring American Space Superiority</a>,” states that the country must “pursue a space policy that will extend the reach of human discovery, secure the nation’s vital economic and security interests, unleash commercial development, and lay the foundation for a new space age.”</p>
+<h2>White House sets priorities</h2>
+<p>There is nothing Earth-shattering in the new executive order, as much of it builds on previously announced policies that span multiple administrations. There are some notable points in the document that clearly reflect the White House’s priorities, though, and Isaacman’s leadership of NASA.</p><p><a href="https://arstechnica.com/space/2025/12/trump-commits-to-moon-landing-by-2028-followed-by-a-lunar-outpost-two-years-later/">Read full article</a></p>
+<p><a href="https://arstechnica.com/space/2025/12/trump-commits-to-moon-landing-by-2028-followed-by-a-lunar-outpost-two-years-later/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>195</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/54992620409_811a1c4713_c-800x648.jpg" width="800">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/54992620409_811a1c4713_c-500x500.jpg" width="500"/>
+<media:credit>NASA/Bill Ingalls</media:credit><media:text>NASA Associate Administrator Amit Kshatriya, left, along with NASA employees, welcomes NASA Administrator Jared Isaacman to the Mary W. Jackson NASA Headquarters Building in Washington on Thursday, Dec. 18, 2025.</media:text></media:content>
+            </item>
+                    <item>
+                <title>YouTube bans two popular channels that created fake AI movie trailers</title>
+                <link>https://arstechnica.com/google/2025/12/youtube-bans-two-popular-channels-that-created-fake-ai-movie-trailers/</link>
+                                    <comments>https://arstechnica.com/google/2025/12/youtube-bans-two-popular-channels-that-created-fake-ai-movie-trailers/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Ryan Whitwam]]>
+                </dc:creator>
+                <pubDate>Thu, 18 Dec 2025 22:39:54 +0000</pubDate>
+                		<category><![CDATA[AI]]></category>
+		<category><![CDATA[Google]]></category>
+		<category><![CDATA[Tech]]></category>
+		<category><![CDATA[Ai video]]></category>
+		<category><![CDATA[Artificial Intelligence]]></category>
+		<category><![CDATA[google]]></category>
+		<category><![CDATA[YouTube]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/google/2025/12/youtube-bans-two-popular-channels-that-created-fake-ai-movie-trailers/</guid>
+
+                                    <description>
+                        <![CDATA[Google loves AI content, except when it doesn't. ]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>Google is generally happy to see people using generative AI tools to create content, and it’s doubly happy when they publish it on its platforms. But there are limits to everything. Two YouTube channels that attracted millions of subscribers with AI-generated movie trailers have been shuttered.</p>
+<p>Screen Culture and KH Studio flooded the site with fake but often believable trailers. The channels, which had a combined audience of more than 2 million subscribers, became a thorn in Google’s side in early 2025 when other YouTubers began griping about their sudden popularity in the age of AI. The channels produced videos with titles like “GTA: San Andreas (2025) Teaser Trailer” and “Malcom In The Middle Reboot (2025) First Trailer.” Of course, neither of those projects exist, but that didn’t stop them from appearing in user feeds.</p>
+<p>Google demonetized the channels in early 2025, forcing them to adopt language that made it clear they were not official trailers. The channels were able to monetize again, but the disclaimers were not consistently used. Indeed, many of the most popular videos from those channels in recent months included no “parody” or “concept trailer” disclosures. Now, visiting either channel’s page on YouTube produces an error reading, “This page isn’t available. Sorry about that. Try searching for something else.”</p><p><a href="https://arstechnica.com/google/2025/12/youtube-bans-two-popular-channels-that-created-fake-ai-movie-trailers/">Read full article</a></p>
+<p><a href="https://arstechnica.com/google/2025/12/youtube-bans-two-popular-channels-that-created-fake-ai-movie-trailers/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>78</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2024/10/youtube-logo-1152x648-1740156964.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2024/10/youtube-logo-500x500.jpg" width="500"/>
+<media:credit>Getty Images | NurPhoto</media:credit></media:content>
+            </item>
+                    <item>
+                <title>Peacock showing ads upon launch opens the door for more disruptive streaming ads</title>
+                <link>https://arstechnica.com/gadgets/2025/12/peacock-showing-ads-upon-launch-opens-the-door-for-more-disruptive-streaming-ads/</link>
+                                    <comments>https://arstechnica.com/gadgets/2025/12/peacock-showing-ads-upon-launch-opens-the-door-for-more-disruptive-streaming-ads/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Scharon Harding]]>
+                </dc:creator>
+                <pubDate>Thu, 18 Dec 2025 22:18:21 +0000</pubDate>
+                		<category><![CDATA[Tech]]></category>
+		<category><![CDATA[ads]]></category>
+		<category><![CDATA[nbcuniversal]]></category>
+		<category><![CDATA[peacock]]></category>
+		<category><![CDATA[streaming]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/gadgets/2025/12/peacock-showing-ads-upon-launch-opens-the-door-for-more-disruptive-streaming-ads/</guid>
+
+                                    <description>
+                        <![CDATA[Subscribers will start seeing ads when selecting a user next year. ]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>Peacock subscribers will see ads immediately upon opening the streaming app or website next year. It’s a bold new strategy for attracting advertisers—something that’s been increasingly important to subscription-based streaming services—but it also risks alienating viewers</p>
+<p>As reported by <a href="https://variety.com/2025/tv/news/nbcuniversal-arrival-ads-peacock-1236610766/">Variety</a>, the new type of ads will display on the profile selection page that shows when a subscriber launches Peacock. Starting next year, instead of the profile page just showing your different Peacock profiles, most of the page will be dominated by an advertorial image. The circles of NBCUniversal-owned characters selected for user profiles will be relegated to a vertical column on the screen’s left side, as <a href="https://variety.com/wp-content/uploads/2025/12/Arrival-Ads-e1765986166728.png?w=1000&amp;h=563&amp;crop=1">you can see here</a>.</p>
+<p>To avoid seeing what NBCUniversal is calling “Arrival Ads” every time you open Peacock, you need to subscribe to Peacock’s most expensive plan, which is ad-free and starts at $17 per month (Peacock’s ad-based plans start at $8/month.)</p><p><a href="https://arstechnica.com/gadgets/2025/12/peacock-showing-ads-upon-launch-opens-the-door-for-more-disruptive-streaming-ads/">Read full article</a></p>
+<p><a href="https://arstechnica.com/gadgets/2025/12/peacock-showing-ads-upon-launch-opens-the-door-for-more-disruptive-streaming-ads/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>127</slash:comments>
+                
+                
+                <media:content medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/All-Her-Fault.jpg">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/All-Her-Fault-500x500-1766093877.jpg" width="500"/>
+<media:credit>NBCUniversal</media:credit><media:text>Dakota Fanning (left) and Sarah Snook (right) in a scene from the Peacock original series &lt;em&gt;All Her Fault&lt;/em&gt;.</media:text></media:content>
+            </item>
+                    <item>
+                <title>Reminder: Donate to win swag in our annual Charity Drive sweepstakes</title>
+                <link>https://arstechnica.com/gaming/2025/12/reminder-donate-to-win-swag-in-our-annual-charity-drive-sweepstakes-18/</link>
+                                    <comments>https://arstechnica.com/gaming/2025/12/reminder-donate-to-win-swag-in-our-annual-charity-drive-sweepstakes-18/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Kyle Orland]]>
+                </dc:creator>
+                <pubDate>Thu, 18 Dec 2025 21:35:58 +0000</pubDate>
+                		<category><![CDATA[Gaming]]></category>
+		<category><![CDATA[charity]]></category>
+		<category><![CDATA[charity drive]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/gaming/2025/12/reminder-donate-to-win-swag-in-our-annual-charity-drive-sweepstakes-18/</guid>
+
+                                    <description>
+                        <![CDATA[Help increase our charity haul of nearly $18,000 in just over a week.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>If you’ve been too busy <a href="https://arstechnica.com/gaming/2025/12/journalist-insists-half-life-3-will-launch-with-steam-machine-in-spring-2026/">planning for <em>Half-Life 3</em></a> to take part in <a href="https://arstechnica.com/gaming/2025/12/win-hardware-collectibles-and-more-in-the-2025-ars-technica-charity-drive/">this year’s Ars Technica Charity Drive sweepstakes</a>, don’t worry. You still have time to donate to a good cause and get a chance to win your share of over $4,000 worth of swag (no purchase necessary to win).</p>
+<p>In the first week or so of the drive, over 300 readers have contributed nearly $18,000 to either the <a href="https://supporters.eff.org/donate/">Electronic Frontier Foundation</a> or <a href="http://www.childsplaycharity.org/">Child’s Play</a> as part of the charity drive (Child’s Play has a roughly 55/45 donation lead at the moment). That’s still a long way from <a href="https://arstechnica.com/gaming/2021/01/ars-readers-gave-a-record-58000-in-2020-charity-drive/">2020’s record haul of over $58,000</a>, but there’s plenty of time until the Charity Drive wraps up on Friday, January 2, 2026.</p>
+<p>That doesn’t mean you should put your donation off, though. Do yourself and the charities involved a favor and give now while you’re thinking about it.</p><p><a href="https://arstechnica.com/gaming/2025/12/reminder-donate-to-win-swag-in-our-annual-charity-drive-sweepstakes-18/">Read full article</a></p>
+<p><a href="https://arstechnica.com/gaming/2025/12/reminder-donate-to-win-swag-in-our-annual-charity-drive-sweepstakes-18/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>2</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/charitydrive2025-1152x648.jpg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/charitydrive2025-500x500.jpg" width="500"/>
+<media:credit>Kyle Orland</media:credit><media:text>Just some of the prizes you can win in this years Ars Technica Charity Drive sweepstakes.</media:text></media:content>
+            </item>
+                    <item>
+                <title>RAM and SSD prices are still climbing—here’s our best advice for PC builders</title>
+                <link>https://arstechnica.com/gadgets/2025/12/for-just-a-couple-of-months-in-the-middle-of-2025-it-was-an-ok-time-to-build-a-pc/</link>
+                                    <comments>https://arstechnica.com/gadgets/2025/12/for-just-a-couple-of-months-in-the-middle-of-2025-it-was-an-ok-time-to-build-a-pc/#comments</comments>
+                
+                <dc:creator>
+                    <![CDATA[Andrew Cunningham]]>
+                </dc:creator>
+                <pubDate>Thu, 18 Dec 2025 21:31:03 +0000</pubDate>
+                		<category><![CDATA[Gaming]]></category>
+		<category><![CDATA[Tech]]></category>
+		<category><![CDATA[AMD]]></category>
+		<category><![CDATA[Intel]]></category>
+		<category><![CDATA[NVIDIA]]></category>
+                <guid isPermaLink="true">https://arstechnica.com/gadgets/2025/12/for-just-a-couple-of-months-in-the-middle-of-2025-it-was-an-ok-time-to-build-a-pc/</guid>
+
+                                    <description>
+                        <![CDATA[I would avoid building a PC right now, but if you can't, here's our best advice.]]>
+                    </description>
+                                                                <content:encoded>
+                            <![CDATA[<p>The first few months of 2025 were full of graphics card reviews where we generally came away impressed with performance and completely at a loss on availability and pricing. The testing in these reviews is useful regardless, but when it came to extra buying advice, the best we could do was to compare Nvidia’s imaginary pricing to AMD’s imaginary pricing and wait for availability to improve.</p>
+<p>Now, as the year winds down, we’re facing price spikes for memory and storage that are unlike anything I’ve seen in two decades of pricing out PC parts. Pricing for most RAM kits has increased dramatically since this summer, driven by overwhelming demand for these parts in AI data centers. Depending on what you’re building, it’s now <em>very</em> possible that the memory could be the single most expensive component you buy; things are even worse now than they were <a href="https://arstechnica.com/gadgets/2025/11/spiking-memory-prices-mean-that-it-is-once-again-a-horrible-time-to-build-a-pc/">the last time we compared prices a few weeks ago</a>.</p>
+<div class="table-wrapper"><table border="" width="100%">
+<tbody>
+<tr>
+<th>Component</th>
+<th>Aug. 2025 price</th>
+<th>Nov. 2025 price</th>
+<th>Dec. 2025 price</th>
+</tr>
+<tr>
+<td>Patriot Viper Venom 16GB (2 x 8GB) DDR-6000</td>
+<td>$49</td>
+<td>$110</td>
+<td>$189</td>
+</tr>
+<tr>
+<td>Western Digital WD Blue SN5000 500GB</td>
+<td>$45</td>
+<td>$69</td>
+<td><a href="https://www.newegg.com/sandisk-500gb-wd-blue-nvme/p/N82E16820173683">$102</a>*</td>
+</tr>
+<tr>
+<td>Silicon Power 16GB (2 x 8GB) DDR4-3200</td>
+<td>$34</td>
+<td>$89</td>
+<td>$104</td>
+</tr>
+<tr>
+<td>Western Digital WD Blue SN5000 1TB</td>
+<td>$64</td>
+<td>$111</td>
+<td><a href="https://www.newegg.com/sandisk-1tb-wd-blue-nvme/p/N82E16820173682">$135</a>*</td>
+</tr>
+<tr>
+<td>Team T-Force Vulcan 32GB DDR5-6000</td>
+<td>$82</td>
+<td>$310</td>
+<td>$341</td>
+</tr>
+<tr>
+<td>Western Digital WD Blue SN5000 2TB</td>
+<td>$115</td>
+<td>$154</td>
+<td><a href="https://www.newegg.com/sandisk-2tb-wd-blue-nvme/p/N82E16820173681">$190</a>*</td>
+</tr>
+<tr>
+<td>Western Digital WD Black SN7100 2TB</td>
+<td>$130</td>
+<td>$175</td>
+<td>$210</td>
+</tr>
+<tr>
+<td>Team Delta RGB 64GB (2 x 32GB) DDR5-6400</td>
+<td>$190</td>
+<td>$700</td>
+<td>$800</td>
+</tr>
+</tbody>
+</table></div>
+<p>Some SSDs are getting to the point where they’re twice as expensive as they were this summer (for this comparison, I’ve swapped the newer WD Blue SN5100 pricing in for the SN5000, since the drive is both newer and slightly cheaper as of this writing). Some RAM kits, meanwhile, are around <em>four</em> times as expensive as they were in August. Yeesh.</p><p><a href="https://arstechnica.com/gadgets/2025/12/for-just-a-couple-of-months-in-the-middle-of-2025-it-was-an-ok-time-to-build-a-pc/">Read full article</a></p>
+<p><a href="https://arstechnica.com/gadgets/2025/12/for-just-a-couple-of-months-in-the-middle-of-2025-it-was-an-ok-time-to-build-a-pc/#comments">Comments</a></p>
+]]>
+                        </content:encoded>
+                                    
+                                    <slash:comments>103</slash:comments>
+                
+                
+                <media:content height="648" medium="image" type="image/jpeg" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/IMG_3087-1152x648.jpeg" width="1152">
+<media:thumbnail height="500" url="https://cdn.arstechnica.net/wp-content/uploads/2025/12/IMG_3087-500x500-1766090179.jpeg" width="500"/>
+<media:credit>Andrew Cunningham</media:credit><media:text>The 16GB version of AMD's Radeon RX 9060 XT. It's one of the products to come out of a bad year for PC building. </media:text></media:content>
+            </item>
+            </channel>
+</rss>

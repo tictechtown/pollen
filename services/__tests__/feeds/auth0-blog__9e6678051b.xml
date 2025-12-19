@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>Auth0 Blog</title>
+    <link>https://auth0.com/blog/</link>
+    <atom:link href="https://auth0.com/blog/rss.xml" rel="self" type="application/rss+xml"/>
+    <description>Company Updates, Technology Articles from Auth0</description>
+    <language>en-us</language>
+    <pubDate>Fri, 19 Dec 2025 00:00:00 GMT</pubDate>
+    <lastBuildDate>Fri, 19 Dec 2025 22:21:55 GMT</lastBuildDate>
+    <item>
+      <title>Why MCP’s Move Away from Server-Sent Events Simplifies Security
+
+
+
+</title>
+      <link>https://auth0.com/blog/mcp-streamable-http/</link>
+      <id>https://auth0.com/blog/mcp-streamable-http/</id>
+      <pubDate>Fri, 19 Dec 2025 00:00:00 GMT</pubDate>
+      <author>william.johnson@auth0.com</author>
+      <dc:creator>Will Johnson</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/7o34vTMAB9Hip3pa48DEYR/3062348c26a40199c1ebc0a847734d23/MCP_and_Auth0.jpg" type="image/jpeg"/>
+      <description>Discover why the Model Context Protocol (MCP) deprecated Server-Sent Events (SSE) for Streamable HTTP and how this shift enables stronger authentication, standard CORS policies, and secure session management.</description>
+    </item>
+    <item>
+      <title>Build an AI Assistant with LangGraph, Next.js, and Auth0 Connected Accounts</title>
+      <link>https://auth0.com/blog/ai-assistant-langgraph-nextjs-slack-github/</link>
+      <id>https://auth0.com/blog/ai-assistant-langgraph-nextjs-slack-github/</id>
+      <pubDate>Fri, 19 Dec 2025 00:00:00 GMT</pubDate>
+      <author>deepu.sasidharan@okta.com</author>
+      <dc:creator>Deepu K Sasidharan</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/1JJsVYc1hPjkP7zSaH0EF8/961afac75b2ce3699620596c08646227/hero.jpg" type="image/jpeg"/>
+      <description>Learn how to build a tool-calling AI agent using LangGraph, Next.js, and Auth0. Integrate GitHub and Slack tools using Connected Accounts for Token Vault.</description>
+    </item>
+    <item>
+      <title>Bulletproof Hosting Defense: Mitigating the Proxy Threat with Threat Intelligence</title>
+      <link>https://auth0.com/blog/mitigating-bulletproof-hosting/</link>
+      <id>https://auth0.com/blog/mitigating-bulletproof-hosting/</id>
+      <pubDate>Thu, 18 Dec 2025 17:58:00 GMT</pubDate>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/4gXKTDE6szAa0mX4puPPaF/a5aa3dc188aefb64980ca07076fd6041/Auth0SecurityAgainstIdentityAttacks.jpg" type="image/jpeg"/>
+      <description>Learn how to mitigate the risks of Bulletproof Hosting providers using Auth0 Actions and threat intelligence signals to secure your identity infrastructure.</description>
+    </item>
+    <item>
+      <title>Auth0 My Account API: Let Users Manage Their Own Account</title>
+      <link>https://auth0.com/blog/auth0-my-account-api/</link>
+      <id>https://auth0.com/blog/auth0-my-account-api/</id>
+      <pubDate>Thu, 18 Dec 2025 00:00:00 GMT</pubDate>
+      <author>andrea.chiarelli@auth0.com</author>
+      <dc:creator>Andrea Chiarelli</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/1MCjD47Sh3IaobmEsmp6KG/21b7a6c46063ff97a764120b19b9c978/Auth0_blog_-_My_Account_API_Hero.png" type="image/png"/>
+      <description>Learn how the Auth0 My Account API securely enables client-side, self-service user management, eliminating the need for server-side proxies for features like passkey enrollment and account linking.</description>
+    </item>
+    <item>
+      <title>Continuous Authorization Testing: FGA, GitHub Actions, and CI/CD </title>
+      <link>https://auth0.com/blog/continuous-authorization-testing-fga-github-ci-cd/</link>
+      <id>https://auth0.com/blog/continuous-authorization-testing-fga-github-ci-cd/</id>
+      <pubDate>Wed, 17 Dec 2025 00:00:00 GMT</pubDate>
+      <author>carla.urrea@okta.com</author>
+      <dc:creator>Carla Urrea Stabile</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/dHNuIVcVWViLzZr4FDTzw/eef451f5c6a8eb37c67fde6dfbf46e00/Auth0FineGrainedAuthorization.png" type="image/png"/>
+      <description>Learn how to achieve continuous confidence in your authorization logic. This article will guide you on defining OpenFGA test files and integrating them into a robust CI/CD pipeline using GitHub Actions.</description>
+    </item>
+    <item>
+      <title>FAPI for Developers: Here Is Your Guide
+</title>
+      <link>https://auth0.com/blog/fapi-for-developers-guide/</link>
+      <id>https://auth0.com/blog/fapi-for-developers-guide/</id>
+      <pubDate>Tue, 16 Dec 2025 00:00:00 GMT</pubDate>
+      <author>andrea.chiarelli@auth0.com</author>
+      <dc:creator>Andrea Chiarelli</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/5f1uTVuzBQubsU6FTMKt4Q/165f126c35f3c0cd5e458c74361fcf72/A_Developers_Guide_to_FAPI_Hero.png" type="image/png"/>
+      <description>A new ebook is available to explain why FAPI is essential for regulated industries, and how to move beyond OAuth bearer tokens for top identity security.</description>
+    </item>
+    <item>
+      <title>An Accessible Guide to WCAG 3.3.9: Going for Gold</title>
+      <link>https://auth0.com/blog/an-accessible-guide-to-wcag-3-3-9/</link>
+      <id>https://auth0.com/blog/an-accessible-guide-to-wcag-3-3-9/</id>
+      <pubDate>Mon, 15 Dec 2025 10:40:00 GMT</pubDate>
+      <author>ramona.schwering@okta.com</author>
+      <dc:creator>Ramona Schwering</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/2eI0QzyMTFHAOTfDIImvWu/777355a1afe673272d38509808857d31/square-hero.jpg" type="image/jpeg"/>
+      <description>WCAG 3.3.8 sets minimum standards for accessible authentication. 3.3.9 enhances these by removing exceptions and automating cognitive tests for users.</description>
+    </item>
+    <item>
+      <title>Express Configuration is now GA for Auth0 SaaS apps in the Okta Integration Network</title>
+      <link>https://auth0.com/blog/express-configuration-auth0-saas-apps-okta-oin/</link>
+      <id>https://auth0.com/blog/express-configuration-auth0-saas-apps-okta-oin/</id>
+      <pubDate>Thu, 11 Dec 2025 00:00:00 GMT</pubDate>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/2Gi1hwSok4qLMuW0FBLdkw/4a2f4dad85b35510f8c5d3df5d09bc9a/ExpressConfigurationGA.png" type="image/png"/>
+      <description>Express Configuration with Okta is now Generally Available for Auth0 applications in the Okta Integration Network</description>
+    </item>
+    <item>
+      <title>Simplify Your Stack (and Save!): A Guide to Linking Your Auth0 Tenants
+</title>
+      <link>https://auth0.com/blog/auth0-linking-tenants/</link>
+      <id>https://auth0.com/blog/auth0-linking-tenants/</id>
+      <pubDate>Wed, 10 Dec 2025 15:09:00 GMT</pubDate>
+      <author/>
+      <dc:creator>Alisha Tingle</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/2fJzheqmbgOzo1wtNy2mx/b95f72472c3537e1a3f84cda0f234f52/LinkingYourAuth0Tenants.png" type="image/png"/>
+      <description>Learn how to use the Auth0 Teams feature to link your Auth0 tenants for immediate billing consolidation and simplified feature management.</description>
+    </item>
+    <item>
+      <title>Using an API Gateway with Fine-Grained Authorization</title>
+      <link>https://auth0.com/blog/using-api-gateway-fine-grained-authorization/</link>
+      <id>https://auth0.com/blog/using-api-gateway-fine-grained-authorization/</id>
+      <pubDate>Tue, 09 Dec 2025 00:00:00 GMT</pubDate>
+      <author>carla.urrea@okta.com</author>
+      <dc:creator>Carla Urrea Stabile</dc:creator>
+      <enclosure url="https://images.ctfassets.net/23aumh6u8s0i/1rIXR2iYTS1dYxLR89Qi2U/1a8adf7f914b639217f86dedbf757bfa/hero-fga.png" type="image/png"/>
+      <description>In this blog post you’ll learn about different API Gateways: Zuplo, Kong, and Apache APISIX, and how each one could work best for a service that uses Fine-Grained Authorization.</description>
+    </item>
+  </channel>
+</rss>

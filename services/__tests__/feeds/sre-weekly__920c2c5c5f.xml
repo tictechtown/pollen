@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?><rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>SRE WEEKLY</title>
+	<atom:link href="https://sreweekly.com/feed/" rel="self" type="application/rss+xml" />
+	<link>https://sreweekly.com</link>
+	<description>scalability, availability, incident response, automation</description>
+	<lastBuildDate>Mon, 15 Dec 2025 03:31:52 +0000</lastBuildDate>
+	<language>en-US</language>
+	<sy:updatePeriod>
+	hourly	</sy:updatePeriod>
+	<sy:updateFrequency>
+	1	</sy:updateFrequency>
+	<generator>https://wordpress.org/?v=6.4.7</generator>
+
+<image>
+	<url>https://sreweekly.com/wp-content/uploads/2015/12/cropped-sreweekly-logo-axes-32x32.png</url>
+	<title>SRE WEEKLY</title>
+	<link>https://sreweekly.com</link>
+	<width>32</width>
+	<height>32</height>
+</image> 
+	<item>
+		<title>SRE Weekly Issue #501</title>
+		<link>https://sreweekly.com/sre-weekly-issue-501/</link>
+		
+		<dc:creator><![CDATA[lex]]></dc:creator>
+		<pubDate>Mon, 15 Dec 2025 03:31:51 +0000</pubDate>
+				<category><![CDATA[General]]></category>
+		<guid isPermaLink="false">https://sreweekly.com/?p=1715</guid>
+
+					<description><![CDATA[View on sreweekly.com A message from our sponsor, Depot: &#8220;Waiting for a runner&#8221; but the runner is online? Depot debugs three cases where symptoms misled engineers. Workflow permissions, Azure authentication, and Dependabot&#8217;s security context all caused failures that looked like infrastructure problems. AI and the ironies of automation &#8211; Part 1 A thoughtful evaluation of [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p><a class="email_only" href="https://sreweekly.com/sre-weekly-issue-501/">View on sreweekly.com</a></p>
+
+<div class="sreweekly-sponsor-message" style="border: 1px solid #b0b0b0;margin-top: 2rem;margin-bottom: 2rem;margin-left: auto;margin-right: auto;padding-left: 1rem;padding-right: 1rem;width: 80%;align: center;">
+<h2 style="text-align: center;font-size: 80%;color: #909090;">A message from our sponsor, <a href="https://fandf.co/4aInx3u">Depot</a>:</h2>
+<p>&#8220;Waiting for a runner&#8221; but the runner is online? <a href="https://fandf.co/4aInx3u">Depot debugs three cases</a> where symptoms misled engineers. Workflow permissions, Azure authentication, and Dependabot&#8217;s security context all caused failures that looked like infrastructure problems.</p>
+</div>
+
+
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container">
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://ufried.com/blog/ironies_of_ai_1/" target="_blank" rel="noopener">AI and the ironies of automation &#8211; Part 1</a></div>
+<div class="sreweekly-description">
+<p>A thoughtful evaluation of current trends in AI through the lens of Lisanne Bainbridge&#8217;s classic paper, The Ironies of Automation.  I really got a lot out of this one.</p>
+<p>&nbsp;&nbsp;<small>Uwe Friedrichsen</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://netflixtechblog.com/100x-faster-how-we-supercharged-netflix-maestros-workflow-engine-028e9637f041" target="_blank" rel="noopener">100X Faster: How We Supercharged Netflix Maestro’s Workflow Engine</a></div>
+<div class="sreweekly-description">
+<p>They supercharged the workflow engine by rewriting it.  I like the way they explained why they settled on a full rewrite and the alternative options they considered.</p>
+<p>&nbsp;&nbsp;<small>Jun He, Yingyi Zhang, and  Ely Spears &mdash; Netflix</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://authress.io/knowledge-base/articles/2025/11/01/how-we-prevent-aws-downtime-impacts" target="_blank" rel="noopener">How when AWS was down, we were not</a></div>
+<div class="sreweekly-description">
+<p>This one goes deep on how to build a reliable service on unreliable parts.  Can retries improve your overall reliability?  What about the reliability of the retry system itself?</p>
+<p>&nbsp;&nbsp;<small>Warren Parad &mdash; Authress</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://storiesfromtheedge.substack.com/p/cold-restart-resilience" target="_blank" rel="noopener">Cold-Restart Resilience: Because ‘It Starts’ Doesn’t Mean ‘It Works&#8217;</a></div>
+<div class="sreweekly-description">
+<blockquote>
+<p>In this article, we’ll explore how cold-restart dependencies form, why typical recovery designs break down, and what architectural principles can help systems <em>warm up faster</em> after a complete outage.</p>
+</blockquote>
+<p>&nbsp;&nbsp;<small>Bala Kambala</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://uptimelabs.io/how-crisis-reveals-the-truth-about-complex-systems/" target="_blank" rel="noopener">How Crisis Reveals the Truth About Complex Systems</a></div>
+<div class="sreweekly-description">
+<p>This one goes into the qualities of a good post-incident review, the definition of resilience, and a discussion of blamelessness, drawing lessons from aviation.</p>
+<p>&nbsp;&nbsp;<small>Gamunu Balagalla &mdash; Uptime Labs</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://www.youtube.com/watch?v=tcRxa6E1MUw" target="_blank" rel="noopener">The Heartbreaking Story of BOAC flight 712</a></div>
+<div class="sreweekly-description">
+<p>It would be easy to blame the poor outcome of BOAC 712&#8217;s engine failure on human error since the pilots missed key steps in their checklists.  Instead, the NTSB cited systemic issues, resulting in improvements in checklists and other areas.</p>
+<p>&nbsp;&nbsp;<small>Mentour Pilot</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://blog.cloudflare.com/5-december-2025-outage/" target="_blank" rel="noopener">Cloudflare outage on December 5, 2025</a></div>
+<div class="sreweekly-description">
+<p>Cloudflare had another significant outage, though not as big as the one last month. This one was related to steps they took to mitigate the big React RCE vulnerability.</p>
+<p>  <small>Dane Knecht — Cloudflare</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://surfingcomplexity.blog/2025/12/06/quick-takes-on-the-dec-5-cloudflare-outage/" target="_blank" rel="noopener">Quick takes on the Dec 5 Cloudflare outage</a></div>
+<div class="sreweekly-description">
+<p>Lorin&#8217;s whole analysis is awesome, but there&#8217;s an especially incisive section at the end that uses math to put Cloudflare&#8217;s run of 2 recent big incidents in perspective.</p>
+<p>  <small>Lorin Hochstein</small></p>
+</div>
+</div>
+</div></div>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>SRE Weekly Issue #500</title>
+		<link>https://sreweekly.com/sre-weekly-issue-500/</link>
+		
+		<dc:creator><![CDATA[lex]]></dc:creator>
+		<pubDate>Mon, 08 Dec 2025 02:05:42 +0000</pubDate>
+				<category><![CDATA[General]]></category>
+		<guid isPermaLink="false">https://sreweekly.com/?p=1713</guid>
+
+					<description><![CDATA[View on sreweekly.com A message from our sponsor, Depot: Stop hunting through GitHub Actions logs. Depot now offers powerful CI log search across all your repositories and workflows. With smart filtering by timeframe, runner type, and keywords, you’ll have all the information at your fingertips to debug faster. Wow, five hundred issues! I sent the [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p><a class="email_only" href="https://sreweekly.com/sre-weekly-issue-500/">View on sreweekly.com</a></p>
+
+<div class="sreweekly-sponsor-message" style="border: 1px solid #b0b0b0; padding-left: 1rem; padding-right: 1rem; width: 80%; align: center; margin: 2rem auto 2rem auto;">
+<h2 style="text-align: center; font-size: 80%; color: #909090;">A message from our sponsor, <a href="https://fandf.co/4iGAYml">Depot</a>:</h2>
+<p>Stop hunting through GitHub Actions logs. <a href="https://fandf.co/4iGAYml">Depot now offers powerful CI log search</a> across all your repositories and workflows. With smart filtering by timeframe, runner type, and keywords, you’ll have all the information at your fingertips to debug faster.</p>
+</div>
+
+
+<p>Wow, five hundred issues!  I sent <a href="https://sreweekly.com/sre-weekly-issue-1/">the first issue of SRE Weekly</a> out almost exactly ten years ago.  I assumed my little experiment would fairly quickly come to an end when I exhausted the supply of SRE-related articles.</p>
+
+
+
+<p>I needn&#8217;t have worried.  Somehow, the authors I&#8217;ve featured here have continued to produce a seemingly endless stream of excellent articles.  If anything, the pace has only picked up over time!  A profound thank you to all of the authors, without whom this newsletter would be just an empty bulleted list.</p>
+
+
+
+<p>And thanks to you, dear readers, for making this worthwhile.  Thanks for sharing the articles you find or write, I love receiving them!  Thanks for the notes you send after an issue you particularly like, and the corrections too.  Thanks for your kind well-wishes for my recent surgery, they meant a ton.</p>
+
+
+
+<p>Finally, thanks to my sponsors, whose support makes all this possible.  If you see something interesting, please give it a click and check it out!</p>
+
+
+
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container">
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://engineering.grab.com/ml-predictive-autoscaling-for-flink" target="_blank" rel="noopener">Machine-learning predictive autoscaling for Flink</a></div>
+<div class="sreweekly-description">
+<p>When a scale-up event actually causes increased resource usage for awhile, a standard auto-scaling algorithm can fail.</p>
+<p>&nbsp;&nbsp;<small> Minh Nhat Nguyen, Shi Kai Ng, and Calvin Tran &mdash; Grab</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://blog.railway.com/p/incident-report-oct-28th-2025" target="_blank" rel="noopener">[Railway] Incident Report: October 28th, 2025</a></div>
+<div class="sreweekly-description">
+<p>A database schema change added an index on a large table without using the <code>CONCURRENTLY</code> option, locking the table.  This reminds me of a similar incident when I worked for Honeycomb and <a href="https://www.honeycomb.io/blog/making-room-for-lint">their solution</a>.</p>
+<p>&nbsp;&nbsp;<small>Ray Chen &mdash; Railway</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://ufried.com/blog/it_is_your_fault/" target="_blank" rel="noopener">It is your fault if your application is down</a></div>
+<div class="sreweekly-description">
+<p>Oof, that&#8217;s a harsh title, but this is a great discussion of how we strive to design for reliability even when our downstream vendors have outages.</p>
+<p>&nbsp;&nbsp;<small>Uwe Friedrichsen</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://uptimelabs.io/advice-first-time-staff-sres/" target="_blank" rel="noopener">Advice for First-Time Staff SREs</a></div>
+<div class="sreweekly-description">
+<p>This one has a lot of good recommendations for staff-level SREs covering 8 areas, shared by a former Staff SRE.</p>
+<p>&nbsp;&nbsp;<small>Karan Nagarajagowda</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://dzone.com/articles/the-jvm-pause-that-wasnt-a-war-story" target="_blank" rel="noopener">The JVM Pause That Wasn&#8217;t: A War Story</a></div>
+<div class="sreweekly-description">
+<blockquote>
+<p>A high-throughput Java service was stalling. The culprit? Stop-the-World GC pauses were blocked by synchronous log writes to a busy disk.</p>
+</blockquote>
+<p>&nbsp;&nbsp;<small> Nataraj Mocherla &mdash; DZone</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://www.youtube.com/watch?v=lKPrvHVXPKE" target="_blank" rel="noopener">The Tragedy of PSA Flight 182</a></div>
+<div class="sreweekly-description">
+<p>This air accident report video by Mentour Pilot has a great example of alert fatigue around 30 minutes in.  The air traffic controllers received enough spurious conflict alerts every day that they became easy to ignore.</p>
+<p>&nbsp;&nbsp;<small>Mentour Pilot</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://blog.alexewerlof.com/p/emergent-properties" target="_blank" rel="noopener">Emergent properties</a></div>
+<div class="sreweekly-description">
+<blockquote>
+<p>In this post you learn:<br />
+* What are emergent properties and what kind of system has them?<br />
+* What are weak and strong emergence as opposed to resultant properties?<br />
+* How do emergent properties impact the reliability, maintainability, predictability, and cost of the system?</p>
+</blockquote>
+<p>Well worth a read.  It really got me thinking about emergence and its relationship to reliability.</p>
+<p>&nbsp;&nbsp;<small>Alex Ewerlöf</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://uptimelabs.io/incident-management-leadership/" target="_blank" rel="noopener">Who&#8217;s in Charge?</a></div>
+<div class="sreweekly-description">
+<p>In an incident, it&#8217;s important to have someone be in charge &mdash; and for it to be clear who that is, as explained in this article.</p>
+<p>&nbsp;&nbsp;<small>Joe Mckevitt &mdash; Uptime Labs</small></p>
+</div>
+</div>
+</div></div>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>SRE Weekly Issue #499</title>
+		<link>https://sreweekly.com/sre-weekly-issue-499/</link>
+		
+		<dc:creator><![CDATA[lex]]></dc:creator>
+		<pubDate>Mon, 01 Dec 2025 02:56:18 +0000</pubDate>
+				<category><![CDATA[General]]></category>
+		<guid isPermaLink="false">https://sreweekly.com/?p=1711</guid>
+
+					<description><![CDATA[View on sreweekly.com Fix-mas Countdown The folks at Uptime Labs and Advanced Capacity Labs have announced an advent calendar for this December. Note: In order to take part, you&#8217;ll need to provide an email address to subscribe. I gave that some serious thought before including this here, but ultimately, I have a lot of trust [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p><a class="email_only" href="https://sreweekly.com/sre-weekly-issue-499/">View on sreweekly.com</a></p>
+
+
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container">
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://uptimelabs.io/fixmas/" target="_blank" rel="noopener">Fix-mas Countdown</a></div>
+<div class="sreweekly-description">
+<p>The folks at Uptime Labs and Advanced Capacity Labs have announced an advent calendar for this December.</p>
+<p>Note: In order to take part, you&#8217;ll need to provide an email address to subscribe. I gave that some serious thought before including this here, but ultimately, I have a lot of trust for the folks at both ACL and Uptime Labs, since they&#8217;ve both produced so much awesome content that&#8217;s been featured here. I&#8217;m interested to see what this collab will bring!</p>
+<p>  <small>Uptime Labs and Adaptive Capacity Labs</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://medium.com/airbnb-engineering/from-static-rate-limiting-to-adaptive-traffic-management-in-airbnbs-key-value-store-29362764e5c2" target="_blank" rel="noopener">From Static Rate Limiting to Adaptive Traffic Management in Airbnb’s Key-Value Store</a></div>
+<div class="sreweekly-description">
+<p>Cool trick: divide short-term P95 latency by the long-term P95 to detect load spikes and adjust rate limits on-the-fly.</p>
+<p>&nbsp;&nbsp;<small>Shravan Gaonkar &mdash; Airbnb</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://www.datadoghq.com/blog/engineering/rethinking-reliability/" target="_blank" rel="noopener">Failure is inevitable: Learning from a large outage, and building for reliability in depth at Datadog</a></div>
+<div class="sreweekly-description">
+<p>Datadog shares the bigger-picture lessons they learned and improvements they made since their major 2023 outage, including an emphasis on graceful degradation.</p>
+<p>&nbsp;&nbsp;<small>Laura de Vesine, Rob Thomas, AND Maciej Kowalewski</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://www.unkey.com/blog/serverless-exit" target="_blank" rel="noopener">Why we&#8217;re leaving serverless</a></div>
+<div class="sreweekly-description">
+<p>This article does a really good job of laying out the problems with serverless that led them to leave: having to layer on significant complexity to deal with the limits of running in Cloudflare workers.</p>
+<p>&nbsp;&nbsp;<small>Andreas Thomas &mdash; Unkey</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://medium.com/@oakley349/reliability-and-fault-tolerance-6861884a3433" target="_blank" rel="noopener">Reliability and Fault Tolerance</a></div>
+<div class="sreweekly-description">
+<p>This article explains the two concepts of reliability and fault tolerance and how they relate.</p>
+<p>&nbsp;&nbsp;<small>Oakley Hall</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://www.reddit.com/r/sre/comments/1p1crnq/today_i_caused_a_production_incident_with_a/" target="_blank" rel="noopener">r/sre: Today I caused a production incident with a stupid bug </a></div>
+<div class="sreweekly-description">
+<p>This one could easily be titled, &#8220;Today, major system failures meant that I was able to take down production really easily.&#8221; There&#8217;s some great discussion in the comments, and I hope the author feels better.</p>
+<p>&nbsp;&nbsp;<small>u/Deep-Jellyfish-2383 and others &mdash; reddit</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://slack.engineering/advancing-our-chef-infrastructure-safety-without-disruption/" target="_blank" rel="noopener">Advancing Our Chef Infrastructure: Safety Without Disruption</a></div>
+<div class="sreweekly-description">
+<p>Slack shows how they changed their monolithic Chef cookbook change deployment process to reduce risk, by breaking production up into 6 separate environments.</p>
+<p>&nbsp;&nbsp;<small>Archie Gunasekara &mdash; Slack</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://surfingcomplexity.blog/2025/11/02/youll-never-see-attrition-referenced-in-an-rca/" target="_blank" rel="noopener">You’ll never see attrition referenced in an RCA</a></div>
+<div class="sreweekly-description">
+<p>The author discusses reasons why engineer attrition won&#8217;t appear in a public incident write-up, and may well not appear in a private one, either.</p>
+<p>&nbsp;&nbsp;<small>Lorin Hochstein</small></p>
+</div>
+</div>
+</div></div>
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>SRE Weekly Issue #498</title>
+		<link>https://sreweekly.com/sre-weekly-issue-498/</link>
+		
+		<dc:creator><![CDATA[lex]]></dc:creator>
+		<pubDate>Mon, 24 Nov 2025 03:38:41 +0000</pubDate>
+				<category><![CDATA[General]]></category>
+		<guid isPermaLink="false">https://sreweekly.com/?p=1709</guid>
+
+					<description><![CDATA[View on sreweekly.com A message from our sponsor, Costory: You didn’t sign up to do FinOps. Costory automatically explains why your cloud costs change, and reports it straight to Slack. Built for SREs who want to code, not wrestle with spreadsheets. Now on AWS &#38; GCP Marketplaces. Start your free trial at costory.io Cloudflare outage [&#8230;]]]></description>
+										<content:encoded><![CDATA[
+<a class="email_only" href="https://sreweekly.com/sre-weekly-issue-498/">View on sreweekly.com</a>
+
+
+
+<div class="sreweekly-sponsor-message" style="border: 1px solid #b0b0b0;margin-top: 2rem;margin-bottom: 2rem;margin-left: auto;margin-right: auto;padding-left: 1rem;padding-right: 1rem;width: 80%;align: center;">
+<h2 style="text-align: center;font-size: 80%;color: #909090;">A message from our sponsor, <a href="http://costory.io/">Costory</a>:</h2>
+<p><strong>You didn’t sign up to do FinOps.</strong>
+<strong>Costory</strong> automatically explains <em>why</em> your cloud costs change, and reports it straight to Slack.
+Built for <strong>SREs</strong> who want to code, not wrestle with spreadsheets.
+<strong>Now on AWS &amp; GCP Marketplaces.</strong></p><p>Start your free trial at <a href="https://sreweekly.com/link/498">costory.io</a></p>
+</div>
+
+
+
+
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container">
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://blog.cloudflare.com/18-november-2025-outage/" target="_blank" rel="noopener">Cloudflare outage on November 18, 2025</a></div>
+<div class="sreweekly-description"><p>Cloudflare had a major incident this week, and they say it was their worst since 2019.  In this report, they explain what happened, and the failure mode is pretty interesting.</p>
+<p>&nbsp;&nbsp;<small>Matthew Prince &mdash; Cloudflare</small></p></div></div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://medium.com/airbnb-engineering/building-a-next-generation-key-value-store-at-airbnb-0de8465ba354" target="_blank" rel="noopener">Building a Next-Generation Key-Value Store at Airbnb</a></div>
+<div class="sreweekly-description"><blockquote>
+<p>How we completely rearchitected Mussel, our storage engine for derived data, and lessons learned from the migration from Mussel V1 to V2.</p>
+</blockquote>
+<p>They cover not just the motivation for and improvements in V2, but also the migration process to deploy V2 without interruption.</p>
+<p>&nbsp;&nbsp;<small>Shravan Gaonkar &mdash; Airbnb</small></p></div></div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://netflixtechblog.com/building-a-resilient-data-platform-with-write-ahead-log-at-netflix-127b6712359a" target="_blank" rel="noopener">Building a Resilient Data Platform with Write-Ahead Log at Netflix</a></div>
+<div class="sreweekly-description"><p>Netflix&#8217;s WAL service acts as a go-between, streaming data to pluggable targets while providing extra functionality like retries, delayed sending, and a dead-letter queue.</p>
+<p>&nbsp;&nbsp;<small>Prudhviraj Karumanchi, Samuel Fu, Sriram Rangarajan, Vidhya Arvind, Yun Wang, and John Lu &mdash; Netflix</small></p></div></div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://www.datadoghq.com/blog/engineering/husky-query-architecture/" target="_blank" rel="noopener">Inside Husky’s query engine: Real-time access to 100 trillion events</a></div>
+<div class="sreweekly-description"><p>A (very) deep dive into Datadog&#8217;s custom data store, with special attention to how it handles query planning and optimization.</p>
+<p>&nbsp;&nbsp;<small>Sami Tabet &mdash; Datadog</small></p></div></div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://surfingcomplexity.blog/2025/10/04/two-thought-experiments/" target="_blank" rel="noopener">Two thought experiments</a></div>
+<div class="sreweekly-description"><blockquote>
+<p>Perhaps we should encourage people to write their incident reports as if they will be consumed by an AI SRE tool that will use it to learn as much as possible about the work involved in diagnosing and remediating incidents in your company.</p>
+</blockquote>
+<p>&nbsp;&nbsp;<small>Lorin Hochstein</small></p></div></div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://klaviyo.tech/building-a-resilient-event-publisher-with-dual-failure-capture-518749cb5600" target="_blank" rel="noopener">Building a Resilient Event Publisher with Dual Failure Capture</a></div>
+<div class="sreweekly-description"><blockquote>
+<p>we landed on a two-level failure capture design that combines Kafka topics with an S3 backup to ensure no event is ever lost.</p>
+</blockquote>
+<p>&nbsp;&nbsp;<small>Tanya Fesenko, Collin Crowell, Dmitry Mamyrin, and Chinmay Sawaji &mdash; Klaviyo</small></p></div></div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://ably.com/blog/multi-region-resilience-aws-outage" target="_blank" rel="noopener">AWS us-east-1 outage: How Ably’s multi-region architecture held up</a></div>
+<div class="sreweekly-description"><p>Buried in this one is this gem: the last layer of reliability is that their client library automatically retries to alternate regions if the main region fails.</p>
+<p>&nbsp;&nbsp;<small>Paddy Byers &mdash; Ably</small></p></div></div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://incident.io/blog/service-disruption-october-20th-2025" target="_blank" rel="noopener">Service disruption on October 20, 2025</a></div>
+<div class="sreweekly-description"><p>incident.io shares details on how they fared during the AWS us-east-1 incident on October 20.</p>
+<p>&nbsp;&nbsp;<small>Pete Hamilton &mdash; incident.io</small></p></div></div>
+
+
+</div></div>
+
+]]></content:encoded>
+					
+		
+		
+			</item>
+		<item>
+		<title>SRE Weekly Issue #497</title>
+		<link>https://sreweekly.com/sre-weekly-issue-497/</link>
+		
+		<dc:creator><![CDATA[lex]]></dc:creator>
+		<pubDate>Mon, 17 Nov 2025 03:35:09 +0000</pubDate>
+				<category><![CDATA[General]]></category>
+		<guid isPermaLink="false">https://sreweekly.com/?p=1703</guid>
+
+					<description><![CDATA[View on sreweekly.com A message from our sponsor, Costory: You didn’t sign up to do FinOps.Costory automatically explains why your cloud costs change, and reports it straight to Slack.Built for SREs who want to code, not wrestle with spreadsheets.Now on AWS &#38; GCP Marketplaces. Start your free trial at costory.io To vibe or not to [&#8230;]]]></description>
+										<content:encoded><![CDATA[<p><a class="email_only" href="https://sreweekly.com/sre-weekly-issue-497/">View on sreweekly.com</a></p>
+
+<div class="sreweekly-sponsor-message" style="border: 1px solid #b0b0b0; padding-left: 1rem; padding-right: 1rem; width: 80%; align: center; margin: 2rem auto 2rem auto;">
+<h2 style="text-align: center; font-size: 80%; color: #909090;">A message from our sponsor, <a href="https://sreweekly.com/link/497">Costory</a>:</h2>
+<p><strong>You didn’t sign up to do FinOps.</strong><br /><strong>Costory</strong> automatically explains <em>why</em> your cloud costs change, and reports it straight to Slack.<br />Built for <strong>SREs</strong> who want to code, not wrestle with spreadsheets.<br /><strong>Now on AWS &amp; GCP Marketplaces.</strong></p>
+<p>Start your free trial at <a href="https://sreweekly.com/link/497">costory.io</a></p>
+</div>
+
+
+<div class="wp-block-group is-layout-flow wp-block-group-is-layout-flow"><div class="wp-block-group__inner-container">
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://martinfowler.com/articles/exploring-gen-ai/to-vibe-or-not-vibe.html" target="_blank" rel="noopener">To vibe or not to vibe</a></div>
+<div class="sreweekly-description">
+<p>A thoughtful framework for evaluating the risk in using AI coding tools, centering around the probability, detectability, and impact of errors.</p>
+<p>&nbsp;&nbsp;<small>Birgitta Böckeler &mdash; martinfowler.com</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://blog.cloudflare.com/so-long-and-thanks-for-all-the-fish-how-to-escape-the-linux-networking-stack/" target="_blank" rel="noopener">So long, and thanks for all the fish- how to escape the Linux networking stack</a></div>
+<div class="sreweekly-description">
+<p>Cloudflare does some really fascinating things with networking.  Here&#8217;s a deep dive on how they solved a problem in their implementation of sharing IP addresses across machines.</p>
+<p>&nbsp;&nbsp;<small>Chris Branch &mdash; Cloudflare</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://www.tines.com/blog/zero-downtime-database-migrations-lessons-from-moving-a-live-production" target="_blank" rel="noopener">Zero downtime database migrations: Lessons from moving a live production database</a></div>
+<div class="sreweekly-description">
+<p>I especially like how they nail down what exactly counts as &#8220;zero downtime&#8221; in the migration.  They did allow some kinds of degradation.</p>
+<p>&nbsp;&nbsp;<small>Anna Dowling &mdash; Tines</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://ferd.ca/ongoing-tradeoffs-and-incidents-as-landmarks.html" target="_blank" rel="noopener">Ongoing Tradeoffs, and Incidents as Landmarks</a></div>
+<div class="sreweekly-description">
+<p>We&#8217;re always making tradeoffs in our systems (and companies).  Incidents can help us see whether we&#8217;re making the right ones and how our decisions have played out.</p>
+<p>&nbsp;&nbsp;<small>Fred Hebert</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://surfingcomplexity.blog/2025/09/20/fixation-the-ever-present-risk-during-incident-handling/" target="_blank" rel="noopener">Fixation: the ever-present risk during incident handling</a></div>
+<div class="sreweekly-description">
+<p>Fixation on a plan, on a model of the system, or on a theory of the cause, is a major risk in incident response.</p>
+<p>&nbsp;&nbsp;<small>Lorin Hochstein</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://klaviyo.tech/building-a-distributed-priority-queue-in-kafka-1b2d8063649e" target="_blank" rel="noopener">Building a Distributed Priority Queue in Kafka</a></div>
+<div class="sreweekly-description">
+<blockquote>
+<p>how do you design a system with events that have different SLO requirements?</p>
+</blockquote>
+<p>They added a proxy layer on the consumer side to allow parallel processing within partitions, to avoid head-of-line blocking.</p>
+<p>&nbsp;&nbsp;<small>Rohit Pathak, Tanya Fesenko, Collin Crowell, and Dmitry Mamyrin &mdash; Klaviyo</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://blog.railway.com/p/incident-report-sept-22-2025" target="_blank" rel="noopener">Incident Report: September 22nd, 2025</a></div>
+<div class="sreweekly-description">
+<p>A database schema change was unintentionally reverted, and a subsequent thundering herd exacerbated the impact.</p>
+<p>&nbsp;&nbsp;<small>Ray Chen &mdash; Railway</small></p>
+</div>
+</div>
+
+
+
+<div class="sreweekly-entry">
+<div class="sreweekly-title"><a href="https://blog.palark.com/postgresql-upgrade-no-data-loss-downtime/" target="_blank" rel="noopener">Upgrading PostgreSQL with no data loss and minimal downtime</a></div>
+<div class="sreweekly-description">
+<blockquote>
+<p>Recently, we had to upgrade a heavily loaded PostgreSQL cluster from version 13 to 16 while keeping downtime minimal. The cluster, consisting of a master and a replica, was handling over 20,000 transactions per second. </p>
+</blockquote>
+<p>&nbsp;&nbsp;<small>Timur Nizamutdinov &mdash; Palark</small></p>
+</div>
+</div>
+</div></div>
+]]></content:encoded>
+					
+		
+		
+			</item>
+	</channel>
+</rss>

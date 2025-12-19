@@ -8,6 +8,7 @@ import { Article, Feed } from '@/types'
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '',
+  stopNodes: ['feed.entry.content'],
 })
 
 const toTimestamp = (value?: string | null): number => {
@@ -96,11 +97,14 @@ const extractOg = (headHtml: string, baseUrl: string) => {
     headHtml.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
     headHtml.match(/<meta[^>]+name=["']image["'][^>]+content=["']([^"']+)["']/i)?.[1]
   const ogDescription =
-    headHtml.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
+    headHtml.match(
+      /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
+    )?.[1] ??
     headHtml.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)?.[1]
   const ogPublished =
-    headHtml.match(/<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
-    headHtml.match(/<meta[^>]+name=["']date["'][^>]+content=["']([^"']+)["']/i)?.[1]
+    headHtml.match(
+      /<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i,
+    )?.[1] ?? headHtml.match(/<meta[^>]+name=["']date["'][^>]+content=["']([^"']+)["']/i)?.[1]
 
   return {
     thumbnail: toAbsoluteUrl(baseUrl, ogImage),
@@ -110,7 +114,11 @@ const extractOg = (headHtml: string, baseUrl: string) => {
 }
 
 const extractJsonLd = (headHtml: string, baseUrl: string) => {
-  const scripts = [...headHtml.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)]
+  const scripts = [
+    ...headHtml.matchAll(
+      /<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+    ),
+  ]
   for (const match of scripts) {
     const content = match[1]
     try {
@@ -127,8 +135,8 @@ const extractJsonLd = (headHtml: string, baseUrl: string) => {
           typeof imageField === 'string'
             ? imageField
             : Array.isArray(imageField) && typeof imageField[0] === 'string'
-              ? imageField[0]
-              : undefined
+            ? imageField[0]
+            : undefined
         const publishedAt = candidate.datePublished || candidate.dateModified
         return {
           thumbnail: toAbsoluteUrl(baseUrl, image),
@@ -213,12 +221,15 @@ const extractMetadataFromFeed = async (
   }
 
   const needsEnrichment =
-    !thumbnail || (!description && !options?.hasDescription) || (!publishedAt && !options?.hasPublished)
+    !thumbnail ||
+    (!description && !options?.hasDescription) ||
+    (!publishedAt && !options?.hasPublished)
   if (needsEnrichment) {
     const link = item.link?.href ?? item.link?.['#text'] ?? item.link
     const fetched = await fetchMetadataFromPage(link, options?.budget)
     thumbnail =
-      thumbnail ?? (fetched.thumbnail ? toAbsoluteUrl(options?.baseUrl ?? '', fetched.thumbnail) : undefined)
+      thumbnail ??
+      (fetched.thumbnail ? toAbsoluteUrl(options?.baseUrl ?? '', fetched.thumbnail) : undefined)
     description = description ?? fetched.description
     publishedAt = publishedAt ?? fetched.publishedAt
   }
@@ -262,7 +273,9 @@ interface RssFeed {
     channel: {
       'atom:link': { href: string; rel: string; type?: string }[]
       description: string
-      image: { url: string; title: string; link: string }[]
+      image:
+        | { url: string; title: string; link: string }
+        | { url: string; title: string; link: string }[]
       item: FetchedRssArticle[]
       language: string
       lastBuildDate: string
@@ -335,7 +348,12 @@ export const extractImage = async (
   return metadata.thumbnail
 }
 
-const parseAtomFeed = async (url: string, atomFeed: AtomFeed, cutoffTs = 0, budget?: MetadataBudget) => {
+const parseAtomFeed = async (
+  url: string,
+  atomFeed: AtomFeed,
+  cutoffTs = 0,
+  budget?: MetadataBudget,
+) => {
   const channel = atomFeed.feed
 
   const items = toArray(channel?.entry).filter((item) => {
@@ -351,7 +369,9 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed, cutoffTs = 0, budg
       decodeString(typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
       'RSS Feed',
     url,
-    description: decodeString(channel?.subtitle?.['#text']) ?? undefined,
+    description:
+      decodeString(typeof channel?.subtitle === 'string' ? channel?.subtitle : channel?.subtitle?.['#text']) ??
+      undefined,
     image: channel?.icon ?? undefined,
     lastUpdated: channel?.updated ?? channel?.lastBuildDate ?? channel?.pubDate ?? undefined,
   }
@@ -363,7 +383,7 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed, cutoffTs = 0, budg
         item.id['#text'] ?? item.id ?? item.link.href ?? item.title['#text'] ?? `${Date.now()}`
       const encodedId = encodeBase64(rawId) ?? rawId
       const feedDescription = decodeString(item.description ?? item.summary?.['#text'])
-      const feedPublished = item.published ?? undefined
+      const feedPublished = item.published ?? item.updated ?? undefined
 
       const metadata = await extractMetadataFromFeed(item, {
         baseUrl: url,
@@ -398,7 +418,12 @@ const parseAtomFeed = async (url: string, atomFeed: AtomFeed, cutoffTs = 0, budg
   return { feed, articles: dedupeById(articles) }
 }
 
-const parseRssFeed = async (url: string, rssFeed: RssFeed, cutoffTs = 0, budget?: MetadataBudget) => {
+const parseRssFeed = async (
+  url: string,
+  rssFeed: RssFeed,
+  cutoffTs = 0,
+  budget?: MetadataBudget,
+) => {
   const channel = rssFeed.rss.channel
   const items = toArray(channel?.item).filter((item) => {
     if (!cutoffTs) return true
@@ -413,7 +438,8 @@ const parseRssFeed = async (url: string, rssFeed: RssFeed, cutoffTs = 0, budget?
       'RSS Feed',
     url,
     description: decodeString(channel?.subtitle?.['#text']) ?? undefined,
-    image: channel?.icon ?? undefined,
+    image:
+      (Array.isArray(channel?.image) ? channel?.image[0]?.url : channel?.image?.url) ?? undefined,
     lastUpdated: channel?.updated ?? channel?.lastBuildDate ?? channel?.pubDate ?? undefined,
   }
 
