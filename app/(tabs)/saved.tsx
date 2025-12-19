@@ -1,20 +1,59 @@
 import { useRouter } from 'expo-router'
+import { useCallback, useMemo } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
-import { Appbar, Card, List, Text } from 'react-native-paper'
+import { Appbar, Card, Divider, Text, useTheme } from 'react-native-paper'
 
+import FeedItem from '@/components/ui/FeedItem'
+import { setArticleSaved } from '@/services/articles-db'
 import { useArticlesStore } from '@/store/articles'
+import { useSeenStore } from '@/store/seen'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function SavedScreen() {
   const router = useRouter()
-  const saved = useArticlesStore(useShallow((state) => state.articles.filter((a) => a.saved)))
+  const { colors } = useTheme()
+  const { articles, updateSavedLocal } = useArticlesStore(
+    useShallow((state) => ({
+      articles: state.articles,
+      updateSavedLocal: state.updateSavedLocal,
+    })),
+  )
+  const { seenIds, markSeen } = useSeenStore(
+    useShallow((state) => ({ seenIds: state.seenIds, markSeen: state.markSeen })),
+  )
+
+  const saved = useMemo(
+    () =>
+      articles
+        .filter((article) => article.saved)
+        .map((article) => ({ ...article, seen: seenIds.has(article.id) })),
+    [articles, seenIds],
+  )
+
+  const toggleSaved = useCallback(
+    async (id: string) => {
+      const current = articles.find((article) => article.id === id)
+      if (!current) return
+      const nextSaved = !current.saved
+      await setArticleSaved(id, nextSaved)
+      updateSavedLocal(id, nextSaved)
+    },
+    [articles, updateSavedLocal],
+  )
+
+  const toggleSeen = useCallback(
+    (id: string) => {
+      const isSeen = seenIds.has(id)
+      markSeen(id, !isSeen)
+    },
+    [markSeen, seenIds],
+  )
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Appbar.Header mode="center-aligned">
-        <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Saved for later" />
-        <Appbar.Action icon="dots-vertical" onPress={() => {}} />
+        <Appbar.Action icon="cog" onPress={() => router.push('/settings')} />
       </Appbar.Header>
 
       <FlatList
@@ -29,13 +68,14 @@ export default function SavedScreen() {
             </Card.Content>
           </Card>
         }
+        ItemSeparatorComponent={() => <Divider horizontalInset />}
         renderItem={({ item }) => (
-          <List.Item
-            title={item.title}
-            description={`${item.source}`}
-            left={(props) => <List.Icon {...props} icon="bookmark" />}
-            onPress={() => router.push(`/article/${item.id}`)}
-            right={(props) => <List.Icon {...props} icon="open-in-new" />}
+          <FeedItem
+            article={item}
+            onOpen={() => router.push(`/article/${item.id}`)}
+            onToggleSaved={() => toggleSaved(item.id)}
+            onToggleSeen={() => toggleSeen(item.id)}
+            colors={colors}
           />
         )}
       />
@@ -48,7 +88,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    padding: 8,
+    paddingTop: 16,
+    paddingBottom: 120,
+    gap: 12,
   },
   emptyCard: {
     margin: 16,

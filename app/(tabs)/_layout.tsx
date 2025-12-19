@@ -13,11 +13,6 @@ export default function TabLayout() {
         <Icon src={require('@/assets/images/bookmark_24dp.png')} />
         <Label>Saved</Label>
       </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="settings">
-        <Icon src={require('@/assets/images/settings_24dp.png')} />
-        <Label>Settings</Label>
-      </NativeTabs.Trigger>
     </NativeTabs>
   )
 

@@ -1,16 +1,16 @@
 import { ThemeProvider } from '@react-navigation/native'
 import * as Linking from 'expo-linking'
 import { Stack, useRouter } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
 import { useEffect, useRef, useState } from 'react'
 import { AppState, View } from 'react-native'
-import { StatusBar } from 'expo-status-bar'
 import { PaperProvider, Snackbar } from 'react-native-paper'
 import 'react-native-reanimated'
 
 import { getNavigationTheme, getPaperTheme } from '@/constants/paperTheme'
+import { useColorScheme } from '@/hooks/use-color-scheme'
 import { consumeBackgroundMarker, registerBackgroundRefresh } from '@/services/background-refresh'
 import { parseSharedUrl } from '@/services/share-intent'
-import { useColorScheme } from '@/hooks/use-color-scheme'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
 export const unstable_settings = {
@@ -27,7 +27,9 @@ export default function RootLayout() {
   const lastSharedUrl = useRef<string | null>(null)
 
   useEffect(() => {
-    registerBackgroundRefresh().catch((err) => console.warn('Background refresh registration failed', err))
+    registerBackgroundRefresh().catch((err) =>
+      console.warn('Background refresh registration failed', err),
+    )
 
     const checkMarker = async () => {
       const marker = await consumeBackgroundMarker()
@@ -73,6 +75,7 @@ export default function RootLayout() {
             <Stack>
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
               <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
+              <Stack.Screen name="settings" options={{ headerShown: false }} />
               <Stack.Screen name="sources" options={{ headerShown: false, presentation: 'card' }} />
               <Stack.Screen name="share" options={{ headerShown: false, presentation: 'modal' }} />
             </Stack>

@@ -19,6 +19,7 @@ export default function FeedScreen() {
       <Appbar.Header mode="center-aligned">
         <Appbar.Content title="Newsfeed" />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
+        <Appbar.Action icon="cog" onPress={() => router.push('/settings')} />
       </Appbar.Header>
 
       <View style={styles.filters}>
@@ -52,20 +53,18 @@ export default function FeedScreen() {
         data={articles}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
         keyExtractor={(item) => item.id}
+        ItemSeparatorComponent={() => <Divider horizontalInset />}
         renderItem={({ item }) => (
-          <>
-            <FeedItem
-              article={item}
-              onOpen={() => {
-                console.log('opening', `/article/${item.id}`)
-                router.push(`/article/${item.id}`)
-              }}
-              onToggleSaved={() => toggleSaved(item.id)}
-              onToggleSeen={() => toggleSeen(item.id)}
-              colors={colors}
-            />
-            <Divider />
-          </>
+          <FeedItem
+            article={item}
+            onOpen={() => {
+              console.log('opening', `/article/${item.id}`)
+              router.push(`/article/${item.id}`)
+            }}
+            onToggleSaved={() => toggleSaved(item.id)}
+            onToggleSeen={() => toggleSeen(item.id)}
+            colors={colors}
+          />
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   listContent: {
-    padding: 16,
+    paddingTop: 16,
     paddingBottom: 120,
     gap: 12,
   },
@@ -120,6 +119,6 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 16,
-    bottom: 24,
+    bottom: 128,
   },
 })

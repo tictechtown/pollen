@@ -24,6 +24,7 @@ export default function SettingsScreen() {
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
+        <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Settings" subtitle="Feeds, cache, and theme" />
       </Appbar.Header>
 
@@ -100,7 +101,7 @@ export default function SettingsScreen() {
         {snackbar}
       </Snackbar>
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -117,4 +118,4 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 8,
   },
-});
+})

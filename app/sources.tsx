@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
-import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
+import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
 import {
   Appbar,
@@ -68,6 +68,7 @@ export default function SourcesScreen() {
   const [feedUrl, setFeedUrl] = useState('')
   const [feedToRemove, setFeedToRemove] = useState<Feed | null>(null)
   const [snackbar, setSnackbar] = useState<string | null>(null)
+  const swipeableRefs = useRef<Record<string, SwipeableMethods | null>>({})
 
   const listData = useMemo(() => [{ id: 'all', title: 'All', url: '' }, ...feeds], [feeds])
 
@@ -102,6 +103,14 @@ export default function SourcesScreen() {
     setFeedToRemove(null)
   }
 
+  const handleCancelRemove = () => {
+    if (feedToRemove) {
+      swipeableRefs.current[feedToRemove.id]?.close()
+    }
+    setRemoveVisible(false)
+    setFeedToRemove(null)
+  }
+
   const handleAdd = async () => {
     if (!feedUrl.trim()) {
       setSnackbar('Enter a feed URL')
@@ -117,7 +126,7 @@ export default function SourcesScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Appbar.Header mode="center-aligned">
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Sources" />
@@ -127,51 +136,68 @@ export default function SourcesScreen() {
         data={listData}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        renderItem={({ item }) =>
-          item.id === 'all' ? (
-            <List.Item
-              title="All"
-              description="See every article"
-              left={(props) => <List.Icon {...props} icon="infinity" />}
-              right={(props) =>
-                selectedFeedId ? (
-                  <List.Icon {...props} icon="chevron-right" />
-                ) : (
-                  <List.Icon {...props} icon="check" />
-                )
-              }
-              onPress={() => handleSelect(undefined)}
-            />
-          ) : (
-            <Swipeable
-              renderRightActions={(_, dragX) => (
-                <RightAction
-                  dragX={dragX}
-                  backgroundColor={colors.errorContainer}
-                  iconColor={colors.onErrorContainer}
-                />
+        renderItem={({ item, index }) => {
+          const isAll = item.id === 'all'
+          const isSelected = isAll ? !selectedFeedId : selectedFeedId === item.id
+          const isFirst = index === 0
+          const isLast = index === listData.length - 1
+          const cornerRadius = isSelected ? 16 : 4
+          const edgeRadius = isSelected ? 22 : 16
+
+          const containerStyle = [
+            styles.segmentItem,
+            {
+              backgroundColor: isSelected ? colors.secondaryContainer : colors.elevation.level1,
+              borderTopLeftRadius: isFirst ? edgeRadius : cornerRadius,
+              borderTopRightRadius: isFirst ? edgeRadius : cornerRadius,
+              borderBottomLeftRadius: isLast ? edgeRadius : cornerRadius,
+              borderBottomRightRadius: isLast ? edgeRadius : cornerRadius,
+            },
+          ]
+
+          return (
+            <View style={styles.segmentItemWrapper}>
+              {isAll ? (
+                <View style={containerStyle}>
+                  <List.Item
+                    title="All"
+                    description="See every article"
+                    left={(props) => <List.Icon {...props} icon="infinity" />}
+                    onPress={() => handleSelect(undefined)}
+                  />
+                </View>
+              ) : (
+                <Swipeable
+                  ref={(ref: SwipeableMethods) => {
+                    swipeableRefs.current[item.id] = ref
+                  }}
+                  renderRightActions={(_, dragX) => (
+                    <RightAction
+                      dragX={dragX}
+                      backgroundColor={colors.errorContainer}
+                      iconColor={colors.onErrorContainer}
+                    />
+                  )}
+                  onSwipeableOpen={() => {
+                    setFeedToRemove(item)
+                    setRemoveVisible(true)
+                  }}
+                >
+                  <View style={containerStyle}>
+                    <List.Item
+                      title={item.title || item.url}
+                      description={item.url}
+                      titleNumberOfLines={1}
+                      descriptionNumberOfLines={1}
+                      left={(props) => <List.Icon {...props} icon="rss" />}
+                      onPress={() => handleSelect(item)}
+                    />
+                  </View>
+                </Swipeable>
               )}
-              onSwipeableOpen={() => {
-                setFeedToRemove(item)
-                setRemoveVisible(true)
-              }}
-            >
-              <List.Item
-                title={item.title || item.url}
-                description={item.url}
-                left={(props) => <List.Icon {...props} icon="rss" />}
-                right={(props) =>
-                  selectedFeedId === item.id ? (
-                    <List.Icon {...props} icon="check-circle" color={colors.primary} />
-                  ) : (
-                    <List.Icon {...props} icon="chevron-right" />
-                  )
-                }
-                onPress={() => handleSelect(item)}
-              />
-            </Swipeable>
+            </View>
           )
-        }
+        }}
       />
 
       <Portal>
@@ -196,25 +222,12 @@ export default function SourcesScreen() {
           </Dialog.Actions>
         </Dialog>
 
-        <Dialog
-          visible={removeVisible}
-          onDismiss={() => {
-            setRemoveVisible(false)
-            setFeedToRemove(null)
-          }}
-        >
+        <Dialog visible={removeVisible} onDismiss={handleCancelRemove}>
           <Dialog.Title>
             Are you sure you want to remove {feedToRemove?.title ?? 'this feed'}?
           </Dialog.Title>
           <Dialog.Actions>
-            <Button
-              onPress={() => {
-                setRemoveVisible(false)
-                setFeedToRemove(null)
-              }}
-            >
-              Cancel
-            </Button>
+            <Button onPress={handleCancelRemove}>Cancel</Button>
             <Button onPress={handleConfirmRemove}>Remove</Button>
           </Dialog.Actions>
         </Dialog>
@@ -237,12 +250,15 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   listContent: {
-    paddingVertical: 8,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    paddingBottom: 64,
   },
-  separator: {
-    height: 1,
-    marginLeft: 72,
-    opacity: 0.1,
+  segmentItemWrapper: {
+    marginBottom: 2,
+  },
+  segmentItem: {
+    overflow: 'hidden',
   },
   deleteAction: {
     alignItems: 'center',
