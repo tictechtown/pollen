@@ -1,13 +1,13 @@
 import { Feed } from '@/types'
 
-import { getDb } from './database'
+import { getDb, runWrite } from './database'
 
 export const upsertFeeds = async (feeds: Feed[]) => {
   if (!feeds.length) return
-  const db = await getDb()
-  await db.withTransactionAsync(async () => {
-    for (const feed of feeds) {
-      await db.runAsync(
+  await runWrite(async (db) => {
+    await db.withTransactionAsync(async () => {
+      for (const feed of feeds) {
+        await db.runAsync(
         `
         INSERT INTO feeds (id, title, url, description, image, lastUpdated, lastPublishedAt, lastPublishedTs)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -31,7 +31,8 @@ export const upsertFeeds = async (feeds: Feed[]) => {
           feed.lastPublishedTs ?? null,
         ],
       )
-    }
+      }
+    })
   })
 }
 
@@ -41,9 +42,10 @@ export const getFeedsFromDb = async (): Promise<Feed[]> => {
 }
 
 export const removeFeedFromDb = async (id: string) => {
-  const db = await getDb()
-  await db.withTransactionAsync(async () => {
-    await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [id])
-    await db.runAsync(`DELETE FROM feeds WHERE id = ?`, [id])
+  await runWrite(async (db) => {
+    await db.withTransactionAsync(async () => {
+      await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [id])
+      await db.runAsync(`DELETE FROM feeds WHERE id = ?`, [id])
+    })
   })
 }

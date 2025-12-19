@@ -199,7 +199,7 @@ export default function ArticleScreen() {
             <MaterialIcons
               name="description"
               size={size}
-              color={mode === 'rss' ? colors.primary : color}
+              color={mode === 'rss' ? color : colors.primary}
             />
           )}
           accessibilityLabel={mode === 'rss' ? 'Reader mode' : 'Show RSS content'}

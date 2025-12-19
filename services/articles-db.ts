@@ -1,6 +1,6 @@
 import { Article } from '@/types'
 
-import { getDb } from './database'
+import { getDb, runWrite } from './database'
 
 const toSortTimestamp = (article: Pick<Article, 'updatedAt' | 'publishedAt'>) => {
   const ts = article.updatedAt ?? article.publishedAt
@@ -26,12 +26,13 @@ export const upsertArticles = async (articles: Article[]) => {
     })
   }
 
-  await db.withTransactionAsync(async () => {
-    for (const article of articles) {
-      const sortTimestamp = toSortTimestamp(article)
-      const saved = savedLookup[article.id] ?? (article.saved ? 1 : 0)
-      await db.runAsync(
-        `
+  await runWrite(async (db) => {
+    await db.withTransactionAsync(async () => {
+      for (const article of articles) {
+        const sortTimestamp = toSortTimestamp(article)
+        const saved = savedLookup[article.id] ?? (article.saved ? 1 : 0)
+        await db.runAsync(
+          `
         INSERT INTO articles (id, feedId, title, link, source, publishedAt, updatedAt, description, content, thumbnail, saved, sortTimestamp)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
@@ -47,22 +48,23 @@ export const upsertArticles = async (articles: Article[]) => {
           sortTimestamp=excluded.sortTimestamp,
           saved=COALESCE(articles.saved, excluded.saved);
       `,
-        [
-          article.id,
-          article.feedId ?? null,
-          article.title,
-          article.link,
-          article.source,
-          article.publishedAt ?? null,
-          article.updatedAt ?? null,
-          article.description ?? null,
-          article.content ?? null,
-          article.thumbnail ?? null,
-          saved,
-          sortTimestamp,
-        ],
-      )
-    }
+          [
+            article.id,
+            article.feedId ?? null,
+            article.title,
+            article.link,
+            article.source,
+            article.publishedAt ?? null,
+            article.updatedAt ?? null,
+            article.description ?? null,
+            article.content ?? null,
+            article.thumbnail ?? null,
+            saved,
+            sortTimestamp,
+          ],
+        )
+      }
+    })
   })
 }
 
@@ -82,18 +84,21 @@ export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => 
 }
 
 export const setArticleSaved = async (id: string, saved: boolean) => {
-  const db = await getDb()
-  await db.runAsync(`UPDATE articles SET saved = ? WHERE id = ?`, [saved ? 1 : 0, id])
+  await runWrite(async (db) => {
+    await db.runAsync(`UPDATE articles SET saved = ? WHERE id = ?`, [saved ? 1 : 0, id])
+  })
 }
 
 export const removeArticlesByFeed = async (feedId: string) => {
-  const db = await getDb()
-  await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [feedId])
+  await runWrite(async (db) => {
+    await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [feedId])
+  })
 }
 
 export const deleteArticlesOlderThan = async (olderThanMs: number) => {
-  const db = await getDb()
-  await db.runAsync(`DELETE FROM articles WHERE sortTimestamp > 0 AND sortTimestamp < ?`, [
-    olderThanMs,
-  ])
+  await runWrite(async (db) => {
+    await db.runAsync(`DELETE FROM articles WHERE sortTimestamp > 0 AND sortTimestamp < ?`, [
+      olderThanMs,
+    ])
+  })
 }

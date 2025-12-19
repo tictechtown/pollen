@@ -1,6 +1,8 @@
 import * as SQLite from 'expo-sqlite'
 
 let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null
+// Serialize writes to avoid overlapping transactions on a single connection.
+let writeQueue: Promise<void> = Promise.resolve()
 
 const ensureColumn = async (
   db: SQLite.SQLiteDatabase,
@@ -59,4 +61,19 @@ export const getDb = () => {
     })
   }
   return dbPromise
+}
+
+export const runWrite = async <T>(task: (db: SQLite.SQLiteDatabase) => Promise<T>) => {
+  const db = await getDb()
+  const previous = writeQueue
+  let release!: () => void
+  writeQueue = new Promise<void>((resolve) => {
+    release = resolve
+  })
+  await previous
+  try {
+    return await task(db)
+  } finally {
+    release()
+  }
 }
