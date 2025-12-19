@@ -47,23 +47,29 @@ export default function ArticleScreen() {
     const hero = article?.thumbnail
       ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
       : ''
+
     return `
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <style>
-            body { font-family: -apple-system, Roboto, sans-serif; padding: 16px; line-height: 1.6; background: ${
+            body { font-family: -apple-system, Roboto, sans-serif; padding: 16px; padding-top:0; padding-bottom: 64px; line-height: 1.6; background: ${
               colors.surface
             }; color: ${colors.onSurface}; }
+            figure { width: 100%; margin:0; padding:0 }
+            figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
             img { max-width: 100%; height: auto; border-radius: 12px; }
             h1, h2, h3, h4 { line-height: 1.2; }
             a { color: ${colors.primary}; text-decoration: none; }
             a:hover { text-decoration: underline; }
+            blockquote { border-left: 3px solid ${
+              colors.outlineVariant
+            }; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
             .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
             .meta { color: ${
               colors.onSurface
             }; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
-            .title { font-size: 24px; font-weight: 700; margin-top: 4px; margin-bottom: 4px; }
+            .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
             .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
             .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
           </style>
@@ -78,66 +84,58 @@ export default function ArticleScreen() {
         </body>
       </html>
     `
-  }, [
-    article?.content,
-    article?.description,
-    article?.source,
-    article?.thumbnail,
-    article?.title,
-    colors.onSurface,
-    colors.outlineVariant,
-    colors.primary,
-    colors.surface,
-    displayDate,
-  ])
+  }, [article, colors, displayDate])
 
   const readerHtml = useMemo(() => {
     if (reader.status !== 'ok' || !reader.html) return null
+
+    const hero = article?.thumbnail
+      ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
+      : ''
+
+    console.log(`${reader.html}`)
+
     return `
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <style>
-            :root { color-scheme: light dark; }
-            body { margin: 0; padding: 16px; font-family: "Noto Serif", "Georgia", serif; line-height: 1.65; background: ${
+            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${
               colors.surface
             }; color: ${colors.onSurface}; }
-            .title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-            .meta { opacity: 0.7; margin-bottom: 16px; }
+            figure { width: 100%; margin:0; padding:0 }
+            figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
+            img { max-width: 100%; height: auto; border-radius: 12px; }
+            h1, h2, h3, h4 { line-height: 1.2; }
             a { color: ${colors.primary}; text-decoration: none; }
             a:hover { text-decoration: underline; }
-            img { max-width: 100%; height: auto; border-radius: 12px; }
             figure { margin: 0 0 16px 0; }
+            article > header { border-radius: 12px; background: ${
+              colors.surfaceVariant
+            }; padding: 12px}
             blockquote { border-left: 3px solid ${
               colors.outlineVariant
             }; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
-            p { margin: 0 0 16px 0; }
-            h1, h2, h3, h4 { margin: 24px 0 12px 0; line-height: 1.2; }
+            .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
+            .meta { color: ${
+              colors.onSurface
+            }; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
+            .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
+            .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
+            li[":empty"] { display: none; }
           </style>
         </head>
         <body>
+          ${hero}
+          <div class="meta">${displayDate}</div>
           <div class="title">${reader.title ?? article?.title ?? ''}</div>
-          <div class="meta">
-            ${reader.byline ? `${reader.byline} • ` : ''}${displayDate}
-            ${reader.excerpt ? `<div>${reader.excerpt}</div>` : ''}
-          </div>
+          <div class="source">${article?.source ?? ''}</div>
+          <div class="divider"></div>
           ${reader.html}
         </body>
       </html>
     `
-  }, [
-    article?.title,
-    colors.onSurface,
-    colors.outlineVariant,
-    colors.primary,
-    colors.surface,
-    displayDate,
-    reader.byline,
-    reader.excerpt,
-    reader.html,
-    reader.status,
-    reader.title,
-  ])
+  }, [article, colors, displayDate, reader])
 
   useEffect(() => {
     if (id && !isSeen(id)) {
@@ -251,11 +249,5 @@ const styles = StyleSheet.create({
   webviewContainer: {
     flex: 1,
     height: 400,
-  },
-  hero: {
-    width: '100%',
-    height: 220,
-    borderRadius: 16,
-    marginBottom: 12,
   },
 })

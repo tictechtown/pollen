@@ -18,11 +18,24 @@ const MAX_BYTES = 5 * 1024 * 1024
 const MOBILE_UA =
   'Mozilla/5.0 (Linux; Android 14; Pixel 8 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Mobile Safari/537.36'
 
-const sanitizeAndRewrite = (html: string, baseUrl: string): string => {
+const sanitizeAndRewrite = (html: string): string => {
   const { document } = parseHTML(`<html><body>${html}</body></html>`)
-
   // Drop risky/unsupported elements
   document.querySelectorAll('script,style,iframe,noscript').forEach((node) => node.remove())
+  // Drop empty list item
+  document.querySelectorAll('li').forEach((node) => {
+    if (node.textContent === '') {
+      node.remove()
+    }
+  })
+  return document.body.innerHTML
+}
+
+export const extractReaderFromHtml = (
+  html: string,
+  baseUrl: string,
+): Omit<ReaderExtractionResult, 'status' | 'error'> | null => {
+  const { document } = parseHTML(html)
 
   const absolutize = (value: string): string => {
     try {
@@ -45,8 +58,9 @@ const sanitizeAndRewrite = (html: string, baseUrl: string): string => {
   document.querySelectorAll('[srcset]').forEach((node) => {
     const srcset = node.getAttribute('srcset')
     if (!srcset) return
+    console.log('srcset', srcset)
     const rewritten = srcset
-      .split(',')
+      .split(', ')
       .map((entry) => {
         const [url, descriptor] = entry.trim().split(/\s+/)
         if (!url) return null
@@ -58,19 +72,6 @@ const sanitizeAndRewrite = (html: string, baseUrl: string): string => {
     node.setAttribute('srcset', rewritten)
   })
 
-  return document.body.innerHTML
-}
-
-export const extractReaderFromHtml = (
-  html: string,
-  baseUrl: string,
-): Omit<ReaderExtractionResult, 'status' | 'error'> | null => {
-  const { document, window } = parseHTML(html)
-  try {
-    window.document.location.href = baseUrl
-  } catch {
-    // ignore location failures in non-browser environments
-  }
   const parsed = new Readability(document).parse()
   const readableContent = parsed?.content?.trim() || ''
   const contentToUse = readableContent || document.body.innerHTML
@@ -78,7 +79,7 @@ export const extractReaderFromHtml = (
     return null
   }
 
-  const cleaned = sanitizeAndRewrite(contentToUse, baseUrl)
+  const cleaned = sanitizeAndRewrite(contentToUse)
   return {
     html: cleaned,
     title: parsed?.title ?? document.title ?? undefined,
