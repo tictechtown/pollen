@@ -1,4 +1,5 @@
-import { Icon, Label, NativeTabs } from 'expo-router/unstable-native-tabs'
+import MaterialIcons from '@expo/vector-icons/MaterialIcons'
+import { Icon, Label, NativeTabs, VectorIcon } from 'expo-router/unstable-native-tabs'
 import React from 'react'
 
 export default function TabLayout() {
@@ -6,15 +7,15 @@ export default function TabLayout() {
     <NativeTabs>
       <NativeTabs.Trigger name="unread">
         <Label>Unread</Label>
-        <Icon src={require('@/assets/images/circle_24dp.svg')} />
+        <Icon src={<VectorIcon family={MaterialIcons} name="radio-button-unchecked" />} />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="index">
         <Label>Feed</Label>
-        <Icon src={require('@/assets/images/notes_24dp.svg')} />
+        <Icon src={<VectorIcon family={MaterialIcons} name="notes" />} />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="saved">
-        <Icon src={require('@/assets/images/bookmarks_24dp.svg')} />
         <Label>Read Later</Label>
+        <Icon src={<VectorIcon family={MaterialIcons} name="bookmarks" />} />
       </NativeTabs.Trigger>
     </NativeTabs>
   )
