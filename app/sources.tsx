@@ -1,7 +1,8 @@
 import { useRouter } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
-import { Swipeable } from 'react-native-gesture-handler'
+import Swipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
+
 import {
   Appbar,
   Button,
@@ -21,6 +22,7 @@ import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
 import { Feed } from '@/types'
+import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated'
 
 const toFeed = (url: string): Feed => {
   const normalized = url.trim()
@@ -30,6 +32,26 @@ const toFeed = (url: string): Feed => {
     url: normalized,
     title: normalized,
   }
+}
+
+type RightActionProps = {
+  dragX: SharedValue<number>
+  backgroundColor: string
+  iconColor: string
+}
+
+const RightAction = ({ dragX, backgroundColor, iconColor }: RightActionProps) => {
+  const styleAnimation = useAnimatedStyle(() => ({
+    width: Math.max(0, -dragX.value),
+  }))
+
+  return (
+    <View style={styles.deleteActionContainer}>
+      <Reanimated.View style={[styles.deleteAction, { backgroundColor }, styleAnimation]}>
+        <List.Icon color={iconColor} icon="delete" />
+      </Reanimated.View>
+    </View>
+  )
 }
 
 export default function SourcesScreen() {
@@ -42,7 +64,9 @@ export default function SourcesScreen() {
   const { setFeedFilter, selectedFeedId } = useFiltersStore()
 
   const [addVisible, setAddVisible] = useState(false)
+  const [removeVisible, setRemoveVisible] = useState(false)
   const [feedUrl, setFeedUrl] = useState('')
+  const [feedToRemove, setFeedToRemove] = useState<Feed | null>(null)
   const [snackbar, setSnackbar] = useState<string | null>(null)
 
   const listData = useMemo(() => [{ id: 'all', title: 'All', url: '' }, ...feeds], [feeds])
@@ -69,6 +93,15 @@ export default function SourcesScreen() {
     })
   }
 
+  const handleConfirmRemove = () => {
+    if (!feedToRemove) {
+      return
+    }
+    handleRemove(feedToRemove)
+    setRemoveVisible(false)
+    setFeedToRemove(null)
+  }
+
   const handleAdd = async () => {
     if (!feedUrl.trim()) {
       setSnackbar('Enter a feed URL')
@@ -93,7 +126,6 @@ export default function SourcesScreen() {
       <FlatList
         data={listData}
         keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
         contentContainerStyle={styles.listContent}
         renderItem={({ item }) =>
           item.id === 'all' ? (
@@ -102,18 +134,27 @@ export default function SourcesScreen() {
               description="See every article"
               left={(props) => <List.Icon {...props} icon="infinity" />}
               right={(props) =>
-                selectedFeedId ? <List.Icon {...props} icon="chevron-right" /> : <List.Icon {...props} icon="check" />
+                selectedFeedId ? (
+                  <List.Icon {...props} icon="chevron-right" />
+                ) : (
+                  <List.Icon {...props} icon="check" />
+                )
               }
               onPress={() => handleSelect(undefined)}
             />
           ) : (
             <Swipeable
-              renderRightActions={() => (
-                <View style={[styles.deleteAction, { backgroundColor: colors.errorContainer }]}>
-                  <List.Icon color={colors.onErrorContainer} icon="delete" />
-                </View>
+              renderRightActions={(_, dragX) => (
+                <RightAction
+                  dragX={dragX}
+                  backgroundColor={colors.errorContainer}
+                  iconColor={colors.onErrorContainer}
+                />
               )}
-              onSwipeableOpen={() => handleRemove(item)}
+              onSwipeableOpen={() => {
+                setFeedToRemove(item)
+                setRemoveVisible(true)
+              }}
             >
               <List.Item
                 title={item.title || item.url}
@@ -155,6 +196,29 @@ export default function SourcesScreen() {
           </Dialog.Actions>
         </Dialog>
 
+        <Dialog
+          visible={removeVisible}
+          onDismiss={() => {
+            setRemoveVisible(false)
+            setFeedToRemove(null)
+          }}
+        >
+          <Dialog.Title>
+            Are you sure you want to remove {feedToRemove?.title ?? 'this feed'}?
+          </Dialog.Title>
+          <Dialog.Actions>
+            <Button
+              onPress={() => {
+                setRemoveVisible(false)
+                setFeedToRemove(null)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onPress={handleConfirmRemove}>Remove</Button>
+          </Dialog.Actions>
+        </Dialog>
+
         <Snackbar
           visible={Boolean(snackbar)}
           onDismiss={() => setSnackbar(null)}
@@ -181,9 +245,14 @@ const styles = StyleSheet.create({
     opacity: 0.1,
   },
   deleteAction: {
-    width: 76,
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 12,
+    height: '100%',
+  },
+  deleteActionContainer: {
+    alignItems: 'flex-end',
+    width: '100%',
   },
   fab: {
     position: 'absolute',
