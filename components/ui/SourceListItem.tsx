@@ -65,8 +65,8 @@ export default function SourceListItem({
   const content = (
     <View style={containerStyle}>
       <List.Item
-        title={isAll ? 'All' : item.title || item.url}
-        description={isAll ? 'See every article' : item.url}
+        title={isAll ? 'All' : item.title || item.htmlUrl}
+        description={isAll ? 'See every article' : item.xmlUrl}
         titleNumberOfLines={1}
         descriptionNumberOfLines={1}
         left={(props) =>
@@ -115,15 +115,17 @@ const styles = StyleSheet.create({
   segmentItem: {
     overflow: 'hidden',
     paddingLeft: 0,
+    marginHorizontal: 16,
   },
   deleteAction: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 24,
     height: '100%',
   },
   deleteActionContainer: {
     alignItems: 'flex-end',
     width: '100%',
+    marginRight: 16,
   },
 })

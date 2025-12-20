@@ -188,7 +188,6 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingVertical: 16,
-    paddingHorizontal: 16,
     paddingBottom: 64,
   },
   fab: {

@@ -34,7 +34,7 @@ const SwipeAction = ({
   isLeft = false,
 }: SwipeActionProps) => {
   const styleAnimation = useAnimatedStyle(() => ({
-    width: clamp(isLeft ? dragX.value : -dragX.value, 0, 80),
+    width: clamp(isLeft ? dragX.value : -dragX.value, 0, 180),
   }))
   const opacityAnimation = useAnimatedStyle(() => ({
     opacity: clamp(Math.abs(dragX.value) - 25, 0, 1),
@@ -66,6 +66,8 @@ const FeedItem = ({
 }) => {
   const reanimatedRef = useRef<SwipeableMethods>(null)
 
+  const opacity = article.seen ? 0.7 : 1
+
   return (
     <View style={styles.wrapper}>
       <Swipeable
@@ -80,15 +82,15 @@ const FeedItem = ({
             dragX={dragX}
             backgroundColor={colors.secondaryContainer}
             iconColor={colors.onSecondaryContainer}
-            icon={article.seen ? 'circle' : 'check-circle-outline'}
+            icon={article.seen ? 'circle-outline' : 'check-circle-outline'}
             isLeft
           />
         )}
         renderRightActions={(_, dragX) => (
           <SwipeAction
             dragX={dragX}
-            backgroundColor={colors.tertiaryContainer}
-            iconColor={colors.onTertiaryContainer}
+            backgroundColor={colors.secondaryContainer}
+            iconColor={colors.onSecondaryContainer}
             icon={article.saved ? 'bookmark-outline' : 'bookmark'}
           />
         )}
@@ -101,14 +103,11 @@ const FeedItem = ({
           reanimatedRef.current?.close()
         }}
       >
-        <Pressable
-          style={{ flex: 1, gap: 4, opacity: article.seen ? 0.5 : 1, paddingHorizontal: 16 }}
-          onPress={onOpen}
-        >
+        <Pressable style={{ flex: 1, gap: 0, paddingHorizontal: 16 }} onPress={onOpen}>
           <View style={{ flex: 1, justifyContent: 'center' }}>
             <Text
               variant="labelSmall"
-              style={{ color: colors.onSurfaceVariant }}
+              style={{ color: colors.onSurfaceVariant, opacity }}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -117,18 +116,18 @@ const FeedItem = ({
           </View>
           <View style={{ flexDirection: 'row', gap: 16 }}>
             <View style={{ flex: 2 }}>
-              <Text variant="titleMedium" style={styles.title} numberOfLines={3}>
+              <Text variant="titleMedium" style={[styles.title, { opacity }]} numberOfLines={3}>
                 {article.title}
               </Text>
               {!!article.description && (
-                <Text variant="bodySmall" numberOfLines={2}>
+                <Text variant="bodySmall" numberOfLines={2} style={{ opacity }}>
                   {article.description}
                 </Text>
               )}
             </View>
             {!!article.thumbnail && (
               <View style={{ flex: 1 }}>
-                <Image source={{ uri: article.thumbnail }} style={styles.image} />
+                <Image source={{ uri: article.thumbnail }} style={[styles.image, { opacity }]} />
               </View>
             )}
           </View>
@@ -173,10 +172,11 @@ const FeedItem = ({
 
 const styles = StyleSheet.create({
   wrapper: {
-    marginBottom: 8,
+    marginBottom: 4,
   },
   title: {
     lineHeight: 20,
+    marginBottom: 2,
   },
   image: {
     height: 90,
@@ -185,11 +185,11 @@ const styles = StyleSheet.create({
   swipeAction: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 24,
     height: '100%',
   },
   swipeActionContainer: {
-    width: 80,
+    width: 180,
   },
 })
 

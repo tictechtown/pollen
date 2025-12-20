@@ -26,7 +26,6 @@ export default function FeedList(props: Props) {
   } = useArticles(props)
   const { selectedFeedTitle } = useFiltersStore()
   const { colors } = useTheme()
-  const hasArticles = articles.length > 0
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -75,16 +74,14 @@ export default function FeedList(props: Props) {
         }
       />
 
-      {hasArticles ? (
-        <FAB
-          icon="check-all"
-          label="Mark all seen"
-          visible={hasUnseen}
-          onPress={() => markAllSeen()}
-          style={styles.fab}
-          variant="secondary"
-        />
-      ) : null}
+      <FAB
+        icon="check-all"
+        label="Mark all seen"
+        visible={hasUnseen}
+        onPress={() => markAllSeen()}
+        style={styles.fab}
+        variant="secondary"
+      />
     </View>
   )
 }
@@ -93,26 +90,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  filters: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 4,
-    gap: 8,
-  },
   listContent: {
-    paddingTop: 16,
     paddingBottom: 120,
     gap: 12,
-  },
-  card: {
-    overflow: 'hidden',
-  },
-  cardSeen: {
-    opacity: 0.7,
-  },
-  badge: {
-    marginRight: 8,
-    alignSelf: 'center',
   },
   empty: {
     padding: 24,
