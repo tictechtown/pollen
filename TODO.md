@@ -78,19 +78,17 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 
 # Version 1.0.11
 
-- Add ability to create folder
-- Add a Filter action
+- Add ability to create/manage folders for feeds
 - Export to OPML
+- Fix Share intent - it's currently not working
 
 # Version 1.0.12
 
-- Better css around codeblocks
+- Better css around codeblocks when reading articles
 - Article Header should be clickable -> and goes to real page
-- Make sure we don't have twice the same image (srcset)
-- Cleaner swipe actions
+- Fix typescript
+- Redesign fetch feeds/articles, the current state (loading/error/loaded) and last refresh timestamp. This should have a global state, powered by a zustand store. And each tab or other actions within the app triggering a refresh should use this shared state. Maybe use a Context for that? and have one single useEffect that is global to the app?
 
 # Version 1.1.0
 
 - Check performance - probably swipable is not performantac
-- Design landing page
-- Tweak UI

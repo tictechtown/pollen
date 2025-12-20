@@ -1,4 +1,5 @@
 // Tests for article database helpers.
+import type { SQLiteDatabase } from 'expo-sqlite'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('./database', () => ({ getDb: vi.fn(), runWrite: vi.fn() }))
@@ -46,7 +47,8 @@ describe('getArticlesFromDb', () => {
     ]
 
     const getAllAsync = vi.fn().mockResolvedValue(rows)
-    getDb.mockResolvedValue({ getAllAsync })
+    const getDbMock = vi.mocked(getDb)
+    getDbMock.mockResolvedValue({ getAllAsync } as unknown as SQLiteDatabase)
 
     const result = await getArticlesFromDb()
 

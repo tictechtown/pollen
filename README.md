@@ -44,6 +44,7 @@ Then choose a target:
 
 - `npm run lint` — lint
 - `npm test` — run tests
+- `npm typecheck` — run typescript checks
 
 ## Build Android release APK
 

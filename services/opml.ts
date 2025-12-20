@@ -10,10 +10,18 @@ const parser = new XMLParser({
   attributeNamePrefix: '',
 })
 
+type OpmlDocument = {
+  opml?: {
+    body?: {
+      outline?: OutlineNode | OutlineNode[]
+    }
+  }
+}
+
 export const isOpmlXml = (xml: string): boolean => {
   try {
-    const parsed = parser.parse(xml)
-    return Boolean((parsed as any)?.opml)
+    const parsed = parser.parse(xml) as OpmlDocument
+    return Boolean(parsed.opml)
   } catch {
     return false
   }
@@ -63,7 +71,7 @@ const collectFeeds = (node?: OutlineNode | OutlineNode[]): Feed[] => {
 }
 
 export const parseOpml = (opml: string): Feed[] => {
-  const parsed = parser.parse(opml)
-  const outlines = parsed?.opml?.body?.outline
+  const parsed = parser.parse(opml) as OpmlDocument
+  const outlines = parsed.opml?.body?.outline
   return collectFeeds(outlines)
 }

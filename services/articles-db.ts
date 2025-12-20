@@ -84,25 +84,28 @@ export const upsertArticles = async (articles: Article[]) => {
 
 export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => {
   const db = await getDb()
-  const rows = await db.getAllAsync<
-    Omit<Article, 'seen' | 'saved'> & { read: number | null; starred: number | null }
-  >(
-    feedId
-      ? `
+  const query = feedId
+    ? `
         SELECT articles.*, article_statuses.read, article_statuses.starred
         FROM articles
         LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
         WHERE articles.feedId = ?
         ORDER BY articles.sortTimestamp DESC, articles.createdAt DESC
       `
-      : `
+    : `
         SELECT articles.*, article_statuses.read, article_statuses.starred
         FROM articles
         LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
         ORDER BY articles.sortTimestamp DESC, articles.createdAt DESC
-      `,
-    feedId ? [feedId] : undefined,
-  )
+      `
+
+  const rows = feedId
+    ? await db.getAllAsync<
+        Omit<Article, 'seen' | 'saved'> & { read: number | null; starred: number | null }
+      >(query, [feedId])
+    : await db.getAllAsync<
+        Omit<Article, 'seen' | 'saved'> & { read: number | null; starred: number | null }
+      >(query)
   return rows.map((row) => {
     const { read, starred, ...article } = row
     return {

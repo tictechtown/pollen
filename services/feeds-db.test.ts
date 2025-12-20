@@ -1,4 +1,5 @@
 // Tests for feed database helpers.
+import type { SQLiteDatabase } from 'expo-sqlite'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('./database', () => ({ getDb: vi.fn(), runWrite: vi.fn() }))
@@ -13,7 +14,8 @@ describe('getFeedsFromDb', () => {
     const getAllAsync = vi
       .fn()
       .mockResolvedValue([{ id: 'feed-1', title: 'Feed', url: 'https://example.com/rss' }])
-    getDb.mockResolvedValue({ getAllAsync })
+    const getDbMock = vi.mocked(getDb)
+    getDbMock.mockResolvedValue({ getAllAsync } as unknown as SQLiteDatabase)
 
     const feeds = await getFeedsFromDb()
 
@@ -27,8 +29,8 @@ describe('removeFeedFromDb', () => {
     const runAsync = vi.fn().mockResolvedValue(undefined)
     const withTransactionAsync = vi.fn(async (task: () => Promise<void>) => task())
     const db = { runAsync, withTransactionAsync }
-
-    runWrite.mockImplementation(async (task: (db: typeof db) => Promise<void>) => task(db))
+    const runWriteMock = vi.mocked(runWrite)
+    runWriteMock.mockImplementation(async (task) => task(db as unknown as SQLiteDatabase))
 
     await removeFeedFromDb('feed-1')
 

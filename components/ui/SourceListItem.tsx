@@ -1,4 +1,5 @@
 // Swipeable feed picker row used inside sources lists.
+import { useEffect, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 import { Avatar, List, useTheme } from 'react-native-paper'
@@ -48,6 +49,7 @@ export default function SourceListItem({
   registerSwipeableRef,
 }: SourceListItemProps) {
   const { colors } = useTheme()
+  const swipeableRef = useRef<SwipeableMethods | null>(null)
   const cornerRadius = isSelected ? 16 : 4
   const edgeRadius = isSelected ? 22 : 16
 
@@ -83,6 +85,12 @@ export default function SourceListItem({
     </View>
   )
 
+  useEffect(() => {
+    if (!registerSwipeableRef) return
+    registerSwipeableRef(item.id, swipeableRef.current)
+    return () => registerSwipeableRef(item.id, null)
+  }, [item.id, registerSwipeableRef])
+
   if (isAll) {
     return <View style={styles.segmentItemWrapper}>{content}</View>
   }
@@ -90,9 +98,7 @@ export default function SourceListItem({
   return (
     <View style={styles.segmentItemWrapper}>
       <Swipeable
-        ref={(ref: SwipeableMethods) => {
-          registerSwipeableRef?.(item.id, ref)
-        }}
+        ref={swipeableRef}
         renderRightActions={(_, dragX) => (
           <RightAction
             dragX={dragX}

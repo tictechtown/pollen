@@ -1,6 +1,13 @@
 import { useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
+import {
+  FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  RefreshControl,
+  StyleSheet,
+  View,
+} from 'react-native'
 import { AnimatedFAB, Appbar, Banner, Divider, Text, useTheme } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
@@ -28,7 +35,7 @@ export default function FeedList(props: Props) {
   } = useArticles(props)
   const { selectedFeedTitle } = useFiltersStore()
   const { colors } = useTheme()
-  const handleScroll = useCallback((event: any) => {
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset?.y ?? 0
     const nextScrolled = offsetY !== 0
     setIsScrolled(nextScrolled)

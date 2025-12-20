@@ -29,6 +29,53 @@ const consumeBudget = (budget?: MetadataBudget) => {
   return true
 }
 
+type TextNode = string | { '#text'?: string }
+
+type LinkNode =
+  | string
+  | { href?: string; '#text'?: string; rel?: string; type?: string }
+  | { href?: string; '#text'?: string; rel?: string; type?: string }[]
+
+type MediaNode = { url?: string }
+
+const getText = (value?: TextNode): string | undefined => {
+  if (!value) return undefined
+  return typeof value === 'string' ? value : value['#text']
+}
+
+const getLink = (value?: LinkNode): string | undefined => {
+  if (!value) return undefined
+  if (Array.isArray(value)) {
+    const entry = value.find((link) => link?.href || link?.['#text'])
+    return entry ? entry.href ?? entry['#text'] : undefined
+  }
+  if (typeof value === 'string') return value
+  return value.href ?? value['#text']
+}
+
+const getPreferredLink = (value?: LinkNode): string | undefined => {
+  if (!value) return undefined
+  if (Array.isArray(value)) {
+    const byAlternateHtml = value.find(
+      (link) => link?.rel === 'alternate' && link?.type?.includes('text/html'),
+    )
+    const byAlternate = value.find((link) => link?.rel === 'alternate')
+    const byHtml = value.find((link) => link?.type?.includes('text/html'))
+    const selected = byAlternateHtml ?? byAlternate ?? byHtml
+    if (selected) return selected.href ?? selected['#text']
+  }
+  return getLink(value)
+}
+
+const getMediaUrl = (value?: MediaNode | MediaNode[]): string | undefined => {
+  if (!value) return undefined
+  if (Array.isArray(value)) {
+    const entry = value.find((media) => media?.url)
+    return entry?.url
+  }
+  return value.url
+}
+
 export const decodeString = (value?: string): string | undefined => {
   if (!value) return value
   const decodedEntities = he.decode(value)
@@ -194,29 +241,15 @@ const extractMetadataFromFeed = async (
   let description: string | undefined
   let publishedAt: string | undefined
 
-  const enclosure = item.enclosure
-  if (enclosure) {
-    if (Array.isArray(enclosure)) {
-      const withUrl = enclosure.find((enc) => enc.url)
-      if (withUrl?.url) thumbnail = withUrl.url
-    } else if (enclosure.url) {
-      thumbnail = enclosure.url
-    }
-  }
-
-  const mediaContent = item['media:content']
-  if (!thumbnail && mediaContent) {
-    if (Array.isArray(mediaContent)) {
-      const withUrl = mediaContent.find((m) => m.url)
-      if (withUrl?.url) thumbnail = withUrl.url
-    } else if (mediaContent.url) {
-      thumbnail = mediaContent.url
-    }
+  thumbnail = getMediaUrl(item.enclosure)
+  if (!thumbnail) {
+    thumbnail = getMediaUrl(item['media:content'])
   }
 
   if (!thumbnail) {
-    const content = item['content:encoded'] ?? item.content?.['#text'] ?? item.content
-    const match = typeof content === 'string' ? content.match(/<img[^>]+src="([^">]+)"/i) : null
+    const content =
+      getText(item['content:encoded']) ?? getText(item.content) ?? getText(item.description)
+    const match = content?.match(/<img[^>]+src="([^">]+)"/i) ?? null
     if (match?.[1]) thumbnail = match[1]
   }
 
@@ -225,7 +258,7 @@ const extractMetadataFromFeed = async (
     (!description && !options?.hasDescription) ||
     (!publishedAt && !options?.hasPublished)
   if (needsEnrichment) {
-    const link = item.link?.href ?? item.link?.['#text'] ?? item.link
+    const link = getPreferredLink(item.link)
     const fetched = await fetchMetadataFromPage(link, options?.budget)
     thumbnail =
       thumbnail ??
@@ -239,53 +272,60 @@ const extractMetadataFromFeed = async (
 
 interface AtomFeed {
   feed: {
-    entry: FetchedAtomArticle[]
-    icon: string
-    id: string
-    link:
-      | { rel: string; type?: string; href: string }
-      | { rel: string; type?: string; href: string }[]
-    subtitle?: {
-      '#text': string
-      type: string
-    }
-    title:
-      | {
-          '#text': string
-          type: string
-        }
-      | string
-    updated: string
+    entry?: FetchedAtomArticle[] | FetchedAtomArticle
+    icon?: string
+    id?: TextNode
+    link?:
+      | { rel?: string; type?: string; href: string }
+      | { rel?: string; type?: string; href: string }[]
+    subtitle?: TextNode
+    title?: TextNode
+    updated?: string
+    lastBuildDate?: string
+    pubDate?: string
   }
 }
 
 interface FetchedRssArticle {
-  title: string
-  link: string | { '#text': string }
-  comments: string
-  pubDate: string
-  guid: { '#text': string }
-  description: { '#text': string }
-  'content:encoded': {
-    '#text': string
-  }
+  title?: TextNode
+  description?: TextNode
+  link?: LinkNode
+  author?: string
+  comments?: string
+  pubDate?: string
+  guid?: TextNode
+  content?: TextNode
+  'content:encoded'?: TextNode
+  enclosure?: MediaNode | MediaNode[]
+  'media:content'?: MediaNode | MediaNode[]
 }
 interface RssFeed {
   rss: {
     channel: {
-      'atom:link': { href: string; rel: string; type?: string }[]
-      description: string
-      image:
-        | { url: string; title: string; link: string }
-        | { url: string; title: string; link: string }[]
-      item: FetchedRssArticle[]
-      language: string
-      lastBuildDate: string
-      link: string
-      site: { '#text': string }[]
-      title: string
-      'sy:updateFrequency': number
-      'sy:updatePeriod': string
+      title: TextNode
+      link: LinkNode
+      description: TextNode
+
+      language?: string
+      copyright?: string
+      managingEditor?: string
+      webMaster?: string
+      pubDate?: string
+      lastBuildDate?: string
+      generator?: string
+      docs?: string
+      ttl?: number
+
+      'atom:link'?: LinkNode
+      image?:
+        | { url?: string; title?: string; link?: string }
+        | { url?: string; title?: string; link?: string }[]
+      item?: FetchedRssArticle[] | FetchedRssArticle
+      site?: TextNode[]
+      subtitle?: TextNode
+      updated?: string
+      'sy:updateFrequency'?: number
+      'sy:updatePeriod'?: string
     }
     version: string
   }
@@ -299,46 +339,28 @@ type FetchedFeed = {
 } & (RssFeed | AtomFeed)
 
 interface FetchedAtomArticle {
-  author: {
-    name: string
+  author?: {
+    name?: string
   }
-  category: { scheme: string; term: string }[]
-  content: {
-    '#text': string
-    type: string
-  }
-  id: string
-  link: {
-    href: string
-    rel: string
-    type: string
-    '#text'?: string
-  }
+  category?: { scheme?: string; term?: string }[]
+  content?: TextNode
+  id?: TextNode
+  link?: LinkNode
   published?: string
-  summary: {
-    '#text': string
-    type: string
-  }
-  title:
-    | {
-        '#text': string
-        type: string
-      }
-    | string
-  updated: string
-  enclosure?: { url?: string } | { url?: string }[]
-  'media:content'?: { url?: string } | { url?: string }[]
-  description?: string
+  summary?: TextNode
+  title?: TextNode
+  updated?: string
+  enclosure?: MediaNode | MediaNode[]
+  'media:content'?: MediaNode | MediaNode[]
+  'content:encoded'?: TextNode
+  description?: TextNode
 }
 
 export const extractImage = async (
   item: FetchedAtomArticle | FetchedRssArticle,
   budget: MetadataBudget = { remaining: 1 },
 ): Promise<string | undefined> => {
-  const baseUrl =
-    (item as FetchedAtomArticle)?.link?.href ??
-    (item as FetchedRssArticle)?.link?.['#text'] ??
-    (item as FetchedRssArticle)?.link
+  const baseUrl = getLink(item.link)
 
   const metadata = await extractMetadataFromFeed(item, {
     baseUrl: typeof baseUrl === 'string' ? baseUrl : undefined,
@@ -375,30 +397,26 @@ const parseAtomFeed = async (
     return ts > cutoffTs
   })
 
-  const feedIdSource = channel?.id
+  const feedIdSource = getText(channel?.id) ?? url
 
   const feed: Feed = {
-    id: encodeBase64(feedIdSource) ?? feedIdSource ?? url,
-    title:
-      decodeString(typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
-      'RSS Feed',
+    id: encodeBase64(feedIdSource) ?? feedIdSource,
+    title: decodeString(getText(channel?.title)) ?? 'RSS Feed',
     xmlUrl: url,
     htmlUrl: extractHTMLLink(channel.link),
-    description:
-      decodeString(
-        typeof channel?.subtitle === 'string' ? channel?.subtitle : channel?.subtitle?.['#text'],
-      ) ?? undefined,
+    description: decodeString(getText(channel?.subtitle)) ?? undefined,
     image: channel?.icon ?? undefined,
     lastUpdated: channel?.updated ?? channel?.lastBuildDate ?? channel?.pubDate ?? undefined,
   }
 
   const articles: Article[] = await Promise.all(
     items.map(async (item: FetchedAtomArticle) => {
-      const contentEncoded = item.content?.['#text'] ?? item.content ?? item.description
-      const rawId =
-        item.id['#text'] ?? item.id ?? item.link.href ?? item.title['#text'] ?? `${Date.now()}`
+      const contentEncoded = getText(item.content) ?? getText(item['content:encoded'])
+      const contentFallback = contentEncoded ?? getText(item.description)
+      const entryLink = Array.isArray(item.link) ? undefined : getLink(item.link)
+      const rawId = getText(item.id) ?? entryLink ?? getText(item.title) ?? `${Date.now()}`
       const encodedId = encodeBase64(rawId) ?? rawId
-      const feedDescription = decodeString(item.description ?? item.summary?.['#text'])
+      const feedDescription = decodeString(getText(item.description) ?? getText(item.summary))
       const feedPublished = item.published ?? item.updated ?? undefined
 
       const metadata = await extractMetadataFromFeed(item, {
@@ -410,17 +428,13 @@ const parseAtomFeed = async (
 
       return {
         id: encodedId,
-        title:
-          decodeString(typeof item.title === 'string' ? item.title : item.title['#text']) ??
-          'Untitled',
-        link: item.link['href'] ?? url,
-        source:
-          (typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
-          'RSS Feed',
+        title: decodeString(getText(item.title)) ?? 'Untitled',
+        link: entryLink ?? url,
+        source: decodeString(getText(channel?.title)) ?? 'RSS Feed',
         publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: item.updated ?? undefined,
         description: feedDescription ?? metadata.description,
-        content: typeof contentEncoded === 'string' ? contentEncoded : undefined,
+        content: contentFallback ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         seen: false,
@@ -446,14 +460,14 @@ const parseRssFeed = async (
     const ts = toTimestamp(item.pubDate)
     return ts > cutoffTs
   })
-  const feedIdSource = channel?.link?.[0]?.href ?? channel?.link?.[0]?.['#text'] ?? url
+  const feedIdSource = url
+  const htmlUrl = getLink(channel?.link)
   const feed: Feed = {
-    id: encodeBase64(feedIdSource) ?? feedIdSource ?? url,
-    title:
-      decodeString(typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
-      'RSS Feed',
+    id: encodeBase64(feedIdSource) ?? feedIdSource,
+    title: decodeString(getText(channel?.title)) ?? 'RSS Feed',
     xmlUrl: url,
-    description: decodeString(channel?.subtitle?.['#text']) ?? undefined,
+    htmlUrl: htmlUrl ?? undefined,
+    description: decodeString(getText(channel?.subtitle)) ?? undefined,
     image:
       (Array.isArray(channel?.image) ? channel?.image[0]?.url : channel?.image?.url) ?? undefined,
     lastUpdated: channel?.updated ?? channel?.lastBuildDate ?? channel?.pubDate ?? undefined,
@@ -461,21 +475,13 @@ const parseRssFeed = async (
 
   const articles: Article[] = await Promise.all(
     items.map(async (item: FetchedRssArticle) => {
-      const contentEncoded =
-        item['content:encoded']?.['#text'] ??
-        item['content:encoded'] ??
-        item.content ??
-        item.description
+      const contentEncoded = getText(item['content:encoded']) ?? getText(item.content)
+      const contentFallback = contentEncoded ?? getText(item.description)
       const rawId =
-        item.guid?.['#text'] ??
-        item.guid ??
-        item.link.href ??
-        item.link ??
-        item.title['#text'] ??
-        `${Date.now()}`
+        getText(item.guid) ?? getLink(item.link) ?? getText(item.title) ?? `${Date.now()}`
 
       const encodedId = encodeBase64(rawId) ?? rawId
-      const feedDescription = decodeString(item.description?.['#text'] ?? item.description)
+      const feedDescription = decodeString(getText(item.description))
       const feedPublished = item.pubDate ?? undefined
 
       const metadata = await extractMetadataFromFeed(item, {
@@ -487,17 +493,13 @@ const parseRssFeed = async (
 
       return {
         id: encodedId,
-        title:
-          decodeString(typeof item.title === 'string' ? item.title : item.title['#text']) ??
-          'Untitled',
-        link: item.link?.['href'] ?? item.link ?? url,
-        source:
-          (typeof channel?.title === 'string' ? channel?.title : channel?.title['#text']) ??
-          'RSS Feed',
+        title: decodeString(getText(item.title)) ?? 'Untitled',
+        link: getLink(item.link) ?? url,
+        source: decodeString(getText(channel?.title)) ?? 'RSS Feed',
         publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: undefined,
         description: feedDescription ?? metadata.description,
-        content: typeof contentEncoded === 'string' ? contentEncoded : undefined,
+        content: contentFallback ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         seen: false,

@@ -1,5 +1,6 @@
 // Tests for RSS parsing utilities.
 import { readFileSync } from 'node:fs'
+import { fileURLToPath, URL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import Manifest from './__tests__/feeds/manifest.json'
 import { encodeBase64, extractImage, fetchFeed } from './rssClient'
@@ -134,7 +135,8 @@ describe('fetchFeed', () => {
   })
 
   it.each(fixtures)('parses $title', async (entry) => {
-    const xml = readFileSync(new URL(`./__tests__/feeds/${entry.file}`, import.meta.url), 'utf8')
+    const xmlPath = fileURLToPath(new URL(`./__tests__/feeds/${entry.file}`, import.meta.url))
+    const xml = readFileSync(xmlPath, 'utf8')
 
     vi.spyOn(console, 'log').mockImplementation(() => {})
 

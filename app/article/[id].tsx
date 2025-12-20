@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Appbar, Snackbar, useTheme } from 'react-native-paper'
 import { WebView } from 'react-native-webview'
@@ -189,7 +189,8 @@ export default function ArticleScreen() {
       ? { uri: article?.link ?? 'about:blank' }
       : { html: rssHtml }
 
-  const originalIconName = mode === 'original' ? 'earth-box' : 'earth'
+  const originalIconName: ComponentProps<typeof MaterialCommunityIcons>['name'] =
+    mode === 'original' ? 'earth-box' : 'earth'
 
   const ReaderIcon = useCallback(
     ({ size, color }: { size: number; color: string }) => (
@@ -206,10 +207,10 @@ export default function ArticleScreen() {
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content />
+        <Appbar.Content title="" />
         <Appbar.Action
           icon={({ size, color }) => (
-            <MaterialCommunityIcons name={originalIconName as any} size={size} color={color} />
+            <MaterialCommunityIcons name={originalIconName} size={size} color={color} />
           )}
           accessibilityLabel="Open original"
           onPress={() => {
