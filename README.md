@@ -81,4 +81,4 @@ If you believe you’ve found a security issue, please open a GitHub Security Ad
 
 ## License
 
-No license file is currently included. If you intend this project to be open source, add a `LICENSE` (for example MIT or Apache-2.0).
+MIT License. See `LICENSE`.
