@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router'
+import { useCallback, useState } from 'react'
 import { FlatList, RefreshControl, StyleSheet, View } from 'react-native'
-import { Appbar, Banner, Divider, FAB, Text, useTheme } from 'react-native-paper'
+import { AnimatedFAB, Appbar, Banner, Divider, Text, useTheme } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
 import { useArticles } from '@/hooks/useArticles'
@@ -12,6 +13,7 @@ interface Props {
 
 export default function FeedList(props: Props) {
   const router = useRouter()
+  const [isScrolled, setIsScrolled] = useState(false)
   const {
     articles,
     loading,
@@ -26,6 +28,11 @@ export default function FeedList(props: Props) {
   } = useArticles(props)
   const { selectedFeedTitle } = useFiltersStore()
   const { colors } = useTheme()
+  const handleScroll = useCallback((event: any) => {
+    const offsetY = event.nativeEvent.contentOffset?.y ?? 0
+    const nextScrolled = offsetY !== 0
+    setIsScrolled(nextScrolled)
+  }, [])
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -49,6 +56,8 @@ export default function FeedList(props: Props) {
         refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
         keyExtractor={(item) => item.id}
         ItemSeparatorComponent={() => <Divider horizontalInset />}
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
         onEndReached={() => {
           if (hasMore) {
             loadNextPage()
@@ -74,10 +83,11 @@ export default function FeedList(props: Props) {
         }
       />
 
-      <FAB
+      <AnimatedFAB
         icon="check-all"
         label="Mark all seen"
-        visible={hasUnseen}
+        extended={!isScrolled}
+        disabled={hasUnseen}
         onPress={() => markAllSeen()}
         style={styles.fab}
         variant="secondary"

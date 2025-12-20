@@ -59,7 +59,6 @@ export const extractReaderFromHtml = (
   document.querySelectorAll('[srcset]').forEach((node) => {
     const srcset = node.getAttribute('srcset')
     if (!srcset) return
-    console.log('srcset', srcset)
     const rewritten = srcset
       .split(', ')
       .map((entry) => {
