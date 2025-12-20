@@ -1,17 +1,19 @@
 {
   "expo": {
-    "name": "rss-reader",
-    "slug": "rss-reader",
+    "name": "Pollen",
+    "slug": "pollen",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "rssreader",
+    "scheme": "pollen",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.tictechtown.apps.pollen",
       "supportsTablet": true
     },
     "android": {
+      "package": "com.tictechtown.apps.pollen",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",

@@ -3,12 +3,21 @@ import { useMemo, useRef, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
-import { Appbar, Button, Dialog, FAB, Portal, Snackbar, TextInput, useTheme } from 'react-native-paper'
+import {
+  Appbar,
+  Button,
+  Dialog,
+  FAB,
+  Portal,
+  Snackbar,
+  TextInput,
+  useTheme,
+} from 'react-native-paper'
 
 import SourceListItem from '@/components/ui/SourceListItem'
-import { getArticlesFromDb } from '@/services/articles-db'
+import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
-import { encodeBase64 } from '@/services/rssClient'
+import { encodeBase64, fetchFeed } from '@/services/rssClient'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
@@ -19,7 +28,7 @@ const toFeed = (url: string): Feed => {
   const id = encodeBase64(normalized) ?? normalized
   return {
     id,
-    url: normalized,
+    xmlUrl: normalized,
     title: normalized,
   }
 }
@@ -40,7 +49,7 @@ export default function SourcesScreen() {
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const swipeableRefs = useRef<Record<string, SwipeableMethods | null>>({})
 
-  const listData = useMemo(() => [{ id: 'all', title: 'All', url: '' }, ...feeds], [feeds])
+  const listData = useMemo(() => [{ id: 'all', title: 'All', xmlUrl: '' }, ...feeds], [feeds])
 
   const handleSelect = (feed?: Feed) => {
     if (!feed || feed.id === 'all') {
@@ -86,8 +95,11 @@ export default function SourcesScreen() {
       setSnackbar('Enter a feed URL')
       return
     }
-    const feed = toFeed(feedUrl)
+    const { feed, articles } = await fetchFeed(feedUrl, {
+      cutoffTs: 0,
+    })
     await upsertFeeds([feed])
+    await upsertArticles(articles)
     addFeed(feed)
     setFeedFilter(feed.id, feed.title)
     setFeedUrl('')

@@ -18,6 +18,7 @@ export const useFeedsStore = create<FeedsState>()(
     setFeeds: (feeds) => set({ feeds }),
     addFeed: (feed) =>
       set((state) => ({
+        // TODO - sort those feeds per title name
         feeds: state.feeds.find((f) => f.id === feed.id) ? state.feeds : [...state.feeds, feed],
       })),
     removeFeed: (id) =>
