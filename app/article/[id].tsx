@@ -9,6 +9,23 @@ import { setArticleRead, setArticleSaved } from '@/services/articles-db'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { useArticlesStore } from '@/store/articles'
 
+const cssAnimations = `
+  .pane {
+    will-change: transform, opacity;
+  }
+
+  /* Enter */
+  .enter {
+    animation: enter-up 200ms cubic-bezier(0, 0, 0.2, 1) 100ms both;
+  }
+
+  @keyframes enter-up {
+    from { opacity: 0; transform: translateY(20%); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+`
+
 export default function ArticleScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -70,9 +87,10 @@ export default function ArticleScreen() {
             .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
             .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
             .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
+            ${cssAnimations}
           </style>
         </head>
-        <body>
+        <body class="pane enter">
           ${hero}
           <div class="meta">${displayDate}</div>
           <div class="title">${article?.title ?? 'Loading article'}</div>
@@ -90,8 +108,6 @@ export default function ArticleScreen() {
     const hero = article?.thumbnail
       ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
       : ''
-
-    console.log(`${reader.html}`)
 
     return `
       <html>
@@ -119,11 +135,12 @@ export default function ArticleScreen() {
               colors.onSurface
             }; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
             .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
+            .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
             .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
-            li[":empty"] { display: none; }
+            ${cssAnimations}
           </style>
         </head>
-        <body>
+        <body class="pane enter">
           ${hero}
           <div class="meta">${displayDate}</div>
           <div class="title">${reader.title ?? article?.title ?? ''}</div>
@@ -156,12 +173,9 @@ export default function ArticleScreen() {
     }
     setMode('reader')
     setReader({ status: 'pending' })
-    setSnackbar('Loading reader mode...')
     const result = await fetchAndExtractReader(article.link)
     setReader(result)
-    if (result.status === 'ok') {
-      setSnackbar('Reader mode ready')
-    } else {
+    if (result.status !== 'ok') {
       setSnackbar(result.error ?? 'Failed to load reader mode')
     }
   }, [article?.link])
@@ -177,6 +191,17 @@ export default function ArticleScreen() {
 
   const originalIconName = mode === 'original' ? 'earth-box' : 'earth'
 
+  const ReaderIcon = useCallback(
+    ({ size, color }: { size: number; color: string }) => (
+      <MaterialIcons
+        name="description"
+        size={size}
+        color={mode === 'rss' ? color : colors.primary}
+      />
+    ),
+    [colors.primary, mode],
+  )
+
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
@@ -189,29 +214,20 @@ export default function ArticleScreen() {
           accessibilityLabel="Open original"
           onPress={() => {
             setMode('original')
-            setSnackbar('Original page')
           }}
-          animated
+          animated={false}
         />
         <Appbar.Action
-          icon={({ size, color }) => (
-            <MaterialIcons
-              name="description"
-              size={size}
-              color={mode === 'rss' ? color : colors.primary}
-            />
-          )}
+          icon={ReaderIcon}
           accessibilityLabel={mode === 'rss' ? 'Reader mode' : 'Show RSS content'}
           onPress={() => {
             if (mode === 'rss') {
               handleLoadReader()
             } else {
               setMode('rss')
-              setSnackbar('RSS content')
             }
           }}
           disabled={reader.status === 'pending'}
-          animated
         />
         <Appbar.Action
           icon={article?.saved ? 'bookmark' : 'bookmark-outline'}
