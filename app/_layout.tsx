@@ -1,3 +1,4 @@
+import { useMaterial3Theme } from '@pchmn/expo-material3-theme'
 import { ThemeProvider } from '@react-navigation/native'
 import * as Linking from 'expo-linking'
 import { Stack, useRouter } from 'expo-router'
@@ -20,8 +21,9 @@ export const unstable_settings = {
 export default function RootLayout() {
   const router = useRouter()
   const colorScheme = useColorScheme()
-  const paperTheme = getPaperTheme(colorScheme ?? null)
-  const navigationTheme = getNavigationTheme(colorScheme ?? null)
+  const { theme } = useMaterial3Theme()
+  const paperTheme = getPaperTheme(colorScheme ?? null, theme)
+  const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
   const [newArticlesCount, setNewArticlesCount] = useState(0)
   const [snackbarVisible, setSnackbarVisible] = useState(false)
   const lastSharedUrl = useRef<string | null>(null)

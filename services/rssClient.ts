@@ -8,7 +8,7 @@ import { Article, Feed } from '@/types'
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '',
-  stopNodes: ['feed.entry.content'],
+  stopNodes: ['feed.entry.content', 'rss.channel.item.content'],
 })
 
 const toTimestamp = (value?: string | null): number => {

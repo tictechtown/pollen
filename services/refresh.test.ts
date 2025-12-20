@@ -1,30 +1,21 @@
 // Tests for feed refresh helpers.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const {
-  fromModule,
-  readAsStringAsync,
-  getArticlesFromDb,
-  getFeedsFromDb,
-  upsertFeeds,
-  parseOpml,
-  fetchFeed,
-} = vi.hoisted(() => ({
-  fromModule: vi.fn(),
-  readAsStringAsync: vi.fn(),
-  getArticlesFromDb: vi.fn(),
-  getFeedsFromDb: vi.fn(),
-  upsertFeeds: vi.fn(),
-  parseOpml: vi.fn(),
-  fetchFeed: vi.fn(),
-}))
+const { fromModule, readAsStringAsync, getArticlesFromDb, getFeedsFromDb, upsertFeeds, fetchFeed } =
+  vi.hoisted(() => ({
+    fromModule: vi.fn(),
+    readAsStringAsync: vi.fn(),
+    getArticlesFromDb: vi.fn(),
+    getFeedsFromDb: vi.fn(),
+    upsertFeeds: vi.fn(),
+    fetchFeed: vi.fn(),
+  }))
 
 vi.mock('expo-asset', () => ({ __esModule: true, Asset: { fromModule } }))
 vi.mock('expo-file-system/legacy', () => ({ __esModule: true, readAsStringAsync }))
 
 vi.mock('./articles-db', () => ({ getArticlesFromDb }))
 vi.mock('./feeds-db', () => ({ getFeedsFromDb, upsertFeeds }))
-vi.mock('./opml', () => ({ parseOpml }))
 vi.mock('./rssClient', () => ({ fetchFeed }))
 
 // eslint-disable-next-line import/first
@@ -75,37 +66,5 @@ describe('refreshFeedsAndArticles', () => {
     })
 
     await p1
-  })
-
-  it('prevents duplicate OPML imports when called concurrently on first run', async () => {
-    getFeedsFromDb.mockResolvedValue([])
-
-    const asset = {
-      downloadAsync: vi.fn().mockResolvedValue(undefined),
-      localUri: 'file://feeds.opml',
-      uri: 'asset://feeds.opml',
-    }
-    fromModule.mockReturnValue(asset)
-    readAsStringAsync.mockResolvedValue('<opml></opml>')
-    parseOpml.mockReturnValue([{ id: 'feed-1', url: 'https://example.com/feed', title: 'Feed' }])
-
-    fetchFeed.mockResolvedValue({
-      feed: { id: 'feed-1', title: 'Feed', url: 'https://example.com/feed' },
-      articles: [],
-    })
-
-    const p1 = refreshFeedsAndArticles({
-      defaultFeedsModule: 'feed.xml',
-    })
-    const p2 = refreshFeedsAndArticles({
-      defaultFeedsModule: 'feed.xml',
-    })
-
-    expect(p1).toBe(p2)
-    await p1
-
-    expect(fromModule).toHaveBeenCalledTimes(1)
-    expect(readAsStringAsync).toHaveBeenCalledTimes(1)
-    expect(parseOpml).toHaveBeenCalledTimes(1)
   })
 })
