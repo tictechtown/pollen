@@ -4,19 +4,21 @@ import * as Linking from 'expo-linking'
 import { Stack, useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useRef, useState } from 'react'
-import { AppState, View } from 'react-native'
+import { AppState, type AppStateStatus, View } from 'react-native'
 import { PaperProvider, Snackbar } from 'react-native-paper'
 import 'react-native-reanimated'
 
 import { getNavigationTheme, getPaperTheme } from '@/constants/paperTheme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { consumeBackgroundMarker, registerBackgroundRefresh } from '@/services/background-refresh'
+import { hydrateArticlesAndFeeds, refreshFeedsAndArticles } from '@/services/refresh'
 import { parseSharedUrl } from '@/services/share-intent'
+import { useArticlesStore } from '@/store/articles'
+import { useFeedsStore } from '@/store/feeds'
+import { useFiltersStore } from '@/store/filters'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-}
+const MIN_REFRESH_MS = 5 * 60 * 1000
 
 export default function RootLayout() {
   const router = useRouter()
@@ -25,8 +27,14 @@ export default function RootLayout() {
   const paperTheme = getPaperTheme(colorScheme ?? null, theme)
   const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
   const [newArticlesCount, setNewArticlesCount] = useState(0)
-  const [snackbarVisible, setSnackbarVisible] = useState(false)
   const lastSharedUrl = useRef<string | null>(null)
+
+  // refresh feeds/articles when coming back from background
+  const appState = useRef<AppStateStatus>(AppState.currentState)
+  const lastForegroundRefresh = useRef(0)
+  const setArticles = useArticlesStore((state) => state.setArticles)
+  const setFeeds = useFeedsStore((state) => state.setFeeds)
+  const selectedFeedId = useFiltersStore((state) => state.selectedFeedId)
 
   useEffect(() => {
     registerBackgroundRefresh().catch((err) =>
@@ -37,7 +45,6 @@ export default function RootLayout() {
       const marker = await consumeBackgroundMarker()
       if (marker?.count) {
         setNewArticlesCount(marker.count)
-        setSnackbarVisible(true)
       }
     }
 
@@ -53,6 +60,45 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
+    let cancelled = false
+
+    const refreshOnForeground = async () => {
+      const now = Date.now()
+      if (now - lastForegroundRefresh.current < MIN_REFRESH_MS) {
+        return
+      }
+      lastForegroundRefresh.current = now
+      try {
+        const result = await refreshFeedsAndArticles({ selectedFeedId })
+        if (!result.feedsUsed.length) return
+        const { feeds, articles } = await hydrateArticlesAndFeeds(selectedFeedId)
+        if (cancelled) return
+        if (feeds.length) {
+          setFeeds(feeds)
+        }
+        setArticles(articles)
+      } catch (err) {
+        console.warn('Foreground refresh failed', err)
+      }
+    }
+
+    const handleAppStateChange = (state: AppStateStatus) => {
+      const previous = appState.current
+      appState.current = state
+      if (previous.match(/inactive|background/) && state === 'active') {
+        void refreshOnForeground()
+      }
+    }
+
+    const sub = AppState.addEventListener('change', handleAppStateChange)
+    return () => {
+      cancelled = true
+      sub.remove()
+    }
+  }, [selectedFeedId, setArticles, setFeeds])
+
+  useEffect(() => {
+    // TODO - Check handleShareIntent - it doesn't seem to be working
     const handleShareIntent = (url?: string | null) => {
       const shared = parseSharedUrl(url ?? '')
       if (shared && shared !== lastSharedUrl.current) {
@@ -82,10 +128,10 @@ export default function RootLayout() {
               <Stack.Screen name="share" options={{ headerShown: false, presentation: 'modal' }} />
             </Stack>
             <Snackbar
-              visible={snackbarVisible}
+              visible={newArticlesCount > 0}
               duration={3000}
-              onDismiss={() => setSnackbarVisible(false)}
-              action={{ label: 'OK', onPress: () => setSnackbarVisible(false) }}
+              onDismiss={() => setNewArticlesCount(0)}
+              action={{ label: 'OK', onPress: () => setNewArticlesCount(0) }}
             >
               {`${newArticlesCount} new articles`}
             </Snackbar>
