@@ -17,7 +17,7 @@ describe('parseOpml', () => {
     const feeds = parseOpml(opml)
 
     expect(feeds).toHaveLength(1)
-    expect(feeds[0].url).toBe(url)
+    expect(feeds[0].xmlUrl).toBe(url)
     expect(feeds[0].id).toBe(encodeBase64(url))
   })
 })

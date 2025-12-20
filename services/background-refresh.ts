@@ -60,7 +60,7 @@ const ensureTaskDefined = () => {
     }
 
     try {
-      const result = await refreshFeedsAndArticles({ includeDefaultFeeds: false })
+      const result = await refreshFeedsAndArticles({})
       if (result.newArticlesCount > 0) {
         await setMarker(result.newArticlesCount)
         return BackgroundFetch.BackgroundFetchResult.NewData

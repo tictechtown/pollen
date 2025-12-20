@@ -17,21 +17,11 @@ import {
 import SourceListItem from '@/components/ui/SourceListItem'
 import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
-import { encodeBase64, fetchFeed } from '@/services/rssClient'
+import { fetchFeed } from '@/services/rssClient'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
 import { Feed } from '@/types'
-
-const toFeed = (url: string): Feed => {
-  const normalized = url.trim()
-  const id = encodeBase64(normalized) ?? normalized
-  return {
-    id,
-    xmlUrl: normalized,
-    title: normalized,
-  }
-}
 
 export default function SourcesScreen() {
   const router = useRouter()

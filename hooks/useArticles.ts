@@ -42,7 +42,6 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     try {
       const result = await refreshFeedsAndArticles({
         selectedFeedId,
-        includeDefaultFeeds: true,
       })
       if (!result.feedsUsed.length) {
         setError('No feeds available')

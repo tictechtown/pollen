@@ -10,6 +10,15 @@ const parser = new XMLParser({
   attributeNamePrefix: '',
 })
 
+export const isOpmlXml = (xml: string): boolean => {
+  try {
+    const parsed = parser.parse(xml)
+    return Boolean((parsed as any)?.opml)
+  } catch {
+    return false
+  }
+}
+
 const toArray = <T>(maybe: T | T[] | undefined): T[] => {
   if (!maybe) return []
   return Array.isArray(maybe) ? maybe : [maybe]

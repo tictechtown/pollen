@@ -1,16 +1,14 @@
 // Feed refresh workflow and hydration utilities.
-import { Asset } from 'expo-asset'
 import * as FileSystem from 'expo-file-system/legacy'
 
 import { Article, Feed } from '@/types'
 import { getArticlesFromDb, upsertArticles } from './articles-db'
 import { getFeedsFromDb, upsertFeeds } from './feeds-db'
-import { parseOpml } from './opml'
+import { isOpmlXml, parseOpml } from './opml'
 import { fetchFeed } from './rssClient'
 
 type RefreshOptions = {
   selectedFeedId?: string
-  includeDefaultFeeds?: boolean
   metadataBudget?: { remaining: number }
   defaultFeedsModule?: unknown
 }
@@ -38,35 +36,66 @@ const toTimestamp = (value?: string | null): number => {
 const articleTimestamp = (article: Article): number =>
   toTimestamp(article.updatedAt) || toTimestamp(article.publishedAt)
 
-export const loadDefaultFeedsFromOpml = async (feedModule?: unknown): Promise<Feed[]> => {
-  try {
-    const moduleToUse = feedModule ?? require('../feed.xml')
-    const asset = Asset.fromModule(moduleToUse)
-    await asset.downloadAsync()
-    const uri = asset.localUri ?? asset.uri
-    const opml = await FileSystem.readAsStringAsync(uri)
-    const parsedFeeds = parseOpml(opml)
-    return parsedFeeds
-  } catch {
-    return []
+export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
+  const opmlXml = await FileSystem.readAsStringAsync(uri)
+  if (!isOpmlXml(opmlXml)) {
+    throw new Error('Invalid OPML file')
   }
+  const parsedFeeds = parseOpml(opmlXml)
+
+  const results = await Promise.allSettled(
+    parsedFeeds.map((feed) =>
+      fetchFeed(feed.xmlUrl, {
+        cutoffTs: 0,
+        metadataBudget: { remaining: 200 },
+      }),
+    ),
+  )
+
+  const feedsForUpsert: Feed[] = []
+  const articlesForUpsert: Article[] = []
+
+  results.forEach((result) => {
+    if (result.status !== 'fulfilled') return
+    const { feed, articles: fetchedArticles } = result.value
+
+    const maxTsFromFresh = fetchedArticles.reduce(
+      (max, article) => Math.max(max, articleTimestamp(article)),
+      0,
+    )
+
+    feedsForUpsert.push({
+      ...feed,
+      lastPublishedTs: maxTsFromFresh || undefined,
+      lastPublishedAt: maxTsFromFresh
+        ? new Date(maxTsFromFresh).toISOString()
+        : feed.lastPublishedAt ?? undefined,
+    })
+
+    if (fetchedArticles.length) {
+      articlesForUpsert.push(...fetchedArticles)
+    }
+  })
+
+  if (feedsForUpsert.length) {
+    await upsertFeeds(feedsForUpsert)
+  }
+
+  const deduped = dedupeById(articlesForUpsert)
+  if (deduped.length) {
+    await upsertArticles(deduped)
+  }
+
+  await upsertFeeds(parsedFeeds)
+  return parsedFeeds
 }
 
 let refreshInFlight: Promise<RefreshResult> | null = null
 
 const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<RefreshResult> => {
-  const {
-    selectedFeedId,
-    includeDefaultFeeds = false,
-    metadataBudget = { remaining: 200 },
-    defaultFeedsModule,
-  } = options
+  const { selectedFeedId, metadataBudget = { remaining: 200 } } = options
 
   let feedsToUse = await getFeedsFromDb()
-
-  if (!feedsToUse.length && includeDefaultFeeds) {
-    feedsToUse = await loadDefaultFeedsFromOpml(defaultFeedsModule)
-  }
 
   if (selectedFeedId) {
     const selected = feedsToUse.find((feed) => feed.id === selectedFeedId)

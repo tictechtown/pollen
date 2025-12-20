@@ -2,16 +2,22 @@ import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { Appbar, Button, Divider, List, Snackbar, Switch, Text } from 'react-native-paper'
+import * as DocumentPicker from 'expo-document-picker'
 
 import { deleteArticlesOlderThan, getArticlesFromDb } from '@/services/articles-db'
+import { getFeedsFromDb } from '@/services/feeds-db'
+import { importFeedsFromOpmlUri } from '@/services/refresh'
 import { useArticlesStore } from '@/store/articles'
+import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
 
 export default function SettingsScreen() {
   const router = useRouter()
   const setArticles = useArticlesStore((state) => state.setArticles)
+  const setFeeds = useFeedsStore((state) => state.setFeeds)
   const { selectedFeedId } = useFiltersStore()
   const [snackbar, setSnackbar] = useState<string | null>(null)
+  const [importingOpml, setImportingOpml] = useState(false)
 
   const handleClearOld = async () => {
     const sixMonthsAgo = Date.now() - 1000 * 60 * 60 * 24 * 180
@@ -20,6 +26,37 @@ export default function SettingsScreen() {
     const refreshed = await getArticlesFromDb(selectedFeedId)
     setArticles(refreshed)
     setSnackbar('Removed articles older than 6 months')
+  }
+
+  const handleImportOpml = async () => {
+    if (importingOpml) return
+    setImportingOpml(true)
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        copyToCacheDirectory: true,
+        multiple: false,
+        type: ['text/xml', 'application/xml', 'application/octet-stream', '*/*'],
+      })
+
+      if (result.canceled) {
+        return
+      }
+
+      const asset = result.assets?.[0]
+      if (!asset?.uri) {
+        setSnackbar('No file selected')
+        return
+      }
+
+      const imported = await importFeedsFromOpmlUri(asset.uri)
+      const feeds = await getFeedsFromDb()
+      setFeeds(feeds)
+      setSnackbar(imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML')
+    } catch (err) {
+      setSnackbar(err instanceof Error ? err.message : 'Failed to import OPML')
+    } finally {
+      setImportingOpml(false)
+    }
   }
   return (
     <View style={styles.container}>
@@ -87,8 +124,16 @@ export default function SettingsScreen() {
           </Text>
         </List.Section>
 
-        <Button mode="contained-tonal" icon="export" style={styles.cta} onPress={() => {}}>
-          Export subscriptions (OPML)
+        <Button
+          mode="contained"
+          icon="file-import-outline"
+          style={styles.fullBleedCta}
+          contentStyle={styles.fullBleedCtaContent}
+          onPress={handleImportOpml}
+          loading={importingOpml}
+          disabled={importingOpml}
+        >
+          import from OPML
         </Button>
       </ScrollView>
 
@@ -114,8 +159,13 @@ const styles = StyleSheet.create({
   helper: {
     paddingHorizontal: 16,
   },
-  cta: {
+  fullBleedCta: {
+    marginTop: 16,
     marginHorizontal: 16,
-    marginTop: 8,
+    borderRadius: 24,
+  },
+  fullBleedCtaContent: {
+    height: 56,
+    paddingHorizontal: 16,
   },
 })

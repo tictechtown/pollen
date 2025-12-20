@@ -10,14 +10,14 @@ const {
   parseOpml,
   fetchFeed,
 } = vi.hoisted(() => ({
-    fromModule: vi.fn(),
-    readAsStringAsync: vi.fn(),
-    getArticlesFromDb: vi.fn(),
-    getFeedsFromDb: vi.fn(),
-    upsertFeeds: vi.fn(),
-    parseOpml: vi.fn(),
-    fetchFeed: vi.fn(),
-  }))
+  fromModule: vi.fn(),
+  readAsStringAsync: vi.fn(),
+  getArticlesFromDb: vi.fn(),
+  getFeedsFromDb: vi.fn(),
+  upsertFeeds: vi.fn(),
+  parseOpml: vi.fn(),
+  fetchFeed: vi.fn(),
+}))
 
 vi.mock('expo-asset', () => ({ __esModule: true, Asset: { fromModule } }))
 vi.mock('expo-file-system/legacy', () => ({ __esModule: true, readAsStringAsync }))
@@ -28,7 +28,7 @@ vi.mock('./opml', () => ({ parseOpml }))
 vi.mock('./rssClient', () => ({ fetchFeed }))
 
 // eslint-disable-next-line import/first
-import { hydrateArticlesAndFeeds, loadDefaultFeedsFromOpml, refreshFeedsAndArticles } from './refresh'
+import { hydrateArticlesAndFeeds, refreshFeedsAndArticles } from './refresh'
 
 describe('hydrateArticlesAndFeeds', () => {
   it('returns feeds and articles from the database', async () => {
@@ -44,33 +44,15 @@ describe('hydrateArticlesAndFeeds', () => {
   })
 })
 
-describe('loadDefaultFeedsFromOpml', () => {
-  it('parses and upserts feeds from the bundled OPML', async () => {
-    const asset = {
-      downloadAsync: vi.fn().mockResolvedValue(undefined),
-      localUri: 'file://feeds.opml',
-      uri: 'asset://feeds.opml',
-    }
-    fromModule.mockReturnValue(asset)
-    readAsStringAsync.mockResolvedValue('<opml></opml>')
-    parseOpml.mockReturnValue([{ id: 'feed-1', url: 'https://example.com', title: 'Feed' }])
-
-    const feeds = await loadDefaultFeedsFromOpml('feed.xml')
-
-    expect(upsertFeeds).toHaveBeenCalledWith([
-      { id: 'feed-1', url: 'https://example.com', title: 'Feed' },
-    ])
-    expect(feeds).toHaveLength(1)
-  })
-})
-
 describe('refreshFeedsAndArticles', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('returns the in-flight Promise when called concurrently', async () => {
-    getFeedsFromDb.mockResolvedValue([{ id: 'feed-1', title: 'Feed', url: 'https://example.com/feed' }])
+    getFeedsFromDb.mockResolvedValue([
+      { id: 'feed-1', title: 'Feed', url: 'https://example.com/feed' },
+    ])
 
     let resolveFetch!: (value: any) => void
     const fetchPromise = new Promise((resolve) => {
@@ -78,8 +60,8 @@ describe('refreshFeedsAndArticles', () => {
     })
     fetchFeed.mockReturnValueOnce(fetchPromise)
 
-    const p1 = refreshFeedsAndArticles({ includeDefaultFeeds: false })
-    const p2 = refreshFeedsAndArticles({ includeDefaultFeeds: true })
+    const p1 = refreshFeedsAndArticles({})
+    const p2 = refreshFeedsAndArticles({})
 
     expect(p1).toBe(p2)
     expect(getFeedsFromDb).toHaveBeenCalledTimes(1)
@@ -112,8 +94,12 @@ describe('refreshFeedsAndArticles', () => {
       articles: [],
     })
 
-    const p1 = refreshFeedsAndArticles({ includeDefaultFeeds: true, defaultFeedsModule: 'feed.xml' })
-    const p2 = refreshFeedsAndArticles({ includeDefaultFeeds: true, defaultFeedsModule: 'feed.xml' })
+    const p1 = refreshFeedsAndArticles({
+      defaultFeedsModule: 'feed.xml',
+    })
+    const p2 = refreshFeedsAndArticles({
+      defaultFeedsModule: 'feed.xml',
+    })
 
     expect(p1).toBe(p2)
     await p1
