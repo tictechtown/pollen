@@ -377,7 +377,7 @@ const extractHTMLLink = (links: AtomFeed['feed']['link'] | undefined): string | 
     return undefined
   }
   if (Array.isArray(links)) {
-    return links.find((l) => l.type === 'text/html')?.href
+    return links.find((l) => l.rel === 'alternate' || l.type === 'text/html')?.href
   } else {
     return links.type === 'text/html' ? links.href : undefined
   }
