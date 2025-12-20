@@ -1,72 +1,84 @@
-# Welcome to your Expo app 👋
+# Pollen
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A React Native RSS reader built with Expo and React Native Paper, optimized for Android and Material You.
 
-## Description
+## Features
 
-This React Native app is a RSS reader. It has the following pages:
-- A Newsfeed: a list of all articles, sorted by updated timestamp dec. The user can add/remove a newsfeed from this page. It can also filter per source/seen/unseen flag and saved for later.
-   Each article is a card. Each card has:
-   - a thumbnail image 
-   - a title, with a max of 2 lines (if there's a description) or 3 lines if no description
-   - a description (if available) with a max of 1 line 
-   - a source and relative timestamp
-   The card is faded if their article has been opened.
-   When the user swaps left on a card, the article is marked as saved for later
-   When the user swaps right on a card, the seen/unseen flag is toggled
+- Material You / Material 3 UI (React Native Paper)
+- Feed reading with local persistence
+- Reader mode extraction (Mozilla Readability)
+- Expo Router navigation
 
-- An Article View: an HTML rendered view of the RSS article. When the user clicks on a card from the Newsfeed, they are redirected to this Article View. They also marked the article as viewed
-- A Saved for Later Feed: a list of articles that the user has manually saved
+## Tech stack
 
+- Expo + React Native
+- React Native Paper (Material 3)
+- SQLite (via `expo-sqlite`)
 
-This app is also offline first. Meaning all the contents is saved on disk, and the thumbnail image is cached as well. When the user requests to clear the cache, only the image cache is cleared.
+## Getting started
 
+### Prerequisites
 
+- Node.js (recommended: Node 20)
+- For Android dev/builds: Android Studio + Android SDK
 
-
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### Install
 
 ```bash
-npm run reset-project
+npm ci
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### Run (development)
 
-## Learn more
+```bash
+npm run start
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Then choose a target:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Android: `npm run android`
+- iOS: `npm run ios`
+- Web: `npm run web`
 
-## Join the community
+## Scripts
 
-Join our community of developers creating universal apps.
+- `npm run lint` — lint
+- `npm test` — run tests
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Build Android release APK
+
+Local build:
+
+```bash
+npm run build:android:release
+```
+
+APK output will be under `android/app/build/outputs/apk/release/`.
+
+### GitHub Actions (manual)
+
+This repo includes a manually triggered workflow that builds an Android release APK and uploads it as an artifact:
+
+- Workflow: `.github/workflows/build-android-release.yml`
+- Download: GitHub → Actions → “Build Android Release APK” → run → artifacts (`android-release-apk`)
+
+Note: release signing is not configured by default. For Play Store distribution, you’ll need to add a keystore + signing config and wire secrets into the workflow.
+
+## Contributing
+
+Issues and PRs are welcome:
+
+- Use GitHub Issues for bugs and feature requests.
+- For changes, please include a clear description and, when relevant, tests.
+
+## Roadmap
+
+See `TODO.md`.
+
+## Security
+
+If you believe you’ve found a security issue, please open a GitHub Security Advisory or contact the maintainer privately.
+
+## License
+
+No license file is currently included. If you intend this project to be open source, add a `LICENSE` (for example MIT or Apache-2.0).
