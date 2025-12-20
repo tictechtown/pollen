@@ -1,4 +1,5 @@
 import { useRouter } from 'expo-router'
+import he from 'he'
 import { useMemo, useRef, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
@@ -8,14 +9,17 @@ import {
   Button,
   Dialog,
   FAB,
+  List,
   Portal,
   Snackbar,
+  Text,
   TextInput,
   useTheme,
 } from 'react-native-paper'
 
 import SourceListItem from '@/components/ui/SourceListItem'
 import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
+import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
 import { fetchFeed } from '@/services/rssClient'
 import { useArticlesStore } from '@/store/articles'
@@ -36,7 +40,9 @@ export default function SourcesScreen() {
   const [removeVisible, setRemoveVisible] = useState(false)
   const [feedUrl, setFeedUrl] = useState('')
   const [feedToRemove, setFeedToRemove] = useState<Feed | null>(null)
+  const [feedCandidates, setFeedCandidates] = useState<FeedCandidate[]>([])
   const [snackbar, setSnackbar] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
   const swipeableRefs = useRef<Record<string, SwipeableMethods | null>>({})
 
   const listData = useMemo(() => [{ id: 'all', title: 'All', xmlUrl: '' }, ...feeds], [feeds])
@@ -80,21 +86,72 @@ export default function SourcesScreen() {
     setFeedToRemove(null)
   }
 
-  const handleAdd = async () => {
-    if (!feedUrl.trim()) {
-      setSnackbar('Enter a feed URL')
-      return
-    }
-    const { feed, articles } = await fetchFeed(feedUrl, {
+  const finalizeAdd = () => {
+    setFeedUrl('')
+    setFeedCandidates([])
+    setAddVisible(false)
+    router.back()
+  }
+
+  const addFeedByUrl = async (url: string) => {
+    const { feed, articles } = await fetchFeed(url, {
       cutoffTs: 0,
     })
     await upsertFeeds([feed])
     await upsertArticles(articles)
     addFeed(feed)
     setFeedFilter(feed.id, feed.title)
-    setFeedUrl('')
-    setAddVisible(false)
-    router.back()
+  }
+
+  const withSubmitting = async (action: () => Promise<void>) => {
+    if (submitting) return
+    setSubmitting(true)
+    try {
+      await action()
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleAdd = async () => {
+    const trimmedUrl = feedUrl.trim()
+    if (!trimmedUrl) {
+      setSnackbar('Enter a feed URL')
+      return
+    }
+    await withSubmitting(async () => {
+      try {
+        const { directUrl, candidates } = await discoverFeedUrls(trimmedUrl)
+        if (directUrl) {
+          await addFeedByUrl(directUrl)
+          finalizeAdd()
+          return
+        }
+        if (candidates.length === 1) {
+          await addFeedByUrl(candidates[0].url)
+          finalizeAdd()
+          return
+        }
+        if (candidates.length > 1) {
+          setFeedCandidates(candidates)
+          return
+        }
+        setSnackbar('No RSS or Atom feed found')
+      } catch (err) {
+        setSnackbar(err instanceof Error ? err.message : 'Failed to add feed')
+      }
+    })
+  }
+
+  const handleSelectCandidate = async (candidate: FeedCandidate) => {
+    await withSubmitting(async () => {
+      try {
+        await addFeedByUrl(candidate.url)
+        finalizeAdd()
+      } catch (err) {
+        setSnackbar(err instanceof Error ? err.message : 'Failed to add feed')
+      }
+    })
   }
 
   return (
@@ -140,7 +197,13 @@ export default function SourcesScreen() {
           variant="secondary"
         />
 
-        <Dialog visible={addVisible} onDismiss={() => setAddVisible(false)}>
+        <Dialog
+          visible={addVisible}
+          onDismiss={() => {
+            setAddVisible(false)
+            setFeedCandidates([])
+          }}
+        >
           <Dialog.Title>Add a feed</Dialog.Title>
           <Dialog.Content>
             <TextInput
@@ -148,14 +211,49 @@ export default function SourcesScreen() {
               label="Feed URL"
               placeholder="https://example.com/rss"
               value={feedUrl}
-              onChangeText={setFeedUrl}
+              onChangeText={(value) => {
+                setFeedUrl(value)
+                if (feedCandidates.length) {
+                  setFeedCandidates([])
+                }
+              }}
+              editable={feedCandidates.length <= 1 && !submitting}
               autoCapitalize="none"
               autoCorrect={false}
             />
+            {feedCandidates.length > 1
+              ? [
+                  <Text key="candidate-title" variant="titleMedium" style={{ marginTop: 16 }}>
+                    Select Feed
+                  </Text>,
+                  ...feedCandidates.map((candidate) => (
+                    <List.Item
+                      key={candidate.url}
+                      title={he.decode(candidate.title ?? candidate.url)}
+                      description={candidate.title ? candidate.url : undefined}
+                      onPress={() => handleSelectCandidate(candidate)}
+                      left={() => <List.Icon icon="radiobox-blank" />}
+                      disabled={submitting}
+                    />
+                  )),
+                ]
+              : null}
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={() => setAddVisible(false)}>Cancel</Button>
-            <Button onPress={handleAdd}>Add</Button>
+            <Button
+              onPress={() => {
+                setAddVisible(false)
+                setFeedCandidates([])
+              }}
+              disabled={submitting}
+            >
+              Cancel
+            </Button>
+            {feedCandidates.length > 1 ? null : (
+              <Button onPress={handleAdd} loading={submitting}>
+                Add
+              </Button>
+            )}
           </Dialog.Actions>
         </Dialog>
 
