@@ -24,7 +24,8 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
     CREATE TABLE IF NOT EXISTS feeds (
       id TEXT PRIMARY KEY,
       title TEXT,
-      url TEXT,
+      xmlUrl TEXT,
+      htmlUrl TEXT,
       description TEXT,
       image TEXT,
       lastUpdated TEXT,
@@ -73,7 +74,7 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
 
 export const getDb = () => {
   if (!dbPromise) {
-    dbPromise = SQLite.openDatabaseAsync('pollen-4.db').then(async (db) => {
+    dbPromise = SQLite.openDatabaseAsync('pollen-5.db').then(async (db) => {
       await createTables(db)
       return db
     })

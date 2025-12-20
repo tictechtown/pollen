@@ -12,11 +12,11 @@ export const upsertFeeds = async (feeds: Feed[]) => {
 
         await db.runAsync(
           `
-        INSERT INTO feeds (id, title, url, description, image, lastUpdated, lastPublishedAt, lastPublishedTs)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO feeds (id, title, xmlUrl, htmlUrl, description, image, lastUpdated, lastPublishedAt, lastPublishedTs)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           title=excluded.title,
-          url=excluded.url,
+          xmlUrl=excluded.xmlUrl,
           description=excluded.description,
           image=excluded.image,
           lastUpdated=excluded.lastUpdated,
@@ -27,6 +27,7 @@ export const upsertFeeds = async (feeds: Feed[]) => {
             feed.id,
             feed.title,
             feed.xmlUrl,
+            feed.htmlUrl ?? null,
             feed.description ?? null,
             feed.image ?? null,
             feed.lastUpdated ?? null,
