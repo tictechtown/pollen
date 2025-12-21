@@ -1,10 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { setArticleRead, setArticleSaved, setManyArticlesRead } from '@/services/articles-db'
-import { hydrateArticlesAndFeeds, refreshFeedsAndArticles } from '@/services/refresh'
 import { useArticlesStore } from '@/store/articles'
-import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
+import { type RefreshReason, useRefreshStore } from '@/store/refresh'
 
 const PAGE_SIZE = 100
 
@@ -13,68 +12,39 @@ type UseArticlesOptions = {
 }
 
 export const useArticles = (options: UseArticlesOptions = {}) => {
-  const { articles, setArticles, updateSavedLocal, updateSeenLocal } = useArticlesStore()
-  const { setFeeds } = useFeedsStore()
+  const { articles, updateSavedLocal, updateSeenLocal, initialized } = useArticlesStore()
   const { selectedFeedId } = useFiltersStore()
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [initialized, setInitialized] = useState(false)
+  const { status, lastError, hydrate, refresh } = useRefreshStore()
   const [page, setPage] = useState(1)
 
   const hydrateFromDb = useCallback(
     async (feedId?: string) => {
-      const { feeds, articles } = await hydrateArticlesAndFeeds(feedId)
-      if (feeds.length) {
-        setFeeds(feeds)
-      }
-      setArticles(articles)
+      await hydrate(feedId)
     },
-    [setArticles, setFeeds],
+    [hydrate],
   )
 
-  const load = useCallback(async () => {
-    if (loading) {
-      return
-    }
-    setLoading(true)
-    setError(null)
-    setPage(1)
-    try {
-      const result = await refreshFeedsAndArticles({
-        selectedFeedId,
-      })
-      if (!result.feedsUsed.length) {
-        setError('No feeds available')
+  const triggerRefresh = useCallback(
+    async (reason: RefreshReason) => {
+      setPage(1)
+      try {
+        await refresh({ reason, selectedFeedId })
+      } catch {
+        // Refresh errors are tracked in the refresh store.
       }
-      await hydrateFromDb(selectedFeedId)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load feed')
-    } finally {
-      setLoading(false)
-    }
-  }, [loading, hydrateFromDb, selectedFeedId])
+    },
+    [refresh, selectedFeedId],
+  )
 
   useEffect(() => {
-    const boot = async () => {
-      await hydrateFromDb(selectedFeedId)
-      setInitialized(true)
-      if (!articles.length) {
-        load()
-      }
-    }
-    if (!initialized) {
-      boot()
-    }
-  }, [initialized, articles.length, hydrateFromDb, load, selectedFeedId])
-
-  useEffect(() => {
-    if (initialized) {
+    if (initialized && selectedFeedId) {
       hydrateFromDb(selectedFeedId)
     }
   }, [hydrateFromDb, initialized, selectedFeedId])
 
   const unseenOnly = !!options.unseenOnly
 
+  // Pagination
   const sortedAndFiltered = useMemo(() => {
     const byFeed = selectedFeedId
       ? articles.filter((article) => article.feedId === selectedFeedId)
@@ -110,6 +80,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     setPage((current) => (current < totalPages ? current + 1 : current))
   }, [totalPages])
 
+  // Save status
   const toggleSaved = useCallback(
     async (id: string) => {
       const current = articles.find((article) => article.id === id)
@@ -121,6 +92,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     [articles, updateSavedLocal],
   )
 
+  // Seen status
   const toggleSeen = useCallback(
     async (id: string) => {
       const current = articles.find((article) => article.id === id)
@@ -132,14 +104,6 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     [articles, updateSeenLocal],
   )
 
-  const setSeen = useCallback(
-    async (id: string, seen = true) => {
-      await setArticleRead(id, seen)
-      updateSeenLocal(id, seen)
-    },
-    [updateSeenLocal],
-  )
-
   const markAllSeen = useCallback(() => {
     const ids = sortedAndFiltered.map((article) => article.id)
     void setManyArticlesRead(ids, true)
@@ -148,16 +112,14 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
 
   return {
     articles: pagedArticles,
-    loading,
-    error,
-    initialized,
-    refresh: () => load(),
+    loading: status === 'loading',
+    refresh: () => triggerRefresh('manual'),
     loadNextPage,
     hasMore: pagedArticles.length < sortedAndFiltered.length,
     hasUnseen,
     toggleSaved,
     toggleSeen,
-    setSeen,
     markAllSeen,
+    error: lastError,
   }
 }

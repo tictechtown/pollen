@@ -6,6 +6,8 @@ import { Article } from '@/types'
 
 type ArticlesState = {
   articles: Article[]
+  initialized: boolean
+  setInitialized: () => void
   setArticles: (articles: Article[]) => void
   upsertArticle: (article: Article) => void
   updateSavedLocal: (id: string, saved: boolean) => void
@@ -16,10 +18,12 @@ type ArticlesState = {
 export const useArticlesStore = create<ArticlesState>()(
   devtools((set) => ({
     articles: [],
+    initialized: false,
     setArticles: (articles) => {
-      console.trace('set articles')
+      console.trace('set articles', articles.length)
       set({ articles })
     },
+    setInitialized: () => set({ initialized: true }),
     upsertArticle: (article) =>
       set((state) => {
         const exists = state.articles.find((a) => a.id === article.id)

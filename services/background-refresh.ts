@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import * as BackgroundFetch from 'expo-background-fetch'
 import * as TaskManager from 'expo-task-manager'
 
-import { refreshFeedsAndArticles } from './refresh'
+import { useRefreshStore } from '@/store/refresh'
 
 const TASK_NAME = 'background-refresh-task'
 const STORAGE_KEY = 'background-new-articles-v1'
@@ -60,7 +60,11 @@ const ensureTaskDefined = () => {
     }
 
     try {
-      const result = await refreshFeedsAndArticles({})
+      const refresh = useRefreshStore.getState().refresh
+      const result = await refresh({ reason: 'background' })
+      if (!result) {
+        return BackgroundFetch.BackgroundFetchResult.NoData
+      }
       if (result.newArticlesCount > 0) {
         await setMarker(result.newArticlesCount)
         return BackgroundFetch.BackgroundFetchResult.NewData

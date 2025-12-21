@@ -484,8 +484,6 @@ const parseAtomFeed = async (
     }),
   )
 
-  console.log('articles', url, articles.length)
-
   return { feed, articles: dedupeById(articles) }
 }
 
@@ -548,8 +546,6 @@ const parseRssFeed = async (
       }
     }),
   )
-
-  console.log('articles', url, articles.length)
 
   return { feed, articles: dedupeById(articles) }
 }

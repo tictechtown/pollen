@@ -1,7 +1,7 @@
 // Tests for background refresh task wiring.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { storage, backgroundFetch, taskManager } = vi.hoisted(() => ({
+const { storage, backgroundFetch, taskManager, refreshStore } = vi.hoisted(() => ({
   storage: {
     getItem: vi.fn(),
     setItem: vi.fn(),
@@ -17,12 +17,19 @@ const { storage, backgroundFetch, taskManager } = vi.hoisted(() => ({
     defineTask: vi.fn(),
     getRegisteredTasksAsync: vi.fn(),
   },
+  refreshStore: {
+    refresh: vi.fn(),
+  },
 }))
 
 vi.mock('@react-native-async-storage/async-storage', () => ({ default: storage }))
 vi.mock('expo-background-fetch', () => backgroundFetch)
 vi.mock('expo-task-manager', () => taskManager)
-vi.mock('./refresh', () => ({ refreshFeedsAndArticles: vi.fn() }))
+vi.mock('@/store/refresh', () => ({
+  useRefreshStore: {
+    getState: () => ({ refresh: refreshStore.refresh }),
+  },
+}))
 
 // eslint-disable-next-line import/first
 import { consumeBackgroundMarker, registerBackgroundRefresh } from './background-refresh'

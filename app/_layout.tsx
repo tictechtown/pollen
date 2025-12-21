@@ -11,14 +11,11 @@ import 'react-native-reanimated'
 import { getNavigationTheme, getPaperTheme } from '@/constants/paperTheme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
 import { consumeBackgroundMarker, registerBackgroundRefresh } from '@/services/background-refresh'
-import { hydrateArticlesAndFeeds, refreshFeedsAndArticles } from '@/services/refresh'
 import { parseSharedUrl } from '@/services/share-intent'
 import { useArticlesStore } from '@/store/articles'
-import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
+import { useRefreshStore } from '@/store/refresh'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
-
-const MIN_REFRESH_MS = 5 * 60 * 1000
 
 export default function RootLayout() {
   const router = useRouter()
@@ -27,14 +24,18 @@ export default function RootLayout() {
   const paperTheme = getPaperTheme(colorScheme ?? null, theme)
   const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
   const [newArticlesCount, setNewArticlesCount] = useState(0)
+  const [dismissedError, setDismissedError] = useState<string | null>(null)
 
   // refresh feeds/articles when coming back from background
   const appState = useRef<AppStateStatus>(AppState.currentState)
-  const lastForegroundRefresh = useRef(0)
-  const setArticles = useArticlesStore((state) => state.setArticles)
-  const setFeeds = useFeedsStore((state) => state.setFeeds)
   const selectedFeedId = useFiltersStore((state) => state.selectedFeedId)
+  const refresh = useRefreshStore((state) => state.refresh)
+  const hydrate = useRefreshStore((state) => state.hydrate)
+  const refreshStatus = useRefreshStore((state) => state.status)
+  const refreshError = useRefreshStore((state) => state.lastError)
+  const { initialized, setInitialized } = useArticlesStore()
 
+  // Startup effect
   useEffect(() => {
     registerBackgroundRefresh().catch((err) =>
       console.warn('Background refresh registration failed', err),
@@ -58,24 +59,25 @@ export default function RootLayout() {
     }
   }, [])
 
+  // Startup effect
   useEffect(() => {
-    let cancelled = false
+    const boot = async () => {
+      console.log('[boot]')
+      setInitialized()
+      // we load from disk
+      await hydrate()
+      // we force a refresh
+      await refresh({ reason: 'foreground' })
+    }
+    if (!initialized) {
+      boot()
+    }
+  }, [hydrate, initialized, setInitialized, refresh])
 
+  useEffect(() => {
     const refreshOnForeground = async () => {
-      const now = Date.now()
-      if (now - lastForegroundRefresh.current < MIN_REFRESH_MS) {
-        return
-      }
-      lastForegroundRefresh.current = now
       try {
-        const result = await refreshFeedsAndArticles({ selectedFeedId })
-        if (!result.feedsUsed.length) return
-        const { feeds, articles } = await hydrateArticlesAndFeeds(selectedFeedId)
-        if (cancelled) return
-        if (feeds.length) {
-          setFeeds(feeds)
-        }
-        setArticles(articles)
+        await refresh({ reason: 'foreground', selectedFeedId })
       } catch (err) {
         console.warn('Foreground refresh failed', err)
       }
@@ -91,10 +93,15 @@ export default function RootLayout() {
 
     const sub = AppState.addEventListener('change', handleAppStateChange)
     return () => {
-      cancelled = true
       sub.remove()
     }
-  }, [selectedFeedId, setArticles, setFeeds])
+  }, [refresh, selectedFeedId])
+
+  useEffect(() => {
+    if (refreshError && refreshError !== dismissedError) {
+      setDismissedError(null)
+    }
+  }, [dismissedError, refreshError])
 
   const url = Linking.useLinkingURL()
 
@@ -129,6 +136,21 @@ export default function RootLayout() {
               action={{ label: 'OK', onPress: () => setNewArticlesCount(0) }}
             >
               {`${newArticlesCount} new articles`}
+            </Snackbar>
+            <Snackbar
+              visible={
+                refreshStatus === 'error' && !!refreshError && dismissedError !== refreshError
+              }
+              duration={4000}
+              onDismiss={() => setDismissedError(refreshError)}
+              action={{
+                label: 'Retry',
+                onPress: () => {
+                  void refresh({ reason: 'manual', selectedFeedId })
+                },
+              }}
+            >
+              {refreshError ?? ''}
             </Snackbar>
           </View>
         </GestureHandlerRootView>
