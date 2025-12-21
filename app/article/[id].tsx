@@ -80,6 +80,10 @@ export default function ArticleScreen() {
             blockquote { border-left: 3px solid ${
               colors.outlineVariant
             }; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
+            pre { background-color: ${colors.surfaceVariant}; color: ${
+      colors.onSurfaceVariant
+    }; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
+            code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
             .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
             .meta { color: ${
               colors.onSurface
@@ -130,6 +134,10 @@ export default function ArticleScreen() {
             blockquote { border-left: 3px solid ${
               colors.outlineVariant
             }; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
+            pre { background-color: ${colors.surfaceVariant}; color: ${
+      colors.onSurfaceVariant
+    }; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
+            code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
             .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
             .meta { color: ${
               colors.onSurface
