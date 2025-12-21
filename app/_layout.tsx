@@ -97,23 +97,24 @@ export default function RootLayout() {
     }
   }, [selectedFeedId, setArticles, setFeeds])
 
+  const url = Linking.useLinkingURL()
+
   useEffect(() => {
     // TODO - Check handleShareIntent - it doesn't seem to be working
     const handleShareIntent = (url?: string | null) => {
+      console.log('linking url', url)
       const shared = parseSharedUrl(url ?? '')
-      if (shared && shared !== lastSharedUrl.current) {
-        lastSharedUrl.current = shared
-        setTimeout(() => {
-          lastSharedUrl.current = null
-        }, 1000)
-        router.push({ pathname: '/share', params: { url: encodeURIComponent(shared) } })
+      if (shared) {
+        try {
+          router.push({ pathname: '/share', params: { url: encodeURIComponent(shared) } })
+        } catch (e) {}
       }
     }
-
-    Linking.getInitialURL().then((url) => handleShareIntent(url))
-    const sub = Linking.addEventListener('url', ({ url }) => handleShareIntent(url))
-    return () => sub.remove()
-  }, [router])
+    console.log('url', url)
+    if (url) {
+      handleShareIntent(url)
+    }
+  }, [router, url])
 
   return (
     <PaperProvider theme={paperTheme}>

@@ -22,6 +22,14 @@ const ENRICHMENT_TYPES = new Set(['Article', 'NewsArticle', 'BlogPosting'])
 
 type MetadataBudget = { remaining: number }
 
+export type PageMetadata = {
+  title?: string
+  description?: string
+  thumbnail?: string
+  publishedAt?: string
+  source?: string
+}
+
 const consumeBudget = (budget?: MetadataBudget) => {
   if (!budget) return false
   if (budget.remaining <= 0) return false
@@ -139,24 +147,43 @@ const stripHtml = (input?: string): string | undefined => {
   return decodeString(noTags) ?? noTags
 }
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+const getMetaContent = (headHtml: string, key: string): string | undefined => {
+  const safeKey = escapeRegExp(key)
+  const property = new RegExp(
+    `<meta[^>]+property=["']${safeKey}["'][^>]+content=["']([^"']+)["']`,
+    'i',
+  )
+  const name = new RegExp(
+    `<meta[^>]+name=["']${safeKey}["'][^>]+content=["']([^"']+)["']`,
+    'i',
+  )
+  return headHtml.match(property)?.[1] ?? headHtml.match(name)?.[1]
+}
+
+const extractTitleFromHead = (headHtml: string): string | undefined => {
+  const match = headHtml.match(/<title[^>]*>([^<]+)<\/title>/i)
+  const raw = match?.[1]?.trim()
+  if (!raw) return undefined
+  return decodeString(raw) ?? raw
+}
+
 const extractOg = (headHtml: string, baseUrl: string) => {
-  const ogImage =
-    headHtml.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)?.[1] ??
-    headHtml.match(/<meta[^>]+name=["']image["'][^>]+content=["']([^"']+)["']/i)?.[1]
+  const ogImage = getMetaContent(headHtml, 'og:image') ?? getMetaContent(headHtml, 'image')
   const ogDescription =
-    headHtml.match(
-      /<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i,
-    )?.[1] ??
-    headHtml.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["']/i)?.[1]
+    getMetaContent(headHtml, 'og:description') ?? getMetaContent(headHtml, 'description')
   const ogPublished =
-    headHtml.match(
-      /<meta[^>]+property=["']article:published_time["'][^>]+content=["']([^"']+)["']/i,
-    )?.[1] ?? headHtml.match(/<meta[^>]+name=["']date["'][^>]+content=["']([^"']+)["']/i)?.[1]
+    getMetaContent(headHtml, 'article:published_time') ?? getMetaContent(headHtml, 'date')
+  const ogTitle = getMetaContent(headHtml, 'og:title') ?? getMetaContent(headHtml, 'twitter:title')
+  const ogSource = getMetaContent(headHtml, 'og:site_name')
 
   return {
+    title: stripHtml(ogTitle),
     thumbnail: toAbsoluteUrl(baseUrl, ogImage),
     description: stripHtml(ogDescription),
     publishedAt: ogPublished,
+    source: stripHtml(ogSource),
   }
 }
 
@@ -177,6 +204,7 @@ const extractJsonLd = (headHtml: string, baseUrl: string) => {
         const hasType = types.some((t) => typeof t === 'string' && ENRICHMENT_TYPES.has(t))
         if (!hasType) continue
         const description = stripHtml(candidate.description)
+        const title = stripHtml(candidate.headline ?? candidate.name)
         const imageField = candidate.image || candidate.thumbnailUrl
         const image =
           typeof imageField === 'string'
@@ -185,10 +213,19 @@ const extractJsonLd = (headHtml: string, baseUrl: string) => {
             ? imageField[0]
             : undefined
         const publishedAt = candidate.datePublished || candidate.dateModified
+        const publisher = candidate.publisher
+        const source =
+          typeof publisher === 'string'
+            ? stripHtml(publisher)
+            : publisher && typeof publisher.name === 'string'
+            ? stripHtml(publisher.name)
+            : undefined
         return {
+          title,
           thumbnail: toAbsoluteUrl(baseUrl, image),
           description,
           publishedAt,
+          source,
         }
       }
     } catch {
@@ -201,7 +238,7 @@ const extractJsonLd = (headHtml: string, baseUrl: string) => {
 const fetchMetadataFromPage = async (
   url?: string,
   budget?: MetadataBudget,
-): Promise<Partial<Article>> => {
+): Promise<PageMetadata> => {
   if (!url) return {}
   if (!consumeBudget(budget)) return {}
   try {
@@ -217,16 +254,23 @@ const fetchMetadataFromPage = async (
 
     const og = extractOg(headHtml, url)
     const ld = extractJsonLd(headHtml, url)
+    const title = ld.title ?? og.title ?? extractTitleFromHead(headHtml)
+    const source = ld.source ?? og.source
 
     return {
+      title,
       thumbnail: ld.thumbnail ?? og.thumbnail,
       description: ld.description ?? og.description,
       publishedAt: ld.publishedAt ?? og.publishedAt,
+      source,
     }
   } catch {
     return {}
   }
 }
+
+export const fetchPageMetadata = async (url: string): Promise<PageMetadata> =>
+  fetchMetadataFromPage(url, { remaining: 1 })
 
 const extractMetadataFromFeed = async (
   item: FetchedAtomArticle | FetchedRssArticle,

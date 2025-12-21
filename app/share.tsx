@@ -5,7 +5,7 @@ import { Appbar, Button, Card, Snackbar, Text } from 'react-native-paper'
 
 import { setArticleSaved, upsertArticles } from '@/services/articles-db'
 import { upsertFeeds } from '@/services/feeds-db'
-import { encodeBase64, fetchFeed } from '@/services/rssClient'
+import { encodeBase64, fetchFeed, fetchPageMetadata, PageMetadata } from '@/services/rssClient'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { Article } from '@/types'
@@ -50,6 +50,24 @@ const buildSavedArticle = (url: string): Article => {
     publishedAt: new Date().toISOString(),
   }
 }
+
+const applyMetadata = (article: Article, metadata: PageMetadata): Article => ({
+  ...article,
+  title: metadata.title?.trim() || article.title,
+  source: metadata.source?.trim() || article.source,
+  description: metadata.description ?? article.description,
+  thumbnail: metadata.thumbnail ?? article.thumbnail,
+  publishedAt: metadata.publishedAt ?? article.publishedAt,
+})
+
+const hasMetadata = (metadata: PageMetadata) =>
+  Boolean(
+    metadata.title ||
+      metadata.description ||
+      metadata.thumbnail ||
+      metadata.publishedAt ||
+      metadata.source,
+  )
 
 export default function ShareScreen() {
   const router = useRouter()
@@ -132,6 +150,12 @@ export default function ShareScreen() {
       const newArticle = buildSavedArticle(normalizedUrl)
       await upsertArticles([newArticle])
       upsertArticleLocal(newArticle)
+      const metadata = await fetchPageMetadata(normalizedUrl)
+      if (hasMetadata(metadata)) {
+        const enriched = applyMetadata(newArticle, metadata)
+        await upsertArticles([enriched])
+        upsertArticleLocal(enriched)
+      }
       setSnackbar('Saved for later')
       router.push('/(tabs)/saved')
     } catch (err) {

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import Manifest from './__tests__/feeds/manifest.json'
-import { encodeBase64, extractImage, fetchFeed } from './rssClient'
+import { encodeBase64, extractImage, fetchFeed, fetchPageMetadata } from './rssClient'
 
 describe('encodeBase64', () => {
   it('encodes plain text to base64', () => {
@@ -60,6 +60,90 @@ describe('extractImage', () => {
     const url = await extractImage(item)
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(url).toBe('https://example.org/og.jpg')
+  })
+})
+
+describe('fetchPageMetadata', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('parses og metadata when present', async () => {
+    const headResponse = {
+      ok: true,
+      headers: { get: () => 'text/html' },
+    }
+    const htmlResponse = {
+      text: async () => `
+        <html>
+          <head>
+            <title>Fallback Title</title>
+            <meta property="og:title" content="OG Title" />
+            <meta property="og:description" content="OG desc" />
+            <meta property="og:image" content="https://example.com/og.jpg" />
+            <meta property="og:site_name" content="Example Site" />
+            <meta property="article:published_time" content="2024-01-01" />
+          </head>
+        </html>
+      `,
+    }
+
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(headResponse as any)
+      .mockResolvedValueOnce(htmlResponse as any)
+
+    const metadata = await fetchPageMetadata('https://example.com/article')
+
+    expect(metadata).toEqual({
+      title: 'OG Title',
+      description: 'OG desc',
+      thumbnail: 'https://example.com/og.jpg',
+      publishedAt: '2024-01-01',
+      source: 'Example Site',
+    })
+  })
+
+  it('prefers json-ld metadata over og', async () => {
+    const headResponse = {
+      ok: true,
+      headers: { get: () => 'text/html' },
+    }
+    const htmlResponse = {
+      text: async () => `
+        <html>
+          <head>
+            <meta property="og:title" content="OG Title" />
+            <meta property="og:description" content="OG desc" />
+            <meta property="og:image" content="https://example.com/og.jpg" />
+            <script type="application/ld+json">
+              {
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": "LD Title",
+                "description": "LD desc",
+                "image": "https://example.com/ld.jpg",
+                "datePublished": "2024-02-01",
+                "publisher": { "name": "LD Source" }
+              }
+            </script>
+          </head>
+        </html>
+      `,
+    }
+
+    vi.spyOn(globalThis, 'fetch')
+      .mockResolvedValueOnce(headResponse as any)
+      .mockResolvedValueOnce(htmlResponse as any)
+
+    const metadata = await fetchPageMetadata('https://example.com/article')
+
+    expect(metadata).toEqual({
+      title: 'LD Title',
+      description: 'LD desc',
+      thumbnail: 'https://example.com/ld.jpg',
+      publishedAt: '2024-02-01',
+      source: 'LD Source',
+    })
   })
 })
 
