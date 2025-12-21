@@ -9,23 +9,76 @@ import { WebView, WebViewNavigation } from 'react-native-webview'
 import { setArticleRead, setArticleSaved } from '@/services/articles-db'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { useArticlesStore } from '@/store/articles'
+import { Article } from '@/types'
+import { MD3Colors } from 'react-native-paper/lib/typescript/types'
 
-const cssAnimations = `
-  .pane {
-    will-change: transform, opacity;
-  }
+const renderHTML = (
+  article: Article | undefined,
+  colors: MD3Colors,
+  displayDate: string,
+  title: string | undefined,
+  body: string,
+): string => {
+  const hero = article?.thumbnail
+    ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
+    : ''
+  const headerInner = `
+      <header class="article-header">
+        ${hero}
+        <div class="meta">${displayDate}</div>
+        <div class="title">${title ?? ''}</div>
+        <div class="source">${article?.source ?? ''}</div>
+      </header>
+    `
+  const headerBlock = article?.link
+    ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
+    : headerInner
 
-  /* Enter */
-  .enter {
-    animation: enter-up 200ms cubic-bezier(0, 0, 0.2, 1) 100ms both;
-  }
+  return `
+      <html>
+        <head>
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <style>
+            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurface}; }
+            figure { width: 100%; margin:0; padding:0 }
+            figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
+            img { max-width: 100%; height: auto; border-radius: 12px; }
+            h1, h2, h3, h4 { line-height: 1.2; }
+            a { color: ${colors.primary}; text-decoration: none; }
+            a:hover { text-decoration: underline; }
+            figure { margin: 0 0 16px 0; }
+            .article-header { border-radius: 12px; background: ${colors.surfaceVariant}; padding: 12px}
+            .header-link { color: inherit; text-decoration: none; display: block; }
+            .header-link:hover { text-decoration: none; }
+            .header-link:active { opacity: 0.6; }
+            blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
+            pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
+            code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
+            .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
+            .meta { color: ${colors.onSurface}; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
+            .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
+            .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
+            .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
+            
+            .pane { will-change: transform, opacity; }
+            .enter {
+              animation: enter-up 200ms cubic-bezier(0, 0, 0.2, 1) 100ms both;
+            }
+            @keyframes enter-up {
+              from { opacity: 0; transform: translateY(20%); }
+              to   { opacity: 1; transform: translateY(0); }
+            }
 
-  @keyframes enter-up {
-    from { opacity: 0; transform: translateY(20%); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-`
+          </style>
+        </head>
+        <body class="pane enter">
+          ${headerBlock}
+          <div class="divider"></div>
+          ${body}
+        </body>
+      </html>
+    `
+}
 
 export default function ArticleScreen() {
   const router = useRouter()
@@ -64,109 +117,14 @@ export default function ArticleScreen() {
       article?.content ??
       article?.description ??
       'No content available. Try switching to the original page or Reader mode.'
-    const hero = article?.thumbnail
-      ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
-      : ''
-    const headerInner = `
-      <header class="article-header">
-        ${hero}
-        <div class="meta">${displayDate}</div>
-        <div class="title">${article?.title ?? 'Loading article'}</div>
-        <div class="source">${article?.source ?? ''}</div>
-      </header>
-    `
-    const headerBlock = article?.link
-      ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
-      : headerInner
 
-    return `
-      <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style>
-            body { font-family: -apple-system, Roboto, sans-serif; padding: 16px; padding-top:0; padding-bottom: 64px; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurface}; }
-            figure { width: 100%; margin:0; padding:0 }
-            figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
-            img { max-width: 100%; height: auto; border-radius: 12px; }
-            h1, h2, h3, h4 { line-height: 1.2; }
-            a { color: ${colors.primary}; text-decoration: none; }
-            a:hover { text-decoration: underline; }
-            .header-link { color: inherit; text-decoration: none; display: block; }
-            .header-link:hover { text-decoration: none; }
-            .header-link:active { opacity: 0.6; }
-            blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
-            pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
-            code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
-            .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
-            .meta { color: ${colors.onSurface}; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
-            .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
-            .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
-            .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
-            ${cssAnimations}
-          </style>
-        </head>
-        <body class="pane enter">
-          ${headerBlock}
-          <div class="divider"></div>
-          ${body}
-        </body>
-      </html>
-    `
+    return renderHTML(article, colors, displayDate, article?.title, body)
   }, [article, colors, displayDate])
 
   const readerHtml = useMemo(() => {
     if (reader.status !== 'ok' || !reader.html) return null
 
-    const hero = article?.thumbnail
-      ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
-      : ''
-    const headerInner = `
-      <header class="article-header">
-        ${hero}
-        <div class="meta">${displayDate}</div>
-        <div class="title">${reader.title ?? article?.title ?? ''}</div>
-        <div class="source">${article?.source ?? ''}</div>
-      </header>
-    `
-    const headerBlock = article?.link
-      ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
-      : headerInner
-
-    return `
-      <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style>
-            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurface}; }
-            figure { width: 100%; margin:0; padding:0 }
-            figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
-            img { max-width: 100%; height: auto; border-radius: 12px; }
-            h1, h2, h3, h4 { line-height: 1.2; }
-            a { color: ${colors.primary}; text-decoration: none; }
-            a:hover { text-decoration: underline; }
-            figure { margin: 0 0 16px 0; }
-            .article-header { border-radius: 12px; background: ${colors.surfaceVariant}; padding: 12px}
-            .header-link { color: inherit; text-decoration: none; display: block; }
-            .header-link:hover { text-decoration: none; }
-            .header-link:active { opacity: 0.6; }
-            blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
-            pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
-            code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
-            .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
-            .meta { color: ${colors.onSurface}; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
-            .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
-            .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
-            .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
-            ${cssAnimations}
-          </style>
-        </head>
-        <body class="pane enter">
-          ${headerBlock}
-          <div class="divider"></div>
-          ${reader.html}
-        </body>
-      </html>
-    `
+    return renderHTML(article, colors, displayDate, reader.title ?? article?.title, reader.html)
   }, [article, colors, displayDate, reader])
 
   useEffect(() => {
