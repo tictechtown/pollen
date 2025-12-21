@@ -8,7 +8,7 @@ import { Article, Feed } from '@/types'
 const parser = new XMLParser({
   ignoreAttributes: false,
   attributeNamePrefix: '',
-  stopNodes: ['feed.entry.content', 'rss.channel.item.content'],
+  stopNodes: [],
 })
 
 const toTimestamp = (value?: string | null): number => {
@@ -155,10 +155,7 @@ const getMetaContent = (headHtml: string, key: string): string | undefined => {
     `<meta[^>]+property=["']${safeKey}["'][^>]+content=["']([^"']+)["']`,
     'i',
   )
-  const name = new RegExp(
-    `<meta[^>]+name=["']${safeKey}["'][^>]+content=["']([^"']+)["']`,
-    'i',
-  )
+  const name = new RegExp(`<meta[^>]+name=["']${safeKey}["'][^>]+content=["']([^"']+)["']`, 'i')
   return headHtml.match(property)?.[1] ?? headHtml.match(name)?.[1]
 }
 

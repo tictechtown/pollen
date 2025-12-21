@@ -102,9 +102,7 @@ export default function RootLayout() {
     const handleShareIntent = (url?: string | null) => {
       const shared = parseSharedUrl(url ?? '')
       if (shared) {
-        try {
-          router.push({ pathname: '/share', params: { url: encodeURIComponent(shared) } })
-        } catch (e) {}
+        router.push({ pathname: '/share', params: { url: encodeURIComponent(shared) } })
       }
     }
     if (url) {

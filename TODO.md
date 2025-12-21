@@ -91,4 +91,11 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 
 # Version 1.1.0
 
-- Check performance - probably swipable is not performantac
+- Check performance - probably swipable is not performant
+- Check uniqueness generation from AtomFeed and RSSFeed. It's not stable at the moment
+- Review Database schema - make sure all non-nullable fields are correctly marked
+
+# Version 1.1.1
+
+- override link colors (maybe with important!). For instance: My Favorite Investment Writing of 2025 -> Of Dollors and Data
+- Lone article: Better "Site Title" override. Same with og picture?
