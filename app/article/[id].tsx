@@ -1,9 +1,10 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
+import * as WebBrowser from 'expo-web-browser'
+import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Appbar, Snackbar, useTheme } from 'react-native-paper'
-import { WebView } from 'react-native-webview'
+import { WebView, WebViewNavigation } from 'react-native-webview'
 
 import { setArticleRead, setArticleSaved } from '@/services/articles-db'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
@@ -36,6 +37,10 @@ export default function ArticleScreen() {
   const [mode, setMode] = useState<'rss' | 'reader' | 'original'>('rss')
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [reader, setReader] = useState<ReaderExtractionResult>({ status: 'idle' })
+  const lastMissingLinkId = useRef<string | null>(null)
+  const webViewRef = useRef<WebView>(null)
+  const initialNavigationUrl = useRef<string | null>(null)
+  const lastOpenedUrl = useRef<string | null>(null)
 
   const displayDate = useMemo(() => {
     const raw = article?.publishedAt ?? article?.updatedAt
@@ -62,32 +67,38 @@ export default function ArticleScreen() {
     const hero = article?.thumbnail
       ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
       : ''
+    const headerInner = `
+      <header class="article-header">
+        ${hero}
+        <div class="meta">${displayDate}</div>
+        <div class="title">${article?.title ?? 'Loading article'}</div>
+        <div class="source">${article?.source ?? ''}</div>
+      </header>
+    `
+    const headerBlock = article?.link
+      ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
+      : headerInner
 
     return `
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <style>
-            body { font-family: -apple-system, Roboto, sans-serif; padding: 16px; padding-top:0; padding-bottom: 64px; line-height: 1.6; background: ${
-              colors.surface
-            }; color: ${colors.onSurface}; }
+            body { font-family: -apple-system, Roboto, sans-serif; padding: 16px; padding-top:0; padding-bottom: 64px; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurface}; }
             figure { width: 100%; margin:0; padding:0 }
             figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
             img { max-width: 100%; height: auto; border-radius: 12px; }
             h1, h2, h3, h4 { line-height: 1.2; }
             a { color: ${colors.primary}; text-decoration: none; }
             a:hover { text-decoration: underline; }
-            blockquote { border-left: 3px solid ${
-              colors.outlineVariant
-            }; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
-            pre { background-color: ${colors.surfaceVariant}; color: ${
-      colors.onSurfaceVariant
-    }; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
+            .header-link { color: inherit; text-decoration: none; display: block; }
+            .header-link:hover { text-decoration: none; }
+            .header-link:active { opacity: 0.6; }
+            blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
+            pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
             code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
             .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
-            .meta { color: ${
-              colors.onSurface
-            }; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
+            .meta { color: ${colors.onSurface}; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
             .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
             .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
             .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
@@ -95,10 +106,7 @@ export default function ArticleScreen() {
           </style>
         </head>
         <body class="pane enter">
-          ${hero}
-          <div class="meta">${displayDate}</div>
-          <div class="title">${article?.title ?? 'Loading article'}</div>
-          <div class="source">${article?.source ?? ''}</div>
+          ${headerBlock}
           <div class="divider"></div>
           ${body}
         </body>
@@ -112,15 +120,24 @@ export default function ArticleScreen() {
     const hero = article?.thumbnail
       ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
       : ''
+    const headerInner = `
+      <header class="article-header">
+        ${hero}
+        <div class="meta">${displayDate}</div>
+        <div class="title">${reader.title ?? article?.title ?? ''}</div>
+        <div class="source">${article?.source ?? ''}</div>
+      </header>
+    `
+    const headerBlock = article?.link
+      ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
+      : headerInner
 
     return `
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <style>
-            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${
-              colors.surface
-            }; color: ${colors.onSurface}; }
+            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurface}; }
             figure { width: 100%; margin:0; padding:0 }
             figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
             img { max-width: 100%; height: auto; border-radius: 12px; }
@@ -128,20 +145,15 @@ export default function ArticleScreen() {
             a { color: ${colors.primary}; text-decoration: none; }
             a:hover { text-decoration: underline; }
             figure { margin: 0 0 16px 0; }
-            article > header { border-radius: 12px; background: ${
-              colors.surfaceVariant
-            }; padding: 12px}
-            blockquote { border-left: 3px solid ${
-              colors.outlineVariant
-            }; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
-            pre { background-color: ${colors.surfaceVariant}; color: ${
-      colors.onSurfaceVariant
-    }; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
+            .article-header { border-radius: 12px; background: ${colors.surfaceVariant}; padding: 12px}
+            .header-link { color: inherit; text-decoration: none; display: block; }
+            .header-link:hover { text-decoration: none; }
+            .header-link:active { opacity: 0.6; }
+            blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
+            pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
             code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
             .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
-            .meta { color: ${
-              colors.onSurface
-            }; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
+            .meta { color: ${colors.onSurface}; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
             .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
             .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
             .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
@@ -149,10 +161,7 @@ export default function ArticleScreen() {
           </style>
         </head>
         <body class="pane enter">
-          ${hero}
-          <div class="meta">${displayDate}</div>
-          <div class="title">${reader.title ?? article?.title ?? ''}</div>
-          <div class="source">${article?.source ?? ''}</div>
+          ${headerBlock}
           <div class="divider"></div>
           ${reader.html}
         </body>
@@ -166,6 +175,18 @@ export default function ArticleScreen() {
       updateSeenLocal(id, true)
     }
   }, [article, id, updateSeenLocal])
+
+  useEffect(() => {
+    if (!article || article.link) return
+    if (lastMissingLinkId.current === article.id) return
+    setSnackbar('No link available')
+    lastMissingLinkId.current = article.id
+  }, [article])
+
+  useEffect(() => {
+    initialNavigationUrl.current = null
+    lastOpenedUrl.current = null
+  }, [article?.id, mode])
 
   const handleToggleSaved = async () => {
     if (!id || !article) return
@@ -211,6 +232,25 @@ export default function ArticleScreen() {
     [colors.primary, mode],
   )
 
+  const handleNavigationStateChange = useCallback(async (navState: WebViewNavigation) => {
+    if (!initialNavigationUrl.current) {
+      initialNavigationUrl.current = navState.url
+    }
+
+    if (!navState.url.startsWith('http')) return
+    if (navState.url === initialNavigationUrl.current) return
+    if (navState.url === lastOpenedUrl.current) return
+
+    lastOpenedUrl.current = navState.url
+    webViewRef.current?.stopLoading()
+
+    await WebBrowser.openBrowserAsync(navState.url)
+
+    if (navState.canGoBack) {
+      webViewRef.current?.goBack()
+    }
+  }, [])
+
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
@@ -248,6 +288,8 @@ export default function ArticleScreen() {
         originWhitelist={['*']}
         source={resolvedSource}
         style={{ backgroundColor: colors.surface }}
+        ref={webViewRef}
+        onNavigationStateChange={handleNavigationStateChange}
       />
 
       <Snackbar

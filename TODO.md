@@ -75,27 +75,36 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - How to save articles that are not part of a feed
 - Update FAB to adapt to scrolling (scroll position 0 -> full, scroll position > 0 -> compact)
 - Make a prod release, using GH actions
+- Fix typescript
+- Fix Share intent - it's currently not working
 
 # Version 1.0.11
 
-- Add ability to create/manage folders for feeds
-- Export to OPML
-- Fix Share intent - it's currently not working
+- Better css around codeblocks when reading articles
+- Lone article: Better "Site Title" override. Same with og picture?
+- summary/description -> should be text only no markdown
 
 # Version 1.0.12
 
-- Better css around codeblocks when reading articles
-- Article Header should be clickable -> and goes to real page
-- Fix typescript
 - Redesign fetch feeds/articles, the current state (loading/error/loaded) and last refresh timestamp. This should have a global state, powered by a zustand store. And each tab or other actions within the app triggering a refresh should use this shared state. Maybe use a Context for that? and have one single useEffect that is global to the app?
+- Article Header should be clickable -> and goes to real page
+- override link colors (maybe with important!). For instance: My Favorite Investment Writing of 2025 -> Of Dollors and Data. Or maybe strip `a` link of their styles?
+
+# Version 1.0.13
+
+- Add ability to create/manage folders for feeds
+- Export to OPML
+- Add a FAB to add a lone link
+- Update tab icons to be outlined/fill for default/selected
+- Why Mark As seen is disabled when there are clearly other items visible
+- Rename seen to read
+- Revise navigation when going to source. Should come from the left:
+  - Maybe the navigation stack should be: [souces, tabs, share | article | settings], with the first route being tabs
 
 # Version 1.1.0
 
-- Check performance - probably swipable is not performant
+- Check performance
+  - probably swipable is not performant
+  - Selecting one feed is slow
 - Check uniqueness generation from AtomFeed and RSSFeed. It's not stable at the moment
 - Review Database schema - make sure all non-nullable fields are correctly marked
-
-# Version 1.1.1
-
-- override link colors (maybe with important!). For instance: My Favorite Investment Writing of 2025 -> Of Dollors and Data
-- Lone article: Better "Site Title" override. Same with og picture?

@@ -3,23 +3,13 @@ import { useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Appbar, Button, Card, Snackbar, Text } from 'react-native-paper'
 
-import { setArticleSaved, upsertArticles } from '@/services/articles-db'
+import { upsertArticles } from '@/services/articles-db'
 import { upsertFeeds } from '@/services/feeds-db'
-import { encodeBase64, fetchFeed, fetchPageMetadata, PageMetadata } from '@/services/rssClient'
+import { saveArticleForLater } from '@/services/save-for-later'
+import { encodeBase64, fetchFeed } from '@/services/rssClient'
+import { normalizeUrl } from '@/services/urls'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
-import { Article } from '@/types'
-
-const normalizeUrl = (value: string): string | null => {
-  const trimmed = value.trim()
-  if (!trimmed) return null
-  try {
-    const url = new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`)
-    return url.toString()
-  } catch {
-    return null
-  }
-}
 
 const dedupeById = <T extends { id: string }>(items: T[]): T[] => {
   const seen = new Set<string>()
@@ -29,45 +19,6 @@ const dedupeById = <T extends { id: string }>(items: T[]): T[] => {
     return true
   })
 }
-
-const buildSavedArticle = (url: string): Article => {
-  const id = encodeBase64(url) ?? url
-  const hostname = (() => {
-    try {
-      return new URL(url).hostname
-    } catch {
-      return url
-    }
-  })()
-  return {
-    id,
-    link: url,
-    feedId: undefined,
-    title: url,
-    source: hostname,
-    saved: true,
-    seen: false,
-    publishedAt: new Date().toISOString(),
-  }
-}
-
-const applyMetadata = (article: Article, metadata: PageMetadata): Article => ({
-  ...article,
-  title: metadata.title?.trim() || article.title,
-  source: metadata.source?.trim() || article.source,
-  description: metadata.description ?? article.description,
-  thumbnail: metadata.thumbnail ?? article.thumbnail,
-  publishedAt: metadata.publishedAt ?? article.publishedAt,
-})
-
-const hasMetadata = (metadata: PageMetadata) =>
-  Boolean(
-    metadata.title ||
-      metadata.description ||
-      metadata.thumbnail ||
-      metadata.publishedAt ||
-      metadata.source,
-  )
 
 export default function ShareScreen() {
   const router = useRouter()
@@ -129,32 +80,18 @@ export default function ShareScreen() {
       setSnackbar('Invalid URL')
       return
     }
-    const id = encodeBase64(normalizedUrl) ?? normalizedUrl
-    const existing = articles.find((article) => article.id === id)
 
     setSubmitting('save')
     try {
-      if (existing) {
-        if (existing.saved) {
-          setSnackbar('Already saved')
-          setSubmitting(null)
-          return
-        }
-        await setArticleSaved(existing.id, true)
-        updateSavedLocal(existing.id, true)
-        setSnackbar('Saved for later')
-        router.push('/(tabs)/saved')
+      const result = await saveArticleForLater({
+        url: normalizedUrl,
+        articles,
+        updateSavedLocal,
+        upsertArticleLocal,
+      })
+      if (result.status === 'already-saved') {
+        setSnackbar('Already saved')
         return
-      }
-
-      const newArticle = buildSavedArticle(normalizedUrl)
-      await upsertArticles([newArticle])
-      upsertArticleLocal(newArticle)
-      const metadata = await fetchPageMetadata(normalizedUrl)
-      if (hasMetadata(metadata)) {
-        const enriched = applyMetadata(newArticle, metadata)
-        await upsertArticles([enriched])
-        upsertArticleLocal(enriched)
       }
       setSnackbar('Saved for later')
       router.push('/(tabs)/saved')

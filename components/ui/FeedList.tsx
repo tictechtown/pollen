@@ -94,10 +94,9 @@ export default function FeedList(props: Props) {
         icon="check-all"
         label="Mark all seen"
         extended={!isScrolled}
-        disabled={hasUnseen}
         onPress={() => markAllSeen()}
         style={styles.fab}
-        variant="secondary"
+        variant="tertiary"
       />
     </View>
   )
