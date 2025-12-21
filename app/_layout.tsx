@@ -27,7 +27,6 @@ export default function RootLayout() {
   const paperTheme = getPaperTheme(colorScheme ?? null, theme)
   const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
   const [newArticlesCount, setNewArticlesCount] = useState(0)
-  const lastSharedUrl = useRef<string | null>(null)
 
   // refresh feeds/articles when coming back from background
   const appState = useRef<AppStateStatus>(AppState.currentState)
@@ -100,9 +99,7 @@ export default function RootLayout() {
   const url = Linking.useLinkingURL()
 
   useEffect(() => {
-    // TODO - Check handleShareIntent - it doesn't seem to be working
     const handleShareIntent = (url?: string | null) => {
-      console.log('linking url', url)
       const shared = parseSharedUrl(url ?? '')
       if (shared) {
         try {
@@ -110,7 +107,6 @@ export default function RootLayout() {
         } catch (e) {}
       }
     }
-    console.log('url', url)
     if (url) {
       handleShareIntent(url)
     }
