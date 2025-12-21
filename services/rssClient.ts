@@ -143,7 +143,7 @@ const toAbsoluteUrl = (baseUrl: string, maybeUrl?: string): string | undefined =
 
 const stripHtml = (input?: string): string | undefined => {
   if (!input) return undefined
-  const noTags = input.replace(/<[^>]*>/g, '')
+  const noTags = input.replace(/<[^>]*>/g, '').replace(/&lt;[^&]*?&gt;/gi, '')
   return decodeString(noTags) ?? noTags
 }
 
@@ -457,7 +457,7 @@ const parseAtomFeed = async (
       const entryLink = Array.isArray(item.link) ? undefined : getLink(item.link)
       const rawId = getText(item.id) ?? entryLink ?? getText(item.title) ?? `${Date.now()}`
       const encodedId = encodeBase64(rawId) ?? rawId
-      const feedDescription = decodeString(getText(item.description) ?? getText(item.summary))
+      const feedDescription = stripHtml(getText(item.description) ?? getText(item.summary))
       const feedPublished = item.published ?? item.updated ?? undefined
 
       const metadata = await extractMetadataFromFeed(item, {
@@ -522,7 +522,7 @@ const parseRssFeed = async (
         getText(item.guid) ?? getLink(item.link) ?? getText(item.title) ?? `${Date.now()}`
 
       const encodedId = encodeBase64(rawId) ?? rawId
-      const feedDescription = decodeString(getText(item.description))
+      const feedDescription = stripHtml(getText(item.description))
       const feedPublished = item.pubDate ?? undefined
 
       const metadata = await extractMetadataFromFeed(item, {
