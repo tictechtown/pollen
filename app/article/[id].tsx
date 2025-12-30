@@ -25,16 +25,18 @@ const renderHTML = (
   const headerInner = `
       <header class="article-header">
         ${hero}
-        <div class="meta">${displayDate}</div>
-        <div class="title">${title ?? ''}</div>
-        <div class="source">${article?.source ?? ''}</div>
+        <div class="content">
+          <div class="meta">${displayDate}</div>
+          <div class="title">${title ?? ''}</div>
+          <div class="source">${article?.source ?? ''}</div>
+        </div>
       </header>
     `
   const headerBlock = article?.link
     ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
     : headerInner
 
-  return `
+  const result = `
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -47,18 +49,19 @@ const renderHTML = (
             a { color: ${colors.primary}; text-decoration: none; }
             a:hover { text-decoration: underline; }
             figure { margin: 0 0 16px 0; }
-            .article-header { border-radius: 12px; background: ${colors.surfaceVariant}; padding: 12px}
+            .article-header { border-radius: 12px; background: ${colors.surfaceVariant};}
+            .article-header .content { padding: 16px }
             .header-link { color: inherit; text-decoration: none; display: block; }
             .header-link:hover { text-decoration: none; }
             .header-link:active { opacity: 0.6; }
             blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
             pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
             code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
-            .hero { width: 100%; height: auto; border-radius: 16px; margin-bottom: 12px; }
-            .meta { color: ${colors.onSurface}; opacity: 0.7; margin-top: 12px; margin-bottom: 4px; }
-            .title { font-size: 24px; font-weight: 700; margin-block: 4px; line-height:1.2; }
-            .source { color: ${colors.onSurface}; opacity: 0.7; margin-bottom: 12px; }
-            .divider { height: 1px; background: ${colors.outlineVariant}; margin: 16px 0; }
+            .hero { width: 100%; border-radius: 0px; border-top-left-radius: 12px; border-top-right-radius: 12px; height: auto; }
+            .meta { color: ${colors.onSurfaceVariant}; font-size: 14px}
+            .title { font-size: 24px; color: ${colors.onSurface}; font-weight: 700; margin-block: 4px; line-height:1.2; }
+            .source { color: ${colors.onSurfaceVariant}; font-weight: 700;}
+            .divider { height: 0px; background: ${colors.outlineVariant}; margin: 16px 0; }
             
             .pane { will-change: transform, opacity; }
             .enter {
@@ -78,6 +81,7 @@ const renderHTML = (
         </body>
       </html>
     `
+  return result
 }
 
 export default function ArticleScreen() {

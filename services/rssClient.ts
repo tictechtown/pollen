@@ -424,6 +424,7 @@ const extractHTMLLink = (links: AtomFeed['feed']['link'] | undefined): string | 
   }
 }
 
+// RFC: https://www.ietf.org/rfc/rfc4287.txt
 const parseAtomFeed = async (
   url: string,
   atomFeed: AtomFeed,
@@ -475,7 +476,7 @@ const parseAtomFeed = async (
         publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: item.updated ?? undefined,
         description: feedDescription ?? metadata.description,
-        content: contentFallback ?? undefined,
+        content: contentFallback ?? getText(item.summary) ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         seen: false,
