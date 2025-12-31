@@ -308,12 +308,9 @@ const fetchMetadataFromPage = async (
   if (!url) return {}
   if (!consumeBudget(budget)) return {}
   try {
-    const headResp = await fetchWithTimeout(url, { method: 'HEAD' })
-    if (!headResp.ok) return {}
-    const contentType = headResp.headers.get('content-type') ?? ''
-    if (!contentType.includes('text/html')) return {}
-
     const resp = await fetchWithTimeout(url, undefined)
+    if (!resp.ok) return {}
+
     const html = await resp.text()
     const headMatch = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i)
     const headHtml = headMatch?.[1] ?? html
@@ -646,9 +643,13 @@ export const fetchFeed = async (
   if (cache?.lastModified) {
     headers.set('If-Modified-Since', cache.lastModified)
   }
-  const hasConditionalHeaders = Boolean(cache?.ETag || cache?.lastModified)
-  const init = hasConditionalHeaders ? { headers } : undefined
-  const response = init ? await fetch(url, init) : await fetch(url)
+  let response
+  try {
+    response = await fetch(url, { headers })
+  } catch (e) {
+    console.log('e', url, headers, { e })
+    throw e
+  }
   const responseHeaders =
     response.headers && typeof response.headers.get === 'function'
       ? response.headers
@@ -665,7 +666,11 @@ export const fetchFeed = async (
     }
   }
 
-  console.log('extract cache', url, init, response.status)
+  if (response.status !== 200) {
+    throw new Error(`Received ${response.status} for feed ${url}`)
+  }
+
+  console.log('extract cache', url, headers, response.status)
 
   const xml = await response.text()
   const parsed: FetchedFeed = parser.parse(xml)

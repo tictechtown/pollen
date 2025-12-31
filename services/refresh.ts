@@ -19,6 +19,8 @@ export type RefreshResult = {
   newArticlesCount: number
 }
 
+const CONCURRENT_FEED_FETCHES = 10
+
 const dedupeById = (articles: Article[]): Article[] => {
   const seen = new Set<string>()
   return articles.filter((article) => {
@@ -37,6 +39,32 @@ const toTimestamp = (value?: string | null): number => {
 const articleTimestamp = (article: Article): number =>
   toTimestamp(article.updatedAt) || toTimestamp(article.publishedAt)
 
+const mapWithConcurrency = async <T, R>(
+  items: T[],
+  limit: number,
+  mapper: (item: T, index: number) => Promise<R>,
+): Promise<PromiseSettledResult<R>[]> => {
+  const results: PromiseSettledResult<R>[] = new Array(items.length)
+  let nextIndex = 0
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (true) {
+      const currentIndex = nextIndex
+      nextIndex += 1
+      if (currentIndex >= items.length) return
+      try {
+        const value = await mapper(items[currentIndex], currentIndex)
+        results[currentIndex] = { status: 'fulfilled', value }
+      } catch (reason) {
+        results[currentIndex] = { status: 'rejected', reason }
+      }
+    }
+  })
+
+  await Promise.all(workers)
+  return results
+}
+
 export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
   const opmlXml = await FileSystem.readAsStringAsync(uri)
   if (!isOpmlXml(opmlXml)) {
@@ -44,13 +72,11 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
   }
   const parsedFeeds = parseOpml(opmlXml)
 
-  const results = await Promise.allSettled(
-    parsedFeeds.map((feed) =>
-      fetchFeed(feed.xmlUrl, {
-        cutoffTs: 0,
-        metadataBudget: { remaining: 200 },
-      }),
-    ),
+  const results = await mapWithConcurrency(parsedFeeds, CONCURRENT_FEED_FETCHES, (feed) =>
+    fetchFeed(feed.xmlUrl, {
+      cutoffTs: 0,
+      metadataBudget: { remaining: 200 },
+    }),
   )
 
   const feedsForUpsert: Feed[] = []
@@ -125,47 +151,36 @@ const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<Refre
     }
   })
 
-  const results = await Promise.allSettled(
-    eligibleFeeds.map((feed) =>
-      fetchFeed(feed.xmlUrl, {
-        cutoffTs: lastPublishedByFeed.get(feed.id) ?? 0,
-        metadataBudget,
-        cache: {
-          ETag: feed.ETag,
-          lastModified: feed.lastModified,
-        },
-        existingFeed: feed,
-      }),
-    ),
+  const results = await mapWithConcurrency(eligibleFeeds, CONCURRENT_FEED_FETCHES, (feed) =>
+    fetchFeed(feed.xmlUrl, {
+      cutoffTs: lastPublishedByFeed.get(feed.id) ?? 0,
+      metadataBudget,
+      cache: {
+        ETag: feed.ETag,
+        lastModified: feed.lastModified,
+      },
+      existingFeed: feed,
+    }),
   )
 
   const feedsForUpsert: Feed[] = []
   const articlesForUpsert: Article[] = []
 
-  results.forEach((result) => {
-    if (result.status !== 'fulfilled') return
+  results.forEach((result, index) => {
+    if (result.status !== 'fulfilled') {
+      console.log('failed', { result, feed: eligibleFeeds[index] })
+      return
+    }
     const { feed, articles: fetchedArticles } = result.value
-    const cutoff = lastPublishedByFeed.get(feed.id) ?? 0
-    const fresh = fetchedArticles.filter((article) => {
-      const ts = articleTimestamp(article)
-      return ts > cutoff
-    })
-
-    const maxTsFromFresh = fresh.reduce(
-      (max, article) => Math.max(max, articleTimestamp(article)),
-      cutoff,
-    )
 
     feedsForUpsert.push({
       ...feed,
-      lastPublishedTs: maxTsFromFresh || cutoff || undefined,
-      lastPublishedAt: maxTsFromFresh
-        ? new Date(maxTsFromFresh).toISOString()
-        : feed.lastPublishedAt ?? (cutoff ? new Date(cutoff).toISOString() : undefined),
+      lastPublishedTs: feed.lastPublishedAt ? toTimestamp(feed.lastPublishedAt) : undefined,
+      lastPublishedAt: feed.lastPublishedAt ?? undefined,
     })
 
-    if (fresh.length) {
-      articlesForUpsert.push(...fresh)
+    if (fetchedArticles.length) {
+      articlesForUpsert.push(...fetchedArticles)
     }
   })
 
