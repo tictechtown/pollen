@@ -11,6 +11,7 @@ type RefreshOptions = {
   selectedFeedId?: string
   metadataBudget?: { remaining: number }
   defaultFeedsModule?: unknown
+  reason?: 'manual' | 'foreground' | 'background'
 }
 
 export type RefreshResult = {
@@ -93,7 +94,7 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
 let refreshInFlight: Promise<RefreshResult> | null = null
 
 const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<RefreshResult> => {
-  const { selectedFeedId, metadataBudget = { remaining: 200 } } = options
+  const { selectedFeedId, metadataBudget = { remaining: 200 }, reason = 'foreground' } = options
 
   let feedsToUse = await getFeedsFromDb()
 
@@ -106,8 +107,18 @@ const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<Refre
     return { feedsUsed: [], newArticlesCount: 0 }
   }
 
+  const now = Date.now()
+  const eligibleFeeds =
+    reason === 'manual'
+      ? feedsToUse
+      : feedsToUse.filter((feed) => !feed.expiresTS || feed.expiresTS <= now)
+
+  if (!eligibleFeeds.length) {
+    return { feedsUsed: feedsToUse, newArticlesCount: 0 }
+  }
+
   const lastPublishedByFeed = new Map<string, number>()
-  feedsToUse.forEach((feed) => {
+  eligibleFeeds.forEach((feed) => {
     const ts = feed.lastPublishedTs ?? toTimestamp(feed.lastPublishedAt)
     if (ts) {
       lastPublishedByFeed.set(feed.id, ts)
@@ -115,10 +126,15 @@ const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<Refre
   })
 
   const results = await Promise.allSettled(
-    feedsToUse.map((feed) =>
+    eligibleFeeds.map((feed) =>
       fetchFeed(feed.xmlUrl, {
         cutoffTs: lastPublishedByFeed.get(feed.id) ?? 0,
         metadataBudget,
+        cache: {
+          ETag: feed.ETag,
+          lastModified: feed.lastModified,
+        },
+        existingFeed: feed,
       }),
     ),
   )
@@ -163,7 +179,7 @@ const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<Refre
   }
 
   return {
-    feedsUsed: feedsToUse,
+    feedsUsed: eligibleFeeds,
     newArticlesCount: deduped.length,
   }
 }

@@ -29,6 +29,10 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
       description TEXT,
       image TEXT,
       lastUpdated TEXT,
+      expiresTS INTEGER,
+      expires TEXT,
+      ETag TEXT,
+      lastModified TEXT,
       createdAt INTEGER DEFAULT (strftime('%s','now'))
     );
     CREATE TABLE IF NOT EXISTS articles (
@@ -63,6 +67,10 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
 
   await ensureColumn(db, 'feeds', 'lastPublishedAt', 'TEXT')
   await ensureColumn(db, 'feeds', 'lastPublishedTs', 'INTEGER')
+  await ensureColumn(db, 'feeds', 'expiresTS', 'INTEGER')
+  await ensureColumn(db, 'feeds', 'expires', 'TEXT')
+  await ensureColumn(db, 'feeds', 'ETag', 'TEXT')
+  await ensureColumn(db, 'feeds', 'lastModified', 'TEXT')
   await db.execAsync(`
     INSERT INTO article_statuses (articleId, starred, updatedAt)
     SELECT id, 1, strftime('%s','now')

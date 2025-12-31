@@ -3,7 +3,13 @@ import { readFileSync } from 'node:fs'
 import { fileURLToPath, URL } from 'node:url'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import Manifest from './__tests__/feeds/manifest.json'
-import { encodeBase64, extractImage, fetchFeed, fetchPageMetadata } from './rssClient'
+import {
+  encodeBase64,
+  extractImage,
+  fetchFeed,
+  fetchPageMetadata,
+  parseCacheControl,
+} from './rssClient'
 
 describe('encodeBase64', () => {
   it('encodes plain text to base64', () => {
@@ -144,6 +150,35 @@ describe('fetchPageMetadata', () => {
       publishedAt: '2024-02-01',
       source: 'LD Source',
     })
+  })
+})
+
+describe('parseCacheControl', () => {
+  it('parses max-age from multi-directive headers', () => {
+    expect(parseCacheControl('private, must-revalidate, max-age=900')).toBe(900)
+  })
+
+  it('parses max-age=0 with multiple directives', () => {
+    expect(parseCacheControl('no-cache, must-revalidate, max-age=0, no-store, private')).toBe(0)
+  })
+
+  it('parses max-age when only directive', () => {
+    expect(parseCacheControl('max-age=120')).toBe(120)
+  })
+
+  it('parses s-maxage when max-age is absent', () => {
+    expect(parseCacheControl('s-maxage=600')).toBe(600)
+  })
+
+  it('prefers max-age over s-maxage when both exist', () => {
+    expect(parseCacheControl('s-maxage=600, max-age=120')).toBe(120)
+  })
+
+  it('returns max-age=900 when `;` delimiter is used', () => {
+    expect(parseCacheControl('max-age=900; private')).toBe(900)
+  })
+  it('returns max-age=900 when unknown delimiters are used', () => {
+    expect(parseCacheControl('private|max-age=900')).toBe(null)
   })
 })
 

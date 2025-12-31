@@ -23,4 +23,8 @@ export type Feed = {
   lastUpdated?: string
   lastPublishedAt?: string
   lastPublishedTs?: number
+  expiresTS?: number
+  expires?: string
+  ETag?: string
+  lastModified?: string
 }

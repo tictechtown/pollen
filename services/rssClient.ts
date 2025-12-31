@@ -17,6 +17,34 @@ const toTimestamp = (value?: string | null): number => {
   return Number.isFinite(ts) ? ts : 0
 }
 
+export const parseCacheControl = (value?: string | null): number | null => {
+  if (!value) return null
+
+  let delimiter = value.includes(';') ? ';' : ','
+  const directives = value
+    .split(delimiter)
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+
+  let maxAge: number | null = null
+  let sharedMaxAge: number | null = null
+
+  for (const directive of directives) {
+    const lower = directive.toLowerCase()
+    if (lower.startsWith('max-age=')) {
+      const parsed = Number.parseInt(lower.slice('max-age='.length), 10)
+      maxAge = Number.isFinite(parsed) ? Math.max(0, parsed) : 0
+    } else if (lower.startsWith('s-maxage=')) {
+      const parsed = Number.parseInt(lower.slice('s-maxage='.length), 10)
+      sharedMaxAge = Number.isFinite(parsed) ? Math.max(0, parsed) : 0
+    }
+  }
+
+  if (maxAge !== null) return maxAge
+  if (sharedMaxAge !== null) return sharedMaxAge
+  return null
+}
+
 const METADATA_TIMEOUT = 5000
 const ENRICHMENT_TYPES = new Set(['Article', 'NewsArticle', 'BlogPosting'])
 
@@ -28,6 +56,13 @@ export type PageMetadata = {
   thumbnail?: string
   publishedAt?: string
   source?: string
+}
+
+type CacheMetadata = {
+  expiresTS?: number
+  expires?: string
+  ETag?: string
+  lastModified?: string
 }
 
 const consumeBudget = (budget?: MetadataBudget) => {
@@ -131,6 +166,40 @@ const fetchWithTimeout = async (url: string, init?: RequestInit, timeoutMs = MET
     clearTimeout(timeout)
   }
 }
+
+const extractCacheMetadata = (headers: Headers, now = Date.now()): CacheMetadata => {
+  const cacheControl = headers.get('cache-control')
+  const expiresHeader = headers.get('expires')
+  const etag = headers.get('etag')
+  const lastModified = headers.get('last-modified')
+
+  const maxAge = parseCacheControl(cacheControl)
+  let expiresTS: number | undefined
+
+  if (maxAge !== null) {
+    expiresTS = Math.max(now, now + maxAge * 1000)
+  } else if (expiresHeader) {
+    const parsed = toTimestamp(expiresHeader)
+    if (parsed) {
+      expiresTS = Math.max(now, parsed)
+    }
+  }
+
+  return {
+    expiresTS,
+    expires: expiresHeader ?? undefined,
+    ETag: etag ?? undefined,
+    lastModified: lastModified ?? undefined,
+  }
+}
+
+const mergeCacheMetadata = (feed: Feed, cache: CacheMetadata): Feed => ({
+  ...feed,
+  ...(cache.expiresTS !== undefined ? { expiresTS: cache.expiresTS } : {}),
+  ...(cache.expires !== undefined ? { expires: cache.expires } : {}),
+  ...(cache.ETag !== undefined ? { ETag: cache.ETag } : {}),
+  ...(cache.lastModified !== undefined ? { lastModified: cache.lastModified } : {}),
+})
 
 const toAbsoluteUrl = (baseUrl: string, maybeUrl?: string): string | undefined => {
   if (!maybeUrl) return undefined
@@ -551,21 +620,61 @@ const parseRssFeed = async (
   return { feed, articles: dedupeById(articles) }
 }
 
-type FetchOptions = { cutoffTs?: number; metadataBudget?: MetadataBudget }
+type FetchOptions = {
+  cutoffTs?: number
+  metadataBudget?: MetadataBudget
+  cache?: { ETag?: string; lastModified?: string }
+  existingFeed?: Feed
+}
 
 export const fetchFeed = async (
   url: string,
   options: FetchOptions = {},
 ): Promise<{ feed: Feed; articles: Article[] }> => {
-  const { cutoffTs = 0, metadataBudget } = options
-  console.log('fetching', url, { cutoffTs })
-  const response = await fetch(url)
+  const { cutoffTs = 0, metadataBudget, cache, existingFeed } = options
+  const headers = new Headers()
+  if (cache?.ETag) {
+    if (cache.ETag.includes('-zip')) {
+      headers.set(
+        'If-None-Match',
+        [cache.ETag, cache.ETag.replace('--zip', '').replace('-zip', '')].join(', '),
+      )
+    } else {
+      headers.set('If-None-Match', cache.ETag)
+    }
+  }
+  if (cache?.lastModified) {
+    headers.set('If-Modified-Since', cache.lastModified)
+  }
+  const hasConditionalHeaders = Boolean(cache?.ETag || cache?.lastModified)
+  const init = hasConditionalHeaders ? { headers } : undefined
+  const response = init ? await fetch(url, init) : await fetch(url)
+  const responseHeaders =
+    response.headers && typeof response.headers.get === 'function'
+      ? response.headers
+      : new Headers()
+  const cacheMetadata = extractCacheMetadata(responseHeaders)
+
+  if (response.status === 304) {
+    if (!existingFeed) {
+      throw new Error('Received 304 without existing feed metadata')
+    }
+    return {
+      feed: mergeCacheMetadata(existingFeed, cacheMetadata),
+      articles: [],
+    }
+  }
+
+  console.log('extract cache', url, init, response.status)
+
   const xml = await response.text()
   const parsed: FetchedFeed = parser.parse(xml)
 
   if ('feed' in parsed) {
-    return parseAtomFeed(url, parsed, cutoffTs, metadataBudget)
+    const result = await parseAtomFeed(url, parsed, cutoffTs, metadataBudget)
+    return { ...result, feed: mergeCacheMetadata(result.feed, cacheMetadata) }
   } else {
-    return parseRssFeed(url, parsed, cutoffTs, metadataBudget)
+    const result = await parseRssFeed(url, parsed, cutoffTs, metadataBudget)
+    return { ...result, feed: mergeCacheMetadata(result.feed, cacheMetadata) }
   }
 }

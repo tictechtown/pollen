@@ -83,6 +83,7 @@ export const useRefreshStore = create<RefreshState>()(
 
       refreshPromise = refreshFeedsAndArticles({
         selectedFeedId: context.selectedFeedId,
+        reason: context.reason,
       })
         .then(async (result) => {
           const hasFeeds = result.feedsUsed.length > 0

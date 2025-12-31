@@ -8,12 +8,34 @@ export const upsertFeeds = async (feeds: Feed[]) => {
   await runWrite(async (db) => {
     await db.withTransactionAsync(async () => {
       for (const feed of feeds) {
-        console.log('inserting feeds', feed.id, feed.title, feed.xmlUrl)
+        console.log(
+          'inserting feeds',
+          feed.id,
+          feed.title,
+          feed.xmlUrl,
+          feed.expires,
+          feed.ETag,
+          feed.lastModified,
+        )
 
         await db.runAsync(
           `
-        INSERT INTO feeds (id, title, xmlUrl, htmlUrl, description, image, lastUpdated, lastPublishedAt, lastPublishedTs)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO feeds (
+          id,
+          title,
+          xmlUrl,
+          htmlUrl,
+          description,
+          image,
+          lastUpdated,
+          lastPublishedAt,
+          lastPublishedTs,
+          expiresTS,
+          expires,
+          ETag,
+          lastModified
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           title=excluded.title,
           xmlUrl=excluded.xmlUrl,
@@ -21,7 +43,11 @@ export const upsertFeeds = async (feeds: Feed[]) => {
           image=excluded.image,
           lastUpdated=excluded.lastUpdated,
           lastPublishedAt=COALESCE(excluded.lastPublishedAt, feeds.lastPublishedAt),
-          lastPublishedTs=COALESCE(excluded.lastPublishedTs, feeds.lastPublishedTs);
+          lastPublishedTs=COALESCE(excluded.lastPublishedTs, feeds.lastPublishedTs),
+          expiresTS=COALESCE(excluded.expiresTS, feeds.expiresTS),
+          expires=COALESCE(excluded.expires, feeds.expires),
+          ETag=COALESCE(excluded.ETag, feeds.ETag),
+          lastModified=COALESCE(excluded.lastModified, feeds.lastModified);
       `,
           [
             feed.id,
@@ -33,6 +59,10 @@ export const upsertFeeds = async (feeds: Feed[]) => {
             feed.lastUpdated ?? null,
             feed.lastPublishedAt ?? null,
             feed.lastPublishedTs ?? null,
+            feed.expiresTS ?? null,
+            feed.expires ?? null,
+            feed.ETag ?? null,
+            feed.lastModified ?? null,
           ],
         )
       }
