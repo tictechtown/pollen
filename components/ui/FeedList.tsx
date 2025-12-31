@@ -13,6 +13,7 @@ import { AnimatedFAB, Appbar, Banner, Divider, Text, useTheme } from 'react-nati
 import FeedItem from '@/components/ui/FeedItem'
 import { useArticles } from '@/hooks/useArticles'
 import { useFiltersStore } from '@/store/filters'
+import { Article } from '@/types'
 
 interface Props {
   unseenOnly?: boolean
@@ -27,7 +28,6 @@ export default function FeedList(props: Props) {
     refresh,
     loadNextPage,
     hasMore,
-    hasUnseen,
     toggleSaved,
     toggleSeen,
     markAllSeen,
@@ -40,6 +40,24 @@ export default function FeedList(props: Props) {
     const nextScrolled = offsetY !== 0
     setIsScrolled(nextScrolled)
   }, [])
+
+  console.log('rendering feedlist', { unseen: !!props.unseenOnly })
+
+  const renderItem = useCallback(
+    ({ item }: { item: Article }) => (
+      <FeedItem
+        article={item}
+        onOpen={() => {
+          console.log('opening', `/article/${item.id}`)
+          router.push(`/article/${item.id}`)
+        }}
+        onToggleSaved={() => toggleSaved(item.id)}
+        onToggleSeen={() => toggleSeen(item.id)}
+        colors={colors}
+      />
+    ),
+    [colors, router, toggleSaved, toggleSeen],
+  )
 
   return (
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
@@ -71,21 +89,12 @@ export default function FeedList(props: Props) {
           }
         }}
         onEndReachedThreshold={0.6}
-        renderItem={({ item }) => (
-          <FeedItem
-            article={item}
-            onOpen={() => {
-              console.log('opening', `/article/${item.id}`)
-              router.push(`/article/${item.id}`)
-            }}
-            onToggleSaved={() => toggleSaved(item.id)}
-            onToggleSeen={() => toggleSeen(item.id)}
-            colors={colors}
-          />
-        )}
+        renderItem={renderItem}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text variant="bodyLarge">No articles yet. Pull to refresh.</Text>
+            <Text variant="bodyLarge" style={{ color: colors.onSurfaceVariant }}>
+              {props.unseenOnly ? 'All caught up' : 'No articles yet. Pull to refresh.'}
+            </Text>
           </View>
         }
       />
@@ -113,6 +122,7 @@ const styles = StyleSheet.create({
   empty: {
     padding: 24,
     alignItems: 'center',
+    gap: 12,
   },
   fab: {
     position: 'absolute',

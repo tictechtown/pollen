@@ -15,7 +15,12 @@ import {
 } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
-import { setArticleRead, setArticleSaved } from '@/services/articles-db'
+import {
+  getArticleReadStatus,
+  getArticleStarredStatus,
+  setArticleRead,
+  setArticleSaved,
+} from '@/services/articles-db'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
 import { useArticlesStore } from '@/store/articles'
@@ -24,9 +29,10 @@ import { useShallow } from 'zustand/react/shallow'
 export default function SavedScreen() {
   const router = useRouter()
   const { colors } = useTheme()
-  const { articles, updateSavedLocal, upsertArticleLocal } = useArticlesStore(
+  const { articles, savedStatus, updateSavedLocal, upsertArticleLocal } = useArticlesStore(
     useShallow((state) => ({
       articles: state.articles,
+      savedStatus: state.localSavedArticles,
       updateSavedLocal: state.updateSavedLocal,
       upsertArticleLocal: state.upsertArticle,
     })),
@@ -37,28 +43,27 @@ export default function SavedScreen() {
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const saved = useMemo(() => articles.filter((article) => article.saved), [articles])
+  const saved = useMemo(
+    () => articles.filter((article) => savedStatus.get(article.id)),
+    [savedStatus, articles],
+  )
 
   const toggleSaved = useCallback(
     async (id: string) => {
-      const current = articles.find((article) => article.id === id)
-      if (!current) return
-      const nextSaved = !current.saved
+      const nextSaved = !(await getArticleStarredStatus(id))
       await setArticleSaved(id, nextSaved)
       updateSavedLocal(id, nextSaved)
     },
-    [articles, updateSavedLocal],
+    [updateSavedLocal],
   )
 
   const toggleSeen = useCallback(
     async (id: string) => {
-      const current = articles.find((article) => article.id === id)
-      if (!current) return
-      const nextSeen = !current.seen
+      const nextSeen = !(await getArticleReadStatus(id))
       await setArticleRead(id, nextSeen)
       updateSeenLocal(id, nextSeen)
     },
-    [articles, updateSeenLocal],
+    [updateSeenLocal],
   )
 
   const handleCloseDialog = () => {

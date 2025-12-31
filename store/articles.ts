@@ -6,6 +6,8 @@ import { Article } from '@/types'
 
 type ArticlesState = {
   articles: Article[]
+  localSavedArticles: Map<string, boolean>
+  localSeenArticles: Map<string, boolean>
   initialized: boolean
   setInitialized: () => void
   setArticles: (articles: Article[]) => void
@@ -18,15 +20,19 @@ type ArticlesState = {
 export const useArticlesStore = create<ArticlesState>()(
   devtools((set) => ({
     articles: [],
+    localSavedArticles: {},
+    localSeenArticles: {},
     initialized: false,
     setArticles: (articles) => {
-      console.trace('set articles', articles.length)
-      set({ articles })
+      const localSeenArticles = new Map(articles.map((a) => [a.id, a.seen]))
+      const localSavedArticles = new Map(articles.map((a) => [a.id, a.saved]))
+      set({ articles, localSeenArticles, localSavedArticles })
     },
     setInitialized: () => set({ initialized: true }),
     upsertArticle: (article) =>
       set((state) => {
         const exists = state.articles.find((a) => a.id === article.id)
+        // TODO - update localSeen and localSaved
         return {
           articles: exists
             ? state.articles.map((a) => (a.id === article.id ? { ...exists, ...article } : a))
@@ -34,13 +40,15 @@ export const useArticlesStore = create<ArticlesState>()(
         }
       }),
     updateSavedLocal: (id, saved) =>
-      set((state) => ({
-        articles: state.articles.map((a) => (a.id === id ? { ...a, saved } : a)),
-      })),
+      set((state) => {
+        return {
+          localSavedArticles: new Map(state.localSavedArticles).set(id, saved),
+        }
+      }),
     updateSeenLocal: (id, seen) =>
       set((state) => ({
-        articles: state.articles.map((a) => (a.id === id ? { ...a, seen } : a)),
+        localSeenArticles: new Map(state.localSeenArticles).set(id, seen),
       })),
-    clear: () => set({ articles: [] }),
+    clear: () => set({ articles: [], localSavedArticles: new Map(), localSeenArticles: new Map() }),
   })),
 )

@@ -1,3 +1,4 @@
+import { useArticlesStore } from '@/store/articles'
 import { Article } from '@/types'
 import { useRef } from 'react'
 import { Image, Pressable, Share, StyleSheet, View } from 'react-native'
@@ -66,7 +67,10 @@ const FeedItem = ({
 }) => {
   const reanimatedRef = useRef<SwipeableMethods>(null)
 
-  const opacity = article.seen ? 0.7 : 1
+  const seen = useArticlesStore((state) => state.localSeenArticles.get(article.id))
+  const saved = useArticlesStore((state) => state.localSavedArticles.get(article.id))
+
+  const opacity = seen ? 0.7 : 1
 
   return (
     <View style={styles.wrapper}>
@@ -82,7 +86,7 @@ const FeedItem = ({
             dragX={dragX}
             backgroundColor={colors.secondaryContainer}
             iconColor={colors.onSecondaryContainer}
-            icon={article.seen ? 'circle-outline' : 'check-circle-outline'}
+            icon={seen ? 'circle-outline' : 'check-circle-outline'}
             isLeft
           />
         )}
@@ -91,7 +95,7 @@ const FeedItem = ({
             dragX={dragX}
             backgroundColor={colors.secondaryContainer}
             iconColor={colors.onSecondaryContainer}
-            icon={article.saved ? 'bookmark-outline' : 'bookmark'}
+            icon={saved ? 'bookmark-outline' : 'bookmark'}
           />
         )}
         onSwipeableOpen={(direction) => {
@@ -140,7 +144,7 @@ const FeedItem = ({
               alignItems: 'center',
             }}
           >
-            <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>
+            <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant, opacity }}>
               {relativeTime(article.updatedAt ?? article.publishedAt)}
             </Text>
             <View style={{ flex: 0, flexDirection: 'row', alignItems: 'center', gap: 0 }}>
@@ -159,7 +163,7 @@ const FeedItem = ({
               <IconButton
                 size={16}
                 style={{ margin: 0 }}
-                icon={article.saved ? 'bookmark' : 'bookmark-outline'}
+                icon={saved ? 'bookmark' : 'bookmark-outline'}
                 onPress={onToggleSaved}
               />
             </View>

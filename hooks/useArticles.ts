@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { setArticleRead, setArticleSaved, setManyArticlesRead } from '@/services/articles-db'
+import {
+  getArticleReadStatus,
+  getArticleStarredStatus,
+  setArticleRead,
+  setArticleSaved,
+  setManyArticlesRead,
+} from '@/services/articles-db'
 import { useArticlesStore } from '@/store/articles'
 import { useFiltersStore } from '@/store/filters'
 import { type RefreshReason, useRefreshStore } from '@/store/refresh'
@@ -83,25 +89,21 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   // Save status
   const toggleSaved = useCallback(
     async (id: string) => {
-      const current = articles.find((article) => article.id === id)
-      if (!current) return
-      const nextSaved = !current.saved
+      const nextSaved = !(await getArticleStarredStatus(id))
       await setArticleSaved(id, nextSaved)
       updateSavedLocal(id, nextSaved)
     },
-    [articles, updateSavedLocal],
+    [updateSavedLocal],
   )
 
   // Seen status
   const toggleSeen = useCallback(
     async (id: string) => {
-      const current = articles.find((article) => article.id === id)
-      if (!current) return
-      const nextSeen = !current.seen
+      const nextSeen = !(await getArticleReadStatus(id))
       await setArticleRead(id, nextSeen)
       updateSeenLocal(id, nextSeen)
     },
-    [articles, updateSeenLocal],
+    [updateSeenLocal],
   )
 
   const markAllSeen = useCallback(() => {

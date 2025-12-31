@@ -116,6 +116,24 @@ export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => 
   })
 }
 
+export const getArticleReadStatus = async (id: string): Promise<boolean> => {
+  const db = await getDb()
+  const row = await db.getFirstAsync<{ read: number | null }>(
+    `SELECT read FROM article_statuses WHERE articleId = ?`,
+    [id],
+  )
+  return Boolean(row?.read)
+}
+
+export const getArticleStarredStatus = async (id: string): Promise<boolean> => {
+  const db = await getDb()
+  const row = await db.getFirstAsync<{ starred: number | null }>(
+    `SELECT starred FROM article_statuses WHERE articleId = ?`,
+    [id],
+  )
+  return Boolean(row?.starred)
+}
+
 export const setArticleSaved = async (id: string, saved: boolean) => {
   const now = Math.floor(Date.now() / 1000)
   await runWrite(async (db) => {
