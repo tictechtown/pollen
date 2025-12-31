@@ -19,7 +19,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 export default function RootLayout() {
   const router = useRouter()
   const colorScheme = useColorScheme()
-  const { theme } = useMaterial3Theme()
+  const { theme } = useMaterial3Theme({ fallbackSourceColor: '#63A002' })
   const paperTheme = getPaperTheme(colorScheme ?? null, theme)
   const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
   const [dismissedError, setDismissedError] = useState<string | null>(null)

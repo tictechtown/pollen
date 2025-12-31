@@ -94,6 +94,7 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 
 - Rename status field to `read`
 - When fetching feeds, look at headers to figure out minimum time before next fetch
+- If feed has an issue (5xx or 4xx) -> display it to the user
 - Default theme should be green-based
 - Add ability to create/manage folders for feeds
 - Export to OPML
