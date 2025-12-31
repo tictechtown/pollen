@@ -29,7 +29,7 @@ const buildSavedArticle = (url: string): Article => {
     title: url,
     source: hostname,
     saved: true,
-    seen: false,
+    read: false,
     publishedAt: new Date().toISOString(),
   }
 }

@@ -56,21 +56,21 @@ const FeedItem = ({
   article,
   onOpen,
   onToggleSaved,
-  onToggleSeen,
+  onToggleRead,
   colors,
 }: {
   article: Article
   onOpen: () => void
   onToggleSaved: () => void
-  onToggleSeen: () => void
+  onToggleRead: () => void
   colors: MD3Colors
 }) => {
   const reanimatedRef = useRef<SwipeableMethods>(null)
 
-  const seen = useArticlesStore((state) => state.localSeenArticles.get(article.id))
+  const read = useArticlesStore((state) => state.localReadArticles.get(article.id))
   const saved = useArticlesStore((state) => state.localSavedArticles.get(article.id))
 
-  const opacity = seen ? 0.7 : 1
+  const opacity = read ? 0.7 : 1
 
   return (
     <View style={styles.wrapper}>
@@ -86,7 +86,7 @@ const FeedItem = ({
             dragX={dragX}
             backgroundColor={colors.secondaryContainer}
             iconColor={colors.onSecondaryContainer}
-            icon={seen ? 'circle-outline' : 'check-circle-outline'}
+            icon={read ? 'circle-outline' : 'check-circle-outline'}
             isLeft
           />
         )}
@@ -102,7 +102,7 @@ const FeedItem = ({
           if (direction === 'left') {
             onToggleSaved()
           } else {
-            onToggleSeen()
+            onToggleRead()
           }
           reanimatedRef.current?.close()
         }}

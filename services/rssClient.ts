@@ -479,7 +479,7 @@ const parseAtomFeed = async (
         content: contentFallback ?? getText(item.summary) ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
-        seen: false,
+        read: false,
         saved: false,
       }
     }),
@@ -542,7 +542,7 @@ const parseRssFeed = async (
         content: contentFallback ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
-        seen: false,
+        read: false,
         saved: false,
       }
     }),

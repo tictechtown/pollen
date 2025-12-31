@@ -10,7 +10,6 @@ import 'react-native-reanimated'
 
 import { getNavigationTheme, getPaperTheme } from '@/constants/paperTheme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
-import { consumeBackgroundMarker, registerBackgroundRefresh } from '@/services/background-refresh'
 import { parseSharedUrl } from '@/services/share-intent'
 import { useArticlesStore } from '@/store/articles'
 import { useFiltersStore } from '@/store/filters'
@@ -23,7 +22,6 @@ export default function RootLayout() {
   const { theme } = useMaterial3Theme()
   const paperTheme = getPaperTheme(colorScheme ?? null, theme)
   const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
-  const [newArticlesCount, setNewArticlesCount] = useState(0)
   const [dismissedError, setDismissedError] = useState<string | null>(null)
 
   // refresh feeds/articles when coming back from background
@@ -34,30 +32,6 @@ export default function RootLayout() {
   const refreshStatus = useRefreshStore((state) => state.status)
   const refreshError = useRefreshStore((state) => state.lastError)
   const { initialized, setInitialized } = useArticlesStore()
-
-  // Startup effect
-  useEffect(() => {
-    registerBackgroundRefresh().catch((err) =>
-      console.warn('Background refresh registration failed', err),
-    )
-
-    const checkMarker = async () => {
-      const marker = await consumeBackgroundMarker()
-      if (marker?.count) {
-        setNewArticlesCount(marker.count)
-      }
-    }
-
-    checkMarker()
-    const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        checkMarker()
-      }
-    })
-    return () => {
-      sub.remove()
-    }
-  }, [])
 
   // Startup effect
   useEffect(() => {
@@ -129,14 +103,6 @@ export default function RootLayout() {
               <Stack.Screen name="sources" options={{ headerShown: false, presentation: 'card' }} />
               <Stack.Screen name="share" options={{ headerShown: false, presentation: 'modal' }} />
             </Stack>
-            <Snackbar
-              visible={newArticlesCount > 0}
-              duration={3000}
-              onDismiss={() => setNewArticlesCount(0)}
-              action={{ label: 'OK', onPress: () => setNewArticlesCount(0) }}
-            >
-              {`${newArticlesCount} new articles`}
-            </Snackbar>
             <Snackbar
               visible={
                 refreshStatus === 'error' && !!refreshError && dismissedError !== refreshError

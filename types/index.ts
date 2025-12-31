@@ -9,7 +9,7 @@ export type Article = {
   content?: string
   thumbnail?: string
   feedId?: string
-  seen: boolean
+  read: boolean
   saved: boolean
 }
 

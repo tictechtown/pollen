@@ -14,11 +14,11 @@ import { type RefreshReason, useRefreshStore } from '@/store/refresh'
 const PAGE_SIZE = 100
 
 type UseArticlesOptions = {
-  unseenOnly?: boolean
+  unreadOnly?: boolean
 }
 
 export const useArticles = (options: UseArticlesOptions = {}) => {
-  const { articles, updateSavedLocal, updateSeenLocal, initialized } = useArticlesStore()
+  const { articles, updateSavedLocal, updateReadLocal, initialized } = useArticlesStore()
   const { selectedFeedId } = useFiltersStore()
   const { status, lastError, hydrate, refresh } = useRefreshStore()
   const [page, setPage] = useState(1)
@@ -48,20 +48,20 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     }
   }, [hydrateFromDb, initialized, selectedFeedId])
 
-  const unseenOnly = !!options.unseenOnly
+  const unreadOnly = !!options.unreadOnly
 
   // Pagination
   const sortedAndFiltered = useMemo(() => {
     const byFeed = selectedFeedId
       ? articles.filter((article) => article.feedId === selectedFeedId)
       : articles
-    const filtered = unseenOnly ? byFeed.filter((article) => !article.seen) : byFeed
+    const filtered = unreadOnly ? byFeed.filter((article) => !article.read) : byFeed
     return filtered
-  }, [articles, selectedFeedId, unseenOnly])
+  }, [articles, selectedFeedId, unreadOnly])
 
   useEffect(() => {
     setPage(1)
-  }, [selectedFeedId, unseenOnly])
+  }, [selectedFeedId, unreadOnly])
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(sortedAndFiltered.length / PAGE_SIZE)),
@@ -77,8 +77,8 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     [page, sortedAndFiltered],
   )
 
-  const hasUnseen = useMemo(
-    () => sortedAndFiltered.some((article) => !article.seen),
+  const hasUnread = useMemo(
+    () => sortedAndFiltered.some((article) => !article.read),
     [sortedAndFiltered],
   )
 
@@ -96,21 +96,21 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     [updateSavedLocal],
   )
 
-  // Seen status
-  const toggleSeen = useCallback(
+  // Read status
+  const toggleRead = useCallback(
     async (id: string) => {
-      const nextSeen = !(await getArticleReadStatus(id))
-      await setArticleRead(id, nextSeen)
-      updateSeenLocal(id, nextSeen)
+      const nextRead = !(await getArticleReadStatus(id))
+      await setArticleRead(id, nextRead)
+      updateReadLocal(id, nextRead)
     },
-    [updateSeenLocal],
+    [updateReadLocal],
   )
 
-  const markAllSeen = useCallback(() => {
+  const markAllRead = useCallback(() => {
     const ids = sortedAndFiltered.map((article) => article.id)
     void setManyArticlesRead(ids, true)
-    ids.forEach((id) => updateSeenLocal(id, true))
-  }, [sortedAndFiltered, updateSeenLocal])
+    ids.forEach((id) => updateReadLocal(id, true))
+  }, [sortedAndFiltered, updateReadLocal])
 
   return {
     articles: pagedArticles,
@@ -118,10 +118,10 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     refresh: () => triggerRefresh('manual'),
     loadNextPage,
     hasMore: pagedArticles.length < sortedAndFiltered.length,
-    hasUnseen,
+    hasUnread,
     toggleSaved,
-    toggleSeen,
-    markAllSeen,
+    toggleRead,
+    markAllRead,
     error: lastError,
   }
 }

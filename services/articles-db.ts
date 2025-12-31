@@ -101,17 +101,17 @@ export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => 
 
   const rows = feedId
     ? await db.getAllAsync<
-        Omit<Article, 'seen' | 'saved'> & { read: number | null; starred: number | null }
+        Omit<Article, 'read' | 'saved'> & { read: number | null; starred: number | null }
       >(query, [feedId])
     : await db.getAllAsync<
-        Omit<Article, 'seen' | 'saved'> & { read: number | null; starred: number | null }
+        Omit<Article, 'read' | 'saved'> & { read: number | null; starred: number | null }
       >(query)
   return rows.map((row) => {
     const { read, starred, ...article } = row
     return {
       ...article,
       saved: Boolean(starred),
-      seen: Boolean(read),
+      read: Boolean(read),
     }
   })
 }

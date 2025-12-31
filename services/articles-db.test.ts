@@ -52,9 +52,9 @@ describe('getArticlesFromDb', () => {
 
     const result = await getArticlesFromDb()
 
-    expect(result[0].seen).toBe(true)
+    expect(result[0].read).toBe(true)
     expect(result[0].saved).toBe(false)
-    expect(result[1].seen).toBe(false)
+    expect(result[1].read).toBe(false)
     expect(result[1].saved).toBe(true)
   })
 })

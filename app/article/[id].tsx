@@ -89,7 +89,7 @@ export default function ArticleScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const article = useArticlesStore((state) => state.articles.find((a) => a.id === id))
   const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
-  const updateSeenLocal = useArticlesStore((state) => state.updateSeenLocal)
+  const updateReadLocal = useArticlesStore((state) => state.updateReadLocal)
   const { colors } = useTheme()
   const [mode, setMode] = useState<'rss' | 'reader' | 'original'>('rss')
   const [snackbar, setSnackbar] = useState<string | null>(null)
@@ -132,11 +132,11 @@ export default function ArticleScreen() {
   }, [article, colors, displayDate, reader])
 
   useEffect(() => {
-    if (id && article && !article.seen) {
+    if (id && article && !article.read) {
       void setArticleRead(id, true)
-      updateSeenLocal(id, true)
+      updateReadLocal(id, true)
     }
-  }, [article, id, updateSeenLocal])
+  }, [article, id, updateReadLocal])
 
   useEffect(() => {
     if (!article || article.link) return

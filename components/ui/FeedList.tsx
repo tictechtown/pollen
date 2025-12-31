@@ -16,7 +16,7 @@ import { useFiltersStore } from '@/store/filters'
 import { Article } from '@/types'
 
 interface Props {
-  unseenOnly?: boolean
+  unreadOnly?: boolean
 }
 
 export default function FeedList(props: Props) {
@@ -29,8 +29,8 @@ export default function FeedList(props: Props) {
     loadNextPage,
     hasMore,
     toggleSaved,
-    toggleSeen,
-    markAllSeen,
+    toggleRead,
+    markAllRead,
     error,
   } = useArticles(props)
   const { selectedFeedTitle } = useFiltersStore()
@@ -41,7 +41,7 @@ export default function FeedList(props: Props) {
     setIsScrolled(nextScrolled)
   }, [])
 
-  console.log('rendering feedlist', { unseen: !!props.unseenOnly })
+  console.log('rendering feedlist', { unread: !!props.unreadOnly })
 
   const renderItem = useCallback(
     ({ item }: { item: Article }) => (
@@ -52,11 +52,11 @@ export default function FeedList(props: Props) {
           router.push(`/article/${item.id}`)
         }}
         onToggleSaved={() => toggleSaved(item.id)}
-        onToggleSeen={() => toggleSeen(item.id)}
+        onToggleRead={() => toggleRead(item.id)}
         colors={colors}
       />
     ),
-    [colors, router, toggleSaved, toggleSeen],
+    [colors, router, toggleSaved, toggleRead],
   )
 
   return (
@@ -93,7 +93,7 @@ export default function FeedList(props: Props) {
         ListEmptyComponent={
           <View style={styles.empty}>
             <Text variant="bodyLarge" style={{ color: colors.onSurfaceVariant }}>
-              {props.unseenOnly ? 'All caught up' : 'No articles yet. Pull to refresh.'}
+              {props.unreadOnly ? 'All caught up' : 'No articles yet. Pull to refresh.'}
             </Text>
           </View>
         }
@@ -101,9 +101,9 @@ export default function FeedList(props: Props) {
 
       <AnimatedFAB
         icon="check-all"
-        label="Mark all seen"
+        label="Mark all read"
         extended={!isScrolled}
-        onPress={() => markAllSeen()}
+        onPress={() => markAllRead()}
         style={styles.fab}
         variant="tertiary"
       />

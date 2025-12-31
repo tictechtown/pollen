@@ -37,7 +37,7 @@ export default function SavedScreen() {
       upsertArticleLocal: state.upsertArticle,
     })),
   )
-  const updateSeenLocal = useArticlesStore((state) => state.updateSeenLocal)
+  const updateReadLocal = useArticlesStore((state) => state.updateReadLocal)
   const [addVisible, setAddVisible] = useState(false)
   const [inputUrl, setInputUrl] = useState('')
   const [snackbar, setSnackbar] = useState<string | null>(null)
@@ -57,13 +57,13 @@ export default function SavedScreen() {
     [updateSavedLocal],
   )
 
-  const toggleSeen = useCallback(
+  const toggleRead = useCallback(
     async (id: string) => {
-      const nextSeen = !(await getArticleReadStatus(id))
-      await setArticleRead(id, nextSeen)
-      updateSeenLocal(id, nextSeen)
+      const nextRead = !(await getArticleReadStatus(id))
+      await setArticleRead(id, nextRead)
+      updateReadLocal(id, nextRead)
     },
-    [updateSeenLocal],
+    [updateReadLocal],
   )
 
   const handleCloseDialog = () => {
@@ -125,7 +125,7 @@ export default function SavedScreen() {
             article={item}
             onOpen={() => router.push(`/article/${item.id}`)}
             onToggleSaved={() => toggleSaved(item.id)}
-            onToggleSeen={() => toggleSeen(item.id)}
+            onToggleRead={() => toggleRead(item.id)}
             colors={colors}
           />
         )}

@@ -27,7 +27,7 @@
           "source": "Percona Database Performance Blog",
           "thumbnail": "https://www.percona.com/blog/wp-content/uploads/2025/12/Improve-Developer-Velocity-with-Kubernetes-200x112.jpg",
           "feedId": "aHR0cHM6Ly93d3cucGVyY29uYS5jb20vYmxvZy9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 14:05:05 +0000",
           "updatedAt": null
@@ -40,7 +40,7 @@
           "source": "Percona Database Performance Blog",
           "thumbnail": "https://www.percona.com/blog/wp-content/uploads/2025/12/Percona-Load-Generator-for-MongoDB-Clusters-200x86.jpg",
           "feedId": "aHR0cHM6Ly93d3cucGVyY29uYS5jb20vYmxvZy9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 18 Dec 2025 13:38:13 +0000",
           "updatedAt": null
@@ -73,7 +73,7 @@
           "source": "HTMHell Tips & Tricks",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9odG1oZWxsLmRldi90aXBz",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2021-05-19T00:00:00Z",
           "updatedAt": "2021-05-19T00:00:00Z"
@@ -86,7 +86,7 @@
           "source": "HTMHell Tips & Tricks",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9odG1oZWxsLmRldi90aXBz",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2021-06-04T00:00:00Z",
           "updatedAt": "2021-06-04T00:00:00Z"
@@ -119,7 +119,7 @@
           "source": "SRE WEEKLY",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9zcmV3ZWVrbHkuY29tL2ZlZWQv",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 15 Dec 2025 03:31:51 +0000",
           "updatedAt": null
@@ -132,7 +132,7 @@
           "source": "SRE WEEKLY",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9zcmV3ZWVrbHkuY29tL2ZlZWQv",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 08 Dec 2025 02:05:42 +0000",
           "updatedAt": null
@@ -165,7 +165,7 @@
           "source": "Of Dollars And Data",
           "thumbnail": "https://ofdollarsanddata.com/wp-content/uploads/2025/12/tipping_too_much.jpg",
           "feedId": "aHR0cHM6Ly9vZmRvbGxhcnNhbmRkYXRhLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Tue, 16 Dec 2025 12:45:37 +0000",
           "updatedAt": null
@@ -178,7 +178,7 @@
           "source": "Of Dollars And Data",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9vZmRvbGxhcnNhbmRkYXRhLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Tue, 09 Dec 2025 12:45:22 +0000",
           "updatedAt": null
@@ -211,7 +211,7 @@
           "source": "Engineering at Meta",
           "thumbnail": "https://engineering.fb.com/wp-content/uploads/2025/12/Meta-DrP-image-1.png",
           "feedId": "aHR0cHM6Ly9lbmdpbmVlcmluZy5mYi5jb20vZmVlZC8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 17:35:13 +0000",
           "updatedAt": null
@@ -224,7 +224,7 @@
           "source": "Engineering at Meta",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9lbmdpbmVlcmluZy5mYi5jb20vZmVlZC8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 17 Dec 2025 14:00:17 +0000",
           "updatedAt": null
@@ -257,7 +257,7 @@
           "source": "Stories by Camille Fournier on Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/225/0*8URkz_l2YKxEqADi",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvQHNrYW1pbGxl",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Sat, 22 Nov 2025 19:02:58 GMT",
           "updatedAt": null
@@ -270,7 +270,7 @@
           "source": "Stories by Camille Fournier on Medium",
           "thumbnail": "https://medium.com/_/stat?event=post.clientViewed&referrerSource=full_rss&postId=8c86aa01729c",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvQHNrYW1pbGxl",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 05 Jun 2025 13:16:53 GMT",
           "updatedAt": null
@@ -303,7 +303,7 @@
           "source": "Irrational Exuberance",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9sZXRoYWluLmNvbS9mZWVkcy54bWw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 18 Dec 2025 10:00:00 -0700",
           "updatedAt": null
@@ -316,7 +316,7 @@
           "source": "Irrational Exuberance",
           "thumbnail": "https://lethain.com/static/blog/2025/dep-automerge.png",
           "feedId": "aHR0cHM6Ly9sZXRoYWluLmNvbS9mZWVkcy54bWw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 18 Dec 2025 08:00:00 -0700",
           "updatedAt": null
@@ -349,7 +349,7 @@
           "source": "Ars Technica - All content",
           "thumbnail": "https://cdn.arstechnica.net/wp-content/uploads/2025/12/GettyImages-2247196489-1152x648.jpg",
           "feedId": "aHR0cHM6Ly9mZWVkcy5hcnN0ZWNobmljYS5jb20vYXJzdGVjaG5pY2EvaW5kZXg",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 22:05:52 +0000",
           "updatedAt": null
@@ -362,7 +362,7 @@
           "source": "Ars Technica - All content",
           "thumbnail": "https://cdn.arstechnica.net/wp-content/uploads/2025/12/switch2gkc-1152x648-1766176952.png",
           "feedId": "aHR0cHM6Ly9mZWVkcy5hcnN0ZWNobmljYS5jb20vYXJzdGVjaG5pY2EvaW5kZXg",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 21:30:08 +0000",
           "updatedAt": null
@@ -395,7 +395,7 @@
           "source": "MDN Blog",
           "thumbnail": "https://developer.mozilla.org/en-US/blog/image-formats-codecs-compression-tools/featured.png",
           "feedId": "aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvYmxvZy9yc3MueG1s",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 5 Nov 2025 00:00:00 +0000",
           "updatedAt": null
@@ -408,7 +408,7 @@
           "source": "MDN Blog",
           "thumbnail": "https://developer.mozilla.org/en-US/blog/view-transitions-beginner-guide/featured.png",
           "feedId": "aHR0cHM6Ly9kZXZlbG9wZXIubW96aWxsYS5vcmcvZW4tVVMvYmxvZy9yc3MueG1s",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 9 Oct 2025 00:00:00 +0000",
           "updatedAt": null
@@ -441,7 +441,7 @@
           "source": "HTML & CSS Tip of the Week",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9odG1sLWNzcy10aXAtb2YtdGhlLXdlZWsubmV0bGlmeS5hcHAvcnNzLnhtbA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 02 Oct 2025 00:00:00 GMT",
           "updatedAt": null
@@ -454,7 +454,7 @@
           "source": "HTML & CSS Tip of the Week",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9odG1sLWNzcy10aXAtb2YtdGhlLXdlZWsubmV0bGlmeS5hcHAvcnNzLnhtbA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 25 Sep 2025 00:00:00 GMT",
           "updatedAt": null
@@ -487,7 +487,7 @@
           "source": "NYT Open - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*TkpbB5_zR3GSXWYSeqaBQQ.jpeg",
           "feedId": "aHR0cHM6Ly9vcGVuLm55dGltZXMuY29tL2ZlZWQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 15 Oct 2025 18:30:40 GMT",
           "updatedAt": null
@@ -500,7 +500,7 @@
           "source": "NYT Open - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*UITh9uwuoXVxScBnf9JnJQ.gif",
           "feedId": "aHR0cHM6Ly9vcGVuLm55dGltZXMuY29tL2ZlZWQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 03 Oct 2025 15:19:24 GMT",
           "updatedAt": null
@@ -533,7 +533,7 @@
           "source": "Julia Evans",
           "thumbnail": "/images/helix-search.png",
           "feedId": "aHR0cDovL2p2bnMuY2E",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-10-10T00:00:00+00:00",
           "updatedAt": "2025-10-10T00:00:00+00:00"
@@ -546,7 +546,7 @@
           "source": "Julia Evans",
           "thumbnail": "https://jvns.ca/images/terminal-cover-small.jpg",
           "feedId": "aHR0cDovL2p2bnMuY2E",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-06-26T00:00:00+00:00",
           "updatedAt": "2025-06-26T00:00:00+00:00"
@@ -579,7 +579,7 @@
           "source": "Simon Willison's Weblog",
           "thumbnail": null,
           "feedId": "aHR0cDovL3NpbW9ud2lsbGlzb24ubmV0Lw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-19T18:33:41+00:00",
           "updatedAt": "2025-12-19T18:33:41+00:00"
@@ -592,7 +592,7 @@
           "source": "Simon Willison's Weblog",
           "thumbnail": null,
           "feedId": "aHR0cDovL3NpbW9ud2lsbGlzb24ubmV0Lw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-19T05:21:17+00:00",
           "updatedAt": "2025-12-19T05:21:17+00:00"
@@ -625,7 +625,7 @@
           "source": "CSS-Tricks",
           "thumbnail": "https://i0.wp.com/css-tricks.com/wp-content/uploads/2025/12/pinterest-layout_y8vjhk.png?resize=1913%2C1463",
           "feedId": "aHR0cHM6Ly9jc3MtdHJpY2tzLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 16:08:28 +0000",
           "updatedAt": null
@@ -638,7 +638,7 @@
           "source": "CSS-Tricks",
           "thumbnail": "https://i0.wp.com/css-tricks.com/wp-content/uploads/2025/12/Screenshot-2025-12-17-at-11.38.48-AM.png?resize=1724%2C1172&#038;ssl=1",
           "feedId": "aHR0cHM6Ly9jc3MtdHJpY2tzLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 18 Dec 2025 15:34:23 +0000",
           "updatedAt": null
@@ -671,7 +671,7 @@
           "source": "High Scalability",
           "thumbnail": "https://highscalability.com/content/images/2024/05/pasted-image-0-2.png",
           "feedId": "aHR0cHM6Ly9oaWdoc2NhbGFiaWxpdHkuY29tL3Jzcy8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 09 May 2024 18:55:21 GMT",
           "updatedAt": null
@@ -684,7 +684,7 @@
           "source": "High Scalability",
           "thumbnail": "https://highscalability.com/content/images/2024/03/1-rSRWALA4XzOdDcn-5vv7Zw.gif",
           "feedId": "aHR0cHM6Ly9oaWdoc2NhbGFiaWxpdHkuY29tL3Jzcy8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Tue, 26 Mar 2024 15:32:38 GMT",
           "updatedAt": null
@@ -717,7 +717,7 @@
           "source": "RocksDB",
           "thumbnail": "/static/images/parallel-compression/ring-buffer-architecture.svg",
           "feedId": "aHR0cHM6Ly9yb2Nrc2RiLm9yZy9mZWVkLnhtbA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 08 Oct 2025 00:00:00 +0000",
           "updatedAt": null
@@ -730,7 +730,7 @@
           "source": "RocksDB",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9yb2Nrc2RiLm9yZy9mZWVkLnhtbA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 25 Sep 2025 00:00:00 +0000",
           "updatedAt": null
@@ -763,7 +763,7 @@
           "source": "Engineering | Uber Blog",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly93d3cudWJlci5jb20vZW4tVVMvYmxvZy9lbmdpbmVlcmluZy9yc3Mv",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-18 14:00:00",
           "updatedAt": null
@@ -776,7 +776,7 @@
           "source": "Engineering | Uber Blog",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly93d3cudWJlci5jb20vZW4tVVMvYmxvZy9lbmdpbmVlcmluZy9yc3Mv",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-16 14:00:00",
           "updatedAt": null
@@ -809,7 +809,7 @@
           "source": "strava-engineering - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/904/1*OZ80K_OVcAp8Opf195cqtw.png",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvc3RyYXZhLWVuZ2luZWVyaW5n",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 24 Jan 2025 18:02:11 GMT",
           "updatedAt": null
@@ -822,7 +822,7 @@
           "source": "strava-engineering - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*sTekNCekHeM10HHYK99Icg.jpeg",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvc3RyYXZhLWVuZ2luZWVyaW5n",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 18 Jan 2024 17:01:41 GMT",
           "updatedAt": null
@@ -855,7 +855,7 @@
           "source": "Stories by Pinterest Engineering on Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*ibgqQEssW3lmqg1Qsoq7uw.png",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvQFBpbnRlcmVzdF9FbmdpbmVlcmluZw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 10 Dec 2025 20:02:11 GMT",
           "updatedAt": null
@@ -868,7 +868,7 @@
           "source": "Stories by Pinterest Engineering on Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/738/1*NhUi6IO44OyZJSSlX8gSaQ.png",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvQFBpbnRlcmVzdF9FbmdpbmVlcmluZw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 08 Dec 2025 17:02:56 GMT",
           "updatedAt": null
@@ -901,7 +901,7 @@
           "source": "Netflix TechBlog - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*7sGhc8LhyqQlW9Uiq76TWQ.png",
           "feedId": "aHR0cHM6Ly9uZXRmbGl4dGVjaGJsb2cuY29tL2ZlZWQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 15 Dec 2025 23:51:59 GMT",
           "updatedAt": null
@@ -914,7 +914,7 @@
           "source": "Netflix TechBlog - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*44sJszKXEHZvSHnEQgYiiw.png",
           "feedId": "aHR0cHM6Ly9uZXRmbGl4dGVjaGJsb2cuY29tL2ZlZWQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 15 Dec 2025 17:38:16 GMT",
           "updatedAt": null
@@ -947,7 +947,7 @@
           "source": "Lyft Engineering - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*QWBsfrlv7BNM8sZwFAsTfQ.png",
           "feedId": "aHR0cHM6Ly9lbmcubHlmdC5jb20vZmVlZA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 15 Dec 2025 19:31:01 GMT",
           "updatedAt": null
@@ -960,7 +960,7 @@
           "source": "Lyft Engineering - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*-r1saxCbUiFJf47gTbTyXg.png",
           "feedId": "aHR0cHM6Ly9lbmcubHlmdC5jb20vZmVlZA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Tue, 18 Nov 2025 18:16:05 GMT",
           "updatedAt": null
@@ -993,7 +993,7 @@
           "source": "Grafana Labs blog on Grafana Labs",
           "thumbnail": "https://a-us.storyblok.com/f/1022730/800x600/75de30d1ec/can-data-architecture.png/m/",
           "feedId": "aHR0cHM6Ly9ncmFmYW5hLmNvbS9ibG9nL2luZGV4LnhtbA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 12 Dec 2025 00:00:00 +0000",
           "updatedAt": null
@@ -1006,7 +1006,7 @@
           "source": "Grafana Labs blog on Grafana Labs",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9ncmFmYW5hLmNvbS9ibG9nL2luZGV4LnhtbA",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 11 Dec 2025 00:00:00 +0000",
           "updatedAt": null
@@ -1039,7 +1039,7 @@
           "source": "Etsy Engineering | Code as Craft",
           "thumbnail": "https://i.etsystatic.com/inv/508bdd/7485804299/inv_fullxfull.7485804299_5dhtrbg7.jpg?version=0",
           "feedId": "aHR0cHM6Ly9jb2RlYXNjcmFmdC5jb20vZmVlZC8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Tue, 25 Nov 2025 11:28:26 -0500",
           "updatedAt": null
@@ -1052,7 +1052,7 @@
           "source": "Etsy Engineering | Code as Craft",
           "thumbnail": "https://i.etsystatic.com/inv/f69a53/7378031331/inv_fullxfull.7378031331_hfrpx3ex.jpg?version=0",
           "feedId": "aHR0cHM6Ly9jb2RlYXNjcmFmdC5jb20vZmVlZC8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 29 Oct 2025 13:14:09 -0400",
           "updatedAt": null
@@ -1085,7 +1085,7 @@
           "source": "Discord Blog",
           "thumbnail": "https://cdn.prod.website-files.com/5f9072399b2640f14d6a2bf4/63603f76620d3470d9bd3f1f_2022_EmojiSurvey_HEADER_2%20(1).png",
           "feedId": "aHR0cHM6Ly9kaXNjb3JkLmNvbS9ibG9nL3Jzcy54bWw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 12 Dec 2025 00:00:00 GMT",
           "updatedAt": null
@@ -1098,7 +1098,7 @@
           "source": "Discord Blog",
           "thumbnail": "https://cdn.prod.website-files.com/5f9072399b2640f14d6a2bf4/683a385e31ae16bd173ee8d9_image2.png",
           "feedId": "aHR0cHM6Ly9kaXNjb3JkLmNvbS9ibG9nL3Jzcy54bWw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 08 Dec 2025 00:00:00 GMT",
           "updatedAt": null
@@ -1131,7 +1131,7 @@
           "source": "AWS News Blog",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9hd3MuYW1hem9uLmNvbS9ibG9ncy9hd3MvZmVlZC8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 15 Dec 2025 16:42:05 +0000",
           "updatedAt": null
@@ -1144,7 +1144,7 @@
           "source": "AWS News Blog",
           "thumbnail": "https://d2908q01vomqb2.cloudfront.net/da4b9237bacccdf19c0760cab7aec4a8359010b0/2025/12/08/2025-news-nowgobuild-1.png",
           "feedId": "aHR0cHM6Ly9hd3MuYW1hem9uLmNvbS9ibG9ncy9hd3MvZmVlZC8",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Mon, 08 Dec 2025 17:05:29 +0000",
           "updatedAt": null
@@ -1177,7 +1177,7 @@
           "source": "Auth0 Blog",
           "thumbnail": "https://images.ctfassets.net/23aumh6u8s0i/7o34vTMAB9Hip3pa48DEYR/3062348c26a40199c1ebc0a847734d23/MCP_and_Auth0.jpg",
           "feedId": "aHR0cHM6Ly9hdXRoMC5jb20vYmxvZy9yc3MueG1s",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 00:00:00 GMT",
           "updatedAt": null
@@ -1190,7 +1190,7 @@
           "source": "Auth0 Blog",
           "thumbnail": "https://images.ctfassets.net/23aumh6u8s0i/1JJsVYc1hPjkP7zSaH0EF8/961afac75b2ce3699620596c08646227/hero.jpg",
           "feedId": "aHR0cHM6Ly9hdXRoMC5jb20vYmxvZy9yc3MueG1s",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 00:00:00 GMT",
           "updatedAt": null
@@ -1223,7 +1223,7 @@
           "source": "The Airbnb Tech Blog - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*wHF0IXmtHzIfzv-IZh_CKA.jpeg",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvYWlyYm5iLWVuZ2luZWVyaW5n",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 30 Oct 2025 17:01:54 GMT",
           "updatedAt": null
@@ -1236,7 +1236,7 @@
           "source": "The Airbnb Tech Blog - Medium",
           "thumbnail": "https://cdn-images-1.medium.com/max/1024/1*kBx_8QLd7El4TZ2nrouYUw.jpeg",
           "feedId": "aHR0cHM6Ly9tZWRpdW0uY29tL2ZlZWQvYWlyYm5iLWVuZ2luZWVyaW5n",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 09 Oct 2025 16:01:55 GMT",
           "updatedAt": null
@@ -1269,7 +1269,7 @@
           "source": "Crunchbase News",
           "thumbnail": "https://news.crunchbase.com/wp-content/uploads/Top_10_.jpeg",
           "feedId": "aHR0cHM6Ly9uZXdzLmNydW5jaGJhc2UuY29tL2ZlZWQv",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 19:28:33 +0000",
           "updatedAt": null
@@ -1282,7 +1282,7 @@
           "source": "Crunchbase News",
           "thumbnail": "https://news.crunchbase.com/wp-content/uploads/Unicorn-1.jpg",
           "feedId": "aHR0cHM6Ly9uZXdzLmNydW5jaGJhc2UuY29tL2ZlZWQv",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 12:00:28 +0000",
           "updatedAt": null
@@ -1315,7 +1315,7 @@
           "source": "The GitHub Blog",
           "thumbnail": "https://github.blog/wp-content/uploads/2025/12/image1_c8a727.png?resize=1024%2C320",
           "feedId": "aHR0cHM6Ly9naXRodWIuYmxvZy9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 12 Dec 2025 20:43:37 +0000",
           "updatedAt": null
@@ -1328,7 +1328,7 @@
           "source": "The GitHub Blog",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9naXRodWIuYmxvZy9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 11 Dec 2025 17:40:52 +0000",
           "updatedAt": null
@@ -1361,7 +1361,7 @@
           "source": "UX Movement",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly91eG1vdmVtZW50LmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 19 Mar 2025 15:27:48 +0000",
           "updatedAt": null
@@ -1374,7 +1374,7 @@
           "source": "UX Movement",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly91eG1vdmVtZW50LmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 19 Mar 2025 15:24:10 +0000",
           "updatedAt": null
@@ -1407,7 +1407,7 @@
           "source": "Martin Fowler",
           "thumbnail": "https://martinfowler.com/fragments/2025/gitanjali-mainframe.png",
           "feedId": "aHR0cHM6Ly9tYXJ0aW5mb3dsZXIuY29tL2ZlZWQuYXRvbQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-16T10:14:00-05:00",
           "updatedAt": "2025-12-16T10:14:00-05:00"
@@ -1420,7 +1420,7 @@
           "source": "Martin Fowler",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9tYXJ0aW5mb3dsZXIuY29tL2ZlZWQuYXRvbQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-16T10:06:00-05:00",
           "updatedAt": "2025-12-16T10:06:00-05:00"
@@ -1453,7 +1453,7 @@
           "source": "Google Developers Blog",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9kZXZlbG9wZXJzLmdvb2dsZWJsb2cuY29tL2ZlZWRzL3Bvc3RzL2RlZmF1bHQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": null,
           "updatedAt": null
@@ -1466,7 +1466,7 @@
           "source": "Google Developers Blog",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9kZXZlbG9wZXJzLmdvb2dsZWJsb2cuY29tL2ZlZWRzL3Bvc3RzL2RlZmF1bHQ",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": null,
           "updatedAt": null
@@ -1499,7 +1499,7 @@
           "source": "Android Developers Blog",
           "thumbnail": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjUMVg00srjTLgh0s2Qc3SgvVpuVUdpzG0jIKkSSI62wa_yafiPGNTskbi87cxNUdHLGRu4KdvO5j82H5gXahXPMGxqOlkad6Kz3b9XMGHNucy2cTCsMclNJf8X_J48BV3CImRg9XwrvnVwlegI1zeS4jl4U5ViJ5xRmqiiZYt-cKMJf6mi0rUDrEiosWc/s1600/Android_Evergreen_Blogger_Banner_AI_WebandApp.png",
           "feedId": "dGFnOmJsb2dnZXIuY29tLDE5OTk6YmxvZy02NzU1NzA5NjQzMDQ0OTQ3MTc5",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-19T14:00:00.000-08:00",
           "updatedAt": "2025-12-19T14:00:00.124-08:00"
@@ -1512,7 +1512,7 @@
           "source": "Android Developers Blog",
           "thumbnail": "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgFFPBX2aEy-BimBic-IaoVAZ7rxlSVic8wsgRsremTvpkH0fc2WlXx0GBj_fUFZYwnFTRiLjD6mYincdLsFxTE0fWoI-1WJxQYdaHXC00LSg48apySI-0oakfL9EI5IXDqUWivLBXzKQZXRuhCjMxCKMfOW8CLsu_KYcEpjXIKe-wLsF_uCfuPEni58Tc/s1600/Android%20adaptives%20festivity%2001-%20Meta.png",
           "feedId": "dGFnOmJsb2dnZXIuY29tLDE5OTk6YmxvZy02NzU1NzA5NjQzMDQ0OTQ3MTc5",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-19T09:00:00.000-08:00",
           "updatedAt": "2025-12-19T09:00:00.118-08:00"
@@ -1545,7 +1545,7 @@
           "source": "I Love Typography Ltd",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9mZWVkcy5mZWVkYnVybmVyLmNvbS9JTG92ZVR5cG9ncmFwaHk",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 04:00:44 +0000",
           "updatedAt": null
@@ -1558,7 +1558,7 @@
           "source": "I Love Typography Ltd",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly9mZWVkcy5mZWVkYnVybmVyLmNvbS9JTG92ZVR5cG9ncmFwaHk",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 03 Dec 2025 04:00:40 +0000",
           "updatedAt": null
@@ -1591,7 +1591,7 @@
           "source": "MIT News - Computer Science and Artificial Intelligence Laboratory (CSAIL)",
           "thumbnail": "https://news.mit.edu/sites/default/files/styles/news_article__cover_image__original/public/images/202512/mit-csail-Untrainable-networks.jpg?itok=_xsMAwVf",
           "feedId": "aHR0cHM6Ly93ZWIubWl0LmVkdS9uZXdzb2ZmaWNlL3RvcGljL21pdGNvbXB1dGVycy1yc3MueG1s",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 18 Dec 2025 16:20:00 -0500",
           "updatedAt": null
@@ -1604,7 +1604,7 @@
           "source": "MIT News - Computer Science and Artificial Intelligence Laboratory (CSAIL)",
           "thumbnail": "https://news.mit.edu/sites/default/files/styles/news_article__cover_image__original/public/images/202512/mit-watson-cats-in-a-box.jpg?itok=ytH_wQHS",
           "feedId": "aHR0cHM6Ly93ZWIubWl0LmVkdS9uZXdzb2ZmaWNlL3RvcGljL21pdGNvbXB1dGVycy1yc3MueG1s",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Wed, 17 Dec 2025 23:10:00 -0500",
           "updatedAt": null
@@ -1637,7 +1637,7 @@
           "source": "The Next Web",
           "thumbnail": "https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FTNW-new-Editor-in-Chief.png&signature=ace3fe9752016fc238ce587e6d510da3",
           "feedId": "aHR0cHM6Ly90aGVuZXh0d2ViLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Tue, 16 Dec 2025 20:31:00 +0000",
           "updatedAt": null
@@ -1650,7 +1650,7 @@
           "source": "The Next Web",
           "thumbnail": "https://img-cdn.tnwcdn.com/image?fit=796%2C417&url=https%3A%2F%2Fcdn0.tnwcdn.com%2Fwp-content%2Fblogs.dir%2F1%2Ffiles%2F2025%2F12%2FChatGPTs-New-Shopping-Research.png&signature=2eeed9ea07926978f9ba07860cb02621",
           "feedId": "aHR0cHM6Ly90aGVuZXh0d2ViLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Thu, 11 Dec 2025 22:37:55 +0000",
           "updatedAt": null
@@ -1683,7 +1683,7 @@
           "source": "TechCrunch",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly90ZWNoY3J1bmNoLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 22:13:34 +0000",
           "updatedAt": null
@@ -1696,7 +1696,7 @@
           "source": "TechCrunch",
           "thumbnail": null,
           "feedId": "aHR0cHM6Ly90ZWNoY3J1bmNoLmNvbS9mZWVkLw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "Fri, 19 Dec 2025 22:00:00 +0000",
           "updatedAt": null
@@ -1729,7 +1729,7 @@
           "source": "The Verge",
           "thumbnail": "https://platform.theverge.com/wp-content/uploads/sites/2/chorus/uploads/chorus_asset/file/22461382/vpavic_4547_20210421_0058.jpg?quality=90&#038;strip=all&#038;crop=0,0,100,100",
           "feedId": "aHR0cHM6Ly93d3cudGhldmVyZ2UuY29tL3Jzcy9pbmRleC54bWw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-19T16:48:09-05:00",
           "updatedAt": "2025-12-19T16:48:50-05:00"
@@ -1742,7 +1742,7 @@
           "source": "The Verge",
           "thumbnail": "https://platform.theverge.com/wp-content/uploads/sites/2/2025/09/STK414_AI_CVIRGINIA_I__0011_9.png?quality=90&#038;strip=all&#038;crop=0,0,100,100",
           "feedId": "aHR0cHM6Ly93d3cudGhldmVyZ2UuY29tL3Jzcy9pbmRleC54bWw",
-          "seen": false,
+          "read": false,
           "saved": false,
           "publishedAt": "2025-12-19T16:28:08-05:00",
           "updatedAt": "2025-12-19T16:28:08-05:00"

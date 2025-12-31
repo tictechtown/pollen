@@ -4,6 +4,7 @@ import { create } from 'zustand'
 type FiltersState = {
   selectedFeedId?: string
   selectedFeedTitle?: string
+  showUnreadOnly: boolean
   setFeedFilter: (feedId?: string, title?: string) => void
   clear: () => void
 }
@@ -11,7 +12,7 @@ type FiltersState = {
 export const useFiltersStore = create<FiltersState>((set) => ({
   selectedFeedId: undefined,
   selectedFeedTitle: undefined,
-  showUnseenOnly: false,
+  showUnreadOnly: false,
   setFeedFilter: (selectedFeedId, selectedFeedTitle) => set({ selectedFeedId, selectedFeedTitle }),
   clear: () =>
     set({

@@ -170,7 +170,7 @@ describe('fetchFeed', () => {
     source: string | null
     thumbnail: string | null
     feedId: string | null
-    seen: boolean | null
+    read: boolean | null
     saved: boolean | null
     publishedAt: string | null
     updatedAt: string | null
@@ -212,7 +212,7 @@ describe('fetchFeed', () => {
     source: article?.source ?? null,
     thumbnail: article?.thumbnail ?? null,
     feedId: article?.feedId ?? null,
-    seen: article?.seen ?? null,
+    read: article?.read ?? null,
     saved: article?.saved ?? null,
     publishedAt: article?.publishedAt ?? null,
     updatedAt: article?.updatedAt ?? null,

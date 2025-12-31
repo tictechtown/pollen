@@ -3,8 +3,8 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 # Version 1.0.1
 
 - Update TabBar from expo-router to use Material Design You size/behavior.
-- Persist seen status for articles
-- Add a FAB action to mark all articles as seen
+- Persist read status for articles
+- Add a FAB action to mark all articles as read
 
 # Version 1.0.2
 
@@ -20,8 +20,8 @@ For any new UI elements, try to use Material You or Material You Expressive elem
   - There's an FAB Add button to add a new entry. A textInput appears and the user can enter a feed url.
   - The `Sources` chip updates to display: `Sources: <feed>`
 
-- Clicking on `Seen`:
-  - Display only entries not seen yet
+- Clicking on `Read`:
+  - Display only entries not read yet
 - Remove `Saved` chip
 
 # Version 1.0.3
@@ -40,11 +40,11 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Redo sources page. Take a look at the image https://raw.githubusercontent.com/ReadYouApp/ReadYou/main/fastlane/metadata/android/en-US/images/phoneScreenshots/feeds.png for inspiration
 - Webview: add bottom padding
 - Article header, redo actions so it's a Toggle Button Group
-- I don't think the list of seen articles is persisted
+- I don't think the list of read articles is persisted
 - Some images are not loading in Reader mode
 - Font seems different in Reader mode vs Regular mode
 - Fix issue with MIT News always being at the top
-- Seen button doesn't change icon when toggled
+- Read button doesn't change icon when toggled
 - Add more tests to reader mode
 
 # Version 1.0.6
@@ -64,7 +64,7 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 # Version 1.0.9
 
 - Clean up + tests
-- By default, make sure all articles from more than 6 month ago are seen
+- By default, make sure all articles from more than 6 month ago are read
 - Don't load all the data from the DB, just load the last 200 items + fetch 100 whenever you reach the limit
 - "All sources" chip should have a caret down
 - Share sheet
@@ -92,14 +92,17 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 
 # Version 1.0.13
 
+- Rename status field to `read`
+- When fetching feeds, look at headers to figure out minimum time before next fetch
+- Default theme should be green-based
 - Add ability to create/manage folders for feeds
 - Export to OPML
 - Add a FAB to add a lone link
 - Update tab icons to be outlined/fill for default/selected
-- Why Mark As seen is disabled when there are clearly other items visible
-- Rename seen to read
+- Why Mark As read is disabled when there are clearly other items visible
 - Revise navigation when going to source. Should come from the left:
   - Maybe the navigation stack should be: [souces, tabs, share | article | settings], with the first route being tabs
+- Redo data structure and fetch logic
 
 # Version 1.1.0
 

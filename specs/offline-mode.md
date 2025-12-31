@@ -1,19 +1,19 @@
-# Offline mode state (SQLite + decoupled seen list)
+# Offline mode state (SQLite + decoupled read list)
 
 ## Goals
 
 - Persist feeds/articles offline in SQLite (no truncation).
 - Filter by `feedId` and sort articles by published/updated timestamp desc.
-- Track seen/unseen and starred state in SQLite via `article_statuses`.
+- Track read/unread and starred state in SQLite via `article_statuses`.
 - Keep refresh-by-feed behavior (single feed refresh when selected).
 
 ## Current state
 
 - Articles and feeds are persisted in SQLite via `expo-sqlite` (`services/database.ts`).
 - Zustand stores (`store/articles.ts`, `store/feeds.ts`) are in-memory caches hydrated from SQLite on boot and after refresh.
-- Filtering lives in `store/filters.ts` (selected feed, unseen-only) and is applied in `hooks/useArticles.ts`.
+- Filtering lives in `store/filters.ts` (selected feed, unread-only) and is applied in `hooks/useArticles.ts`.
 - Refresh pulls XML via `fetchFeed`, builds `Article` objects with `feedId`, and upserts into SQLite.
-- Seen and starred state are stored in SQLite (`article_statuses`).
+- Read and starred state are stored in SQLite (`article_statuses`).
 
 ## Design options
 
@@ -66,7 +66,7 @@
 
 - Base query: `SELECT * FROM articles ORDER BY sortTimestamp DESC, createdAt DESC`.
 - Filter by feed: add `WHERE feedId = ?`.
-- Seen filter uses `article_statuses.read = 0` (join when needed).
+- Unread filter uses `article_statuses.read = 0` (join when needed).
 - Starred (bookmarked) filter uses `article_statuses.starred = 1`.
 
 ## Refresh/upsert flow
@@ -82,7 +82,7 @@
 
 - Stored in SQLite as `article_statuses.read` and `article_statuses.starred`.
 - When an article is opened, set `read = 1`, update `lastReadAt`, and bump `updatedAt`.
-- "Mark all seen" sets `read = 1` and updates timestamps for the current result set.
+- "Mark all read" sets `read = 1` and updates timestamps for the current result set.
 - Star/unstar toggles `starred` and bumps `updatedAt`.
 
 ## Migration path
