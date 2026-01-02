@@ -73,7 +73,7 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
   const parsedFeeds = parseOpml(opmlXml)
 
   const results = await mapWithConcurrency(parsedFeeds, CONCURRENT_FEED_FETCHES, (feed) =>
-    fetchFeed(feed.xmlUrl, {
+    fetchFeed(feed.id, feed.xmlUrl, {
       cutoffTs: 0,
       metadataBudget: { remaining: 200 },
     }),
@@ -94,9 +94,6 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
     feedsForUpsert.push({
       ...feed,
       lastPublishedTs: maxTsFromFresh || undefined,
-      lastPublishedAt: maxTsFromFresh
-        ? new Date(maxTsFromFresh).toISOString()
-        : feed.lastPublishedAt ?? undefined,
     })
 
     if (fetchedArticles.length) {
@@ -145,14 +142,14 @@ const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<Refre
 
   const lastPublishedByFeed = new Map<string, number>()
   eligibleFeeds.forEach((feed) => {
-    const ts = feed.lastPublishedTs ?? toTimestamp(feed.lastPublishedAt)
+    const ts = feed.lastPublishedTs ?? 0
     if (ts) {
       lastPublishedByFeed.set(feed.id, ts)
     }
   })
 
   const results = await mapWithConcurrency(eligibleFeeds, CONCURRENT_FEED_FETCHES, (feed) =>
-    fetchFeed(feed.xmlUrl, {
+    fetchFeed(feed.id, feed.xmlUrl, {
       cutoffTs: lastPublishedByFeed.get(feed.id) ?? 0,
       metadataBudget,
       cache: {
@@ -172,11 +169,16 @@ const doRefreshFeedsAndArticles = async (options: RefreshOptions): Promise<Refre
       return
     }
     const { feed, articles: fetchedArticles } = result.value
+    const maxTsFromFresh = fetchedArticles.reduce(
+      (max, article) => Math.max(max, articleTimestamp(article)),
+      0,
+    )
+    const existingTs = eligibleFeeds[index].lastPublishedTs ?? 0
+    const mergedLastPublishedTs = Math.max(existingTs, maxTsFromFresh)
 
     feedsForUpsert.push({
       ...feed,
-      lastPublishedTs: feed.lastPublishedAt ? toTimestamp(feed.lastPublishedAt) : undefined,
-      lastPublishedAt: feed.lastPublishedAt ?? undefined,
+      lastPublishedTs: mergedLastPublishedTs || undefined,
     })
 
     if (fetchedArticles.length) {

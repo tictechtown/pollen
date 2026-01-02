@@ -28,21 +28,19 @@ export const upsertFeeds = async (feeds: Feed[]) => {
           description,
           image,
           lastUpdated,
-          lastPublishedAt,
           lastPublishedTs,
           expiresTS,
           expires,
           ETag,
           lastModified
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           title=excluded.title,
           xmlUrl=excluded.xmlUrl,
           description=excluded.description,
           image=excluded.image,
           lastUpdated=excluded.lastUpdated,
-          lastPublishedAt=COALESCE(excluded.lastPublishedAt, feeds.lastPublishedAt),
           lastPublishedTs=COALESCE(excluded.lastPublishedTs, feeds.lastPublishedTs),
           expiresTS=COALESCE(excluded.expiresTS, feeds.expiresTS),
           expires=COALESCE(excluded.expires, feeds.expires),
@@ -57,7 +55,6 @@ export const upsertFeeds = async (feeds: Feed[]) => {
             feed.description ?? null,
             feed.image ?? null,
             feed.lastUpdated ?? null,
-            feed.lastPublishedAt ?? null,
             feed.lastPublishedTs ?? null,
             feed.expiresTS ?? null,
             feed.expires ?? null,

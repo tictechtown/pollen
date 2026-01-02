@@ -3,7 +3,7 @@ import { XMLParser } from 'fast-xml-parser'
 import he from 'he'
 
 import { Feed } from '@/types'
-import { encodeBase64 } from './rssClient'
+import { generateUUID } from './uuid-generator'
 
 const parser = new XMLParser({
   ignoreAttributes: false,
@@ -15,15 +15,6 @@ type OpmlDocument = {
     body?: {
       outline?: OutlineNode | OutlineNode[]
     }
-  }
-}
-
-export const isOpmlXml = (xml: string): boolean => {
-  try {
-    const parsed = parser.parse(xml) as OpmlDocument
-    return Boolean(parsed.opml)
-  } catch {
-    return false
   }
 }
 
@@ -53,7 +44,7 @@ const collectFeeds = (node?: OutlineNode | OutlineNode[]): Feed[] => {
   return outlines.flatMap((outline) => {
     const feeds: Feed[] = []
     if (outline.type === 'rss' && outline.xmlUrl) {
-      const feedId = encodeBase64(outline.xmlUrl) ?? outline.xmlUrl
+      const feedId = generateUUID()
       feeds.push({
         id: feedId,
         xmlUrl: outline.xmlUrl,
@@ -68,6 +59,15 @@ const collectFeeds = (node?: OutlineNode | OutlineNode[]): Feed[] => {
 
     return feeds
   })
+}
+
+export const isOpmlXml = (xml: string): boolean => {
+  try {
+    const parsed = parser.parse(xml) as OpmlDocument
+    return Boolean(parsed.opml)
+  } catch {
+    return false
+  }
 }
 
 export const parseOpml = (opml: string): Feed[] => {

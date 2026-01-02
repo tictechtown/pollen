@@ -65,7 +65,6 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
     CREATE INDEX IF NOT EXISTS idx_article_statuses_starred ON article_statuses(starred);
   `)
 
-  await ensureColumn(db, 'feeds', 'lastPublishedAt', 'TEXT')
   await ensureColumn(db, 'feeds', 'lastPublishedTs', 'INTEGER')
   await ensureColumn(db, 'feeds', 'expiresTS', 'INTEGER')
   await ensureColumn(db, 'feeds', 'expires', 'TEXT')

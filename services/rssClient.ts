@@ -492,6 +492,7 @@ const extractHTMLLink = (links: AtomFeed['feed']['link'] | undefined): string | 
 
 // RFC: https://www.ietf.org/rfc/rfc4287.txt
 const parseAtomFeed = async (
+  feedId: string,
   url: string,
   atomFeed: AtomFeed,
   cutoffTs = 0,
@@ -505,10 +506,8 @@ const parseAtomFeed = async (
     return ts > cutoffTs
   })
 
-  const feedIdSource = getText(channel?.id) ?? url
-
   const feed: Feed = {
-    id: encodeBase64(feedIdSource) ?? feedIdSource,
+    id: feedId,
     title: decodeString(getText(channel?.title)) ?? 'RSS Feed',
     xmlUrl: url,
     htmlUrl: extractHTMLLink(channel.link),
@@ -554,7 +553,9 @@ const parseAtomFeed = async (
   return { feed, articles: dedupeById(articles) }
 }
 
+// Specs: https://www.rssboard.org/rss-specification
 const parseRssFeed = async (
+  feedId: string,
   url: string,
   rssFeed: RssFeed,
   cutoffTs = 0,
@@ -566,10 +567,9 @@ const parseRssFeed = async (
     const ts = toTimestamp(item.pubDate)
     return ts > cutoffTs
   })
-  const feedIdSource = url
   const htmlUrl = getLink(channel?.link)
   const feed: Feed = {
-    id: encodeBase64(feedIdSource) ?? feedIdSource,
+    id: feedId,
     title: decodeString(getText(channel?.title)) ?? 'RSS Feed',
     xmlUrl: url,
     htmlUrl: htmlUrl ?? undefined,
@@ -625,6 +625,7 @@ type FetchOptions = {
 }
 
 export const fetchFeed = async (
+  feedId: string,
   url: string,
   options: FetchOptions = {},
 ): Promise<{ feed: Feed; articles: Article[] }> => {
@@ -676,10 +677,10 @@ export const fetchFeed = async (
   const parsed: FetchedFeed = parser.parse(xml)
 
   if ('feed' in parsed) {
-    const result = await parseAtomFeed(url, parsed, cutoffTs, metadataBudget)
+    const result = await parseAtomFeed(feedId, url, parsed, cutoffTs, metadataBudget)
     return { ...result, feed: mergeCacheMetadata(result.feed, cacheMetadata) }
   } else {
-    const result = await parseRssFeed(url, parsed, cutoffTs, metadataBudget)
+    const result = await parseRssFeed(feedId, url, parsed, cutoffTs, metadataBudget)
     return { ...result, feed: mergeCacheMetadata(result.feed, cacheMetadata) }
   }
 }

@@ -22,6 +22,7 @@ import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
 import { fetchFeed } from '@/services/rssClient'
+import { generateUUID } from '@/services/uuid-generator'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
@@ -94,7 +95,8 @@ export default function SourcesScreen() {
   }
 
   const addFeedByUrl = async (url: string) => {
-    const { feed, articles } = await fetchFeed(url, {
+    const feedId = String(generateUUID())
+    const { feed, articles } = await fetchFeed(feedId, url, {
       cutoffTs: 0,
     })
     await upsertFeeds([feed])

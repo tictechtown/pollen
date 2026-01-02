@@ -36,7 +36,6 @@
   - `description` TEXT
   - `image` TEXT
   - `lastUpdated` TEXT
-  - `lastPublishedAt` TEXT
   - `lastPublishedTs` INTEGER
   - `createdAt` INTEGER DEFAULT (strftime('%s','now'))
 - `articles`

@@ -22,11 +22,9 @@ describe('fetchPageMetadata', () => {
   })
 
   it('parses og metadata when present', async () => {
-    const headResponse = {
-      ok: true,
-      headers: { get: () => 'text/html' },
-    }
     const htmlResponse = {
+      status: 200,
+      ok: true,
       text: async () => `
         <html>
           <head>
@@ -41,9 +39,7 @@ describe('fetchPageMetadata', () => {
       `,
     }
 
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(headResponse as any)
-      .mockResolvedValueOnce(htmlResponse as any)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(htmlResponse as any)
 
     const metadata = await fetchPageMetadata('https://example.com/article')
 
@@ -57,11 +53,9 @@ describe('fetchPageMetadata', () => {
   })
 
   it('prefers json-ld metadata over og', async () => {
-    const headResponse = {
-      ok: true,
-      headers: { get: () => 'text/html' },
-    }
     const htmlResponse = {
+      ok: true,
+      status: 200,
       text: async () => `
         <html>
           <head>
@@ -84,9 +78,7 @@ describe('fetchPageMetadata', () => {
       `,
     }
 
-    vi.spyOn(globalThis, 'fetch')
-      .mockResolvedValueOnce(headResponse as any)
-      .mockResolvedValueOnce(htmlResponse as any)
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(htmlResponse as any)
 
     const metadata = await fetchPageMetadata('https://example.com/article')
 
@@ -141,7 +133,6 @@ describe('fetchFeed', () => {
     image: string | null
     description: string | null
     lastUpdated: string | null
-    lastPublishedAt: string | null
   }
 
   type ExpectedArticle = {
@@ -183,7 +174,6 @@ describe('fetchFeed', () => {
     image: feed?.image ?? null,
     description: feed?.description ?? null,
     lastUpdated: feed?.lastUpdated ?? null,
-    lastPublishedAt: feed?.lastPublishedAt ?? null,
   })
 
   const normalizeArticle = (article: any): ExpectedArticle => ({
@@ -207,15 +197,21 @@ describe('fetchFeed', () => {
     vi.spyOn(console, 'log').mockImplementation(() => {})
 
     const fetchMock = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      status: 200,
       text: async () => xml,
     } as any)
 
-    const { feed, articles } = await fetchFeed(entry.url, { metadataBudget: { remaining: 0 } })
+    const { feed, articles } = await fetchFeed(entry.expectedFeed.id!, entry.url, {
+      metadataBudget: { remaining: 0 },
+    })
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(fetchMock).toHaveBeenCalledWith(entry.url)
+    expect(fetchMock).toHaveBeenCalledWith(entry.url, { headers: new Headers() })
 
-    expect(normalizeFeed(feed)).toEqual(entry.expectedFeed)
+    // Legacy fixtures may include `lastPublishedAt`, but we no longer track it.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { lastPublishedAt: _ignored, ...expectedFeed } = entry.expectedFeed as any
+    expect(normalizeFeed(feed)).toEqual(expectedFeed)
     expect(articles.length).toEqual(entry.expectedArticleCount)
 
     const expectedArticles = entry.expectedArticles ?? []

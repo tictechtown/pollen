@@ -1,7 +1,6 @@
 // Tests for OPML parsing helpers.
 import { describe, expect, it } from 'vitest'
 
-import { encodeBase64 } from './rssClient'
 import { parseOpml } from './opml'
 
 describe('parseOpml', () => {
@@ -18,6 +17,5 @@ describe('parseOpml', () => {
 
     expect(feeds).toHaveLength(1)
     expect(feeds[0].xmlUrl).toBe(url)
-    expect(feeds[0].id).toBe(encodeBase64(url))
   })
 })

@@ -5,9 +5,10 @@ import { Appbar, Button, Card, Snackbar, Text } from 'react-native-paper'
 
 import { upsertArticles } from '@/services/articles-db'
 import { upsertFeeds } from '@/services/feeds-db'
+import { fetchFeed } from '@/services/rssClient'
 import { saveArticleForLater } from '@/services/save-for-later'
-import { encodeBase64, fetchFeed } from '@/services/rssClient'
 import { normalizeUrl } from '@/services/urls'
+import { generateUUID } from '@/services/uuid-generator'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 
@@ -48,8 +49,8 @@ export default function ShareScreen() {
       setSnackbar('Invalid URL')
       return
     }
-    const feedId = encodeBase64(normalizedUrl) ?? normalizedUrl
-    const existing = feeds.find((feed) => feed.id === feedId)
+    const feedId = generateUUID()
+    const existing = feeds.find((feed) => feed.xmlUrl === normalizedUrl)
     if (existing) {
       setSnackbar('Feed already added')
       return
@@ -57,7 +58,7 @@ export default function ShareScreen() {
 
     setSubmitting('feed')
     try {
-      const { feed, articles: fetchedArticles } = await fetchFeed(normalizedUrl)
+      const { feed, articles: fetchedArticles } = await fetchFeed(feedId, normalizedUrl)
       await upsertFeeds([feed])
       const deduped = dedupeById(fetchedArticles)
       if (deduped.length) {

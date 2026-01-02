@@ -95,11 +95,30 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Rename status field to `read`
 - When fetching feeds, look at headers to figure out minimum time before next fetch
 - Default theme should be green-based
-
 - If metadata already parsed, don't try to get it again
-- If feed has an issue (5xx or 4xx) -> display it to the user
-- Add ability to create/manage folders for feeds
+- Add some docs around the different Feed/Article fields
+- Check uniqueness generation from AtomFeed and RSSFeed. It's not stable at the moment. -> Use UUID for Feed id ahead of time
+
+# Version 1.0.14
+
+- If img has a "title", surround it with `<figure> <img .../> <figcaption>...</figcaption> </figure>`
+- Support Youtube feeds
+  - Uses `media` attributes
+- Implement each user journey
+  [] new-user-manual
+  [] new-user-opml
+  [] recurring-user
+  [] recurring-user-export-opml
+  [] recurring-user-organize-feed
+  [] recurring-user-share-feed
+  [] recurring-user-share-saved
+
+- Debug, using adb, why certain feeds are unreachable
 - Export to OPML
+- Add ability to create/manage folders for feeds
+- If post has an updated date, don't change it's published date?
+- If feed has an issue (5xx or 4xx) -> display it to the user
+
 - Add a FAB to add a lone link
 - Update tab icons to be outlined/fill for default/selected
 - Why Mark As read is disabled when there are clearly other items visible
@@ -112,5 +131,4 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Check performance
   - probably swipable is not performant
   - Selecting one feed is slow
-- Check uniqueness generation from AtomFeed and RSSFeed. It's not stable at the moment
 - Review Database schema - make sure all non-nullable fields are correctly marked
