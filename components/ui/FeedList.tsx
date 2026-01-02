@@ -110,18 +110,26 @@ export default function FeedList(props: Props) {
             <Button
               mode="contained"
               onPress={() => {
-                router.push(`/sources`)
+                if (props.unreadOnly) {
+                  router.push('/(tabs)')
+                } else {
+                  router.push(`/sources`)
+                }
               }}
             >
-              Add new Feed
+              {props.unreadOnly ? 'Show all' : 'Add new Feed'}
             </Button>
             <Button
               mode="contained-tonal"
               onPress={() => {
-                router.push(`/sources`)
+                if (props.unreadOnly) {
+                  refresh()
+                } else {
+                  router.push(`/sources`)
+                }
               }}
             >
-              Import OPML
+              {props.unreadOnly ? 'Refresh' : 'Import OPML'}
             </Button>
           </Card>
         }
