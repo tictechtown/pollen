@@ -50,8 +50,8 @@ export default function SourceListItem({
 }: SourceListItemProps) {
   const { colors } = useTheme()
   const swipeableRef = useRef<SwipeableMethods | null>(null)
-  const cornerRadius = isSelected ? 16 : 4
-  const edgeRadius = isSelected ? 22 : 16
+  const cornerRadius = isSelected ? 36 : 4
+  const edgeRadius = isSelected ? 36 : 16
 
   const containerStyle = [
     styles.segmentItem,

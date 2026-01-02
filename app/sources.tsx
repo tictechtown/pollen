@@ -1,3 +1,11 @@
+/**
+ * Source management screen
+ * User can
+ * - see all the feed sources
+ * - remove them by swiping left
+ * - add a new Feed using the FAB
+ * - (TODO) organize feed per folder
+ */
 import { useRouter } from 'expo-router'
 import he from 'he'
 import { useMemo, useRef, useState } from 'react'
@@ -22,6 +30,7 @@ import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
 import { fetchFeed } from '@/services/rssClient'
+import { normalizeUrl } from '@/services/urls'
 import { generateUUID } from '@/services/uuid-generator'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
@@ -99,10 +108,21 @@ export default function SourcesScreen() {
     const { feed, articles } = await fetchFeed(feedId, url, {
       cutoffTs: 0,
     })
-    await upsertFeeds([feed])
+    try {
+      await upsertFeeds([feed])
+    } catch (e) {
+      console.log('[upserFeeds]', e)
+      if ((e as Error).message.includes('UNIQUE constraint failed: feeds.xmlUrl')) {
+        setSnackbar('Feed already exists')
+      } else {
+        setSnackbar('Error adding feed.')
+      }
+      return false
+    }
     await upsertArticles(articles)
     addFeed(feed)
     setFeedFilter(feed.id, feed.title)
+    return true
   }
 
   const withSubmitting = async (action: () => Promise<void>) => {
@@ -116,7 +136,7 @@ export default function SourcesScreen() {
   }
 
   const handleAdd = async () => {
-    const trimmedUrl = feedUrl.trim()
+    const trimmedUrl = normalizeUrl(feedUrl)
     if (!trimmedUrl) {
       setSnackbar('Enter a feed URL')
       return
@@ -125,13 +145,15 @@ export default function SourcesScreen() {
       try {
         const { directUrl, candidates } = await discoverFeedUrls(trimmedUrl)
         if (directUrl) {
-          await addFeedByUrl(directUrl)
-          finalizeAdd()
+          if (await addFeedByUrl(directUrl)) {
+            finalizeAdd()
+          }
           return
         }
         if (candidates.length === 1) {
-          await addFeedByUrl(candidates[0].url)
-          finalizeAdd()
+          if (await addFeedByUrl(candidates[0].url)) {
+            finalizeAdd()
+          }
           return
         }
         if (candidates.length > 1) {
@@ -211,7 +233,6 @@ export default function SourcesScreen() {
             <TextInput
               mode="outlined"
               label="Feed URL"
-              placeholder="https://example.com/rss"
               value={feedUrl}
               onChangeText={(value) => {
                 setFeedUrl(value)
@@ -245,6 +266,7 @@ export default function SourcesScreen() {
             <Button
               onPress={() => {
                 setAddVisible(false)
+                setFeedUrl('')
                 setFeedCandidates([])
               }}
               disabled={submitting}
@@ -252,7 +274,7 @@ export default function SourcesScreen() {
               Cancel
             </Button>
             {feedCandidates.length > 1 ? null : (
-              <Button onPress={handleAdd} loading={submitting}>
+              <Button onPress={handleAdd} loading={submitting} disabled={feedUrl.length === 0}>
                 Add
               </Button>
             )}
@@ -293,6 +315,6 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 16,
-    bottom: 24,
+    bottom: 64,
   },
 })

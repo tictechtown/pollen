@@ -43,6 +43,12 @@ persona: 'First-time user who already has an RSS feed URL'
 | ---- | ------------------ | ---------------------------- | --------- | ----------------------------- |
 | 1    | Submit invalid URL | Show inline error + guidance | Add feed  | Suggest examples, allow retry |
 
+### A2: URL already exists
+
+| Step | User intent/action   | System behavior              | UI/screen | Notes                                 |
+| ---- | -------------------- | ---------------------------- | --------- | ------------------------------------- |
+| 1    | Submit duplicate URL | Show inline error + guidance | Add feed  | Display the name of the existing feed |
+
 ## Error Handling
 
 - **No connectivity:** Keep user on Add feed, show retry; don’t create a broken subscription.

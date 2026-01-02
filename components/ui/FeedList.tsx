@@ -8,7 +8,16 @@ import {
   StyleSheet,
   View,
 } from 'react-native'
-import { AnimatedFAB, Appbar, Banner, Divider, Text, useTheme } from 'react-native-paper'
+import {
+  AnimatedFAB,
+  Appbar,
+  Banner,
+  Button,
+  Card,
+  Divider,
+  Text,
+  useTheme,
+} from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
 import { useArticles } from '@/hooks/useArticles'
@@ -91,11 +100,22 @@ export default function FeedList(props: Props) {
         onEndReachedThreshold={0.6}
         renderItem={renderItem}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text variant="bodyLarge" style={{ color: colors.onSurfaceVariant }}>
-              {props.unreadOnly ? 'All caught up' : 'No articles yet. Pull to refresh.'}
-            </Text>
-          </View>
+          <Card
+            contentStyle={{ gap: 12 }}
+            style={{ marginInline: 16, paddingInline: 16, paddingBottom: 16 }}
+          >
+            <Card.Content>
+              <Text>{props.unreadOnly ? 'All caught up' : 'No Feed yet'}</Text>
+            </Card.Content>
+            <Button
+              mode="contained"
+              onPress={() => {
+                router.push(`/sources`)
+              }}
+            >
+              Add new Feed
+            </Button>
+          </Card>
         }
       />
 
@@ -119,11 +139,7 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
     gap: 12,
   },
-  empty: {
-    padding: 24,
-    alignItems: 'center',
-    gap: 12,
-  },
+  empty: {},
   fab: {
     position: 'absolute',
     right: 16,

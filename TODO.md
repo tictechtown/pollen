@@ -117,7 +117,7 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Export to OPML
 - Add ability to create/manage folders for feeds
 - If post has an updated date, don't change it's published date?
-- If feed has an issue (5xx or 4xx) -> display it to the user
+- If feed has an issue (5xx or 4xx) -> display it to the user in sources
 
 - Add a FAB to add a lone link
 - Update tab icons to be outlined/fill for default/selected

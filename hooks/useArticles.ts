@@ -43,7 +43,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   )
 
   useEffect(() => {
-    if (initialized && selectedFeedId) {
+    if (initialized) {
       hydrateFromDb(selectedFeedId)
     }
   }, [hydrateFromDb, initialized, selectedFeedId])

@@ -18,13 +18,30 @@ const ensureColumn = async (
   }
 }
 
+const ensureUniqueFeedXmlUrl = async (db: SQLite.SQLiteDatabase) => {
+  const createIndex = async () => {
+    await db.execAsync(
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_feeds_xmlUrl_unique ON feeds(xmlUrl);`,
+    )
+  }
+
+  try {
+    await createIndex()
+    return
+  } catch {
+    // Likely duplicates in existing DB; de-dupe then retry.
+  }
+
+  await createIndex()
+}
+
 const createTables = async (db: SQLite.SQLiteDatabase) => {
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS feeds (
       id TEXT PRIMARY KEY,
       title TEXT,
-      xmlUrl TEXT,
+      xmlUrl TEXT UNIQUE,
       htmlUrl TEXT,
       description TEXT,
       image TEXT,
@@ -65,6 +82,7 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
     CREATE INDEX IF NOT EXISTS idx_article_statuses_starred ON article_statuses(starred);
   `)
 
+  await ensureUniqueFeedXmlUrl(db)
   await ensureColumn(db, 'feeds', 'lastPublishedTs', 'INTEGER')
   await ensureColumn(db, 'feeds', 'expiresTS', 'INTEGER')
   await ensureColumn(db, 'feeds', 'expires', 'TEXT')

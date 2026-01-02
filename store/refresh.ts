@@ -90,7 +90,6 @@ export const useRefreshStore = create<RefreshState>()(
           set({
             status: hasFeeds ? 'idle' : 'error',
             lastRefreshAt: Date.now(),
-            lastError: hasFeeds ? null : 'No feeds available',
             blockedUntilManual: false,
           })
           if (context.reason !== 'background') {
