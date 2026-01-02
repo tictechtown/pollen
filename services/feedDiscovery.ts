@@ -3,6 +3,7 @@
 type FeedCandidate = {
   url: string
   title?: string
+  kind: 'rss' | 'atom' | 'unknown'
 }
 
 const FEED_MIME_TYPES = new Set([
@@ -16,6 +17,19 @@ const normalizeMimeType = (value?: string | null) =>
   (value ?? '').split(';')[0].trim().toLowerCase()
 
 const isFeedContentType = (value?: string | null) => FEED_MIME_TYPES.has(normalizeMimeType(value))
+
+const detectFeedKindFromMime = (value?: string | null): FeedCandidate['kind'] => {
+  const normalized = normalizeMimeType(value)
+  if (normalized === 'application/rss+xml') return 'rss'
+  if (normalized === 'application/atom+xml') return 'atom'
+  return 'unknown'
+}
+
+const detectFeedKindFromBody = (body: string): FeedCandidate['kind'] => {
+  if (/<feed(\s|>)/i.test(body)) return 'atom'
+  if (/<(rss|rdf:rdf)(\s|>)/i.test(body)) return 'rss'
+  return 'unknown'
+}
 
 const looksLikeFeed = (body: string) =>
   /<(rss|feed|rdf:rdf)(\s|>)/i.test(body) || /<\?xml/i.test(body)
@@ -54,14 +68,20 @@ const extractFeedLinks = (headHtml: string, baseUrl: string): FeedCandidate[] =>
 
   for (const tag of tags) {
     const attrs = parseLinkAttributes(tag)
+    const rel = attrs.rel?.toLowerCase()
+    if (rel && !rel.split(/\s+/).includes('alternate')) continue
     const type = normalizeMimeType(attrs.type)
-    if (!FEED_MIME_TYPES.has(type)) continue
+    if (type !== 'application/rss+xml' && type !== 'application/atom+xml') continue
     const href = toAbsoluteUrl(baseUrl, attrs.href)
     if (!href) continue
     if (seen.has(href)) continue
     seen.add(href)
     const title = attrs.title?.trim()
-    candidates.push({ url: href, title: title || undefined })
+    candidates.push({
+      url: href,
+      title: title || undefined,
+      kind: type === 'application/atom+xml' ? 'atom' : 'rss',
+    })
   }
 
   return candidates
@@ -69,11 +89,19 @@ const extractFeedLinks = (headHtml: string, baseUrl: string): FeedCandidate[] =>
 
 export const discoverFeedUrls = async (
   inputUrl: string,
-): Promise<{ directUrl?: string; candidates: FeedCandidate[] }> => {
+): Promise<{
+  directUrl?: string
+  directKind?: FeedCandidate['kind']
+  candidates: FeedCandidate[]
+}> => {
   try {
     const headResp = await fetch(inputUrl, { method: 'HEAD' })
     if (headResp.ok && isFeedContentType(headResp.headers.get('content-type'))) {
-      return { directUrl: inputUrl, candidates: [] }
+      return {
+        directUrl: inputUrl,
+        directKind: detectFeedKindFromMime(headResp.headers.get('content-type')),
+        candidates: [],
+      }
     }
   } catch {
     // Ignore HEAD errors and try a full GET.
@@ -86,17 +114,44 @@ export const discoverFeedUrls = async (
 
   const contentType = resp.headers.get('content-type')
   if (isFeedContentType(contentType)) {
-    return { directUrl: resp.url || inputUrl, candidates: [] }
+    return {
+      directUrl: resp.url || inputUrl,
+      directKind: detectFeedKindFromMime(contentType),
+      candidates: [],
+    }
   }
 
   const body = await resp.text()
   if (looksLikeFeed(body)) {
-    return { directUrl: resp.url || inputUrl, candidates: [] }
+    return {
+      directUrl: resp.url || inputUrl,
+      directKind: detectFeedKindFromBody(body),
+      candidates: [],
+    }
   }
 
   const headHtml = extractHeadHtml(body)
   const candidates = extractFeedLinks(headHtml, resp.url || inputUrl)
   return { candidates }
+}
+
+export const discoverFeedCandidates = async (inputUrl: string): Promise<FeedCandidate[]> => {
+  const { directUrl, directKind, candidates } = await discoverFeedUrls(inputUrl)
+  const deduped: FeedCandidate[] = []
+  const seen = new Set<string>()
+
+  const push = (candidate: FeedCandidate) => {
+    if (seen.has(candidate.url)) return
+    seen.add(candidate.url)
+    deduped.push(candidate)
+  }
+
+  if (directUrl) {
+    push({ url: directUrl, title: undefined, kind: directKind ?? 'unknown' })
+  }
+
+  candidates.forEach(push)
+  return deduped
 }
 
 export type { FeedCandidate }

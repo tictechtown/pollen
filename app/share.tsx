@@ -1,9 +1,23 @@
+import * as Linking from 'expo-linking'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useMemo, useState } from 'react'
+import he from 'he'
+import { useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { Appbar, Button, Card, Snackbar, Text } from 'react-native-paper'
+import {
+  Appbar,
+  Button,
+  Card,
+  Dialog,
+  Icon,
+  List,
+  Portal,
+  Snackbar,
+  Text,
+  TextInput,
+} from 'react-native-paper'
 
 import { upsertArticles } from '@/services/articles-db'
+import { discoverFeedCandidates, FeedCandidate } from '@/services/feedDiscovery'
 import { upsertFeeds } from '@/services/feeds-db'
 import { fetchFeed } from '@/services/rssClient'
 import { saveArticleForLater } from '@/services/save-for-later'
@@ -11,6 +25,8 @@ import { normalizeUrl } from '@/services/urls'
 import { generateUUID } from '@/services/uuid-generator'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
+import { useFiltersStore } from '@/store/filters'
+import { Feed } from '@/types'
 
 const dedupeById = <T extends { id: string }>(items: T[]): T[] => {
   const seen = new Set<string>()
@@ -38,41 +54,37 @@ export default function ShareScreen() {
   const articles = useArticlesStore((state) => state.articles)
   const upsertArticleLocal = useArticlesStore((state) => state.upsertArticle)
   const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
+  const { setFeedFilter } = useFiltersStore()
 
-  const [submitting, setSubmitting] = useState<'feed' | 'save' | null>(null)
+  const [submitting, setSubmitting] = useState<'subscribe' | 'save' | null>(null)
   const [snackbar, setSnackbar] = useState<string | null>(null)
+  const [discoveryStatus, setDiscoveryStatus] = useState<
+    'idle' | 'loading' | 'ready' | 'none' | 'error'
+  >('idle')
+  const [candidates, setCandidates] = useState<FeedCandidate[]>([])
+  const [discoveryError, setDiscoveryError] = useState<string | null>(null)
+  const [manualVisible, setManualVisible] = useState(false)
+  const [manualUrl, setManualUrl] = useState('')
+  const [duplicateFeed, setDuplicateFeed] = useState<Feed | null>(null)
 
   const normalizedUrl = useMemo(() => normalizeUrl(sharedUrl), [sharedUrl])
 
-  const handleAddFeed = async () => {
-    if (!normalizedUrl) {
-      setSnackbar('Invalid URL')
-      return
-    }
-    const feedId = generateUUID()
-    const existing = feeds.find((feed) => feed.xmlUrl === normalizedUrl)
-    if (existing) {
-      setSnackbar('Feed already added')
-      return
-    }
-
-    setSubmitting('feed')
+  const startDiscovery = async (url: string) => {
+    setDiscoveryStatus('loading')
+    setDiscoveryError(null)
+    setCandidates([])
     try {
-      const { feed, articles: fetchedArticles } = await fetchFeed(feedId, normalizedUrl)
-      await upsertFeeds([feed])
-      const deduped = dedupeById(fetchedArticles)
-      if (deduped.length) {
-        await upsertArticles(deduped)
-        deduped.forEach((article) => upsertArticleLocal(article))
+      const discovered = await discoverFeedCandidates(url)
+      if (discovered.length) {
+        setCandidates(discovered)
+        setDiscoveryStatus('ready')
+        return
       }
-      addFeed(feed)
-      setSnackbar('Feed added')
-      router.push('/(tabs)')
+      setDiscoveryStatus('none')
     } catch (err) {
-      console.error('Failed to add feed from share', err)
-      setSnackbar('Failed to add feed')
-    } finally {
-      setSubmitting(null)
+      console.error('Failed to discover feeds from share', err)
+      setDiscoveryError(err instanceof Error ? err.message : 'Failed to discover feeds')
+      setDiscoveryStatus('error')
     }
   }
 
@@ -104,18 +116,75 @@ export default function ShareScreen() {
     }
   }
 
+  useEffect(() => {
+    if (!normalizedUrl) {
+      setDiscoveryStatus('error')
+      setDiscoveryError('Invalid URL')
+      return
+    }
+    void startDiscovery(normalizedUrl)
+  }, [normalizedUrl])
+
+  const openInBrowser = async (url?: string | null) => {
+    if (!url) return
+    try {
+      await Linking.openURL(url)
+    } catch (err) {
+      console.error('Failed to open URL', err)
+      setSnackbar('Failed to open in browser')
+    }
+  }
+
+  const openExistingFeed = (feed: Feed) => {
+    setFeedFilter(feed.id, feed.title)
+    router.push('/(tabs)')
+  }
+
+  const subscribeToCandidate = async (candidateUrl: string) => {
+    const normalizedCandidate = normalizeUrl(candidateUrl) ?? candidateUrl
+    const existing = feeds.find((feed) => feed.xmlUrl === normalizedCandidate)
+    if (existing) {
+      setDuplicateFeed(existing)
+      return
+    }
+
+    const feedId = generateUUID()
+    setSubmitting('subscribe')
+    try {
+      const { feed, articles: fetchedArticles } = await fetchFeed(feedId, normalizedCandidate)
+      await upsertFeeds([feed])
+      const deduped = dedupeById(fetchedArticles)
+      if (deduped.length) {
+        await upsertArticles(deduped)
+        deduped.forEach((article) => upsertArticleLocal(article))
+      }
+      addFeed(feed)
+      setFeedFilter(feed.id, feed.title)
+      router.push('/(tabs)')
+      setSnackbar('Subscribed')
+    } catch (err) {
+      console.error('Failed to subscribe from share', err)
+      setSnackbar('Failed to subscribe')
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  const kindLabel = (kind: FeedCandidate['kind']) =>
+    kind === 'rss' ? 'RSS' : kind === 'atom' ? 'Atom' : 'Feed'
+
   const isValid = Boolean(normalizedUrl)
 
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
         <Appbar.BackAction onPress={() => router.back()} />
-        <Appbar.Content title="Share to RSS Reader" />
+        <Appbar.Content title="Discover feed" />
       </Appbar.Header>
 
       <View style={styles.content}>
         <Card style={styles.card}>
-          <Card.Title title="Shared link" />
+          <Card.Title title="Shared link" titleVariant="titleLarge" />
           <Card.Content>
             <Text variant="bodyMedium" selectable>
               {sharedUrl || 'No link detected'}
@@ -123,28 +192,148 @@ export default function ShareScreen() {
           </Card.Content>
         </Card>
 
-        <View style={styles.actions}>
-          <Button
-            mode="contained"
-            icon="rss"
-            onPress={handleAddFeed}
-            disabled={!isValid || submitting !== null}
-            loading={submitting === 'feed'}
-          >
-            Add as feed
-          </Button>
-          <Button
-            mode="contained-tonal"
-            icon="bookmark"
-            onPress={handleSaveForLater}
-            disabled={!isValid || submitting !== null}
-            loading={submitting === 'save'}
-            style={styles.buttonSpacing}
-          >
-            Save for later
-          </Button>
-        </View>
+        {discoveryStatus === 'loading' ? (
+          <Card style={styles.card}>
+            <Card.Title title="Looking for feeds…" titleVariant="titleMedium" />
+            <Card.Content style={{ alignItems: 'center' }}>
+              <Icon source="web-sync" size={128} />
+              <Text variant="bodyMedium">This can take a few seconds.</Text>
+            </Card.Content>
+          </Card>
+        ) : null}
+
+        {discoveryStatus === 'ready' ? (
+          <Card style={styles.card}>
+            <Card.Title title="Found following feeds" titleVariant="titleMedium" />
+            <Card.Content>
+              {candidates.map((candidate) => {
+                const title = he.decode(candidate.title ?? candidate.url)
+                const suffix = `(${kindLabel(candidate.kind)})`
+                return (
+                  <List.Item
+                    key={candidate.url}
+                    title={`${title} ${suffix}`}
+                    description={candidate.title ? candidate.url : undefined}
+                    onPress={() => subscribeToCandidate(candidate.url)}
+                    left={() => <List.Icon icon="rss" color="orange" />}
+                    disabled={!isValid || submitting !== null}
+                  />
+                )
+              })}
+            </Card.Content>
+          </Card>
+        ) : null}
+
+        {discoveryStatus === 'none' ? (
+          <Card style={styles.card}>
+            <Card.Title title="No feed found" titleVariant="titleMedium" />
+            <Card.Content>
+              <Text variant="bodyMedium">No RSS or Atom feeds were discovered for this link.</Text>
+            </Card.Content>
+            <Card.Actions>
+              <Button
+                icon="link-variant"
+                onPress={() => {
+                  setManualUrl(normalizedUrl ?? '')
+                  setManualVisible(true)
+                }}
+                disabled={submitting !== null}
+              >
+                Update feed URL
+              </Button>
+            </Card.Actions>
+          </Card>
+        ) : null}
+
+        {discoveryStatus === 'error' ? (
+          <Card style={styles.card}>
+            <Card.Title title="Couldn't discover feeds" />
+            <Card.Content>
+              <Text variant="bodyMedium">{discoveryError ?? 'Something went wrong.'}</Text>
+            </Card.Content>
+            <Card.Actions>
+              <Button
+                icon="link-variant"
+                onPress={() => {
+                  setManualUrl(normalizedUrl ?? '')
+                  setManualVisible(true)
+                }}
+                disabled={submitting !== null}
+              >
+                Enter feed URL
+              </Button>
+            </Card.Actions>
+          </Card>
+        ) : null}
+
+        <Button
+          mode="contained-tonal"
+          icon="bookmark"
+          onPress={handleSaveForLater}
+          disabled={!isValid || submitting !== null}
+          loading={submitting === 'save'}
+        >
+          Save link for later
+        </Button>
       </View>
+
+      <Portal>
+        <Dialog visible={manualVisible} onDismiss={() => setManualVisible(false)}>
+          <Dialog.Title>Manual feed URL</Dialog.Title>
+          <Dialog.Content>
+            <TextInput
+              mode="outlined"
+              label="Feed URL"
+              value={manualUrl}
+              onChangeText={setManualUrl}
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setManualVisible(false)} disabled={submitting !== null}>
+              Cancel
+            </Button>
+            <Button
+              onPress={() => {
+                const next = normalizeUrl(manualUrl)
+                if (!next) {
+                  setSnackbar('Enter a valid URL')
+                  return
+                }
+                setManualVisible(false)
+                void startDiscovery(next)
+              }}
+              disabled={submitting !== null}
+            >
+              Find feeds
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog visible={Boolean(duplicateFeed)} onDismiss={() => setDuplicateFeed(null)}>
+          <Dialog.Title>Already subscribed</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              {duplicateFeed ? `You already follow “${duplicateFeed.title}”.` : ''}
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setDuplicateFeed(null)}>Cancel</Button>
+            <Button
+              mode="contained"
+              onPress={() => {
+                if (!duplicateFeed) return
+                const existing = duplicateFeed
+                setDuplicateFeed(null)
+                openExistingFeed(existing)
+              }}
+            >
+              Open feed
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
 
       <Snackbar
         visible={Boolean(snackbar)}
@@ -168,11 +357,5 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 16,
-  },
-  actions: {
-    marginTop: 8,
-  },
-  buttonSpacing: {
-    marginTop: 12,
   },
 })

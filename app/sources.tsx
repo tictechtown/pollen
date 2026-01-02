@@ -487,7 +487,7 @@ export default function SourcesScreen() {
                   ...feedCandidates.map((candidate) => (
                     <List.Item
                       key={candidate.url}
-                      title={he.decode(candidate.title ?? candidate.url)}
+                      title={`${he.decode(candidate.title ?? candidate.url)} (${candidate.kind === 'atom' ? 'Atom' : candidate.kind === 'rss' ? 'RSS' : 'Feed'})`}
                       description={candidate.title ? candidate.url : undefined}
                       onPress={() => handleSelectCandidate(candidate)}
                       left={() => <List.Icon icon="radiobox-blank" />}

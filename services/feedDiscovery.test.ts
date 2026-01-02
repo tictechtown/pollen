@@ -20,7 +20,7 @@ describe('discoverFeedUrls', () => {
     const result = await discoverFeedUrls('https://example.com/rss.xml')
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(result).toEqual({ directUrl: 'https://example.com/rss.xml', candidates: [] })
+    expect(result).toEqual({ directUrl: 'https://example.com/rss.xml', directKind: 'rss', candidates: [] })
   })
 
   it('extracts RSS and Atom links from HTML head', async () => {
@@ -48,8 +48,8 @@ describe('discoverFeedUrls', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2)
     expect(result).toEqual({
       candidates: [
-        { url: 'https://example.com/rss.xml', title: 'News' },
-        { url: 'https://example.com/atom.xml', title: 'Atom' },
+        { url: 'https://example.com/rss.xml', title: 'News', kind: 'rss' },
+        { url: 'https://example.com/atom.xml', title: 'Atom', kind: 'atom' },
       ],
     })
   })
@@ -71,6 +71,53 @@ describe('discoverFeedUrls', () => {
     const result = await discoverFeedUrls('https://example.com/feed')
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(result).toEqual({ directUrl: 'https://example.com/feed', candidates: [] })
+    expect(result).toEqual({ directUrl: 'https://example.com/feed', directKind: 'rss', candidates: [] })
+  })
+
+  it('resolves relative URLs and dedupes candidates', async () => {
+    const html = `<!doctype html>
+      <html>
+        <head>
+          <link rel="alternate" type="application/rss+xml" href="/rss.xml">
+          <link rel="alternate" type="application/rss+xml" href="/rss.xml">
+          <link rel="alternate" type="application/atom+xml" href="atom.xml">
+        </head>
+        <body></body>
+      </html>`
+
+    vi.spyOn(globalThis, 'fetch')
+      .mockRejectedValueOnce(new Error('HEAD not allowed'))
+      .mockResolvedValueOnce({
+        ok: true,
+        url: 'https://example.com/blog/',
+        headers: createHeaders('text/html'),
+        text: async () => html,
+      } as any)
+
+    const result = await discoverFeedUrls('https://example.com/blog/')
+
+    expect(result).toEqual({
+      candidates: [
+        { url: 'https://example.com/rss.xml', title: undefined, kind: 'rss' },
+        { url: 'https://example.com/blog/atom.xml', title: undefined, kind: 'atom' },
+      ],
+    })
+  })
+
+  it('returns empty candidates when none found', async () => {
+    const html = `<!doctype html><html><head><title>No feeds</title></head><body></body></html>`
+
+    vi.spyOn(globalThis, 'fetch')
+      .mockRejectedValueOnce(new Error('HEAD not allowed'))
+      .mockResolvedValueOnce({
+        ok: true,
+        url: 'https://example.com/',
+        headers: createHeaders('text/html'),
+        text: async () => html,
+      } as any)
+
+    const result = await discoverFeedUrls('https://example.com/')
+
+    expect(result).toEqual({ candidates: [] })
   })
 })

@@ -73,6 +73,17 @@ export default function FeedList(props: Props) {
       <Appbar.Header mode="small">
         <Appbar.Action icon={'menu'} onPress={() => router.dismissTo('/sources')} />
         <Appbar.Content title={selectedFeedTitle ? selectedFeedTitle : 'All'} />
+        <Appbar.Action
+          icon="share"
+          onPress={() =>
+            router.push({
+              pathname: '/share',
+              params: {
+                url: 'https://arstechnica.com/cars/2026/01/tesla-sales-fell-by-9-percent-in-2025-its-second-yearly-decline/',
+              },
+            })
+          }
+        />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
         <Appbar.Action icon="cog-outline" onPress={() => router.push('/settings')} />
       </Appbar.Header>
