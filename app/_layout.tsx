@@ -1,7 +1,7 @@
 import { useMaterial3Theme } from '@pchmn/expo-material3-theme'
 import { ThemeProvider } from '@react-navigation/native'
 import * as Linking from 'expo-linking'
-import { Stack, useRouter } from 'expo-router'
+import { Stack, usePathname, useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useRef, useState } from 'react'
 import { AppState, type AppStateStatus, View } from 'react-native'
@@ -91,16 +91,25 @@ export default function RootLayout() {
     }
   }, [router, url])
 
+  const pathname = usePathname()
+
+  useEffect(() => {
+    console.log('useeffect', pathname)
+    if (!initialized) return
+    if (pathname !== '/') return
+    router.push('/(tabs)') // keeps sources underneath
+  }, [initialized, pathname, router])
+
   return (
     <PaperProvider theme={paperTheme}>
       <ThemeProvider value={navigationTheme}>
         <GestureHandlerRootView>
           <View style={{ flex: 1, backgroundColor: navigationTheme.colors.background }}>
-            <Stack>
+            <Stack initialRouteName="sources">
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="sources" options={{ headerShown: false }} />
               <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
               <Stack.Screen name="settings" options={{ headerShown: false }} />
-              <Stack.Screen name="sources" options={{ headerShown: false, presentation: 'card' }} />
               <Stack.Screen name="share" options={{ headerShown: false, presentation: 'modal' }} />
             </Stack>
             <Snackbar

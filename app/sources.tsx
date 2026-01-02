@@ -126,7 +126,7 @@ export default function SourcesScreen() {
     } else {
       setFeedFilter(feed.id, feed.title)
     }
-    router.back()
+    router.push('/(tabs)')
   }
 
   const handleRemove = (feed: Feed) => {
@@ -269,7 +269,7 @@ export default function SourcesScreen() {
     setFeedUrl('')
     setFeedCandidates([])
     setAddVisible(false)
-    router.back()
+    router.push('/(tabs)')
   }
 
   const addFeedByUrl = async (url: string) => {
@@ -380,7 +380,6 @@ export default function SourcesScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Appbar.Header mode="center-aligned">
-        <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Sources" />
       </Appbar.Header>
 
@@ -440,24 +439,23 @@ export default function SourcesScreen() {
         }}
         stickySectionHeadersEnabled={false}
       />
+      <FAB.Group
+        open={state.open}
+        visible
+        icon={importingOpml ? 'import' : state.open ? 'close' : 'plus'}
+        actions={[
+          { icon: 'plus', label: 'Add feed', onPress: () => setAddVisible(true) },
+          {
+            icon: 'bookshelf',
+            label: 'Import OPML',
+            onPress: handleImportOpml,
+          },
+          { icon: 'folder-plus', label: 'Create folder', onPress: openCreateFolder },
+        ]}
+        onStateChange={onStateChange}
+      />
 
       <Portal>
-        <FAB.Group
-          open={state.open}
-          visible
-          icon={importingOpml ? 'import' : state.open ? 'close' : 'plus'}
-          actions={[
-            { icon: 'plus', label: 'Add feed', onPress: () => setAddVisible(true) },
-            {
-              icon: 'bookshelf',
-              label: 'Import OPML',
-              onPress: handleImportOpml,
-            },
-            { icon: 'folder-plus', label: 'Create folder', onPress: openCreateFolder },
-          ]}
-          onStateChange={onStateChange}
-        />
-
         <Dialog
           visible={addVisible}
           onDismiss={() => {
