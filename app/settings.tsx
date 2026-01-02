@@ -1,11 +1,14 @@
 import * as DocumentPicker from 'expo-document-picker'
+// TODO migrate to expo-file-system: https://docs.expo.dev/versions/latest/sdk/filesystem/
+import * as FileSystem from 'expo-file-system/legacy'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import { Platform, ScrollView, Share, StyleSheet, View } from 'react-native'
 import { Appbar, Button, Divider, List, Snackbar, Switch, Text } from 'react-native-paper'
 
 import { deleteArticlesOlderThan, getArticlesFromDb } from '@/services/articles-db'
 import { getFeedsFromDb } from '@/services/feeds-db'
+import { buildOpml } from '@/services/opml'
 import { importFeedsFromOpmlUri } from '@/services/refresh'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
@@ -15,6 +18,7 @@ export default function SettingsScreen() {
   const router = useRouter()
   const setArticles = useArticlesStore((state) => state.setArticles)
   const setFeeds = useFeedsStore((state) => state.setFeeds)
+  const feeds = useFeedsStore((state) => state.feeds)
   const { selectedFeedId } = useFiltersStore()
   const [snackbar, setSnackbar] = useState<string | null>(null)
 
@@ -27,6 +31,7 @@ export default function SettingsScreen() {
     setSnackbar('Removed articles older than 6 months')
   }
   const [importingOpml, setImportingOpml] = useState(false)
+  const [exportingOpml, setExportingOpml] = useState(false)
   const handleImportOpml = async () => {
     if (importingOpml) return
     setImportingOpml(true)
@@ -57,6 +62,67 @@ export default function SettingsScreen() {
       setImportingOpml(false)
     }
   }
+
+  const buildExportFilename = () => {
+    const now = new Date()
+    const y = String(now.getFullYear())
+    const m = String(now.getMonth() + 1).padStart(2, '0')
+    const d = String(now.getDate()).padStart(2, '0')
+    return `pollen-subscriptions-${y}${m}${d}.opml`
+  }
+
+  const handleExportOpml = async () => {
+    if (exportingOpml) return
+
+    if (!feeds.length) {
+      setSnackbar('No feeds to export')
+      return
+    }
+
+    setExportingOpml(true)
+    const filename = buildExportFilename()
+    const opml = buildOpml(feeds, { title: 'Pollen subscriptions' })
+
+    try {
+      if (Platform.OS === 'android') {
+        const permissions =
+          await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync()
+        if (!permissions.granted) {
+          setSnackbar('Export cancelled')
+          return
+        }
+
+        const destUri = await FileSystem.StorageAccessFramework.createFileAsync(
+          permissions.directoryUri,
+          filename,
+          'text/xml',
+        )
+        await FileSystem.writeAsStringAsync(destUri, opml, {
+          encoding: FileSystem.EncodingType.UTF8,
+        })
+        setSnackbar('Export saved')
+        return
+      }
+
+      if (!FileSystem.cacheDirectory) {
+        setSnackbar('Export is not available on this platform')
+        return
+      }
+
+      const fileUri = `${FileSystem.cacheDirectory}${filename}`
+      await FileSystem.writeAsStringAsync(fileUri, opml, {
+        encoding: FileSystem.EncodingType.UTF8,
+      })
+      await Share.share({ title: filename, url: fileUri })
+      setSnackbar('Export ready')
+    } catch (err) {
+      console.error('Failed to export OPML', err)
+      setSnackbar(err instanceof Error ? err.message : 'Failed to export OPML')
+    } finally {
+      setExportingOpml(false)
+    }
+  }
+
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
@@ -123,17 +189,30 @@ export default function SettingsScreen() {
           </Text>
         </List.Section>
 
-        <Button
-          mode="contained"
-          icon="file-import-outline"
-          style={styles.fullBleedCta}
-          contentStyle={styles.fullBleedCtaContent}
-          onPress={handleImportOpml}
-          loading={importingOpml}
-          disabled={importingOpml}
-        >
-          import from OPML
-        </Button>
+        <List.Section title="Import / export">
+          <Button
+            mode="contained"
+            icon="file-import-outline"
+            style={styles.fullBleedCta}
+            contentStyle={styles.fullBleedCtaContent}
+            onPress={handleImportOpml}
+            loading={importingOpml}
+            disabled={importingOpml || exportingOpml}
+          >
+            import from OPML
+          </Button>
+          <Button
+            mode="contained-tonal"
+            icon="file-export-outline"
+            style={styles.fullBleedCta}
+            contentStyle={styles.fullBleedCtaContent}
+            onPress={handleExportOpml}
+            loading={exportingOpml}
+            disabled={exportingOpml || importingOpml}
+          >
+            export to OPML
+          </Button>
+        </List.Section>
       </ScrollView>
 
       <Snackbar

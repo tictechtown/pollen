@@ -1,4 +1,4 @@
-// OPML parsing helpers for feed import.
+// OPML parsing + export helpers for feed import/export.
 import { XMLParser } from 'fast-xml-parser'
 import he from 'he'
 
@@ -74,4 +74,62 @@ export const parseOpml = (opml: string): Feed[] => {
   const parsed = parser.parse(opml) as OpmlDocument
   const outlines = parsed.opml?.body?.outline
   return collectFeeds(outlines)
+}
+
+const escapeXmlAttribute = (value: string): string =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&apos;')
+
+const formatOpmlDate = (date: Date): string => date.toISOString()
+
+type OpmlExportOptions = {
+  title?: string
+  dateCreated?: Date
+}
+
+export const buildOpml = (feeds: Feed[], options: OpmlExportOptions = {}): string => {
+  const title = options.title ?? 'Subscriptions'
+  const dateCreated = options.dateCreated ?? new Date()
+
+  const head =
+    `  <head>\n` +
+    `    <title>${escapeXmlAttribute(title)}</title>\n` +
+    `    <dateCreated>${escapeXmlAttribute(formatOpmlDate(dateCreated))}</dateCreated>\n` +
+    `  </head>\n`
+
+  const outlines = feeds
+    .slice()
+    .sort((a, b) => (a.title ?? '').localeCompare(b.title ?? ''))
+    .map((feed) => {
+      const text = feed.title?.trim() || feed.xmlUrl
+      const attrs: Array<[string, string]> = [
+        ['text', text],
+        ['title', text],
+        ['type', 'rss'],
+        ['xmlUrl', feed.xmlUrl],
+      ]
+      if (feed.htmlUrl) attrs.push(['htmlUrl', feed.htmlUrl])
+      if (feed.description) attrs.push(['description', feed.description])
+
+      const serialized = attrs
+        .map(([key, value]) => `${key}="${escapeXmlAttribute(value)}"`)
+        .join(' ')
+
+      return `    <outline ${serialized} />`
+    })
+    .join('\n')
+
+  const body = `  <body>\n${outlines}${outlines ? '\n' : ''}  </body>\n`
+
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<opml version="2.0">\n` +
+    head +
+    body +
+    `</opml>\n`
+  )
 }

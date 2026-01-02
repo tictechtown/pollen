@@ -107,8 +107,8 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Implement each user journey
   [x] new-user-manual
   [x] new-user-opml
-  [] recurring-user
-  [] recurring-user-export-opml
+  [x] recurring-user
+  [x] recurring-user-export-opml
   [] recurring-user-organize-feed
   [] recurring-user-share-feed
   [] recurring-user-share-saved
