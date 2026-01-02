@@ -11,10 +11,13 @@ type SaveForLaterParams = {
 
 type SaveForLaterResult = {
   status: 'saved' | 'already-saved'
+  id: string
 }
 
+export const getSavedArticleId = (url: string): string => encodeBase64(url) ?? url
+
 const buildSavedArticle = (url: string): Article => {
-  const id = encodeBase64(url) ?? url
+  const id = getSavedArticleId(url)
   const hostname = (() => {
     try {
       return new URL(url).hostname
@@ -58,26 +61,30 @@ export const saveArticleForLater = async ({
   updateSavedLocal,
   upsertArticleLocal,
 }: SaveForLaterParams): Promise<SaveForLaterResult> => {
-  const id = encodeBase64(url) ?? url
+  const id = getSavedArticleId(url)
   const existing = articles.find((article) => article.id === id)
 
   if (existing) {
     if (existing.saved) {
-      return { status: 'already-saved' }
+      return { status: 'already-saved', id }
     }
     await setArticleSaved(existing.id, true)
     updateSavedLocal(existing.id, true)
-    return { status: 'saved' }
+    return { status: 'saved', id }
   }
 
   const newArticle = buildSavedArticle(url)
   await upsertArticles([newArticle])
   upsertArticleLocal(newArticle)
-  const metadata = await fetchPageMetadata(url)
-  if (hasMetadata(metadata)) {
-    const enriched = applyMetadata(newArticle, metadata)
-    await upsertArticles([enriched])
-    upsertArticleLocal(enriched)
-  }
-  return { status: 'saved' }
+  void fetchPageMetadata(url)
+    .then(async (metadata) => {
+      if (!hasMetadata(metadata)) return
+      const enriched = applyMetadata(newArticle, metadata)
+      await upsertArticles([enriched])
+      upsertArticleLocal(enriched)
+    })
+    .catch(() => {
+      // Metadata fetch is best-effort and should not block saving.
+    })
+  return { status: 'saved', id }
 }

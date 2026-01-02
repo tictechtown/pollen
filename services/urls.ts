@@ -5,7 +5,8 @@ export const normalizeUrl = (value: string): string | null => {
   const trimmed = value.trim()
   if (!trimmed) return null
   try {
-    const url = new URL(trimmed.startsWith('http') ? trimmed : `https://${trimmed}`)
+    const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(trimmed)
+    const url = new URL(hasScheme ? trimmed : `https://${trimmed}`)
     return url.toString()
   } catch {
     return null

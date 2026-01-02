@@ -54,8 +54,8 @@ export default function SourceListItem({
 }: SourceListItemProps) {
   const { colors } = useTheme()
   const swipeableRef = useRef<SwipeableMethods | null>(null)
-  const cornerRadius = isSelected ? 36 : 4
-  const edgeRadius = isSelected ? 36 : 16
+  const cornerRadius = isSelected ? 82 : 4
+  const edgeRadius = isSelected ? 82 : 16
 
   const containerStyle = [
     styles.segmentItem,
@@ -79,16 +79,25 @@ export default function SourceListItem({
         descriptionNumberOfLines={1}
         left={(props) =>
           isAll ? (
-            <List.Icon {...props} icon="folder" />
+            <List.Icon icon="folder" />
           ) : item.image ? (
             <Avatar.Image
               {...props}
               size={24}
               source={{ uri: item.image }}
-              style={{ marginLeft: 12, backgroundColor: 'white', alignSelf: 'center' }}
+              style={{ backgroundColor: 'white', alignSelf: 'center' }}
             />
           ) : (
-            <List.Icon {...props} icon="rss" color="orange" style={{ backgroundColor: 'white' }} />
+            <List.Icon
+              icon="rss"
+              color="orange"
+              style={{
+                backgroundColor: 'white',
+                height: 24,
+                alignSelf: 'center',
+                borderRadius: 24,
+              }}
+            />
           )
         }
         right={() =>
@@ -96,7 +105,7 @@ export default function SourceListItem({
             <IconButton icon="folder-move" onPress={() => onRequestMove(item)} />
           ) : null
         }
-        style={{ paddingRight: 0 }}
+        style={{ paddingRight: 0, marginLeft: 16 }}
         onPress={() => onSelect(isAll ? undefined : item)}
       />
     </View>

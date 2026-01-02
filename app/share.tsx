@@ -2,7 +2,7 @@ import * as Linking from 'expo-linking'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import he from 'he'
 import { useEffect, useMemo, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Share, StyleSheet, View } from 'react-native'
 import {
   Appbar,
   Button,
@@ -66,8 +66,29 @@ export default function ShareScreen() {
   const [manualVisible, setManualVisible] = useState(false)
   const [manualUrl, setManualUrl] = useState('')
   const [duplicateFeed, setDuplicateFeed] = useState<Feed | null>(null)
+  const [alreadySavedId, setAlreadySavedId] = useState<string | null>(null)
+  const [subscribeSuggestionVisible, setSubscribeSuggestionVisible] = useState(false)
 
   const normalizedUrl = useMemo(() => normalizeUrl(sharedUrl), [sharedUrl])
+  const isHttpUrl = useMemo(() => {
+    if (!normalizedUrl) return false
+    try {
+      const parsed = new URL(normalizedUrl)
+      return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+    } catch {
+      return false
+    }
+  }, [normalizedUrl])
+  const isLikelyArticleUrl = useMemo(() => {
+    if (!normalizedUrl) return false
+    try {
+      const parsed = new URL(normalizedUrl)
+      const segments = parsed.pathname.split('/').filter(Boolean)
+      return segments.length >= 2
+    } catch {
+      return false
+    }
+  }, [normalizedUrl])
 
   const startDiscovery = async (url: string) => {
     setDiscoveryStatus('loading')
@@ -93,6 +114,10 @@ export default function ShareScreen() {
       setSnackbar('Invalid URL')
       return
     }
+    if (!isHttpUrl) {
+      setSnackbar('Unsupported link type')
+      return
+    }
 
     setSubmitting('save')
     try {
@@ -103,7 +128,7 @@ export default function ShareScreen() {
         upsertArticleLocal,
       })
       if (result.status === 'already-saved') {
-        setSnackbar('Already saved')
+        setAlreadySavedId(result.id)
         return
       }
       setSnackbar('Saved for later')
@@ -122,8 +147,13 @@ export default function ShareScreen() {
       setDiscoveryError('Invalid URL')
       return
     }
+    if (!isHttpUrl) {
+      setDiscoveryStatus('idle')
+      setCandidates([])
+      return
+    }
     void startDiscovery(normalizedUrl)
-  }, [normalizedUrl])
+  }, [isHttpUrl, normalizedUrl])
 
   const openInBrowser = async (url?: string | null) => {
     if (!url) return
@@ -190,7 +220,58 @@ export default function ShareScreen() {
               {sharedUrl || 'No link detected'}
             </Text>
           </Card.Content>
+          <Card.Actions>
+            <Button
+              mode="contained-tonal"
+              icon="bookmark"
+              onPress={() => {
+                if (!isValid) {
+                  setSnackbar('Invalid URL')
+                  return
+                }
+                if (!isHttpUrl) {
+                  setSnackbar('Unsupported link type')
+                  return
+                }
+                if (candidates.length && !isLikelyArticleUrl) {
+                  setSubscribeSuggestionVisible(true)
+                  return
+                }
+                void handleSaveForLater()
+              }}
+              disabled={!isValid || submitting !== null}
+              loading={submitting === 'save'}
+            >
+              Save for later
+            </Button>
+            <Button
+              icon="content-copy"
+              onPress={async () => {
+                if (!sharedUrl) return
+                try {
+                  await Share.share({ message: sharedUrl })
+                } catch (err) {
+                  console.error('Failed to share/copy link', err)
+                  setSnackbar('Failed to copy link')
+                }
+              }}
+              disabled={!sharedUrl || submitting !== null}
+            >
+              Copy
+            </Button>
+          </Card.Actions>
         </Card>
+
+        {!isHttpUrl && sharedUrl ? (
+          <Card style={styles.card}>
+            <Card.Title title="Unsupported link" titleVariant="titleMedium" />
+            <Card.Content>
+              <Text variant="bodyMedium">
+                Only http(s) links can be imported or saved. You can still copy this link.
+              </Text>
+            </Card.Content>
+          </Card>
+        ) : null}
 
         {discoveryStatus === 'loading' ? (
           <Card style={styles.card}>
@@ -239,7 +320,7 @@ export default function ShareScreen() {
                 }}
                 disabled={submitting !== null}
               >
-                Update feed URL
+                Update link
               </Button>
             </Card.Actions>
           </Card>
@@ -265,16 +346,6 @@ export default function ShareScreen() {
             </Card.Actions>
           </Card>
         ) : null}
-
-        <Button
-          mode="contained-tonal"
-          icon="bookmark"
-          onPress={handleSaveForLater}
-          disabled={!isValid || submitting !== null}
-          loading={submitting === 'save'}
-        >
-          Save link for later
-        </Button>
       </View>
 
       <Portal>
@@ -330,6 +401,60 @@ export default function ShareScreen() {
               }}
             >
               Open feed
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog visible={Boolean(alreadySavedId)} onDismiss={() => setAlreadySavedId(null)}>
+          <Dialog.Title>Already saved</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">This link is already in your Read Later list.</Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setAlreadySavedId(null)}>Dismiss</Button>
+            <Button
+              onPress={() => {
+                const id = alreadySavedId
+                if (!id) return
+                setAlreadySavedId(null)
+                router.push(`/article/${id}`)
+              }}
+            >
+              Open Article
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog
+          visible={subscribeSuggestionVisible}
+          onDismiss={() => setSubscribeSuggestionVisible(false)}
+        >
+          <Dialog.Title>This looks like a homepage</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              This page may be better followed as an RSS/Atom subscription. What would you like to
+              do?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={() => {
+                setSubscribeSuggestionVisible(false)
+                void handleSaveForLater()
+              }}
+            >
+              Save anyway
+            </Button>
+            <Button
+              mode="contained"
+              onPress={() => {
+                setSubscribeSuggestionVisible(false)
+                if (!normalizedUrl) return
+                void startDiscovery(normalizedUrl)
+              }}
+              disabled={!normalizedUrl}
+            >
+              Subscribe
             </Button>
           </Dialog.Actions>
         </Dialog>

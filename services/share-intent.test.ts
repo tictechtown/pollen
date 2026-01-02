@@ -22,4 +22,8 @@ describe('parseSharedUrl', () => {
 
     expect(parseSharedUrl(raw)).toBe(raw)
   })
+
+  it('accepts non-http(s) schemes so UI can show guardrails', () => {
+    expect(parseSharedUrl('mailto:test@example.com')).toBe('mailto:test@example.com')
+  })
 })

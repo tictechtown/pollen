@@ -54,7 +54,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   const sortedAndFiltered = useMemo(() => {
     const byFeed = selectedFeedId
       ? articles.filter((article) => article.feedId === selectedFeedId)
-      : articles
+      : articles.filter((article) => Boolean(article.feedId))
     const filtered = unreadOnly ? byFeed.filter((article) => !article.read) : byFeed
     return filtered
   }, [articles, selectedFeedId, unreadOnly])
