@@ -115,6 +115,14 @@ export default function FeedList(props: Props) {
             >
               Add new Feed
             </Button>
+            <Button
+              mode="contained-tonal"
+              onPress={() => {
+                router.push(`/sources`)
+              }}
+            >
+              Import OPML
+            </Button>
           </Card>
         }
       />

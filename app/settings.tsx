@@ -1,8 +1,8 @@
+import * as DocumentPicker from 'expo-document-picker'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { ScrollView, StyleSheet, View } from 'react-native'
 import { Appbar, Button, Divider, List, Snackbar, Switch, Text } from 'react-native-paper'
-import * as DocumentPicker from 'expo-document-picker'
 
 import { deleteArticlesOlderThan, getArticlesFromDb } from '@/services/articles-db'
 import { getFeedsFromDb } from '@/services/feeds-db'
@@ -17,7 +17,6 @@ export default function SettingsScreen() {
   const setFeeds = useFeedsStore((state) => state.setFeeds)
   const { selectedFeedId } = useFiltersStore()
   const [snackbar, setSnackbar] = useState<string | null>(null)
-  const [importingOpml, setImportingOpml] = useState(false)
 
   const handleClearOld = async () => {
     const sixMonthsAgo = Date.now() - 1000 * 60 * 60 * 24 * 180
@@ -27,7 +26,7 @@ export default function SettingsScreen() {
     setArticles(refreshed)
     setSnackbar('Removed articles older than 6 months')
   }
-
+  const [importingOpml, setImportingOpml] = useState(false)
   const handleImportOpml = async () => {
     if (importingOpml) return
     setImportingOpml(true)

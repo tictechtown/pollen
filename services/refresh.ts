@@ -71,8 +71,19 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
     throw new Error('Invalid OPML file')
   }
   const parsedFeeds = parseOpml(opmlXml)
+  const existingFeeds = await getFeedsFromDb()
 
-  const results = await mapWithConcurrency(parsedFeeds, CONCURRENT_FEED_FETCHES, (feed) =>
+  // we are removing duplicated feeds (already existing feeds in our app)
+  const urls = new Set(existingFeeds.map((f) => f.xmlUrl))
+  const dedupFeeds = parsedFeeds.filter((f) => {
+    if (urls.has(f.xmlUrl)) {
+      return false
+    }
+    urls.add(f.xmlUrl)
+    return true
+  })
+
+  const results = await mapWithConcurrency(dedupFeeds, CONCURRENT_FEED_FETCHES, (feed) =>
     fetchFeed(feed.id, feed.xmlUrl, {
       cutoffTs: 0,
       metadataBudget: { remaining: 200 },
@@ -110,8 +121,7 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
     await upsertArticles(deduped)
   }
 
-  await upsertFeeds(parsedFeeds)
-  return parsedFeeds
+  return feedsForUpsert
 }
 
 let refreshInFlight: Promise<RefreshResult> | null = null

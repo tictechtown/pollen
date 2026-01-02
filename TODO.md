@@ -105,8 +105,8 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Support Youtube feeds
   - Uses `media` attributes
 - Implement each user journey
-  [] new-user-manual
-  [] new-user-opml
+  [x] new-user-manual
+  [x] new-user-opml
   [] recurring-user
   [] recurring-user-export-opml
   [] recurring-user-organize-feed
@@ -125,6 +125,7 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Revise navigation when going to source. Should come from the left:
   - Maybe the navigation stack should be: [souces, tabs, share | article | settings], with the first route being tabs
 - Redo data structure and fetch logic
+- By default, expiresTS should have a min of 5 mins
 
 # Version 1.1.0
 

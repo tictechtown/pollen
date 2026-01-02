@@ -32,6 +32,8 @@ export const upsertArticles = async (articles: Article[]) => {
       for (const article of articles) {
         const sortTimestamp = toSortTimestamp(article)
         const saved = savedLookup[article.id] ?? (article.saved ? 1 : 0)
+        console.log('inserting articles', article.source)
+
         await db.runAsync(
           `
         INSERT INTO articles (id, feedId, title, link, source, publishedAt, updatedAt, description, content, thumbnail, saved, sortTimestamp)

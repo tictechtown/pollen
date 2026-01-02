@@ -56,7 +56,7 @@ export default function SourceListItem({
   const containerStyle = [
     styles.segmentItem,
     {
-      backgroundColor: isSelected ? colors.secondaryContainer : colors.elevation.level1,
+      backgroundColor: isSelected ? colors.primaryContainer : colors.elevation.level1,
       borderTopLeftRadius: isFirst ? edgeRadius : cornerRadius,
       borderTopRightRadius: isFirst ? edgeRadius : cornerRadius,
       borderBottomLeftRadius: isLast ? edgeRadius : cornerRadius,
@@ -75,9 +75,18 @@ export default function SourceListItem({
           isAll ? (
             <List.Icon {...props} icon="folder" />
           ) : item.image ? (
-            <Avatar.Image size={32} source={{ uri: item.image }} style={{ marginLeft: 12 }} />
+            <Avatar.Image
+              size={32}
+              source={{ uri: item.image }}
+              style={{ marginLeft: 12, backgroundColor: 'white' }}
+            />
           ) : (
-            <Avatar.Icon size={32} icon="rss" style={{ marginLeft: 12 }} />
+            <Avatar.Icon
+              size={32}
+              icon="rss"
+              color="orange"
+              style={{ marginLeft: 12, backgroundColor: 'white' }}
+            />
           )
         }
         onPress={() => onSelect(isAll ? undefined : item)}

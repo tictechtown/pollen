@@ -12,6 +12,19 @@ import { useMemo, useRef, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
+import SourceListItem from '@/components/ui/SourceListItem'
+import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
+import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
+import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
+import { importFeedsFromOpmlUri } from '@/services/refresh'
+import { fetchFeed } from '@/services/rssClient'
+import { normalizeUrl } from '@/services/urls'
+import { generateUUID } from '@/services/uuid-generator'
+import { useArticlesStore } from '@/store/articles'
+import { useFeedsStore } from '@/store/feeds'
+import { useFiltersStore } from '@/store/filters'
+import { Feed } from '@/types'
+import * as DocumentPicker from 'expo-document-picker'
 import {
   Appbar,
   Button,
@@ -25,22 +38,11 @@ import {
   useTheme,
 } from 'react-native-paper'
 
-import SourceListItem from '@/components/ui/SourceListItem'
-import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
-import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
-import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
-import { fetchFeed } from '@/services/rssClient'
-import { normalizeUrl } from '@/services/urls'
-import { generateUUID } from '@/services/uuid-generator'
-import { useArticlesStore } from '@/store/articles'
-import { useFeedsStore } from '@/store/feeds'
-import { useFiltersStore } from '@/store/filters'
-import { Feed } from '@/types'
-
 export default function SourcesScreen() {
   const router = useRouter()
   const { colors } = useTheme()
   const feeds = useFeedsStore((state) => state.feeds)
+  const addFeeds = useFeedsStore((state) => state.addFeeds)
   const addFeed = useFeedsStore((state) => state.addFeed)
   const removeFeed = useFeedsStore((state) => state.removeFeed)
   const setArticles = useArticlesStore((state) => state.setArticles)
@@ -54,6 +56,10 @@ export default function SourcesScreen() {
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const swipeableRefs = useRef<Record<string, SwipeableMethods | null>>({})
+  const [importingOpml, setImportingOpml] = useState(false)
+  const [state, setState] = useState({ open: false })
+
+  const onStateChange = ({ open }: { open: boolean }) => setState({ open })
 
   const listData = useMemo(() => [{ id: 'all', title: 'All', xmlUrl: '' }, ...feeds], [feeds])
 
@@ -178,6 +184,36 @@ export default function SourcesScreen() {
     })
   }
 
+  const handleImportOpml = async () => {
+    if (importingOpml) return
+    setImportingOpml(true)
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        copyToCacheDirectory: true,
+        multiple: false,
+        type: ['text/xml', 'application/xml', 'application/octet-stream', '*/*'],
+      })
+
+      if (result.canceled) {
+        return
+      }
+
+      const asset = result.assets?.[0]
+      if (!asset?.uri) {
+        setSnackbar('No file selected')
+        return
+      }
+
+      const imported = await importFeedsFromOpmlUri(asset.uri)
+      addFeeds(imported)
+      setSnackbar(imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML')
+    } catch (err) {
+      setSnackbar(err instanceof Error ? err.message : 'Failed to import OPML')
+    } finally {
+      setImportingOpml(false)
+    }
+  }
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Appbar.Header mode="center-aligned">
@@ -213,12 +249,19 @@ export default function SourcesScreen() {
       />
 
       <Portal>
-        <FAB
-          icon="plus"
-          label="Add feed"
-          style={styles.fab}
-          onPress={() => setAddVisible(true)}
-          variant="secondary"
+        <FAB.Group
+          open={state.open}
+          visible
+          icon={importingOpml ? 'import' : state.open ? 'close' : 'plus'}
+          actions={[
+            { icon: 'plus', label: 'Add feed', onPress: () => setAddVisible(true) },
+            {
+              icon: 'bookshelf',
+              label: 'Import OPML',
+              onPress: handleImportOpml,
+            },
+          ]}
+          onStateChange={onStateChange}
         />
 
         <Dialog
@@ -311,10 +354,5 @@ const styles = StyleSheet.create({
   listContent: {
     paddingVertical: 16,
     paddingBottom: 64,
-  },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 64,
   },
 })
