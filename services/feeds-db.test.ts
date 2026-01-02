@@ -34,6 +34,6 @@ describe('removeFeedFromDb', () => {
 
     await removeFeedFromDb('feed-1')
 
-    expect(runAsync).toHaveBeenCalledTimes(3)
+    expect(runAsync).toHaveBeenCalledTimes(4)
   })
 })

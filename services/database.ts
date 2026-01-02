@@ -38,6 +38,11 @@ const ensureUniqueFeedXmlUrl = async (db: SQLite.SQLiteDatabase) => {
 const createTables = async (db: SQLite.SQLiteDatabase) => {
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
+    CREATE TABLE IF NOT EXISTS feed_folders (
+      id TEXT PRIMARY KEY,
+      title TEXT,
+      createdAt INTEGER DEFAULT (strftime('%s','now'))
+    );
     CREATE TABLE IF NOT EXISTS feeds (
       id TEXT PRIMARY KEY,
       title TEXT,
@@ -45,12 +50,14 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
       htmlUrl TEXT,
       description TEXT,
       image TEXT,
+      folderId TEXT,
       lastUpdated TEXT,
       expiresTS INTEGER,
       expires TEXT,
       ETag TEXT,
       lastModified TEXT,
-      createdAt INTEGER DEFAULT (strftime('%s','now'))
+      createdAt INTEGER DEFAULT (strftime('%s','now')),
+      FOREIGN KEY(folderId) REFERENCES feed_folders(id)
     );
     CREATE TABLE IF NOT EXISTS articles (
       id TEXT PRIMARY KEY,
@@ -80,6 +87,7 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
     CREATE INDEX IF NOT EXISTS idx_articles_sort ON articles(sortTimestamp DESC);
     CREATE INDEX IF NOT EXISTS idx_article_statuses_read ON article_statuses(read);
     CREATE INDEX IF NOT EXISTS idx_article_statuses_starred ON article_statuses(starred);
+    CREATE INDEX IF NOT EXISTS idx_feeds_folder ON feeds(folderId);
   `)
 
   await ensureUniqueFeedXmlUrl(db)
@@ -88,6 +96,7 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
   await ensureColumn(db, 'feeds', 'expires', 'TEXT')
   await ensureColumn(db, 'feeds', 'ETag', 'TEXT')
   await ensureColumn(db, 'feeds', 'lastModified', 'TEXT')
+  await ensureColumn(db, 'feeds', 'folderId', 'TEXT')
   await db.execAsync(`
     INSERT INTO article_statuses (articleId, starred, updatedAt)
     SELECT id, 1, strftime('%s','now')

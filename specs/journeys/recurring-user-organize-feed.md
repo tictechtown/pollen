@@ -14,7 +14,7 @@ persona: 'Returning user managing subscriptions and keeping the feed list tidy'
 
 - **User goal:** Keep subscriptions up to date and grouped in folders.
 - **Primary success:** Feeds can be added/removed, and folders can be created with feeds assigned to them.
-- **Key screens:** Feed list → Manage feeds (add/remove) → Folder create/edit
+- **Key screens:** Feed list → Sources → Folder create/edit
 
 ## Context
 
@@ -28,8 +28,8 @@ persona: 'Returning user managing subscriptions and keeping the feed list tidy'
 
 ## Entry Points (Triggers)
 
-- Feed list → “Manage” / “Edit”
-- Feed list → “Add feed”
+- Feed list → Sources
+- Feed list → Sources → “Add feed”
 
 ## Success Criteria
 
@@ -44,14 +44,14 @@ persona: 'Returning user managing subscriptions and keeping the feed list tidy'
 
 ## Happy Path
 
-| Step | User intent/action     | System behavior                   | UI/screen                   | Data/state changes       |
-| ---- | ---------------------- | --------------------------------- | --------------------------- | ------------------------ |
-| 1    | Open the app           | Load current subscriptions        | Feed list                   | none                     |
-| 2    | Enter manage/edit mode | Show management UI                | Feed list (edit/manage)     | none                     |
-| 3    | Add a feed             | Validate + subscribe              | Add feed                    | new subscription created |
-| 4    | Create a folder        | Create folder and show it in list | Create folder dialog/screen | folder created           |
-| 5    | Move feeds into folder | Update grouping                   | Feed list (edit/manage)     | feeds assigned to folder |
-| 6    | Exit manage/edit mode  | Show updated organization         | Feed list                   | none                     |
+| Step | User intent/action               | System behavior                   | UI/screen            | Data/state changes       |
+| ---- | -------------------------------- | --------------------------------- | -------------------- | ------------------------ |
+| 1    | Open the app                     | Load current subscriptions        | Feed list            | none                     |
+| 2    | Enter manage/edit mode           | Show management UI                | Sources              | none                     |
+| 3    | Add a feed                       | Validate + subscribe              | Add feed Dialog      | new subscription created |
+| 4    | Create a folder                  | Create folder and show it in list | Create folder dialog | folder created           |
+| 5    | Move feeds into folder           | Update grouping                   | Sources              | feeds assigned to folder |
+| 6    | Exit manage/edit mode (optional) | Show updated organization         | Feed list            | none                     |
 
 ## Alternate Flows
 
@@ -85,7 +85,6 @@ persona: 'Returning user managing subscriptions and keeping the feed list tidy'
 
 - **Safety:** Confirm destructive actions (remove feed, delete folder).
 - **Reversibility:** Prefer “Remove from folder” over “Delete feed” where possible.
-- **Speed:** Support quick assign/move patterns (multi-select, drag-and-drop if available).
 
 ## Accessibility
 

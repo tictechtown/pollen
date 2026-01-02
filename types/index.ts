@@ -73,6 +73,10 @@ export type Feed = {
    */
   image?: string
   /**
+   * Optional folder grouping for this feed.
+   */
+  folderId?: string | null
+  /**
    * The last time the content of the channel changed
    */
   lastUpdated?: string
@@ -96,4 +100,10 @@ export type Feed = {
    * lastModified Header from most recent fetch
    */
   lastModified?: string
+}
+
+export type FeedFolder = {
+  id: string
+  title: string
+  createdAt: number
 }

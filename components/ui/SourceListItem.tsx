@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
-import { Avatar, List, useTheme } from 'react-native-paper'
+import { Avatar, IconButton, List, useTheme } from 'react-native-paper'
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated'
 
 import { Feed } from '@/types'
@@ -15,6 +15,8 @@ type SourceListItemProps = {
   isLast: boolean
   onSelect: (feed?: Feed) => void
   onRequestRemove: (feed: Feed) => void
+  folderLabel?: string
+  onRequestMove?: (feed: Feed) => void
   registerSwipeableRef?: (id: string, ref: SwipeableMethods | null) => void
 }
 
@@ -46,6 +48,8 @@ export default function SourceListItem({
   isLast,
   onSelect,
   onRequestRemove,
+  folderLabel,
+  onRequestMove,
   registerSwipeableRef,
 }: SourceListItemProps) {
   const { colors } = useTheme()
@@ -68,7 +72,9 @@ export default function SourceListItem({
     <View style={containerStyle}>
       <List.Item
         title={isAll ? 'All' : item.title || item.htmlUrl}
-        description={isAll ? 'See every article' : item.xmlUrl}
+        description={
+          isAll ? 'See every article' : `${item.xmlUrl}${folderLabel ? ` • ${folderLabel}` : ''}`
+        }
         titleNumberOfLines={1}
         descriptionNumberOfLines={1}
         left={(props) =>
@@ -76,19 +82,21 @@ export default function SourceListItem({
             <List.Icon {...props} icon="folder" />
           ) : item.image ? (
             <Avatar.Image
-              size={32}
+              {...props}
+              size={24}
               source={{ uri: item.image }}
-              style={{ marginLeft: 12, backgroundColor: 'white' }}
+              style={{ marginLeft: 12, backgroundColor: 'white', alignSelf: 'center' }}
             />
           ) : (
-            <Avatar.Icon
-              size={32}
-              icon="rss"
-              color="orange"
-              style={{ marginLeft: 12, backgroundColor: 'white' }}
-            />
+            <List.Icon {...props} icon="rss" color="orange" style={{ backgroundColor: 'white' }} />
           )
         }
+        right={() =>
+          !isAll && onRequestMove ? (
+            <IconButton icon="folder-move" onPress={() => onRequestMove(item)} />
+          ) : null
+        }
+        style={{ paddingRight: 0 }}
         onPress={() => onSelect(isAll ? undefined : item)}
       />
     </View>
@@ -130,6 +138,7 @@ const styles = StyleSheet.create({
   segmentItem: {
     overflow: 'hidden',
     paddingLeft: 0,
+    paddingRight: 0,
     marginHorizontal: 16,
   },
   deleteAction: {

@@ -27,6 +27,7 @@ export const upsertFeeds = async (feeds: Feed[]) => {
           htmlUrl,
           description,
           image,
+          folderId,
           lastUpdated,
           lastPublishedTs,
           expiresTS,
@@ -34,12 +35,13 @@ export const upsertFeeds = async (feeds: Feed[]) => {
           ETag,
           lastModified
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           title=excluded.title,
           xmlUrl=excluded.xmlUrl,
           description=excluded.description,
           image=excluded.image,
+          folderId=COALESCE(excluded.folderId, feeds.folderId),
           lastUpdated=excluded.lastUpdated,
           lastPublishedTs=COALESCE(excluded.lastPublishedTs, feeds.lastPublishedTs),
           expiresTS=COALESCE(excluded.expiresTS, feeds.expiresTS),
@@ -54,6 +56,7 @@ export const upsertFeeds = async (feeds: Feed[]) => {
             feed.htmlUrl ?? null,
             feed.description ?? null,
             feed.image ?? null,
+            feed.folderId ?? null,
             feed.lastUpdated ?? null,
             feed.lastPublishedTs ?? null,
             feed.expiresTS ?? null,
@@ -75,6 +78,15 @@ export const getFeedsFromDb = async (): Promise<Feed[]> => {
 export const removeFeedFromDb = async (id: string) => {
   await runWrite(async (db) => {
     await db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `
+        UPDATE articles
+        SET feedId = NULL
+        WHERE feedId = ?
+          AND id IN (SELECT articleId FROM article_statuses WHERE starred = 1)
+      `,
+        [id],
+      )
       await db.runAsync(
         `DELETE FROM article_statuses WHERE articleId IN (SELECT id FROM articles WHERE feedId = ?)`,
         [id],

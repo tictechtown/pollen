@@ -8,14 +8,21 @@
  */
 import { useRouter } from 'expo-router'
 import he from 'he'
-import { useMemo, useRef, useState } from 'react'
-import { FlatList, StyleSheet, View } from 'react-native'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { SectionList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
 import SourceListItem from '@/components/ui/SourceListItem'
 import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
+import {
+  createFolderInDb,
+  deleteFolderInDb,
+  getFoldersFromDb,
+  renameFolderInDb,
+  setFeedFolderIdInDb,
+} from '@/services/folders-db'
 import { importFeedsFromOpmlUri } from '@/services/refresh'
 import { fetchFeed } from '@/services/rssClient'
 import { normalizeUrl } from '@/services/urls'
@@ -23,13 +30,15 @@ import { generateUUID } from '@/services/uuid-generator'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
-import { Feed } from '@/types'
+import { useFoldersStore } from '@/store/folders'
+import { Feed, FeedFolder } from '@/types'
 import * as DocumentPicker from 'expo-document-picker'
 import {
   Appbar,
   Button,
   Dialog,
   FAB,
+  IconButton,
   List,
   Portal,
   Snackbar,
@@ -45,23 +54,71 @@ export default function SourcesScreen() {
   const addFeeds = useFeedsStore((state) => state.addFeeds)
   const addFeed = useFeedsStore((state) => state.addFeed)
   const removeFeed = useFeedsStore((state) => state.removeFeed)
+  const updateFeed = useFeedsStore((state) => state.updateFeed)
+  const folders = useFoldersStore((state) => state.folders)
+  const setFolders = useFoldersStore((state) => state.setFolders)
+  const addFolder = useFoldersStore((state) => state.addFolder)
+  const updateFolder = useFoldersStore((state) => state.updateFolder)
+  const removeFolder = useFoldersStore((state) => state.removeFolder)
   const setArticles = useArticlesStore((state) => state.setArticles)
   const { setFeedFilter, selectedFeedId } = useFiltersStore()
 
   const [addVisible, setAddVisible] = useState(false)
   const [removeVisible, setRemoveVisible] = useState(false)
+  const [moveVisible, setMoveVisible] = useState(false)
+  const [folderCreateVisible, setFolderCreateVisible] = useState(false)
+  const [folderRenameVisible, setFolderRenameVisible] = useState(false)
+  const [folderDeleteVisible, setFolderDeleteVisible] = useState(false)
   const [feedUrl, setFeedUrl] = useState('')
   const [feedToRemove, setFeedToRemove] = useState<Feed | null>(null)
+  const [feedToMove, setFeedToMove] = useState<Feed | null>(null)
   const [feedCandidates, setFeedCandidates] = useState<FeedCandidate[]>([])
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const swipeableRefs = useRef<Record<string, SwipeableMethods | null>>({})
   const [importingOpml, setImportingOpml] = useState(false)
   const [state, setState] = useState({ open: false })
+  const [folderName, setFolderName] = useState('')
+  const [selectedFolder, setSelectedFolder] = useState<FeedFolder | null>(null)
 
   const onStateChange = ({ open }: { open: boolean }) => setState({ open })
 
-  const listData = useMemo(() => [{ id: 'all', title: 'All', xmlUrl: '' }, ...feeds], [feeds])
+  const feedsByFolderId = useMemo(() => {
+    const grouped = new Map<string, Feed[]>()
+    for (const feed of feeds) {
+      const folderId = feed.folderId ?? ''
+      const entries = grouped.get(folderId) ?? []
+      entries.push(feed)
+      grouped.set(folderId, entries)
+    }
+    return grouped
+  }, [feeds])
+  const sections = useMemo(() => {
+    const unfiled = feeds.filter((feed) => !feed.folderId)
+    const folderSections = folders.map((folder) => ({
+      key: folder.id,
+      title: folder.title,
+      folder,
+      data: (feedsByFolderId.get(folder.id) ?? [])
+        .slice()
+        .sort((a, b) => a.title.localeCompare(b.title)),
+    }))
+    return [
+      {
+        key: 'unfiled',
+        title: 'Unfiled',
+        folder: null,
+        data: unfiled.slice().sort((a, b) => a.title.localeCompare(b.title)),
+      },
+      ...folderSections,
+    ]
+  }, [feeds, feedsByFolderId, folders])
+
+  useEffect(() => {
+    getFoldersFromDb()
+      .then((rows) => setFolders(rows))
+      .catch((err) => console.error('Failed to load folders', err))
+  }, [setFolders])
 
   const handleSelect = (feed?: Feed) => {
     if (!feed || feed.id === 'all') {
@@ -83,6 +140,112 @@ export default function SourcesScreen() {
       setArticles(remainingArticles)
       setSnackbar(`Removed ${feed.title}`)
     })
+  }
+
+  const handleMoveFeed = (feed: Feed) => {
+    setFeedToMove(feed)
+    setMoveVisible(true)
+  }
+
+  const applyMoveToFolder = async (folderId: string | null) => {
+    if (!feedToMove) return
+    try {
+      await setFeedFolderIdInDb(feedToMove.id, folderId)
+      updateFeed({ ...feedToMove, folderId })
+      setSnackbar('Updated folder')
+    } catch (err) {
+      setSnackbar(err instanceof Error ? err.message : 'Failed to move feed')
+    } finally {
+      setMoveVisible(false)
+      setFeedToMove(null)
+    }
+  }
+
+  const openCreateFolder = () => {
+    setFolderName('')
+    setFolderCreateVisible(true)
+  }
+
+  const handleCreateFolder = async () => {
+    try {
+      const created = await createFolderInDb(folderName)
+      addFolder(created)
+      setFolderCreateVisible(false)
+      setSnackbar('Folder created')
+    } catch (err) {
+      setSnackbar(err instanceof Error ? err.message : 'Failed to create folder')
+    }
+  }
+
+  const openRenameFolder = (folder: FeedFolder) => {
+    setSelectedFolder(folder)
+    setFolderName(folder.title)
+    setFolderRenameVisible(true)
+  }
+
+  const handleRenameFolder = async () => {
+    if (!selectedFolder) return
+    try {
+      const title = folderName.trim()
+      await renameFolderInDb(selectedFolder.id, title)
+      updateFolder({ ...selectedFolder, title })
+      setFolderRenameVisible(false)
+      setSelectedFolder(null)
+      setSnackbar('Folder renamed')
+    } catch (err) {
+      setSnackbar(err instanceof Error ? err.message : 'Failed to rename folder')
+    }
+  }
+
+  const openDeleteFolder = (folder: FeedFolder) => {
+    setSelectedFolder(folder)
+    setFolderDeleteVisible(true)
+  }
+
+  const closeDeleteFolder = () => {
+    setFolderDeleteVisible(false)
+    setSelectedFolder(null)
+  }
+
+  const handleDeleteFolderMoveFeeds = async () => {
+    if (!selectedFolder) return
+    const folderId = selectedFolder.id
+    try {
+      await deleteFolderInDb(folderId)
+      const feedsInFolder = feedsByFolderId.get(folderId) ?? []
+      feedsInFolder.forEach((feed) => updateFeed({ ...feed, folderId: null }))
+      removeFolder(folderId)
+      setSnackbar('Folder deleted')
+    } catch (err) {
+      setSnackbar(err instanceof Error ? err.message : 'Failed to delete folder')
+    } finally {
+      closeDeleteFolder()
+    }
+  }
+
+  const handleDeleteFolderAndFeeds = async () => {
+    if (!selectedFolder) return
+    const folderId = selectedFolder.id
+    const feedsInFolder = feedsByFolderId.get(folderId) ?? []
+    const removedFeedIds = new Set(feedsInFolder.map((feed) => feed.id))
+    try {
+      for (const feed of feedsInFolder) {
+        await removeFeedFromDb(feed.id)
+        removeFeed(feed.id)
+      }
+      await deleteFolderInDb(folderId)
+      removeFolder(folderId)
+      if (selectedFeedId && removedFeedIds.has(selectedFeedId)) {
+        setFeedFilter(undefined, undefined)
+        const remainingArticles = await getArticlesFromDb(undefined)
+        setArticles(remainingArticles)
+      }
+      setSnackbar('Folder and feeds deleted')
+    } catch (err) {
+      setSnackbar(err instanceof Error ? err.message : 'Failed to delete folder')
+    } finally {
+      closeDeleteFolder()
+    }
   }
 
   const handleConfirmRemove = () => {
@@ -221,31 +384,61 @@ export default function SourcesScreen() {
         <Appbar.Content title="Sources" />
       </Appbar.Header>
 
-      <FlatList
-        data={listData}
+      <SectionList
+        sections={sections}
         keyExtractor={(item) => item.id}
         contentContainerStyle={styles.listContent}
-        renderItem={({ item, index }) => {
-          const isAll = item.id === 'all'
-          const isSelected = isAll ? !selectedFeedId : selectedFeedId === item.id
+        ListHeaderComponent={
+          <View>
+            <List.Section title="All">
+              <SourceListItem
+                item={{ id: 'all', title: 'All', xmlUrl: '' }}
+                isAll
+                isSelected={!selectedFeedId}
+                isFirst
+                isLast
+                onSelect={handleSelect}
+                onRequestRemove={() => {}}
+              />
+            </List.Section>
+          </View>
+        }
+        renderSectionHeader={({ section }) => {
+          const folder = section.folder
+          return (
+            <View style={styles.sectionHeader}>
+              {/* @ts-ignore */}
+              <List.Section title={folder ? folder.title : 'Default'} />
+              {folder ? (
+                <View style={styles.folderActions}>
+                  <IconButton icon="pencil" size={16} onPress={() => openRenameFolder(folder)} />
+                  <IconButton icon="delete" size={16} onPress={() => openDeleteFolder(folder)} />
+                </View>
+              ) : null}
+            </View>
+          )
+        }}
+        renderItem={({ item, index, section }) => {
           return (
             <SourceListItem
               item={item}
-              isAll={isAll}
-              isSelected={isSelected}
+              isAll={false}
+              isSelected={selectedFeedId === item.id}
               isFirst={index === 0}
-              isLast={index === listData.length - 1}
+              isLast={index === section.data.length - 1}
               onSelect={handleSelect}
               onRequestRemove={(feed) => {
                 setFeedToRemove(feed)
                 setRemoveVisible(true)
               }}
+              onRequestMove={handleMoveFeed}
               registerSwipeableRef={(id, ref) => {
                 swipeableRefs.current[id] = ref
               }}
             />
           )
         }}
+        stickySectionHeadersEnabled={false}
       />
 
       <Portal>
@@ -260,6 +453,7 @@ export default function SourcesScreen() {
               label: 'Import OPML',
               onPress: handleImportOpml,
             },
+            { icon: 'folder-plus', label: 'Create folder', onPress: openCreateFolder },
           ]}
           onStateChange={onStateChange}
         />
@@ -324,10 +518,84 @@ export default function SourcesScreen() {
           </Dialog.Actions>
         </Dialog>
 
+        <Dialog visible={moveVisible} onDismiss={() => setMoveVisible(false)}>
+          <Dialog.Title>Move to folder</Dialog.Title>
+          <Dialog.ScrollArea>
+            <View>
+              <List.Item title="Default" onPress={() => applyMoveToFolder(null)} />
+              {folders.map((folder) => (
+                <List.Item
+                  key={folder.id}
+                  title={folder.title}
+                  onPress={() => applyMoveToFolder(folder.id)}
+                />
+              ))}
+            </View>
+          </Dialog.ScrollArea>
+          <Dialog.Actions>
+            <Button
+              onPress={() => {
+                setMoveVisible(false)
+                setFeedToMove(null)
+              }}
+            >
+              Cancel
+            </Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog visible={folderCreateVisible} onDismiss={() => setFolderCreateVisible(false)}>
+          <Dialog.Title>Create folder</Dialog.Title>
+          <Dialog.Content>
+            <TextInput label="Folder name" value={folderName} onChangeText={setFolderName} />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setFolderCreateVisible(false)}>Cancel</Button>
+            <Button onPress={handleCreateFolder}>Create</Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog visible={folderRenameVisible} onDismiss={() => setFolderRenameVisible(false)}>
+          <Dialog.Title>Rename folder</Dialog.Title>
+          <Dialog.Content>
+            <TextInput label="Folder name" value={folderName} onChangeText={setFolderName} />
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={() => setFolderRenameVisible(false)}>Cancel</Button>
+            <Button onPress={handleRenameFolder}>Save</Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        <Dialog visible={folderDeleteVisible} onDismiss={closeDeleteFolder}>
+          <Dialog.Title>Delete folder</Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodyMedium">
+              Delete folder{' '}
+              <Text variant="bodyMedium" style={{ fontWeight: 'bold' }}>
+                {selectedFolder?.title}
+              </Text>
+              ?
+            </Text>
+            <Text style={{ marginTop: 8 }} variant="bodySmall">
+              Choose what to do with the{' '}
+              {selectedFolder ? feedsByFolderId.get(selectedFolder.id)?.length ?? 0 : 0} feed(s)
+              inside.
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button onPress={closeDeleteFolder}>Cancel</Button>
+            <Button onPress={handleDeleteFolderMoveFeeds}>Move to Default</Button>
+            <Button onPress={handleDeleteFolderAndFeeds}>Delete feeds too</Button>
+          </Dialog.Actions>
+        </Dialog>
+
         <Dialog visible={removeVisible} onDismiss={handleCancelRemove}>
           <Dialog.Title>
             Are you sure you want to remove {feedToRemove?.title ?? 'this feed'}?
           </Dialog.Title>
+          <Dialog.Content>
+            <Text variant="bodySmall">Saved items will be kept in Read Later.</Text>
+          </Dialog.Content>
           <Dialog.Actions>
             <Button onPress={handleCancelRemove}>Cancel</Button>
             <Button onPress={handleConfirmRemove}>Remove</Button>
@@ -354,5 +622,19 @@ const styles = StyleSheet.create({
   listContent: {
     paddingVertical: 16,
     paddingBottom: 64,
+  },
+  folderActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  sectionHeader: {
+    paddingTop: 8,
+    paddingBottom: 4,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionHeaderTitles: {
+    flex: 1,
   },
 })
