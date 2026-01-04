@@ -1,6 +1,6 @@
 {
   "generatedAt": "2025-12-19T22:22:22.511Z",
-  "count": 38,
+  "count": 39,
   "results": [
     {
       "title": "MySQL Performance Blog",
@@ -1749,6 +1749,52 @@
         }
       ],
       "expectedArticleCount": 10
+    },
+    {
+      "title": "videogamedunkey (YouTube)",
+      "url": "http://www.youtube.com/feeds/videos.xml?channel_id=UCsvn_Po0SmunchJYOWpOxMg",
+      "file": "videogamedonkey.xml",
+      "ok": true,
+      "bytes": 19707,
+      "contentType": "application/atom+xml",
+      "expectedFeed": {
+        "id": "aHR0cDovL3d3dy55b3V0dWJlLmNvbS9mZWVkcy92aWRlb3MueG1sP2NoYW5uZWxfaWQ9VUNzdm5fUG8wU211bmNoSllPV3BPeE1n",
+        "title": "videogamedunkey",
+        "xmlUrl": "http://www.youtube.com/feeds/videos.xml?channel_id=UCsvn_Po0SmunchJYOWpOxMg",
+        "image": null,
+        "description": null,
+        "lastUpdated": null,
+        "lastPublishedAt": null
+      },
+      "expectedArticles": [
+        {
+          "id": "eXQ6dmlkZW86WFRIeFh5MHlFNlk",
+          "title": "Star Wars Super Bombad Racing",
+          "description": "bingo binks go bigmode store https://bigmode.com/shop",
+          "link": "https://www.youtube.com/watch?v=XTHxXy0yE6Y",
+          "source": "videogamedunkey",
+          "thumbnail": "https://i1.ytimg.com/vi/XTHxXy0yE6Y/hqdefault.jpg",
+          "feedId": "aHR0cDovL3d3dy55b3V0dWJlLmNvbS9mZWVkcy92aWRlb3MueG1sP2NoYW5uZWxfaWQ9VUNzdm5fUG8wU211bmNoSllPV3BPeE1n",
+          "read": false,
+          "saved": false,
+          "publishedAt": "2025-12-26T20:30:16+00:00",
+          "updatedAt": "2025-12-27T09:27:18+00:00"
+        },
+        {
+          "id": "eXQ6dmlkZW86OThuWVQyclExVkE",
+          "title": "Bigmode Game Jam 2025",
+          "description": "Play all 821 entries for free here! https://itch.io/jam/bigmode-game-jam-2025/entries Thank you so much to everyone who participated, this was an incredible experience even though i turned into a horse.",
+          "link": "https://www.youtube.com/watch?v=98nYT2rQ1VA",
+          "source": "videogamedunkey",
+          "thumbnail": "https://i2.ytimg.com/vi/98nYT2rQ1VA/hqdefault.jpg",
+          "feedId": "aHR0cDovL3d3dy55b3V0dWJlLmNvbS9mZWVkcy92aWRlb3MueG1sP2NoYW5uZWxfaWQ9VUNzdm5fUG8wU211bmNoSllPV3BPeE1n",
+          "read": false,
+          "saved": false,
+          "publishedAt": "2025-12-19T20:30:03+00:00",
+          "updatedAt": "2025-12-20T09:46:27+00:00"
+        }
+      ],
+      "expectedArticleCount": 15
     }
   ]
 }

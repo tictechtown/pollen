@@ -79,7 +79,12 @@ type LinkNode =
   | { href?: string; '#text'?: string; rel?: string; type?: string }
   | { href?: string; '#text'?: string; rel?: string; type?: string }[]
 
-type MediaNode = { url?: string }
+type MediaNode = { url?: string; type?: string; medium?: string }
+type MediaGroup = {
+  'media:content'?: MediaNode | MediaNode[]
+  'media:thumbnail'?: MediaNode | MediaNode[]
+  'media:description'?: TextNode
+}
 
 const getText = (value?: TextNode): string | undefined => {
   if (!value) return undefined
@@ -117,6 +122,52 @@ const getMediaUrl = (value?: MediaNode | MediaNode[]): string | undefined => {
     return entry?.url
   }
   return value.url
+}
+
+const getMediaImageUrl = (value?: MediaNode | MediaNode[]): string | undefined => {
+  if (!value) return undefined
+  const isImage = (media: MediaNode) =>
+    Boolean(media.url) && (media.medium === 'image' || media.type?.startsWith('image/'))
+  if (Array.isArray(value)) {
+    const entry = value.find((media) => media && isImage(media))
+    return entry?.url
+  }
+  return isImage(value) ? value.url : undefined
+}
+
+const extractMediaFields = (
+  item: Partial<FetchedAtomArticle> | Partial<FetchedRssArticle>,
+): {
+  contentUrl?: string
+  thumbnailUrl?: string
+  description?: string
+} => {
+  const group = item['media:group']
+  const descriptionRaw = getText(group?.['media:description'] ?? item['media:description'])
+  return {
+    contentUrl: getMediaUrl(group?.['media:content'] ?? item['media:content']),
+    thumbnailUrl: getMediaUrl(group?.['media:thumbnail'] ?? item['media:thumbnail']),
+    description: stripHtml(descriptionRaw),
+  }
+}
+
+const buildMediaContent = (media: {
+  contentUrl?: string
+  thumbnailUrl?: string
+  description?: string
+}): string | undefined => {
+  const parts: string[] = []
+  if (media.contentUrl) {
+    const safeUrl = media.thumbnailUrl
+      ? `<img src="${media.thumbnailUrl}"/>`
+      : he.encode(media.contentUrl)
+    parts.push(`<p><a href="${he.encode(media.contentUrl)}">${safeUrl}</a></p>`)
+  }
+  if (media.description) {
+    parts.push(`<p>${he.encode(media.description)}</p>`)
+  }
+
+  return parts.length ? parts.join('\n') : undefined
 }
 
 export const decodeString = (value?: string): string | undefined => {
@@ -348,9 +399,11 @@ const extractMetadataFromFeed = async (
   let description: string | undefined
   let publishedAt: string | undefined
 
+  const media = extractMediaFields(item)
+
   thumbnail = getMediaUrl(item.enclosure)
   if (!thumbnail) {
-    thumbnail = getMediaUrl(item['media:content'])
+    thumbnail = getMediaImageUrl(item['media:content'] ?? item['media:group']?.['media:content'])
   }
 
   if (!thumbnail) {
@@ -358,6 +411,14 @@ const extractMetadataFromFeed = async (
       getText(item['content:encoded']) ?? getText(item.content) ?? getText(item.description)
     const match = content?.match(/<img[^>]+src="([^">]+)"/i) ?? null
     if (match?.[1]) thumbnail = match[1]
+  }
+
+  if (!thumbnail) {
+    thumbnail = media.thumbnailUrl
+  }
+
+  if (!description && !options?.hasDescription) {
+    description = media.description
   }
 
   const needsEnrichment =
@@ -396,6 +457,7 @@ interface AtomFeed {
 interface FetchedRssArticle {
   title?: TextNode
   description?: TextNode
+  'media:description'?: TextNode
   link?: LinkNode
   author?: string
   comments?: string
@@ -405,6 +467,8 @@ interface FetchedRssArticle {
   'content:encoded'?: TextNode
   enclosure?: MediaNode | MediaNode[]
   'media:content'?: MediaNode | MediaNode[]
+  'media:thumbnail'?: MediaNode | MediaNode[]
+  'media:group'?: MediaGroup
 }
 interface RssFeed {
   rss: {
@@ -459,6 +523,9 @@ interface FetchedAtomArticle {
   updated?: string
   enclosure?: MediaNode | MediaNode[]
   'media:content'?: MediaNode | MediaNode[]
+  'media:thumbnail'?: MediaNode | MediaNode[]
+  'media:description'?: TextNode
+  'media:group'?: MediaGroup
   'content:encoded'?: TextNode
   description?: TextNode
 }
@@ -518,13 +585,16 @@ const parseAtomFeed = async (
 
   const articles: Article[] = await Promise.all(
     items.map(async (item: FetchedAtomArticle) => {
+      const media = extractMediaFields(item)
       const contentEncoded = getText(item.content) ?? getText(item['content:encoded'])
       const contentFallback = contentEncoded ?? getText(item.description)
       const entryLink = Array.isArray(item.link) ? undefined : getLink(item.link)
       const rawId = getText(item.id) ?? entryLink ?? getText(item.title) ?? `${Date.now()}`
       const encodedId = encodeBase64(rawId) ?? rawId
-      const feedDescription = stripHtml(getText(item.description) ?? getText(item.summary))
+      const feedDescription =
+        stripHtml(getText(item.description) ?? getText(item.summary)) ?? media.description
       const feedPublished = item.published ?? item.updated ?? undefined
+      const mediaContent = buildMediaContent(media)
 
       const metadata = await extractMetadataFromFeed(item, {
         baseUrl: url,
@@ -541,7 +611,7 @@ const parseAtomFeed = async (
         publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: item.updated ?? undefined,
         description: feedDescription ?? metadata.description,
-        content: contentFallback ?? getText(item.summary) ?? undefined,
+        content: contentFallback ?? getText(item.summary) ?? mediaContent ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         read: false,
@@ -581,14 +651,16 @@ const parseRssFeed = async (
 
   const articles: Article[] = await Promise.all(
     items.map(async (item: FetchedRssArticle) => {
+      const media = extractMediaFields(item)
       const contentEncoded = getText(item['content:encoded']) ?? getText(item.content)
       const contentFallback = contentEncoded ?? getText(item.description)
       const rawId =
         getText(item.guid) ?? getLink(item.link) ?? getText(item.title) ?? `${Date.now()}`
 
       const encodedId = encodeBase64(rawId) ?? rawId
-      const feedDescription = stripHtml(getText(item.description))
+      const feedDescription = stripHtml(getText(item.description)) ?? media.description
       const feedPublished = item.pubDate ?? undefined
+      const mediaContent = buildMediaContent(media)
 
       const metadata = await extractMetadataFromFeed(item, {
         baseUrl: url,
@@ -605,7 +677,7 @@ const parseRssFeed = async (
         publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: undefined,
         description: feedDescription ?? metadata.description,
-        content: contentFallback ?? undefined,
+        content: contentFallback ?? mediaContent ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         read: false,
