@@ -118,6 +118,31 @@ export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => 
   })
 }
 
+export const getUnreadCountsByFeedFromDb = async (): Promise<Map<string, number>> => {
+  const db = await getDb()
+  const rows = await db.getAllAsync<{ feedId: string | null; unreadCount: number }>(
+    `
+      SELECT
+        articles.feedId AS feedId,
+        COUNT(articles.id) AS unreadCount
+      FROM articles
+      LEFT JOIN article_statuses
+        ON article_statuses.articleId = articles.id
+      WHERE COALESCE(article_statuses.read, 0) = 0
+        AND articles.feedId IS NOT NULL
+        AND articles.feedId != ''
+      GROUP BY articles.feedId
+    `,
+  )
+
+  const counts = new Map<string, number>()
+  for (const row of rows) {
+    if (!row.feedId) continue
+    counts.set(row.feedId, Number(row.unreadCount) || 0)
+  }
+  return counts
+}
+
 export const getArticleReadStatus = async (id: string): Promise<boolean> => {
   const db = await getDb()
   const row = await db.getFirstAsync<{ read: number | null }>(

@@ -7,7 +7,7 @@ vi.mock('./database', () => ({ getDb: vi.fn(), runWrite: vi.fn() }))
 // eslint-disable-next-line import/first
 import { getDb } from './database'
 // eslint-disable-next-line import/first
-import { getArticlesFromDb } from './articles-db'
+import { getArticlesFromDb, getUnreadCountsByFeedFromDb } from './articles-db'
 
 describe('getArticlesFromDb', () => {
   it('maps read/starred flags to booleans', async () => {
@@ -56,5 +56,23 @@ describe('getArticlesFromDb', () => {
     expect(result[0].saved).toBe(false)
     expect(result[1].read).toBe(false)
     expect(result[1].saved).toBe(true)
+  })
+})
+
+describe('getUnreadCountsByFeedFromDb', () => {
+  it('returns unread counts grouped by feedId', async () => {
+    const rows = [
+      { feedId: 'feed-1', unreadCount: 3 },
+      { feedId: 'feed-2', unreadCount: 0 },
+    ]
+
+    const getAllAsync = vi.fn().mockResolvedValue(rows)
+    const getDbMock = vi.mocked(getDb)
+    getDbMock.mockResolvedValue({ getAllAsync } as unknown as SQLiteDatabase)
+
+    const result = await getUnreadCountsByFeedFromDb()
+
+    expect(result.get('feed-1')).toBe(3)
+    expect(result.get('feed-2')).toBe(0)
   })
 })

@@ -11,9 +11,10 @@ import he from 'he'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SectionList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
+import { useFocusEffect } from '@react-navigation/native'
 
 import SourceListItem from '@/components/ui/SourceListItem'
-import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
+import { getArticlesFromDb, getUnreadCountsByFeedFromDb, upsertArticles } from '@/services/articles-db'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { buildFeedSections, groupFeedsByFolderId } from '@/services/feed-sections'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
@@ -81,6 +82,10 @@ export default function SourcesScreen() {
   const [state, setState] = useState({ open: false })
   const [folderName, setFolderName] = useState('')
   const [selectedFolder, setSelectedFolder] = useState<FeedFolder | null>(null)
+  const [unreadCountsByFeedId, setUnreadCountsByFeedId] = useState<Map<string, number>>(
+    () => new Map(),
+  )
+  const [totalUnreadCount, setTotalUnreadCount] = useState(0)
 
   const onStateChange = useCallback(({ open }: { open: boolean }) => setState({ open }), [setState])
 
@@ -92,6 +97,26 @@ export default function SourcesScreen() {
       .then((rows) => setFolders(rows))
       .catch((err) => console.error('Failed to load folders', err))
   }, [setFolders])
+
+  const refreshUnreadCounts = useCallback(async () => {
+    try {
+      const counts = await getUnreadCountsByFeedFromDb()
+      setUnreadCountsByFeedId(counts)
+      let total = 0
+      counts.forEach((count) => {
+        total += count
+      })
+      setTotalUnreadCount(total)
+    } catch (err) {
+      console.error('Failed to load unread counts', err)
+    }
+  }, [])
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshUnreadCounts()
+    }, [refreshUnreadCounts]),
+  )
 
   const handleSelect = (feed?: Feed) => {
     if (!feed || feed.id === 'all') {
@@ -111,6 +136,7 @@ export default function SourcesScreen() {
       }
       const remainingArticles = await getArticlesFromDb(nextFeedId)
       setArticles(remainingArticles)
+      void refreshUnreadCounts()
       setSnackbar(`Removed ${feed.title}`)
     })
   }
@@ -208,6 +234,7 @@ export default function SourcesScreen() {
         const remainingArticles = await getArticlesFromDb(undefined)
         setArticles(remainingArticles)
       }
+      void refreshUnreadCounts()
       setSnackbar('Folder and feeds deleted')
     } catch (err) {
       setSnackbar(err instanceof Error ? err.message : 'Failed to delete folder')
@@ -382,6 +409,7 @@ export default function SourcesScreen() {
                 isLast
                 onSelect={handleSelect}
                 onRequestRemove={() => {}}
+                unreadCount={totalUnreadCount}
               />
             </List.Section>
           </View>
@@ -414,6 +442,7 @@ export default function SourcesScreen() {
                 setFeedToRemove(feed)
                 setRemoveVisible(true)
               }}
+              unreadCount={unreadCountsByFeedId.get(item.id) ?? 0}
               onRequestMove={handleMoveFeed}
               registerSwipeableRef={(id, ref) => {
                 swipeableRefs.current[id] = ref

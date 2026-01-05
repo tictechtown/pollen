@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react'
 import { StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
-import { Avatar, IconButton, List, useTheme } from 'react-native-paper'
+import { Avatar, Badge, IconButton, List, useTheme } from 'react-native-paper'
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated'
 
 import { Feed } from '@/types'
@@ -15,6 +15,7 @@ type SourceListItemProps = {
   isLast: boolean
   onSelect: (feed?: Feed) => void
   onRequestRemove: (feed: Feed) => void
+  unreadCount?: number
   folderLabel?: string
   onRequestMove?: (feed: Feed) => void
   registerSwipeableRef?: (id: string, ref: SwipeableMethods | null) => void
@@ -48,6 +49,7 @@ export default function SourceListItem({
   isLast,
   onSelect,
   onRequestRemove,
+  unreadCount,
   folderLabel,
   onRequestMove,
   registerSwipeableRef,
@@ -56,6 +58,8 @@ export default function SourceListItem({
   const swipeableRef = useRef<SwipeableMethods | null>(null)
   const cornerRadius = isSelected ? 82 : 4
   const edgeRadius = isSelected ? 82 : 16
+  const showUnreadBadge = typeof unreadCount === 'number' && unreadCount > 0
+  const unreadLabel = unreadCount && unreadCount > 99 ? '99+' : String(unreadCount ?? 0)
 
   const containerStyle = [
     styles.segmentItem,
@@ -101,8 +105,17 @@ export default function SourceListItem({
           )
         }
         right={() =>
-          !isAll && onRequestMove ? (
-            <IconButton icon="folder-move" onPress={() => onRequestMove(item)} />
+          showUnreadBadge || (!isAll && onRequestMove) ? (
+            <View style={styles.rightContainer}>
+              {showUnreadBadge ? (
+                <Badge style={[styles.unreadBadge, isAll ? { marginRight: 16 } : undefined]}>
+                  {unreadLabel}
+                </Badge>
+              ) : null}
+              {!isAll && onRequestMove ? (
+                <IconButton icon="folder-move" onPress={() => onRequestMove(item)} />
+              ) : null}
+            </View>
           ) : null
         }
         style={{ paddingRight: 0, marginLeft: 16 }}
@@ -160,5 +173,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     width: '100%',
     marginRight: 16,
+  },
+  rightContainer: {
+    marginLeft: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  unreadBadge: {
+    alignSelf: 'center',
   },
 })
