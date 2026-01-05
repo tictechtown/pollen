@@ -2,11 +2,8 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
-import {
-  hydrateArticlesAndFeeds,
-  refreshFeedsAndArticles,
-  type RefreshResult,
-} from '@/services/refresh'
+import { readerApi } from '@/services/reader-api'
+import type { ReaderRefreshResult as RefreshResult } from '@/services/reader-api/types'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 
@@ -30,14 +27,14 @@ type RefreshState = {
   hydrate: (feedId?: string) => Promise<void>
 }
 
-let refreshPromise: Promise<RefreshResult> | null = null
+let refreshPromise: Promise<RefreshResult | null> | null = null
 
 /**
  * Load stored data from DB and populate the current store
  * @param feedId
  */
 const hydrateStores = async (feedId?: string) => {
-  const { feeds, articles } = await hydrateArticlesAndFeeds(feedId)
+  const { feeds, articles } = await readerApi.hydrate(feedId)
   const { setFeeds } = useFeedsStore.getState()
   const { setArticles } = useArticlesStore.getState()
   if (feeds.length) {
@@ -79,11 +76,12 @@ export const useRefreshStore = create<RefreshState>()(
         blockedUntilManual: false,
       })
 
-      refreshPromise = refreshFeedsAndArticles({
+      refreshPromise = readerApi.refresh({
         selectedFeedId: context.selectedFeedId,
         reason: context.reason,
       })
         .then(async (result) => {
+          if (!result) return null
           const hasFeeds = result.feedsUsed.length > 0
           set({
             status: hasFeeds ? 'idle' : 'error',

@@ -4,12 +4,14 @@ import { FeedFolder } from '@/types'
 import { getDb, runWrite } from './database'
 import { generateUUID } from './uuid-generator'
 
-export const getFoldersFromDb = async (): Promise<FeedFolder[]> => {
-  const db = await getDb()
+type DbKey = string | undefined
+
+export const getFoldersFromDb = async (dbKey?: DbKey): Promise<FeedFolder[]> => {
+  const db = await getDb(dbKey)
   return db.getAllAsync<FeedFolder>(`SELECT * FROM feed_folders ORDER BY title ASC`)
 }
 
-export const createFolderInDb = async (title: string): Promise<FeedFolder> => {
+export const createFolderInDb = async (title: string, dbKey?: DbKey): Promise<FeedFolder> => {
   const trimmed = title.trim()
   if (!trimmed) {
     throw new Error('Folder name is required')
@@ -27,12 +29,12 @@ export const createFolderInDb = async (title: string): Promise<FeedFolder> => {
       folder.title,
       folder.createdAt,
     ])
-  })
+  }, dbKey)
 
   return folder
 }
 
-export const renameFolderInDb = async (id: string, title: string) => {
+export const renameFolderInDb = async (id: string, title: string, dbKey?: DbKey) => {
   const trimmed = title.trim()
   if (!trimmed) {
     throw new Error('Folder name is required')
@@ -40,21 +42,24 @@ export const renameFolderInDb = async (id: string, title: string) => {
 
   await runWrite(async (db) => {
     await db.runAsync(`UPDATE feed_folders SET title = ? WHERE id = ?`, [trimmed, id])
-  })
+  }, dbKey)
 }
 
-export const deleteFolderInDb = async (id: string) => {
+export const deleteFolderInDb = async (id: string, dbKey?: DbKey) => {
   await runWrite(async (db) => {
     await db.withTransactionAsync(async () => {
       await db.runAsync(`UPDATE feeds SET folderId = NULL WHERE folderId = ?`, [id])
       await db.runAsync(`DELETE FROM feed_folders WHERE id = ?`, [id])
     })
-  })
+  }, dbKey)
 }
 
-export const setFeedFolderIdInDb = async (feedId: string, folderId?: string | null) => {
+export const setFeedFolderIdInDb = async (
+  feedId: string,
+  folderId?: string | null,
+  dbKey?: DbKey,
+) => {
   await runWrite(async (db) => {
     await db.runAsync(`UPDATE feeds SET folderId = ? WHERE id = ?`, [folderId ?? null, feedId])
-  })
+  }, dbKey)
 }
-

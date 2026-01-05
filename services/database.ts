@@ -1,9 +1,23 @@
 // SQLite setup, migrations, and serialized writes for the app database.
 import * as SQLite from 'expo-sqlite'
 
-let dbPromise: Promise<SQLite.SQLiteDatabase> | null = null
+const DEFAULT_DB_KEY = '__default__'
+const DEFAULT_DB_FILE = 'pollen-6.db'
+
+type DbKey = string | undefined
+
+const keyForMap = (key?: DbKey) => key ?? DEFAULT_DB_KEY
+
+const dbFileForKey = (key?: DbKey) => {
+  if (!key) return DEFAULT_DB_FILE
+  // Keep filenames safe and short; callers should supply a stable namespace key.
+  const safe = key.replace(/[^a-zA-Z0-9._-]+/g, '_').slice(0, 64)
+  return `pollen-${safe}.db`
+}
+
+const dbPromises = new Map<string, Promise<SQLite.SQLiteDatabase>>()
 // Serialize writes to avoid overlapping transactions on a single connection.
-let writeQueue: Promise<void> = Promise.resolve()
+const writeQueues = new Map<string, Promise<void>>()
 
 const ensureColumn = async (
   db: SQLite.SQLiteDatabase,
@@ -106,23 +120,28 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
   `)
 }
 
-export const getDb = () => {
-  if (!dbPromise) {
-    dbPromise = SQLite.openDatabaseAsync('pollen-6.db').then(async (db) => {
-      await createTables(db)
-      return db
-    })
-  }
-  return dbPromise
+export const getDb = (key?: DbKey) => {
+  const mapKey = keyForMap(key)
+  const existing = dbPromises.get(mapKey)
+  if (existing) return existing
+
+  const promise = SQLite.openDatabaseAsync(dbFileForKey(key)).then(async (db) => {
+    await createTables(db)
+    return db
+  })
+  dbPromises.set(mapKey, promise)
+  return promise
 }
 
-export const runWrite = async <T>(task: (db: SQLite.SQLiteDatabase) => Promise<T>) => {
-  const db = await getDb()
-  const previous = writeQueue
+export const runWrite = async <T>(task: (db: SQLite.SQLiteDatabase) => Promise<T>, key?: DbKey) => {
+  const db = await getDb(key)
+  const mapKey = keyForMap(key)
+  const previous = writeQueues.get(mapKey) ?? Promise.resolve()
   let release!: () => void
-  writeQueue = new Promise<void>((resolve) => {
+  const next = new Promise<void>((resolve) => {
     release = resolve
   })
+  writeQueues.set(mapKey, next)
   await previous
   try {
     return await task(db)

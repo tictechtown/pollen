@@ -3,15 +3,17 @@ import { Article } from '@/types'
 
 import { getDb, runWrite } from './database'
 
+type DbKey = string | undefined
+
 const toSortTimestamp = (article: Pick<Article, 'updatedAt' | 'publishedAt'>) => {
   const ts = article.updatedAt ?? article.publishedAt
   const asDate = ts ? new Date(ts).getTime() : 0
   return Number.isFinite(asDate) ? asDate : 0
 }
 
-export const upsertArticles = async (articles: Article[]) => {
+export const upsertArticles = async (articles: Article[], dbKey?: DbKey) => {
   if (!articles.length) return
-  const db = await getDb()
+  const db = await getDb(dbKey)
 
   const ids = articles.map((a) => a.id)
   const placeholders = ids.map(() => '?').join(',')
@@ -81,11 +83,11 @@ export const upsertArticles = async (articles: Article[]) => {
         }
       }
     })
-  })
+  }, dbKey)
 }
 
-export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => {
-  const db = await getDb()
+export const getArticlesFromDb = async (feedId?: string, dbKey?: DbKey): Promise<Article[]> => {
+  const db = await getDb(dbKey)
   const query = feedId
     ? `
         SELECT articles.*, article_statuses.read, article_statuses.starred
@@ -118,8 +120,8 @@ export const getArticlesFromDb = async (feedId?: string): Promise<Article[]> => 
   })
 }
 
-export const getUnreadCountsByFeedFromDb = async (): Promise<Map<string, number>> => {
-  const db = await getDb()
+export const getUnreadCountsByFeedFromDb = async (dbKey?: DbKey): Promise<Map<string, number>> => {
+  const db = await getDb(dbKey)
   const rows = await db.getAllAsync<{ feedId: string | null; unreadCount: number }>(
     `
       SELECT
@@ -143,8 +145,8 @@ export const getUnreadCountsByFeedFromDb = async (): Promise<Map<string, number>
   return counts
 }
 
-export const getArticleReadStatus = async (id: string): Promise<boolean> => {
-  const db = await getDb()
+export const getArticleReadStatus = async (id: string, dbKey?: DbKey): Promise<boolean> => {
+  const db = await getDb(dbKey)
   const row = await db.getFirstAsync<{ read: number | null }>(
     `SELECT read FROM article_statuses WHERE articleId = ?`,
     [id],
@@ -152,8 +154,8 @@ export const getArticleReadStatus = async (id: string): Promise<boolean> => {
   return Boolean(row?.read)
 }
 
-export const getArticleStarredStatus = async (id: string): Promise<boolean> => {
-  const db = await getDb()
+export const getArticleStarredStatus = async (id: string, dbKey?: DbKey): Promise<boolean> => {
+  const db = await getDb(dbKey)
   const row = await db.getFirstAsync<{ starred: number | null }>(
     `SELECT starred FROM article_statuses WHERE articleId = ?`,
     [id],
@@ -161,7 +163,7 @@ export const getArticleStarredStatus = async (id: string): Promise<boolean> => {
   return Boolean(row?.starred)
 }
 
-export const setArticleSaved = async (id: string, saved: boolean) => {
+export const setArticleSaved = async (id: string, saved: boolean, dbKey?: DbKey) => {
   const now = Math.floor(Date.now() / 1000)
   await runWrite(async (db) => {
     await db.runAsync(
@@ -174,10 +176,10 @@ export const setArticleSaved = async (id: string, saved: boolean) => {
     `,
       [id, saved ? 1 : 0, now],
     )
-  })
+  }, dbKey)
 }
 
-export const setArticleRead = async (id: string, read: boolean) => {
+export const setArticleRead = async (id: string, read: boolean, dbKey?: DbKey) => {
   const now = Math.floor(Date.now() / 1000)
   const lastReadAt = read ? now : null
   await runWrite(async (db) => {
@@ -192,10 +194,10 @@ export const setArticleRead = async (id: string, read: boolean) => {
     `,
       [id, read ? 1 : 0, lastReadAt, now],
     )
-  })
+  }, dbKey)
 }
 
-export const setManyArticlesRead = async (ids: string[], read: boolean) => {
+export const setManyArticlesRead = async (ids: string[], read: boolean, dbKey?: DbKey) => {
   if (!ids.length) return
   const now = Math.floor(Date.now() / 1000)
   const lastReadAt = read ? now : null
@@ -215,20 +217,20 @@ export const setManyArticlesRead = async (ids: string[], read: boolean) => {
         )
       }
     })
-  })
+  }, dbKey)
 }
 
-export const removeArticlesByFeed = async (feedId: string) => {
+export const removeArticlesByFeed = async (feedId: string, dbKey?: DbKey) => {
   await runWrite(async (db) => {
     await db.runAsync(
       `DELETE FROM article_statuses WHERE articleId IN (SELECT id FROM articles WHERE feedId = ?)`,
       [feedId],
     )
     await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [feedId])
-  })
+  }, dbKey)
 }
 
-export const deleteArticlesOlderThan = async (olderThanMs: number) => {
+export const deleteArticlesOlderThan = async (olderThanMs: number, dbKey?: DbKey) => {
   await runWrite(async (db) => {
     await db.runAsync(
       `
@@ -242,5 +244,5 @@ export const deleteArticlesOlderThan = async (olderThanMs: number) => {
     await db.runAsync(`DELETE FROM articles WHERE sortTimestamp > 0 AND sortTimestamp < ?`, [
       olderThanMs,
     ])
-  })
+  }, dbKey)
 }

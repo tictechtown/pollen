@@ -16,9 +16,8 @@ import {
 } from 'react-native-paper'
 
 import { dedupeById } from '@/services/collections'
-import { upsertArticles } from '@/services/articles-db'
 import { discoverFeedCandidates, FeedCandidate } from '@/services/feedDiscovery'
-import { upsertFeeds } from '@/services/feeds-db'
+import { readerApi } from '@/services/reader-api'
 import { fetchFeed } from '@/services/rssClient'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
@@ -163,10 +162,10 @@ export default function ShareScreen() {
     setSubmitting('subscribe')
     try {
       const { feed, articles: fetchedArticles } = await fetchFeed(feedId, normalizedCandidate)
-      await upsertFeeds([feed])
+      await readerApi.feeds.upsert([feed])
       const deduped = dedupeById(fetchedArticles)
       if (deduped.length) {
-        await upsertArticles(deduped)
+        await readerApi.articles.upsert(deduped)
         deduped.forEach((article) => upsertArticleLocal(article))
       }
       addFeed(feed)

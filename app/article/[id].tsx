@@ -6,8 +6,8 @@ import { StyleSheet, View } from 'react-native'
 import { Appbar, Snackbar, useTheme } from 'react-native-paper'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
-import { setArticleRead, setArticleSaved } from '@/services/articles-db'
 import { buildArticleHtml } from '@/services/article-html'
+import { readerApi } from '@/services/reader-api'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { shouldOpenExternally } from '@/services/webview-navigation'
 import { useArticlesStore } from '@/store/articles'
@@ -67,7 +67,7 @@ export default function ArticleScreen() {
 
   useEffect(() => {
     if (id && article && !article.read) {
-      void setArticleRead(id, true)
+      void readerApi.articles.setRead(id, true)
       updateReadLocal(id, true)
     }
   }, [article, id, updateReadLocal])
@@ -87,7 +87,7 @@ export default function ArticleScreen() {
   const handleToggleSaved = async () => {
     if (!id || !article) return
     const next = !article.saved
-    await setArticleSaved(id, next)
+    await readerApi.articles.setSaved(id, next)
     updateSavedLocal(id, next)
   }
 

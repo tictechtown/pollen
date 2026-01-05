@@ -14,18 +14,9 @@ import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeab
 import { useFocusEffect } from '@react-navigation/native'
 
 import SourceListItem from '@/components/ui/SourceListItem'
-import { getArticlesFromDb, getUnreadCountsByFeedFromDb, upsertArticles } from '@/services/articles-db'
+import { readerApi } from '@/services/reader-api'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { buildFeedSections, groupFeedsByFolderId } from '@/services/feed-sections'
-import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
-import {
-  createFolderInDb,
-  deleteFolderInDb,
-  getFoldersFromDb,
-  renameFolderInDb,
-  setFeedFolderIdInDb,
-} from '@/services/folders-db'
-import { importFeedsFromOpmlUri } from '@/services/refresh'
 import { fetchFeed } from '@/services/rssClient'
 import { normalizeUrl } from '@/services/urls'
 import { generateUUID } from '@/services/uuid-generator'
@@ -93,14 +84,15 @@ export default function SourcesScreen() {
   const sections = useMemo(() => buildFeedSections(feeds, folders), [feeds, folders])
 
   useEffect(() => {
-    getFoldersFromDb()
+    readerApi.folders
+      .list()
       .then((rows) => setFolders(rows))
       .catch((err) => console.error('Failed to load folders', err))
   }, [setFolders])
 
   const refreshUnreadCounts = useCallback(async () => {
     try {
-      const counts = await getUnreadCountsByFeedFromDb()
+      const counts = await readerApi.articles.getUnreadCountsByFeed()
       setUnreadCountsByFeedId(counts)
       let total = 0
       counts.forEach((count) => {
@@ -128,13 +120,13 @@ export default function SourcesScreen() {
   }
 
   const handleRemove = (feed: Feed) => {
-    removeFeedFromDb(feed.id).then(async () => {
+    readerApi.feeds.remove(feed.id).then(async () => {
       removeFeed(feed.id)
       const nextFeedId = selectedFeedId === feed.id ? undefined : selectedFeedId
       if (selectedFeedId === feed.id) {
         setFeedFilter(undefined, undefined)
       }
-      const remainingArticles = await getArticlesFromDb(nextFeedId)
+      const remainingArticles = await readerApi.articles.list(nextFeedId)
       setArticles(remainingArticles)
       void refreshUnreadCounts()
       setSnackbar(`Removed ${feed.title}`)
@@ -149,7 +141,7 @@ export default function SourcesScreen() {
   const applyMoveToFolder = async (folderId: string | null) => {
     if (!feedToMove) return
     try {
-      await setFeedFolderIdInDb(feedToMove.id, folderId)
+      await readerApi.folders.setFeedFolder(feedToMove.id, folderId)
       updateFeed({ ...feedToMove, folderId })
       setSnackbar('Updated folder')
     } catch (err) {
@@ -162,7 +154,7 @@ export default function SourcesScreen() {
 
   const handleCreateFolder = async () => {
     try {
-      const created = await createFolderInDb(folderName)
+      const created = await readerApi.folders.create(folderName)
       addFolder(created)
       setFolderCreateVisible(false)
       setSnackbar('Folder created')
@@ -181,7 +173,7 @@ export default function SourcesScreen() {
     if (!selectedFolder) return
     try {
       const title = folderName.trim()
-      await renameFolderInDb(selectedFolder.id, title)
+      await readerApi.folders.rename(selectedFolder.id, title)
       updateFolder({ ...selectedFolder, title })
       setFolderRenameVisible(false)
       setSelectedFolder(null)
@@ -205,7 +197,7 @@ export default function SourcesScreen() {
     if (!selectedFolder) return
     const folderId = selectedFolder.id
     try {
-      await deleteFolderInDb(folderId)
+      await readerApi.folders.delete(folderId)
       const feedsInFolder = feedsByFolderId.get(folderId) ?? []
       feedsInFolder.forEach((feed) => updateFeed({ ...feed, folderId: null }))
       removeFolder(folderId)
@@ -224,14 +216,14 @@ export default function SourcesScreen() {
     const removedFeedIds = new Set(feedsInFolder.map((feed) => feed.id))
     try {
       for (const feed of feedsInFolder) {
-        await removeFeedFromDb(feed.id)
+        await readerApi.feeds.remove(feed.id)
         removeFeed(feed.id)
       }
-      await deleteFolderInDb(folderId)
+      await readerApi.folders.delete(folderId)
       removeFolder(folderId)
       if (selectedFeedId && removedFeedIds.has(selectedFeedId)) {
         setFeedFilter(undefined, undefined)
-        const remainingArticles = await getArticlesFromDb(undefined)
+        const remainingArticles = await readerApi.articles.list(undefined)
         setArticles(remainingArticles)
       }
       void refreshUnreadCounts()
@@ -273,7 +265,7 @@ export default function SourcesScreen() {
       cutoffTs: 0,
     })
     try {
-      await upsertFeeds([feed])
+      await readerApi.feeds.upsert([feed])
     } catch (e) {
       if ((e as Error).message.includes('UNIQUE constraint failed: feeds.xmlUrl')) {
         setSnackbar('Feed already exists')
@@ -282,7 +274,7 @@ export default function SourcesScreen() {
       }
       return false
     }
-    await upsertArticles(articles)
+    await readerApi.articles.upsert(articles)
     addFeed(feed)
     setFeedFilter(feed.id, feed.title)
     return true
@@ -361,7 +353,7 @@ export default function SourcesScreen() {
         return
       }
 
-      const imported = await importFeedsFromOpmlUri(asset.uri)
+      const imported = await readerApi.importOpml(asset.uri)
       addFeeds(imported)
       setSnackbar(imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML')
     } catch (err) {

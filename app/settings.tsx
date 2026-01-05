@@ -6,11 +6,9 @@ import { useState } from 'react'
 import { Platform, ScrollView, Share, StyleSheet, View } from 'react-native'
 import { Appbar, Button, Divider, List, Snackbar, Switch, Text } from 'react-native-paper'
 
-import { deleteArticlesOlderThan, getArticlesFromDb } from '@/services/articles-db'
-import { getFeedsFromDb } from '@/services/feeds-db'
 import { buildOpml } from '@/services/opml'
 import { buildOpmlExportFilename } from '@/services/opml-export'
-import { importFeedsFromOpmlUri } from '@/services/refresh'
+import { readerApi } from '@/services/reader-api'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
@@ -25,9 +23,9 @@ export default function SettingsScreen() {
 
   const handleClearOld = async () => {
     const sixMonthsAgo = Date.now() - 1000 * 60 * 60 * 24 * 180
-    await deleteArticlesOlderThan(sixMonthsAgo)
+    await readerApi.articles.deleteOlderThan(sixMonthsAgo)
     // Reload articles scoped to current filter to reflect deletions
-    const refreshed = await getArticlesFromDb(selectedFeedId)
+    const refreshed = await readerApi.articles.list(selectedFeedId)
     setArticles(refreshed)
     setSnackbar('Removed articles older than 6 months')
   }
@@ -53,8 +51,8 @@ export default function SettingsScreen() {
         return
       }
 
-      const imported = await importFeedsFromOpmlUri(asset.uri)
-      const feeds = await getFeedsFromDb()
+      const imported = await readerApi.importOpml(asset.uri)
+      const feeds = await readerApi.feeds.list()
       setFeeds(feeds)
       setSnackbar(imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML')
     } catch (err) {

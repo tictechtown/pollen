@@ -3,7 +3,9 @@ import { Feed } from '@/types'
 
 import { getDb, runWrite } from './database'
 
-export const upsertFeeds = async (feeds: Feed[]) => {
+type DbKey = string | undefined
+
+export const upsertFeeds = async (feeds: Feed[], dbKey?: DbKey) => {
   if (!feeds.length) return
   await runWrite(async (db) => {
     await db.withTransactionAsync(async () => {
@@ -67,15 +69,15 @@ export const upsertFeeds = async (feeds: Feed[]) => {
         )
       }
     })
-  })
+  }, dbKey)
 }
 
-export const getFeedsFromDb = async (): Promise<Feed[]> => {
-  const db = await getDb()
+export const getFeedsFromDb = async (dbKey?: DbKey): Promise<Feed[]> => {
+  const db = await getDb(dbKey)
   return db.getAllAsync<Feed>(`SELECT * FROM feeds ORDER BY title ASC`)
 }
 
-export const removeFeedFromDb = async (id: string) => {
+export const removeFeedFromDb = async (id: string, dbKey?: DbKey) => {
   await runWrite(async (db) => {
     await db.withTransactionAsync(async () => {
       await db.runAsync(
@@ -94,5 +96,5 @@ export const removeFeedFromDb = async (id: string) => {
       await db.runAsync(`DELETE FROM articles WHERE feedId = ?`, [id])
       await db.runAsync(`DELETE FROM feeds WHERE id = ?`, [id])
     })
-  })
+  }, dbKey)
 }

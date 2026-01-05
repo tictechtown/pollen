@@ -1,4 +1,4 @@
-import { setArticleSaved, upsertArticles } from '@/services/articles-db'
+import { readerApi } from '@/services/reader-api'
 import { encodeBase64, fetchPageMetadata, PageMetadata } from '@/services/rssClient'
 import { Article } from '@/types'
 
@@ -68,19 +68,19 @@ export const saveArticleForLater = async ({
     if (existing.saved) {
       return { status: 'already-saved', id }
     }
-    await setArticleSaved(existing.id, true)
+    await readerApi.articles.setSaved(existing.id, true)
     updateSavedLocal(existing.id, true)
     return { status: 'saved', id }
   }
 
   const newArticle = buildSavedArticle(url)
-  await upsertArticles([newArticle])
+  await readerApi.articles.upsert([newArticle])
   upsertArticleLocal(newArticle)
   void fetchPageMetadata(url)
     .then(async (metadata) => {
       if (!hasMetadata(metadata)) return
       const enriched = applyMetadata(newArticle, metadata)
-      await upsertArticles([enriched])
+      await readerApi.articles.upsert([enriched])
       upsertArticleLocal(enriched)
     })
     .catch(() => {

@@ -2,9 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { type Article } from '@/types'
 
-vi.mock('@/services/articles-db', () => ({
-  setArticleSaved: vi.fn().mockResolvedValue(undefined),
-  upsertArticles: vi.fn().mockResolvedValue(undefined),
+vi.mock('@/services/reader-api', () => ({
+  readerApi: {
+    articles: {
+      setSaved: vi.fn().mockResolvedValue(undefined),
+      upsert: vi.fn().mockResolvedValue(undefined),
+    },
+  },
 }))
 
 vi.mock('@/services/rssClient', () => ({
@@ -18,7 +22,7 @@ vi.mock('@/services/rssClient', () => ({
   fetchPageMetadata: vi.fn().mockResolvedValue({}),
 }))
 
-import { upsertArticles, setArticleSaved } from '@/services/articles-db'
+import { readerApi } from '@/services/reader-api'
 import { fetchPageMetadata } from '@/services/rssClient'
 import { getSavedArticleId, saveArticleForLater } from './save-for-later'
 
@@ -42,7 +46,7 @@ describe('saveArticleForLater', () => {
     })
 
     expect(result).toEqual({ status: 'already-saved', id })
-    expect(upsertArticles).not.toHaveBeenCalled()
+    expect(readerApi.articles.upsert).not.toHaveBeenCalled()
   })
 
   it('marks an existing article as saved', async () => {
@@ -61,7 +65,7 @@ describe('saveArticleForLater', () => {
     })
 
     expect(result).toEqual({ status: 'saved', id })
-    expect(setArticleSaved).toHaveBeenCalledWith(id, true)
+    expect(readerApi.articles.setSaved).toHaveBeenCalledWith(id, true)
     expect(updateSavedLocal).toHaveBeenCalledWith(id, true)
   })
 
@@ -85,7 +89,7 @@ describe('saveArticleForLater', () => {
     })
 
     expect(result.status).toBe('saved')
-    expect(upsertArticles).toHaveBeenCalledTimes(1)
+    expect(readerApi.articles.upsert).toHaveBeenCalledTimes(1)
     expect(upsertArticleLocal).toHaveBeenCalledTimes(1)
 
     resolveMetadata?.({ title: 'Hello', source: 'Example' })
@@ -93,7 +97,7 @@ describe('saveArticleForLater', () => {
     await Promise.resolve()
     await Promise.resolve()
 
-    expect(upsertArticles).toHaveBeenCalledTimes(2)
+    expect(readerApi.articles.upsert).toHaveBeenCalledTimes(2)
     expect(upsertArticleLocal).toHaveBeenCalledTimes(2)
   })
 
@@ -109,11 +113,11 @@ describe('saveArticleForLater', () => {
     })
 
     expect(result.status).toBe('saved')
-    expect(upsertArticles).toHaveBeenCalledTimes(1)
+    expect(readerApi.articles.upsert).toHaveBeenCalledTimes(1)
 
     await Promise.resolve()
     await Promise.resolve()
 
-    expect(upsertArticles).toHaveBeenCalledTimes(1)
+    expect(readerApi.articles.upsert).toHaveBeenCalledTimes(1)
   })
 })

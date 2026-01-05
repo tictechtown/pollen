@@ -15,7 +15,7 @@ import {
 } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
-import { setArticleRead, setArticleSaved } from '@/services/articles-db'
+import { readerApi } from '@/services/reader-api'
 import { selectSavedArticles } from '@/services/articles-selectors'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
@@ -46,7 +46,7 @@ export default function SavedScreen() {
     async (id: string) => {
       const nextSaved = !(savedStatus.get(id) ?? false)
       try {
-        await setArticleSaved(id, nextSaved)
+        await readerApi.articles.setSaved(id, nextSaved)
         updateSavedLocal(id, nextSaved)
       } catch {
         // ignore and keep local state unchanged
@@ -59,7 +59,7 @@ export default function SavedScreen() {
     async (id: string) => {
       const nextRead = !(readStatus.get(id) ?? false)
       try {
-        await setArticleRead(id, nextRead)
+        await readerApi.articles.setRead(id, nextRead)
         updateReadLocal(id, nextRead)
       } catch {
         // ignore and keep local state unchanged

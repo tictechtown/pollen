@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import {
-  setArticleRead,
-  setArticleSaved,
-  setManyArticlesRead,
-} from '@/services/articles-db'
+import { readerApi } from '@/services/reader-api'
 import {
   getTotalPages,
   selectFeedArticles,
@@ -91,7 +87,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     async (id: string) => {
       const nextSaved = !(localSavedArticles.get(id) ?? false)
       try {
-        await setArticleSaved(id, nextSaved)
+        await readerApi.articles.setSaved(id, nextSaved)
         updateSavedLocal(id, nextSaved)
       } catch {
         // ignore and keep local state unchanged
@@ -105,7 +101,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     async (id: string) => {
       const nextRead = !(localReadArticles.get(id) ?? false)
       try {
-        await setArticleRead(id, nextRead)
+        await readerApi.articles.setRead(id, nextRead)
         updateReadLocal(id, nextRead)
       } catch {
         // ignore and keep local state unchanged
@@ -116,7 +112,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
 
   const markAllRead = useCallback(() => {
     const ids = sortedAndFiltered.map((article) => article.id)
-    void setManyArticlesRead(ids, true)
+    void readerApi.articles.setManyRead(ids, true)
     ids.forEach((id) => updateReadLocal(id, true))
   }, [sortedAndFiltered, updateReadLocal])
 
