@@ -8,7 +8,7 @@
  */
 import { useRouter } from 'expo-router'
 import he from 'he'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SectionList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
@@ -81,7 +81,7 @@ export default function SourcesScreen() {
   const [folderName, setFolderName] = useState('')
   const [selectedFolder, setSelectedFolder] = useState<FeedFolder | null>(null)
 
-  const onStateChange = ({ open }: { open: boolean }) => setState({ open })
+  const onStateChange = useCallback(({ open }: { open: boolean }) => setState({ open }), [setState])
 
   const feedsByFolderId = useMemo(() => {
     const grouped = new Map<string, Feed[]>()
@@ -159,11 +159,6 @@ export default function SourcesScreen() {
       setMoveVisible(false)
       setFeedToMove(null)
     }
-  }
-
-  const openCreateFolder = () => {
-    setFolderName('')
-    setFolderCreateVisible(true)
   }
 
   const handleCreateFolder = async () => {
@@ -347,7 +342,7 @@ export default function SourcesScreen() {
     })
   }
 
-  const handleImportOpml = async () => {
+  const handleImportOpml = useCallback(async () => {
     if (importingOpml) return
     setImportingOpml(true)
     try {
@@ -375,7 +370,24 @@ export default function SourcesScreen() {
     } finally {
       setImportingOpml(false)
     }
-  }
+  }, [addFeeds, setSnackbar, setImportingOpml, importingOpml])
+
+  const FABActions = useMemo(() => {
+    const openCreateFolder = () => {
+      setFolderName('')
+      setFolderCreateVisible(true)
+    }
+
+    return [
+      { icon: 'plus', label: 'Add feed', onPress: () => setAddVisible(true) },
+      {
+        icon: 'bookshelf',
+        label: 'Import OPML',
+        onPress: handleImportOpml,
+      },
+      { icon: 'folder-plus', label: 'Create folder', onPress: openCreateFolder },
+    ]
+  }, [setAddVisible, handleImportOpml])
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -443,15 +455,7 @@ export default function SourcesScreen() {
         open={state.open}
         visible
         icon={importingOpml ? 'import' : state.open ? 'close' : 'plus'}
-        actions={[
-          { icon: 'plus', label: 'Add feed', onPress: () => setAddVisible(true) },
-          {
-            icon: 'bookshelf',
-            label: 'Import OPML',
-            onPress: handleImportOpml,
-          },
-          { icon: 'folder-plus', label: 'Create folder', onPress: openCreateFolder },
-        ]}
+        actions={FABActions}
         onStateChange={onStateChange}
       />
 
@@ -487,7 +491,13 @@ export default function SourcesScreen() {
                   ...feedCandidates.map((candidate) => (
                     <List.Item
                       key={candidate.url}
-                      title={`${he.decode(candidate.title ?? candidate.url)} (${candidate.kind === 'atom' ? 'Atom' : candidate.kind === 'rss' ? 'RSS' : 'Feed'})`}
+                      title={`${he.decode(candidate.title ?? candidate.url)} (${
+                        candidate.kind === 'atom'
+                          ? 'Atom'
+                          : candidate.kind === 'rss'
+                          ? 'RSS'
+                          : 'Feed'
+                      })`}
                       description={candidate.title ? candidate.url : undefined}
                       onPress={() => handleSelectCandidate(candidate)}
                       left={() => <List.Icon icon="radiobox-blank" />}

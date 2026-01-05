@@ -78,6 +78,51 @@ const renderHTML = (
           ${headerBlock}
           <div class="divider"></div>
           ${body}
+          <script>
+            (function () {
+              function wrapXkcdStyleImages() {
+                var images = document.querySelectorAll('img[title]:not([data-has-figcaption])')
+                for (var i = 0; i < images.length; i++) {
+                  var img = images[i]
+                  var title = img.getAttribute('title')
+                  if (!title) continue
+
+                  if (img.closest && img.closest('figure')) {
+                    img.setAttribute('data-has-figcaption', 'true')
+                    continue
+                  }
+
+                  var target = img
+                  var parent = img.parentElement
+                  if (
+                    parent &&
+                    parent.tagName === 'A' &&
+                    parent.childNodes &&
+                    parent.childNodes.length === 1
+                  ) {
+                    target = parent
+                  }
+
+                  var figure = document.createElement('figure')
+                  var figcaption = document.createElement('figcaption')
+                  figcaption.textContent = title
+
+                  var insertionParent = target.parentNode
+                  if (!insertionParent) continue
+                  insertionParent.insertBefore(figure, target)
+                  figure.appendChild(target)
+                  figure.appendChild(figcaption)
+                  img.setAttribute('data-has-figcaption', 'true')
+                }
+              }
+
+              if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', wrapXkcdStyleImages)
+              } else {
+                wrapXkcdStyleImages()
+              }
+            })()
+          </script>
         </body>
       </html>
     `

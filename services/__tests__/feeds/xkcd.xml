@@ -1,0 +1,42 @@
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+    <title>xkcd.com</title>
+    <link href="https://xkcd.com/" rel="alternate"/>
+    <id>https://xkcd.com/</id>
+    <updated>2026-01-02T00:00:00Z</updated>
+    <entry>
+        <title>Conic Sections</title>
+        <link href="https://xkcd.com/3189/" rel="alternate"/>
+        <updated>2026-01-02T00:00:00Z</updated>
+        <id>https://xkcd.com/3189/</id>
+        <summary type="html">
+            <img src="https://imgs.xkcd.com/comics/conic_sections.png" title="They're not generally used for crewed spacecraft because astronauts HATE going around the corners." alt="They're not generally used for crewed spacecraft because astronauts HATE going around the corners." />
+        </summary>
+    </entry>
+    <entry>
+        <title>Anyone Else Here</title>
+        <link href="https://xkcd.com/3188/" rel="alternate"/>
+        <updated>2025-12-31T00:00:00Z</updated>
+        <id>https://xkcd.com/3188/</id>
+        <summary type="html">
+            <img src="https://imgs.xkcd.com/comics/anyone_else_here.png" title="Anyone else watching this Youtube video in 1954? If so, my last trip definitely messed with the timeline." alt="Anyone else watching this Youtube video in 1954? If so, my last trip definitely messed with the timeline." />
+        </summary>
+    </entry>
+    <entry>
+        <title>High Altitude Cooking Instructions</title>
+        <link href="https://xkcd.com/3187/" rel="alternate"/>
+        <updated>2025-12-29T00:00:00Z</updated>
+        <id>https://xkcd.com/3187/</id>
+        <summary type="html">
+            <img src="https://imgs.xkcd.com/comics/high_altitude_cooking_instructions.png" title="1,300,000-1,400,000 ft: Ask a crew member to show you how to use the ISS food warmer." alt="1,300,000-1,400,000 ft: Ask a crew member to show you how to use the ISS food warmer." />
+        </summary>
+    </entry>
+    <entry>
+        <title>Truly Universal Outlet</title>
+        <link href="https://xkcd.com/3186/" rel="alternate"/>
+        <updated>2025-12-26T00:00:00Z</updated>
+        <id>https://xkcd.com/3186/</id>
+        <summary type="html">
+            <img src="https://imgs.xkcd.com/comics/truly_universal_outlet.png" title="Building Inspectors HATE This One Weird Trick" alt="Building Inspectors HATE This One Weird Trick" />
+        </summary>
+    </entry>
+</feed>
