@@ -7,127 +7,10 @@ import { Appbar, Snackbar, useTheme } from 'react-native-paper'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
 import { setArticleRead, setArticleSaved } from '@/services/articles-db'
+import { buildArticleHtml } from '@/services/article-html'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
+import { shouldOpenExternally } from '@/services/webview-navigation'
 import { useArticlesStore } from '@/store/articles'
-import { Article } from '@/types'
-import { MD3Colors } from 'react-native-paper/lib/typescript/types'
-
-const renderHTML = (
-  article: Article | undefined,
-  colors: MD3Colors,
-  displayDate: string,
-  title: string | undefined,
-  body: string,
-): string => {
-  const hero = article?.thumbnail
-    ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
-    : ''
-  const headerInner = `
-      <header class="article-header">
-        ${hero}
-        <div class="content">
-          <div class="meta">${displayDate}</div>
-          <div class="title">${title ?? ''}</div>
-          <div class="source">${article?.source ?? ''}</div>
-        </div>
-      </header>
-    `
-  const headerBlock = article?.link
-    ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
-    : headerInner
-
-  const result = `
-      <html>
-        <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <style>
-            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurface}; }
-            figure { width: 100%; margin:0; padding:0 }
-            figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
-            img { max-width: 100%; height: auto; border-radius: 12px; }
-            h1, h2, h3, h4 { line-height: 1.2; }
-            a { color: ${colors.primary}; text-decoration: none; }
-            a:hover { text-decoration: underline; }
-            figure { margin: 0 0 16px 0; }
-            .article-header { border-radius: 12px; background: ${colors.surfaceVariant};}
-            .article-header .content { padding: 16px }
-            .header-link { color: inherit; text-decoration: none; display: block; }
-            .header-link:hover { text-decoration: none; }
-            .header-link:active { opacity: 0.6; }
-            blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
-            pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
-            code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
-            .hero { width: 100%; border-radius: 0px; border-top-left-radius: 12px; border-top-right-radius: 12px; height: auto; }
-            .meta { color: ${colors.onSurfaceVariant}; font-size: 14px}
-            .title { font-size: 24px; color: ${colors.onSurface}; font-weight: 700; margin-block: 4px; line-height:1.2; }
-            .source { color: ${colors.onSurfaceVariant}; font-weight: 700;}
-            .divider { height: 0px; background: ${colors.outlineVariant}; margin: 16px 0; }
-            
-            .pane { will-change: transform, opacity; }
-            .enter {
-              animation: enter-up 200ms cubic-bezier(0, 0, 0.2, 1) 100ms both;
-            }
-            @keyframes enter-up {
-              from { opacity: 0; transform: translateY(20%); }
-              to   { opacity: 1; transform: translateY(0); }
-            }
-
-          </style>
-        </head>
-        <body class="pane enter">
-          ${headerBlock}
-          <div class="divider"></div>
-          ${body}
-          <script>
-            (function () {
-              function wrapXkcdStyleImages() {
-                var images = document.querySelectorAll('img[title]:not([data-has-figcaption])')
-                for (var i = 0; i < images.length; i++) {
-                  var img = images[i]
-                  var title = img.getAttribute('title')
-                  if (!title) continue
-
-                  if (img.closest && img.closest('figure')) {
-                    img.setAttribute('data-has-figcaption', 'true')
-                    continue
-                  }
-
-                  var target = img
-                  var parent = img.parentElement
-                  if (
-                    parent &&
-                    parent.tagName === 'A' &&
-                    parent.childNodes &&
-                    parent.childNodes.length === 1
-                  ) {
-                    target = parent
-                  }
-
-                  var figure = document.createElement('figure')
-                  var figcaption = document.createElement('figcaption')
-                  figcaption.textContent = title
-
-                  var insertionParent = target.parentNode
-                  if (!insertionParent) continue
-                  insertionParent.insertBefore(figure, target)
-                  figure.appendChild(target)
-                  figure.appendChild(figcaption)
-                  img.setAttribute('data-has-figcaption', 'true')
-                }
-              }
-
-              if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', wrapXkcdStyleImages)
-              } else {
-                wrapXkcdStyleImages()
-              }
-            })()
-          </script>
-        </body>
-      </html>
-    `
-  return result
-}
 
 export default function ArticleScreen() {
   const router = useRouter()
@@ -167,13 +50,19 @@ export default function ArticleScreen() {
       article?.description ??
       'No content available. Try switching to the original page or Reader mode.'
 
-    return renderHTML(article, colors, displayDate, article?.title, body)
+    return buildArticleHtml({ article, colors, displayDate, title: article?.title, body })
   }, [article, colors, displayDate])
 
   const readerHtml = useMemo(() => {
     if (reader.status !== 'ok' || !reader.html) return null
 
-    return renderHTML(article, colors, displayDate, reader.title ?? article?.title, reader.html)
+    return buildArticleHtml({
+      article,
+      colors,
+      displayDate,
+      title: reader.title ?? article?.title,
+      body: reader.html,
+    })
   }, [article, colors, displayDate, reader])
 
   useEffect(() => {
@@ -242,11 +131,18 @@ export default function ArticleScreen() {
   const handleNavigationStateChange = useCallback(async (navState: WebViewNavigation) => {
     if (!initialNavigationUrl.current) {
       initialNavigationUrl.current = navState.url
+      return
     }
 
-    if (!navState.url.startsWith('http')) return
-    if (navState.url === initialNavigationUrl.current) return
-    if (navState.url === lastOpenedUrl.current) return
+    if (
+      !shouldOpenExternally({
+        url: navState.url,
+        initialUrl: initialNavigationUrl.current,
+        lastOpenedUrl: lastOpenedUrl.current,
+      })
+    ) {
+      return
+    }
 
     lastOpenedUrl.current = navState.url
     webViewRef.current?.stopLoading()

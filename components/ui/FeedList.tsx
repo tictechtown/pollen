@@ -37,6 +37,7 @@ export default function FeedList(props: Props) {
     refresh,
     loadNextPage,
     hasMore,
+    hasUnread,
     toggleSaved,
     toggleRead,
     markAllRead,
@@ -50,14 +51,11 @@ export default function FeedList(props: Props) {
     setIsScrolled(nextScrolled)
   }, [])
 
-  console.log('rendering feedlist', { unread: !!props.unreadOnly })
-
   const renderItem = useCallback(
     ({ item }: { item: Article }) => (
       <FeedItem
         article={item}
         onOpen={() => {
-          console.log('opening', `/article/${item.id}`)
           router.push(`/article/${item.id}`)
         }}
         onToggleSaved={() => toggleSaved(item.id)}
@@ -73,17 +71,6 @@ export default function FeedList(props: Props) {
       <Appbar.Header mode="small">
         <Appbar.Action icon={'menu'} onPress={() => router.dismissTo('/sources')} />
         <Appbar.Content title={selectedFeedTitle ? selectedFeedTitle : 'All'} />
-        <Appbar.Action
-          icon="share"
-          onPress={() =>
-            router.push({
-              pathname: '/share',
-              params: {
-                url: 'https://arstechnica.com/cars/2026/01/tesla-sales-fell-by-9-percent-in-2025-its-second-yearly-decline/',
-              },
-            })
-          }
-        />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
         <Appbar.Action icon="cog-outline" onPress={() => router.push('/settings')} />
       </Appbar.Header>
@@ -146,14 +133,16 @@ export default function FeedList(props: Props) {
         }
       />
 
-      <AnimatedFAB
-        icon="check-all"
-        label="Mark all read"
-        extended={!isScrolled}
-        onPress={() => markAllRead()}
-        style={styles.fab}
-        variant="tertiary"
-      />
+      {hasUnread ? (
+        <AnimatedFAB
+          icon="check-all"
+          label="Mark all read"
+          extended={!isScrolled}
+          onPress={() => markAllRead()}
+          style={styles.fab}
+          variant="tertiary"
+        />
+      ) : null}
     </View>
   )
 }

@@ -20,8 +20,8 @@ type ArticlesState = {
 export const useArticlesStore = create<ArticlesState>()(
   devtools((set) => ({
     articles: [],
-    localSavedArticles: {},
-    localReadArticles: {},
+    localSavedArticles: new Map(),
+    localReadArticles: new Map(),
     initialized: false,
     setArticles: (articles) => {
       const localReadArticles = new Map(articles.map((a) => [a.id, a.read]))
@@ -31,23 +31,24 @@ export const useArticlesStore = create<ArticlesState>()(
     setInitialized: () => set({ initialized: true }),
     upsertArticle: (article) =>
       set((state) => {
-        const exists = state.articles.find((a) => a.id === article.id)
-        // TODO - update localRead and localSaved
-        return {
-          articles: exists
-            ? state.articles.map((a) => (a.id === article.id ? { ...exists, ...article } : a))
-            : [article, ...state.articles],
-        }
+        const existing = state.articles.find((a) => a.id === article.id)
+        const merged = existing ? { ...existing, ...article } : article
+        const articles = existing
+          ? state.articles.map((a) => (a.id === article.id ? merged : a))
+          : [merged, ...state.articles]
+        const localReadArticles = new Map(state.localReadArticles).set(merged.id, merged.read)
+        const localSavedArticles = new Map(state.localSavedArticles).set(merged.id, merged.saved)
+        return { articles, localReadArticles, localSavedArticles }
       }),
     updateSavedLocal: (id, saved) =>
-      set((state) => {
-        return {
-          localSavedArticles: new Map(state.localSavedArticles).set(id, saved),
-        }
-      }),
+      set((state) => ({
+        localSavedArticles: new Map(state.localSavedArticles).set(id, saved),
+        articles: state.articles.map((article) => (article.id === id ? { ...article, saved } : article)),
+      })),
     updateReadLocal: (id, read) =>
       set((state) => ({
         localReadArticles: new Map(state.localReadArticles).set(id, read),
+        articles: state.articles.map((article) => (article.id === id ? { ...article, read } : article)),
       })),
     clear: () => set({ articles: [], localSavedArticles: new Map(), localReadArticles: new Map() }),
   })),

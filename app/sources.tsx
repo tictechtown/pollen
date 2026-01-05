@@ -15,6 +15,7 @@ import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeab
 import SourceListItem from '@/components/ui/SourceListItem'
 import { getArticlesFromDb, upsertArticles } from '@/services/articles-db'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
+import { buildFeedSections, groupFeedsByFolderId } from '@/services/feed-sections'
 import { removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
 import {
   createFolderInDb,
@@ -83,36 +84,8 @@ export default function SourcesScreen() {
 
   const onStateChange = useCallback(({ open }: { open: boolean }) => setState({ open }), [setState])
 
-  const feedsByFolderId = useMemo(() => {
-    const grouped = new Map<string, Feed[]>()
-    for (const feed of feeds) {
-      const folderId = feed.folderId ?? ''
-      const entries = grouped.get(folderId) ?? []
-      entries.push(feed)
-      grouped.set(folderId, entries)
-    }
-    return grouped
-  }, [feeds])
-  const sections = useMemo(() => {
-    const unfiled = feeds.filter((feed) => !feed.folderId)
-    const folderSections = folders.map((folder) => ({
-      key: folder.id,
-      title: folder.title,
-      folder,
-      data: (feedsByFolderId.get(folder.id) ?? [])
-        .slice()
-        .sort((a, b) => a.title.localeCompare(b.title)),
-    }))
-    return [
-      {
-        key: 'unfiled',
-        title: 'Unfiled',
-        folder: null,
-        data: unfiled.slice().sort((a, b) => a.title.localeCompare(b.title)),
-      },
-      ...folderSections,
-    ]
-  }, [feeds, feedsByFolderId, folders])
+  const feedsByFolderId = useMemo(() => groupFeedsByFolderId(feeds), [feeds])
+  const sections = useMemo(() => buildFeedSections(feeds, folders), [feeds, folders])
 
   useEffect(() => {
     getFoldersFromDb()
@@ -275,7 +248,6 @@ export default function SourcesScreen() {
     try {
       await upsertFeeds([feed])
     } catch (e) {
-      console.log('[upserFeeds]', e)
       if ((e as Error).message.includes('UNIQUE constraint failed: feeds.xmlUrl')) {
         setSnackbar('Feed already exists')
       } else {

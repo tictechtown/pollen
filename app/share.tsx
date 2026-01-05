@@ -1,4 +1,3 @@
-import * as Linking from 'expo-linking'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import he from 'he'
 import { useEffect, useMemo, useState } from 'react'
@@ -16,6 +15,7 @@ import {
   TextInput,
 } from 'react-native-paper'
 
+import { dedupeById } from '@/services/collections'
 import { upsertArticles } from '@/services/articles-db'
 import { discoverFeedCandidates, FeedCandidate } from '@/services/feedDiscovery'
 import { upsertFeeds } from '@/services/feeds-db'
@@ -27,15 +27,6 @@ import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
 import { Feed } from '@/types'
-
-const dedupeById = <T extends { id: string }>(items: T[]): T[] => {
-  const seen = new Set<string>()
-  return items.filter((item) => {
-    if (seen.has(item.id)) return false
-    seen.add(item.id)
-    return true
-  })
-}
 
 export default function ShareScreen() {
   const router = useRouter()
@@ -154,16 +145,6 @@ export default function ShareScreen() {
     }
     void startDiscovery(normalizedUrl)
   }, [isHttpUrl, normalizedUrl])
-
-  const openInBrowser = async (url?: string | null) => {
-    if (!url) return
-    try {
-      await Linking.openURL(url)
-    } catch (err) {
-      console.error('Failed to open URL', err)
-      setSnackbar('Failed to open in browser')
-    }
-  }
 
   const openExistingFeed = (feed: Feed) => {
     setFeedFilter(feed.id, feed.title)

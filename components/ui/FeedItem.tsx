@@ -7,17 +7,7 @@ import { IconButton, Text } from 'react-native-paper'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
 import Reanimated, { clamp, SharedValue, useAnimatedStyle } from 'react-native-reanimated'
 
-const relativeTime = (date?: string) => {
-  if (!date) return 'Just now'
-  const diffMs = Date.now() - new Date(date).getTime()
-  const diffMinutes = Math.max(Math.floor(diffMs / 60000), 0)
-  if (diffMinutes < 1) return 'Just now'
-  if (diffMinutes < 60) return `${diffMinutes}m ago`
-  const diffHours = Math.floor(diffMinutes / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
-  const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays}d ago`
-}
+import { formatRelativeTime } from '@/services/time'
 
 type SwipeActionProps = {
   dragX: SharedValue<number>
@@ -67,8 +57,9 @@ const FeedItem = ({
 }) => {
   const reanimatedRef = useRef<SwipeableMethods>(null)
 
-  const read = useArticlesStore((state) => state.localReadArticles.get(article.id))
-  const saved = useArticlesStore((state) => state.localSavedArticles.get(article.id))
+  const read = useArticlesStore((state) => state.localReadArticles.get(article.id)) ?? article.read
+  const saved =
+    useArticlesStore((state) => state.localSavedArticles.get(article.id)) ?? article.saved
 
   const opacity = read ? 0.7 : 1
 
@@ -100,9 +91,9 @@ const FeedItem = ({
         )}
         onSwipeableOpen={(direction) => {
           if (direction === 'left') {
-            onToggleSaved()
-          } else {
             onToggleRead()
+          } else {
+            onToggleSaved()
           }
           reanimatedRef.current?.close()
         }}
@@ -145,7 +136,7 @@ const FeedItem = ({
             }}
           >
             <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant, opacity }}>
-              {relativeTime(article.updatedAt ?? article.publishedAt)}
+              {formatRelativeTime(article.updatedAt ?? article.publishedAt)}
             </Text>
             <View style={{ flex: 0, flexDirection: 'row', alignItems: 'center', gap: 0 }}>
               <IconButton

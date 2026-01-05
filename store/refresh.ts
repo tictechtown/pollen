@@ -79,8 +79,6 @@ export const useRefreshStore = create<RefreshState>()(
         blockedUntilManual: false,
       })
 
-      console.log('[useRefreshStore] refresh', !!refreshPromise)
-
       refreshPromise = refreshFeedsAndArticles({
         selectedFeedId: context.selectedFeedId,
         reason: context.reason,

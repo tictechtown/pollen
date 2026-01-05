@@ -36,7 +36,6 @@ export default function RootLayout() {
   // Startup effect
   useEffect(() => {
     const boot = async () => {
-      console.log('[boot]')
       setInitialized()
       // we load from disk
       await hydrate()
@@ -94,7 +93,6 @@ export default function RootLayout() {
   const pathname = usePathname()
 
   useEffect(() => {
-    console.log('useeffect', pathname)
     if (!initialized) return
     if (pathname !== '/') return
     router.push('/(tabs)') // keeps sources underneath

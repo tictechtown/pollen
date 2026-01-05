@@ -15,12 +15,8 @@ import {
 } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
-import {
-  getArticleReadStatus,
-  getArticleStarredStatus,
-  setArticleRead,
-  setArticleSaved,
-} from '@/services/articles-db'
+import { setArticleRead, setArticleSaved } from '@/services/articles-db'
+import { selectSavedArticles } from '@/services/articles-selectors'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
 import { useArticlesStore } from '@/store/articles'
@@ -29,10 +25,11 @@ import { useShallow } from 'zustand/react/shallow'
 export default function SavedScreen() {
   const router = useRouter()
   const { colors } = useTheme()
-  const { articles, savedStatus, updateSavedLocal, upsertArticleLocal } = useArticlesStore(
+  const { articles, savedStatus, readStatus, updateSavedLocal, upsertArticleLocal } = useArticlesStore(
     useShallow((state) => ({
       articles: state.articles,
       savedStatus: state.localSavedArticles,
+      readStatus: state.localReadArticles,
       updateSavedLocal: state.updateSavedLocal,
       upsertArticleLocal: state.upsertArticle,
     })),
@@ -43,27 +40,32 @@ export default function SavedScreen() {
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const saved = useMemo(
-    () => articles.filter((article) => savedStatus.get(article.id)),
-    [savedStatus, articles],
-  )
+  const saved = useMemo(() => selectSavedArticles(articles, savedStatus), [articles, savedStatus])
 
   const toggleSaved = useCallback(
     async (id: string) => {
-      const nextSaved = !(await getArticleStarredStatus(id))
-      await setArticleSaved(id, nextSaved)
-      updateSavedLocal(id, nextSaved)
+      const nextSaved = !(savedStatus.get(id) ?? false)
+      try {
+        await setArticleSaved(id, nextSaved)
+        updateSavedLocal(id, nextSaved)
+      } catch {
+        // ignore and keep local state unchanged
+      }
     },
-    [updateSavedLocal],
+    [savedStatus, updateSavedLocal],
   )
 
   const toggleRead = useCallback(
     async (id: string) => {
-      const nextRead = !(await getArticleReadStatus(id))
-      await setArticleRead(id, nextRead)
-      updateReadLocal(id, nextRead)
+      const nextRead = !(readStatus.get(id) ?? false)
+      try {
+        await setArticleRead(id, nextRead)
+        updateReadLocal(id, nextRead)
+      } catch {
+        // ignore and keep local state unchanged
+      }
     },
-    [updateReadLocal],
+    [readStatus, updateReadLocal],
   )
 
   const handleCloseDialog = () => {

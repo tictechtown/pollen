@@ -9,6 +9,7 @@ import { Appbar, Button, Divider, List, Snackbar, Switch, Text } from 'react-nat
 import { deleteArticlesOlderThan, getArticlesFromDb } from '@/services/articles-db'
 import { getFeedsFromDb } from '@/services/feeds-db'
 import { buildOpml } from '@/services/opml'
+import { buildOpmlExportFilename } from '@/services/opml-export'
 import { importFeedsFromOpmlUri } from '@/services/refresh'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
@@ -63,14 +64,6 @@ export default function SettingsScreen() {
     }
   }
 
-  const buildExportFilename = () => {
-    const now = new Date()
-    const y = String(now.getFullYear())
-    const m = String(now.getMonth() + 1).padStart(2, '0')
-    const d = String(now.getDate()).padStart(2, '0')
-    return `pollen-subscriptions-${y}${m}${d}.opml`
-  }
-
   const handleExportOpml = async () => {
     if (exportingOpml) return
 
@@ -80,7 +73,7 @@ export default function SettingsScreen() {
     }
 
     setExportingOpml(true)
-    const filename = buildExportFilename()
+    const filename = buildOpmlExportFilename()
     const opml = buildOpml(feeds, { title: 'Pollen subscriptions' })
 
     try {
