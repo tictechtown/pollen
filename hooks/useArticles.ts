@@ -1,15 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { readerApi } from '@/services/reader-api'
-import {
-  getTotalPages,
-  selectFeedArticles,
-  selectPaged,
-  selectUnreadArticles,
-} from '@/services/articles-selectors'
 import { useArticlesStore } from '@/store/articles'
 import { useFiltersStore } from '@/store/filters'
 import { type RefreshReason, useRefreshStore } from '@/store/refresh'
+import { Article } from '@/types'
 
 const PAGE_SIZE = 100
 
@@ -19,16 +14,22 @@ type UseArticlesOptions = {
 
 export const useArticles = (options: UseArticlesOptions = {}) => {
   const {
-    articles,
     localSavedArticles,
     localReadArticles,
+    version,
+    invalidate,
     updateSavedLocal,
     updateReadLocal,
     initialized,
   } = useArticlesStore()
   const { selectedFeedId } = useFiltersStore()
-  const { status, hydrationStatus, hydratedFeedId, lastError, hydrate, refresh } = useRefreshStore()
+  const { status, hydrationStatus, lastError, refresh } = useRefreshStore()
   const [page, setPage] = useState(1)
+  const [articles, setArticles] = useState<Article[]>([])
+  const [total, setTotal] = useState(0)
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [localLoading, setLocalLoading] = useState(false)
+  const [localError, setLocalError] = useState<string | null>(null)
 
   const triggerRefresh = useCallback(
     async (reason: RefreshReason) => {
@@ -43,42 +44,50 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   )
 
   useEffect(() => {
-    if (initialized) {
-      if (hydrationStatus === 'loading') return
-      if (hydratedFeedId === (selectedFeedId ?? null)) return
-      void hydrate(selectedFeedId)
-    }
-  }, [hydrate, hydratedFeedId, hydrationStatus, initialized, selectedFeedId])
+    if (!initialized) return
+    if (hydrationStatus === 'loading') return
+    setLocalLoading(true)
+    setLocalError(null)
+    void readerApi.articles
+      .listPage({
+        feedId: selectedFeedId,
+        unreadOnly: !!options.unreadOnly,
+        page: 1,
+        pageSize: PAGE_SIZE * Math.max(1, page),
+      })
+      .then((result) => {
+        setArticles(result.articles)
+        setTotal(result.total)
+      })
+      .catch((error) => {
+        setLocalError(error instanceof Error ? error.message : 'Failed to load articles')
+        setArticles([])
+        setTotal(0)
+      })
+      .finally(() => setLocalLoading(false))
+  }, [hydrationStatus, initialized, options.unreadOnly, page, selectedFeedId, version])
 
   const unreadOnly = !!options.unreadOnly
-
-  // Pagination
-  const sortedAndFiltered = useMemo(
-    () => selectUnreadArticles(selectFeedArticles(articles, selectedFeedId), unreadOnly),
-    [articles, selectedFeedId, unreadOnly],
-  )
 
   useEffect(() => {
     setPage(1)
   }, [selectedFeedId, unreadOnly])
 
-  const totalPages = useMemo(() => getTotalPages(sortedAndFiltered.length, PAGE_SIZE), [
-    sortedAndFiltered.length,
-  ])
+  useEffect(() => {
+    if (!initialized) return
+    void readerApi.articles
+      .getUnreadCount(selectedFeedId)
+      .then((count) => setUnreadCount(count))
+      .catch(() => setUnreadCount(0))
+  }, [initialized, selectedFeedId, version])
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total])
 
   useEffect(() => {
     setPage((current) => Math.min(current, totalPages))
   }, [totalPages])
 
-  const pagedArticles = useMemo(
-    () => selectPaged(sortedAndFiltered, page, PAGE_SIZE),
-    [page, sortedAndFiltered],
-  )
-
-  const hasUnread = useMemo(
-    () => sortedAndFiltered.some((article) => !article.read),
-    [sortedAndFiltered],
-  )
+  const hasUnread = useMemo(() => (unreadOnly ? total > 0 : unreadCount > 0), [total, unreadCount, unreadOnly])
 
   const loadNextPage = useCallback(() => {
     setPage((current) => (current < totalPages ? current + 1 : current))
@@ -91,11 +100,12 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
       try {
         await readerApi.articles.setSaved(id, nextSaved)
         updateSavedLocal(id, nextSaved)
+        invalidate()
       } catch {
         // ignore and keep local state unchanged
       }
     },
-    [localSavedArticles, updateSavedLocal],
+    [invalidate, localSavedArticles, updateSavedLocal],
   )
 
   // Read status
@@ -105,29 +115,30 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
       try {
         await readerApi.articles.setRead(id, nextRead)
         updateReadLocal(id, nextRead)
+        invalidate()
       } catch {
         // ignore and keep local state unchanged
       }
     },
-    [localReadArticles, updateReadLocal],
+    [invalidate, localReadArticles, updateReadLocal],
   )
 
   const markAllRead = useCallback(() => {
-    const ids = sortedAndFiltered.map((article) => article.id)
-    void readerApi.articles.setManyRead(ids, true)
+    const ids = articles.map((article) => article.id)
     ids.forEach((id) => updateReadLocal(id, true))
-  }, [sortedAndFiltered, updateReadLocal])
+    void readerApi.articles.setAllRead(selectedFeedId).then(() => invalidate())
+  }, [articles, invalidate, selectedFeedId, updateReadLocal])
 
   return {
-    articles: pagedArticles,
-    loading: status === 'loading' || hydrationStatus === 'loading',
+    articles,
+    loading: status === 'loading' || hydrationStatus === 'loading' || localLoading,
     refresh: () => triggerRefresh('manual'),
     loadNextPage,
-    hasMore: pagedArticles.length < sortedAndFiltered.length,
+    hasMore: articles.length < total,
     hasUnread,
     toggleSaved,
     toggleRead,
     markAllRead,
-    error: lastError,
+    error: lastError ?? localError,
   }
 }

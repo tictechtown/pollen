@@ -109,23 +109,34 @@ For any new UI elements, try to use Material You or Material You Expressive elem
   [x] new-user-opml
   [x] recurring-user
   [x] recurring-user-export-opml
-  [] recurring-user-organize-feed
-  [] recurring-user-share-feed
-  [] recurring-user-share-saved
-
+  [x] recurring-user-organize-feed
+  [x] recurring-user-share-feed
+  [x] recurring-user-share-saved
 - Debug, using adb, why certain feeds are unreachable
 - Export to OPML
 - Add ability to create/manage folders for feeds
+- Add a FAB to add a lone link
+- Revise navigation when going to source. Should come from the left:
+
+  - Maybe the navigation stack should be: [souces, tabs, share | article | settings], with the first route being tabs
+
+# Version 1.0.15
+
+- Update tab icons to be outlined/fill for default/selected
+- Why Mark As read is disabled when there are clearly other items visible
+- Redo data structure and fetch logic
+
+# Version 1.0.16
+
+- By default, expiresTS should have a min of 5 mins
 - If post has an updated date, don't change it's published date?
 - If feed has an issue (5xx or 4xx) -> display it to the user in sources
 
-- Add a FAB to add a lone link
-- Update tab icons to be outlined/fill for default/selected
-- Why Mark As read is disabled when there are clearly other items visible
-- Revise navigation when going to source. Should come from the left:
-  - Maybe the navigation stack should be: [souces, tabs, share | article | settings], with the first route being tabs
-- Redo data structure and fetch logic
-- By default, expiresTS should have a min of 5 mins
+# Version 1.0.17
+
+- Display Progress animation when importing OPML
+- After OPML files have been imported, refresh cache
+- Do we need articleStore instead of SQLite?
 
 # Version 1.1.0
 

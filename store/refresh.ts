@@ -37,13 +37,13 @@ let refreshPromise: Promise<RefreshResult | null> | null = null
  * @param feedId
  */
 const hydrateStores = async (feedId?: string) => {
-  const { feeds, articles } = await readerApi.hydrate(feedId)
+  const { feeds } = await readerApi.hydrate(feedId)
   const { setFeeds } = useFeedsStore.getState()
-  const { setArticles } = useArticlesStore.getState()
+  const { invalidate } = useArticlesStore.getState()
   if (feeds.length) {
     setFeeds(feeds)
   }
-  setArticles(articles)
+  invalidate()
 }
 
 export const useRefreshStore = create<RefreshState>()(

@@ -42,15 +42,19 @@ export const readerApi = {
     return strategy.importOpml(uri)
   },
   articles: {
-    list: (feedId?: string) => getActiveReaderStrategy().articles.list(feedId),
+    listPage: (params: Parameters<ReaderStrategy['articles']['listPage']>[0]) =>
+      getActiveReaderStrategy().articles.listPage(params),
+    get: (id: string) => getActiveReaderStrategy().articles.get(id),
     upsert: (articles: Parameters<ReaderStrategy['articles']['upsert']>[0]) =>
       getActiveReaderStrategy().articles.upsert(articles),
     getUnreadCountsByFeed: () => getActiveReaderStrategy().articles.getUnreadCountsByFeed(),
+    getUnreadCount: (feedId?: string) => getActiveReaderStrategy().articles.getUnreadCount(feedId),
     setRead: (id: string, read: boolean) => getActiveReaderStrategy().articles.setRead(id, read),
     setSaved: (id: string, saved: boolean) =>
       getActiveReaderStrategy().articles.setSaved(id, saved),
     setManyRead: (ids: string[], read: boolean) =>
       getActiveReaderStrategy().articles.setManyRead(ids, read),
+    setAllRead: (feedId?: string) => getActiveReaderStrategy().articles.setAllRead(feedId),
     deleteOlderThan: (olderThanMs: number) =>
       getActiveReaderStrategy().articles.deleteOlderThan(olderThanMs),
   },
@@ -69,4 +73,3 @@ export const readerApi = {
       getActiveReaderStrategy().folders.setFeedFolder(feedId, folderId),
   },
 } as const
-

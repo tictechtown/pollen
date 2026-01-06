@@ -2,7 +2,7 @@
 import * as FileSystem from 'expo-file-system/legacy'
 
 import { Article, Feed } from '@/types'
-import { getArticlesFromDb, upsertArticles } from './articles-db'
+import { upsertArticles } from './articles-db'
 import { getFeedsFromDb, upsertFeeds } from './feeds-db'
 import { isOpmlXml, parseOpml } from './opml'
 import { fetchFeed } from './rssClient'
@@ -224,6 +224,7 @@ export const refreshFeedsAndArticles = (options: RefreshOptions): Promise<Refres
 }
 
 export const hydrateArticlesAndFeeds = async (feedId?: string) => {
-  const [dbFeeds, dbArticles] = await Promise.all([getFeedsFromDb(), getArticlesFromDb(feedId)])
-  return { feeds: dbFeeds, articles: dbArticles }
+  const dbFeeds = await getFeedsFromDb()
+  // Articles are loaded on-demand with pagination directly from SQLite.
+  return { feeds: dbFeeds, articles: [] }
 }

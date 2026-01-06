@@ -5,6 +5,7 @@ import { type Article } from '@/types'
 vi.mock('@/services/reader-api', () => ({
   readerApi: {
     articles: {
+      get: vi.fn(),
       setSaved: vi.fn().mockResolvedValue(undefined),
       upsert: vi.fn().mockResolvedValue(undefined),
     },
@@ -34,15 +35,20 @@ describe('saveArticleForLater', () => {
   it('returns already-saved for duplicates', async () => {
     const url = 'https://example.com/post'
     const id = getSavedArticleId(url)
-    const articles: Article[] = [
-      { id, link: url, feedId: 'feed', title: 't', source: 's', saved: true, read: false },
-    ]
+    vi.mocked(readerApi.articles.get).mockResolvedValueOnce({
+      id,
+      link: url,
+      feedId: 'feed',
+      title: 't',
+      source: 's',
+      saved: true,
+      read: false,
+    } as Article)
 
     const result = await saveArticleForLater({
       url,
-      articles,
       updateSavedLocal: vi.fn(),
-      upsertArticleLocal: vi.fn(),
+      invalidate: vi.fn(),
     })
 
     expect(result).toEqual({ status: 'already-saved', id })
@@ -53,15 +59,20 @@ describe('saveArticleForLater', () => {
     const url = 'https://example.com/post'
     const id = getSavedArticleId(url)
     const updateSavedLocal = vi.fn()
-    const articles: Article[] = [
-      { id, link: url, feedId: 'feed', title: 't', source: 's', saved: false, read: false },
-    ]
+    vi.mocked(readerApi.articles.get).mockResolvedValueOnce({
+      id,
+      link: url,
+      feedId: 'feed',
+      title: 't',
+      source: 's',
+      saved: false,
+      read: false,
+    } as Article)
 
     const result = await saveArticleForLater({
       url,
-      articles,
       updateSavedLocal,
-      upsertArticleLocal: vi.fn(),
+      invalidate: vi.fn(),
     })
 
     expect(result).toEqual({ status: 'saved', id })
@@ -70,6 +81,7 @@ describe('saveArticleForLater', () => {
   })
 
   it('saves immediately and enriches metadata opportunistically', async () => {
+    vi.mocked(readerApi.articles.get).mockResolvedValueOnce(null)
     let resolveMetadata: ((value: unknown) => void) | undefined
     vi.mocked(fetchPageMetadata).mockImplementationOnce(
       () =>
@@ -79,18 +91,17 @@ describe('saveArticleForLater', () => {
     )
 
     const url = 'https://example.com/post'
-    const upsertArticleLocal = vi.fn()
+    const invalidate = vi.fn()
 
     const result = await saveArticleForLater({
       url,
-      articles: [],
       updateSavedLocal: vi.fn(),
-      upsertArticleLocal,
+      invalidate,
     })
 
     expect(result.status).toBe('saved')
     expect(readerApi.articles.upsert).toHaveBeenCalledTimes(1)
-    expect(upsertArticleLocal).toHaveBeenCalledTimes(1)
+    expect(invalidate).toHaveBeenCalledTimes(1)
 
     resolveMetadata?.({ title: 'Hello', source: 'Example' })
 
@@ -98,18 +109,18 @@ describe('saveArticleForLater', () => {
     await Promise.resolve()
 
     expect(readerApi.articles.upsert).toHaveBeenCalledTimes(2)
-    expect(upsertArticleLocal).toHaveBeenCalledTimes(2)
+    expect(invalidate).toHaveBeenCalledTimes(2)
   })
 
   it('does not fail saving when metadata fetch fails', async () => {
+    vi.mocked(readerApi.articles.get).mockResolvedValueOnce(null)
     vi.mocked(fetchPageMetadata).mockRejectedValueOnce(new Error('offline'))
 
     const url = 'https://example.com/post'
     const result = await saveArticleForLater({
       url,
-      articles: [],
       updateSavedLocal: vi.fn(),
-      upsertArticleLocal: vi.fn(),
+      invalidate: vi.fn(),
     })
 
     expect(result.status).toBe('saved')

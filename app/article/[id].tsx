@@ -10,14 +10,16 @@ import { buildArticleHtml } from '@/services/article-html'
 import { readerApi } from '@/services/reader-api'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { shouldOpenExternally } from '@/services/webview-navigation'
+import { useArticle } from '@/hooks/useArticle'
 import { useArticlesStore } from '@/store/articles'
 
 export default function ArticleScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
-  const article = useArticlesStore((state) => state.articles.find((a) => a.id === id))
   const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
   const updateReadLocal = useArticlesStore((state) => state.updateReadLocal)
+  const invalidate = useArticlesStore((state) => state.invalidate)
+  const { article } = useArticle(id)
   const { colors } = useTheme()
   const [mode, setMode] = useState<'rss' | 'reader' | 'original'>('rss')
   const [snackbar, setSnackbar] = useState<string | null>(null)
@@ -50,14 +52,14 @@ export default function ArticleScreen() {
       article?.description ??
       'No content available. Try switching to the original page or Reader mode.'
 
-    return buildArticleHtml({ article, colors, displayDate, title: article?.title, body })
+    return buildArticleHtml({ article: article ?? undefined, colors, displayDate, title: article?.title, body })
   }, [article, colors, displayDate])
 
   const readerHtml = useMemo(() => {
     if (reader.status !== 'ok' || !reader.html) return null
 
     return buildArticleHtml({
-      article,
+      article: article ?? undefined,
       colors,
       displayDate,
       title: reader.title ?? article?.title,
@@ -69,8 +71,9 @@ export default function ArticleScreen() {
     if (id && article && !article.read) {
       void readerApi.articles.setRead(id, true)
       updateReadLocal(id, true)
+      invalidate()
     }
-  }, [article, id, updateReadLocal])
+  }, [article, id, invalidate, updateReadLocal])
 
   useEffect(() => {
     if (!article || article.link) return
@@ -89,6 +92,7 @@ export default function ArticleScreen() {
     const next = !article.saved
     await readerApi.articles.setSaved(id, next)
     updateSavedLocal(id, next)
+    invalidate()
   }
 
   const handleLoadReader = useCallback(async () => {

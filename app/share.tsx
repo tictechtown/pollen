@@ -41,9 +41,8 @@ export default function ShareScreen() {
 
   const feeds = useFeedsStore((state) => state.feeds)
   const addFeed = useFeedsStore((state) => state.addFeed)
-  const articles = useArticlesStore((state) => state.articles)
-  const upsertArticleLocal = useArticlesStore((state) => state.upsertArticle)
   const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
+  const invalidate = useArticlesStore((state) => state.invalidate)
   const { setFeedFilter } = useFiltersStore()
 
   const [submitting, setSubmitting] = useState<'subscribe' | 'save' | null>(null)
@@ -113,9 +112,8 @@ export default function ShareScreen() {
     try {
       const result = await saveArticleForLater({
         url: normalizedUrl,
-        articles,
         updateSavedLocal,
-        upsertArticleLocal,
+        invalidate,
       })
       if (result.status === 'already-saved') {
         setAlreadySavedId(result.id)
@@ -166,8 +164,8 @@ export default function ShareScreen() {
       const deduped = dedupeById(fetchedArticles)
       if (deduped.length) {
         await readerApi.articles.upsert(deduped)
-        deduped.forEach((article) => upsertArticleLocal(article))
       }
+      invalidate()
       addFeed(feed)
       setFeedFilter(feed.id, feed.title)
       router.push('/(tabs)')

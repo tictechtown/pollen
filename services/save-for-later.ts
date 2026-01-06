@@ -4,9 +4,8 @@ import { Article } from '@/types'
 
 type SaveForLaterParams = {
   url: string
-  articles: Article[]
   updateSavedLocal: (id: string, saved: boolean) => void
-  upsertArticleLocal: (article: Article) => void
+  invalidate?: () => void
 }
 
 type SaveForLaterResult = {
@@ -57,12 +56,11 @@ const hasMetadata = (metadata: PageMetadata) =>
 
 export const saveArticleForLater = async ({
   url,
-  articles,
   updateSavedLocal,
-  upsertArticleLocal,
+  invalidate,
 }: SaveForLaterParams): Promise<SaveForLaterResult> => {
   const id = getSavedArticleId(url)
-  const existing = articles.find((article) => article.id === id)
+  const existing = await readerApi.articles.get(id)
 
   if (existing) {
     if (existing.saved) {
@@ -70,18 +68,20 @@ export const saveArticleForLater = async ({
     }
     await readerApi.articles.setSaved(existing.id, true)
     updateSavedLocal(existing.id, true)
+    invalidate?.()
     return { status: 'saved', id }
   }
 
   const newArticle = buildSavedArticle(url)
   await readerApi.articles.upsert([newArticle])
-  upsertArticleLocal(newArticle)
+  updateSavedLocal(newArticle.id, true)
+  invalidate?.()
   void fetchPageMetadata(url)
     .then(async (metadata) => {
       if (!hasMetadata(metadata)) return
       const enriched = applyMetadata(newArticle, metadata)
       await readerApi.articles.upsert([enriched])
-      upsertArticleLocal(enriched)
+      invalidate?.()
     })
     .catch(() => {
       // Metadata fetch is best-effort and should not block saving.

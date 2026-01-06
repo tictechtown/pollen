@@ -1,8 +1,9 @@
 import { useRouter } from 'expo-router'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import {
   Appbar,
+  ActivityIndicator,
   Button,
   Card,
   Dialog,
@@ -15,57 +16,50 @@ import {
 } from 'react-native-paper'
 
 import FeedItem from '@/components/ui/FeedItem'
+import { useSavedArticles } from '@/hooks/useSavedArticles'
 import { readerApi } from '@/services/reader-api'
-import { selectSavedArticles } from '@/services/articles-selectors'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
 import { useArticlesStore } from '@/store/articles'
-import { useShallow } from 'zustand/react/shallow'
 
 export default function SavedScreen() {
   const router = useRouter()
   const { colors } = useTheme()
-  const { articles, savedStatus, readStatus, updateSavedLocal, upsertArticleLocal } = useArticlesStore(
-    useShallow((state) => ({
-      articles: state.articles,
-      savedStatus: state.localSavedArticles,
-      readStatus: state.localReadArticles,
-      updateSavedLocal: state.updateSavedLocal,
-      upsertArticleLocal: state.upsertArticle,
-    })),
-  )
+  const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
   const updateReadLocal = useArticlesStore((state) => state.updateReadLocal)
+  const invalidate = useArticlesStore((state) => state.invalidate)
+  const { articles: saved, loading } = useSavedArticles()
   const [addVisible, setAddVisible] = useState(false)
   const [inputUrl, setInputUrl] = useState('')
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
-  const saved = useMemo(() => selectSavedArticles(articles, savedStatus), [articles, savedStatus])
-
   const toggleSaved = useCallback(
-    async (id: string) => {
-      const nextSaved = !(savedStatus.get(id) ?? false)
+    async (id: string, currentSaved: boolean) => {
+      const nextSaved = !currentSaved
       try {
         await readerApi.articles.setSaved(id, nextSaved)
         updateSavedLocal(id, nextSaved)
+        invalidate()
       } catch {
         // ignore and keep local state unchanged
       }
     },
-    [savedStatus, updateSavedLocal],
+    [invalidate, updateSavedLocal],
   )
 
   const toggleRead = useCallback(
-    async (id: string) => {
-      const nextRead = !(readStatus.get(id) ?? false)
+    async (id: string, currentRead: boolean) => {
+      const nextRead = !currentRead
       try {
         await readerApi.articles.setRead(id, nextRead)
         updateReadLocal(id, nextRead)
+        invalidate()
       } catch {
         // ignore and keep local state unchanged
       }
     },
-    [readStatus, updateReadLocal],
+    [invalidate, updateReadLocal],
   )
 
   const handleCloseDialog = () => {
@@ -84,9 +78,8 @@ export default function SavedScreen() {
     try {
       const result = await saveArticleForLater({
         url: normalized,
-        articles,
         updateSavedLocal,
-        upsertArticleLocal,
+        invalidate,
       })
       if (result.status === 'already-saved') {
         setSnackbar('Already saved')
@@ -114,20 +107,29 @@ export default function SavedScreen() {
         data={saved}
         keyExtractor={(item) => item.id}
         ListEmptyComponent={
-          <Card style={styles.emptyCard}>
-            <Card.Title title="No saved articles" />
-            <Card.Content>
-              <Text variant="bodyMedium">Swipe left on a card in your feed to save it.</Text>
-            </Card.Content>
-          </Card>
+          loading ? (
+            <Card style={styles.emptyCard}>
+              <Card.Content style={{ alignItems: 'center', gap: 12 }}>
+                <ActivityIndicator />
+                <Text variant="bodyMedium">Loading…</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Card style={styles.emptyCard}>
+              <Card.Title title="No saved articles" />
+              <Card.Content>
+                <Text variant="bodyMedium">Swipe left on a card in your feed to save it.</Text>
+              </Card.Content>
+            </Card>
+          )
         }
         ItemSeparatorComponent={() => <Divider horizontalInset />}
         renderItem={({ item }) => (
           <FeedItem
             article={item}
             onOpen={() => router.push(`/article/${item.id}`)}
-            onToggleSaved={() => toggleSaved(item.id)}
-            onToggleRead={() => toggleRead(item.id)}
+            onToggleSaved={() => toggleSaved(item.id, item.saved)}
+            onToggleRead={() => toggleRead(item.id, item.read)}
             colors={colors}
           />
         )}

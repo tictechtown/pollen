@@ -11,22 +11,18 @@ import { buildOpmlExportFilename } from '@/services/opml-export'
 import { readerApi } from '@/services/reader-api'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
-import { useFiltersStore } from '@/store/filters'
 
 export default function SettingsScreen() {
   const router = useRouter()
-  const setArticles = useArticlesStore((state) => state.setArticles)
+  const invalidateArticles = useArticlesStore((state) => state.invalidate)
   const setFeeds = useFeedsStore((state) => state.setFeeds)
   const feeds = useFeedsStore((state) => state.feeds)
-  const { selectedFeedId } = useFiltersStore()
   const [snackbar, setSnackbar] = useState<string | null>(null)
 
   const handleClearOld = async () => {
     const sixMonthsAgo = Date.now() - 1000 * 60 * 60 * 24 * 180
     await readerApi.articles.deleteOlderThan(sixMonthsAgo)
-    // Reload articles scoped to current filter to reflect deletions
-    const refreshed = await readerApi.articles.list(selectedFeedId)
-    setArticles(refreshed)
+    invalidateArticles()
     setSnackbar('Removed articles older than 6 months')
   }
   const [importingOpml, setImportingOpml] = useState(false)

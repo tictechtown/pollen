@@ -32,13 +32,29 @@ export type ReaderHydrateResult = {
   articles: Article[]
 }
 
+export type ReaderArticlesListPageParams = {
+  feedId?: string
+  unreadOnly?: boolean
+  savedOnly?: boolean
+  page: number
+  pageSize: number
+}
+
+export type ReaderArticlesListPageResult = {
+  articles: Article[]
+  total: number
+}
+
 export type ReaderArticlesApi = {
-  list: (feedId?: string) => Promise<Article[]>
+  listPage: (params: ReaderArticlesListPageParams) => Promise<ReaderArticlesListPageResult>
+  get: (id: string) => Promise<Article | null>
   upsert: (articles: Article[]) => Promise<void>
   getUnreadCountsByFeed: () => Promise<Map<string, number>>
+  getUnreadCount: (feedId?: string) => Promise<number>
   setRead: (id: string, read: boolean) => Promise<void>
   setSaved: (id: string, saved: boolean) => Promise<void>
   setManyRead: (ids: string[], read: boolean) => Promise<void>
+  setAllRead: (feedId?: string) => Promise<void>
   deleteOlderThan: (olderThanMs: number) => Promise<void>
 }
 
@@ -66,4 +82,3 @@ export type ReaderStrategy = {
   feeds: ReaderFeedsApi
   folders: ReaderFoldersApi
 }
-

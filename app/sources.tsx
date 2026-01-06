@@ -53,7 +53,7 @@ export default function SourcesScreen() {
   const addFolder = useFoldersStore((state) => state.addFolder)
   const updateFolder = useFoldersStore((state) => state.updateFolder)
   const removeFolder = useFoldersStore((state) => state.removeFolder)
-  const setArticles = useArticlesStore((state) => state.setArticles)
+  const invalidateArticles = useArticlesStore((state) => state.invalidate)
   const { setFeedFilter, selectedFeedId } = useFiltersStore()
 
   const [addVisible, setAddVisible] = useState(false)
@@ -122,12 +122,10 @@ export default function SourcesScreen() {
   const handleRemove = (feed: Feed) => {
     readerApi.feeds.remove(feed.id).then(async () => {
       removeFeed(feed.id)
-      const nextFeedId = selectedFeedId === feed.id ? undefined : selectedFeedId
       if (selectedFeedId === feed.id) {
         setFeedFilter(undefined, undefined)
       }
-      const remainingArticles = await readerApi.articles.list(nextFeedId)
-      setArticles(remainingArticles)
+      invalidateArticles()
       void refreshUnreadCounts()
       setSnackbar(`Removed ${feed.title}`)
     })
@@ -223,8 +221,7 @@ export default function SourcesScreen() {
       removeFolder(folderId)
       if (selectedFeedId && removedFeedIds.has(selectedFeedId)) {
         setFeedFilter(undefined, undefined)
-        const remainingArticles = await readerApi.articles.list(undefined)
-        setArticles(remainingArticles)
+        invalidateArticles()
       }
       void refreshUnreadCounts()
       setSnackbar('Folder and feeds deleted')
@@ -275,6 +272,7 @@ export default function SourcesScreen() {
       return false
     }
     await readerApi.articles.upsert(articles)
+    invalidateArticles()
     addFeed(feed)
     setFeedFilter(feed.id, feed.title)
     return true

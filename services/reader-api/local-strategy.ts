@@ -1,4 +1,15 @@
-import { deleteArticlesOlderThan, getArticlesFromDb, getUnreadCountsByFeedFromDb, setArticleRead, setArticleSaved, setManyArticlesRead, upsertArticles } from '@/services/articles-db'
+import {
+  deleteArticlesOlderThan,
+  getArticleByIdFromDb,
+  getArticlesPageFromDb,
+  getUnreadCountFromDb,
+  getUnreadCountsByFeedFromDb,
+  setAllArticlesReadFromDb,
+  setArticleRead,
+  setArticleSaved,
+  setManyArticlesRead,
+  upsertArticles,
+} from '@/services/articles-db'
 import { getFeedsFromDb, removeFeedFromDb, upsertFeeds } from '@/services/feeds-db'
 import { createFolderInDb, deleteFolderInDb, getFoldersFromDb, renameFolderInDb, setFeedFolderIdInDb } from '@/services/folders-db'
 import { hydrateArticlesAndFeeds, importFeedsFromOpmlUri, refreshFeedsAndArticles } from '@/services/refresh'
@@ -27,12 +38,15 @@ export const createLocalStrategy = (): ReaderStrategy => {
     },
     importOpml: async (uri) => importFeedsFromOpmlUri(uri),
     articles: {
-      list: async (feedId) => getArticlesFromDb(feedId),
+      listPage: async (params) => getArticlesPageFromDb({ ...params, dbKey: undefined }),
+      get: async (id) => getArticleByIdFromDb(id),
       upsert: async (articles) => upsertArticles(articles),
       getUnreadCountsByFeed: async () => getUnreadCountsByFeedFromDb(),
+      getUnreadCount: async (feedId) => getUnreadCountFromDb(feedId),
       setRead: async (id, read) => setArticleRead(id, read),
       setSaved: async (id, saved) => setArticleSaved(id, saved),
       setManyRead: async (ids, read) => setManyArticlesRead(ids, read),
+      setAllRead: async (feedId) => setAllArticlesReadFromDb(feedId),
       deleteOlderThan: async (olderThanMs) => deleteArticlesOlderThan(olderThanMs),
     },
     feeds: {
@@ -49,4 +63,3 @@ export const createLocalStrategy = (): ReaderStrategy => {
     },
   }
 }
-

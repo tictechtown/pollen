@@ -120,6 +120,154 @@ export const getArticlesFromDb = async (feedId?: string, dbKey?: DbKey): Promise
   })
 }
 
+type ArticleDbRow = Omit<Article, 'read' | 'saved'> & { read: number | null; starred: number | null }
+
+const mapRowToArticle = (row: ArticleDbRow): Article => {
+  const { read, starred, ...article } = row
+  return {
+    ...article,
+    saved: Boolean(starred),
+    read: Boolean(read),
+  }
+}
+
+type ArticleListFilters = {
+  feedId?: string
+  unreadOnly?: boolean
+  savedOnly?: boolean
+}
+
+const buildArticlesWhere = (filters: ArticleListFilters) => {
+  const clauses: string[] = []
+  const args: (string | number)[] = []
+
+  if (filters.feedId) {
+    clauses.push(`articles.feedId = ?`)
+    args.push(filters.feedId)
+  } else if (!filters.savedOnly) {
+    clauses.push(`articles.feedId IS NOT NULL`)
+    clauses.push(`articles.feedId != ''`)
+  }
+
+  if (filters.unreadOnly) {
+    clauses.push(`COALESCE(article_statuses.read, 0) = 0`)
+  }
+
+  if (filters.savedOnly) {
+    clauses.push(`COALESCE(article_statuses.starred, articles.saved, 0) = 1`)
+  }
+
+  const whereSql = clauses.length ? `WHERE ${clauses.join(' AND ')}` : ''
+  return { whereSql, args }
+}
+
+export const getArticlesPageFromDb = async (
+  filters: ArticleListFilters & { page: number; pageSize: number; dbKey?: DbKey },
+): Promise<{ articles: Article[]; total: number }> => {
+  const db = await getDb(filters.dbKey)
+  const page = Math.max(1, Math.floor(filters.page))
+  const pageSize = Math.max(1, Math.floor(filters.pageSize))
+  const offset = (page - 1) * pageSize
+  const { whereSql, args } = buildArticlesWhere(filters)
+
+  const countRow = await db.getFirstAsync<{ total: number }>(
+    `
+      SELECT COUNT(articles.id) AS total
+      FROM articles
+      LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+      ${whereSql}
+    `,
+    args,
+  )
+  const total = Number(countRow?.total) || 0
+
+  const rows = await db.getAllAsync<ArticleDbRow>(
+    `
+      SELECT articles.*, article_statuses.read, article_statuses.starred
+      FROM articles
+      LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+      ${whereSql}
+      ORDER BY articles.sortTimestamp DESC, articles.createdAt DESC
+      LIMIT ? OFFSET ?
+    `,
+    [...args, pageSize, offset],
+  )
+
+  return { articles: rows.map(mapRowToArticle), total }
+}
+
+export const getArticleByIdFromDb = async (
+  id: string,
+  dbKey?: DbKey,
+): Promise<Article | null> => {
+  const db = await getDb(dbKey)
+  const row = await db.getFirstAsync<ArticleDbRow>(
+    `
+      SELECT articles.*, article_statuses.read, article_statuses.starred
+      FROM articles
+      LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+      WHERE articles.id = ?
+      LIMIT 1
+    `,
+    [id],
+  )
+  return row ? mapRowToArticle(row) : null
+}
+
+export const getUnreadCountFromDb = async (feedId?: string, dbKey?: DbKey): Promise<number> => {
+  const db = await getDb(dbKey)
+  const { whereSql, args } = buildArticlesWhere({ feedId, unreadOnly: true })
+  const row = await db.getFirstAsync<{ total: number }>(
+    `
+      SELECT COUNT(articles.id) AS total
+      FROM articles
+      LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+      ${whereSql}
+    `,
+    args,
+  )
+  return Number(row?.total) || 0
+}
+
+export const getUnreadArticleIdsFromDb = async (
+  feedId?: string,
+  dbKey?: DbKey,
+): Promise<string[]> => {
+  const db = await getDb(dbKey)
+  const { whereSql, args } = buildArticlesWhere({ feedId, unreadOnly: true })
+  const rows = await db.getAllAsync<{ id: string }>(
+    `
+      SELECT articles.id AS id
+      FROM articles
+      LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+      ${whereSql}
+    `,
+    args,
+  )
+  return rows.map((row) => row.id)
+}
+
+export const setAllArticlesReadFromDb = async (feedId?: string, dbKey?: DbKey) => {
+  const now = Math.floor(Date.now() / 1000)
+  await runWrite(async (db) => {
+    const { whereSql, args } = buildArticlesWhere({ feedId })
+    await db.runAsync(
+      `
+        INSERT INTO article_statuses (articleId, read, lastReadAt, updatedAt)
+        SELECT articles.id, 1, ?, ?
+        FROM articles
+        LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+        ${whereSql}
+        ON CONFLICT(articleId) DO UPDATE SET
+          read=excluded.read,
+          lastReadAt=excluded.lastReadAt,
+          updatedAt=excluded.updatedAt;
+      `,
+      [now, now, ...args],
+    )
+  }, dbKey)
+}
+
 export const getUnreadCountsByFeedFromDb = async (dbKey?: DbKey): Promise<Map<string, number>> => {
   const db = await getDb(dbKey)
   const rows = await db.getAllAsync<{ feedId: string | null; unreadCount: number }>(

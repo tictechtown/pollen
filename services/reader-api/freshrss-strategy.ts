@@ -2,8 +2,12 @@ import type { Article, Feed, FeedFolder } from '@/types'
 
 import {
   deleteArticlesOlderThan,
-  getArticlesFromDb,
+  getArticleByIdFromDb,
+  getArticlesPageFromDb,
+  getUnreadArticleIdsFromDb,
+  getUnreadCountFromDb,
   getUnreadCountsByFeedFromDb,
+  setAllArticlesReadFromDb,
   setArticleRead,
   setArticleSaved,
   setManyArticlesRead,
@@ -162,12 +166,8 @@ export const createFreshRssStrategy = (account: Extract<ReaderAccount, { kind: '
     kind: account.kind,
     accountId: account.id,
     hydrate: async (feedId) => {
-      const [feeds, folders, articles] = await Promise.all([
-        getFeedsFromDb(dbKey),
-        getFoldersFromDb(dbKey),
-        getArticlesFromDb(feedId, dbKey),
-      ])
-      const result: ReaderHydrateResult = { feeds, folders, articles }
+      const [feeds, folders] = await Promise.all([getFeedsFromDb(dbKey), getFoldersFromDb(dbKey)])
+      const result: ReaderHydrateResult = { feeds, folders, articles: [] }
       return result
     },
     refresh: async () => {
@@ -248,9 +248,11 @@ export const createFreshRssStrategy = (account: Extract<ReaderAccount, { kind: '
       }
     },
     articles: {
-      list: async (feedId) => getArticlesFromDb(feedId, dbKey),
+      listPage: async (params) => getArticlesPageFromDb({ ...params, dbKey }),
+      get: async (id) => getArticleByIdFromDb(id, dbKey),
       upsert: async (articles) => upsertArticles(articles, dbKey),
       getUnreadCountsByFeed: async () => getUnreadCountsByFeedFromDb(dbKey),
+      getUnreadCount: async (feedId) => getUnreadCountFromDb(feedId, dbKey),
       setRead: async (id, read) => {
         await client.request({ mark: 'item', as: read ? 'read' : 'unread', id })
         await setArticleRead(id, read, dbKey)
@@ -265,6 +267,13 @@ export const createFreshRssStrategy = (account: Extract<ReaderAccount, { kind: '
           ids.map((id) => client.request({ mark: 'item', as: read ? 'read' : 'unread', id })),
         )
         await setManyArticlesRead(ids, read, dbKey)
+      },
+      setAllRead: async (feedId) => {
+        const ids = await getUnreadArticleIdsFromDb(feedId, dbKey)
+        for (const batch of chunk(ids, 50)) {
+          await Promise.all(batch.map((id) => client.request({ mark: 'item', as: 'read', id })))
+        }
+        await setAllArticlesReadFromDb(feedId, dbKey)
       },
       deleteOlderThan: async (olderThanMs) => deleteArticlesOlderThan(olderThanMs, dbKey),
     },
@@ -294,4 +303,3 @@ export const createFreshRssStrategy = (account: Extract<ReaderAccount, { kind: '
     },
   }
 }
-
