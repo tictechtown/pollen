@@ -165,7 +165,7 @@ export const createFreshRssStrategy = (account: Extract<ReaderAccount, { kind: '
   return {
     kind: account.kind,
     accountId: account.id,
-    hydrate: async (feedId) => {
+    hydrate: async (_feedId) => {
       const [feeds, folders] = await Promise.all([getFeedsFromDb(dbKey), getFoldersFromDb(dbKey)])
       const result: ReaderHydrateResult = { feeds, folders, articles: [] }
       return result

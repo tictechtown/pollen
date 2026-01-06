@@ -44,7 +44,7 @@ const mapWithConcurrency = async <T, R>(
   limit: number,
   mapper: (item: T, index: number) => Promise<R>,
 ): Promise<PromiseSettledResult<R>[]> => {
-  const results: PromiseSettledResult<R>[] = new Array(items.length)
+  const results: PromiseSettledResult<R>[] = Array.from({ length: items.length })
   let nextIndex = 0
 
   const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
@@ -223,7 +223,7 @@ export const refreshFeedsAndArticles = (options: RefreshOptions): Promise<Refres
   return refreshInFlight
 }
 
-export const hydrateArticlesAndFeeds = async (feedId?: string) => {
+export const hydrateArticlesAndFeeds = async (_feedId?: string) => {
   const dbFeeds = await getFeedsFromDb()
   // Articles are loaded on-demand with pagination directly from SQLite.
   return { feeds: dbFeeds, articles: [] }

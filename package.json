@@ -12,7 +12,7 @@
     "run:android:release": "expo run:android --variant release",
     "run:ios": "expo run:ios",
     "build:android:release": "expo prebuild --platform android --no-install && cd android && ./gradlew assembleRelease",
-    "lint": "expo lint",
+    "lint": "expo lint && oxlint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },
@@ -64,6 +64,7 @@
     "@types/react": "~19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "oxlint": "^1.38.0",
     "typescript": "~5.9.2",
     "vitest": "^4.0.16"
   },
