@@ -79,7 +79,7 @@ export const buildArticleHtml = ({
     ? `<a class="header-link" href="${article.link}">${headerInner}</a>`
     : headerInner
 
-  return `
+  const result = `
       <html>
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -97,6 +97,7 @@ export const buildArticleHtml = ({
             .header-link { color: inherit; text-decoration: none; display: block; }
             .header-link:hover { text-decoration: none; }
             .header-link:active { opacity: 0.6; }
+            iframe { width: 100%; }
             blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
             pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
             code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
@@ -126,5 +127,5 @@ export const buildArticleHtml = ({
         </body>
       </html>
     `
+  return result
 }
-

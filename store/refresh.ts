@@ -17,9 +17,12 @@ export type RefreshContext = {
 }
 
 type RefreshStatus = 'idle' | 'loading' | 'error'
+type HydrationStatus = 'idle' | 'loading' | 'done'
 
 type RefreshState = {
   status: RefreshStatus
+  hydrationStatus: HydrationStatus
+  hydratedFeedId: string | null
   lastRefreshAt: number | null
   lastError: string | null
   blockedUntilManual: boolean
@@ -46,11 +49,29 @@ const hydrateStores = async (feedId?: string) => {
 export const useRefreshStore = create<RefreshState>()(
   devtools((set, get) => ({
     status: 'idle',
+    hydrationStatus: 'idle',
+    hydratedFeedId: null,
     lastRefreshAt: null,
     lastError: null,
     blockedUntilManual: false,
     hydrate: async (feedId) => {
-      await hydrateStores(feedId)
+      set({
+        hydrationStatus: 'loading',
+        lastError: null,
+      })
+      try {
+        await hydrateStores(feedId)
+        set({
+          hydrationStatus: 'done',
+          hydratedFeedId: feedId ?? null,
+        })
+      } catch (error) {
+        set({
+          hydrationStatus: 'idle',
+          lastError: error instanceof Error ? error.message : 'Failed to hydrate',
+        })
+        throw error
+      }
     },
     refresh: async (context) => {
       const state = get()

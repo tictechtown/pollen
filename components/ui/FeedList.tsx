@@ -11,6 +11,7 @@ import {
 import {
   AnimatedFAB,
   Appbar,
+  ActivityIndicator,
   Banner,
   Button,
   Card,
@@ -98,38 +99,50 @@ export default function FeedList(props: Props) {
         onEndReachedThreshold={0.6}
         renderItem={renderItem}
         ListEmptyComponent={
-          <Card
-            contentStyle={{ gap: 12 }}
-            style={{ marginInline: 16, paddingInline: 16, paddingBottom: 16 }}
-          >
-            <Card.Content>
-              <Text>{props.unreadOnly ? 'All caught up' : 'No Feed yet'}</Text>
-            </Card.Content>
-            <Button
-              mode="contained"
-              onPress={() => {
-                if (props.unreadOnly) {
-                  router.push('/(tabs)')
-                } else {
-                  router.push(`/sources`)
-                }
-              }}
+          loading ? (
+            <Card
+              contentStyle={{ gap: 12 }}
+              style={{ marginInline: 16, paddingInline: 16, paddingBottom: 16 }}
             >
-              {props.unreadOnly ? 'Show all' : 'Add new Feed'}
-            </Button>
-            <Button
-              mode="contained-tonal"
-              onPress={() => {
-                if (props.unreadOnly) {
-                  refresh()
-                } else {
-                  router.push(`/sources`)
-                }
-              }}
+              <Card.Content style={{ gap: 12 }}>
+                <ActivityIndicator />
+                <Text>Loading…</Text>
+              </Card.Content>
+            </Card>
+          ) : (
+            <Card
+              contentStyle={{ gap: 12 }}
+              style={{ marginInline: 16, paddingInline: 16, paddingBottom: 16 }}
             >
-              {props.unreadOnly ? 'Refresh' : 'Import OPML'}
-            </Button>
-          </Card>
+              <Card.Content>
+                <Text>{props.unreadOnly ? 'All caught up' : 'No Feed yet'}</Text>
+              </Card.Content>
+              <Button
+                mode="contained"
+                onPress={() => {
+                  if (props.unreadOnly) {
+                    router.push('/(tabs)')
+                  } else {
+                    router.push(`/sources`)
+                  }
+                }}
+              >
+                {props.unreadOnly ? 'Show all' : 'Add new Feed'}
+              </Button>
+              <Button
+                mode="contained-tonal"
+                onPress={() => {
+                  if (props.unreadOnly) {
+                    refresh()
+                  } else {
+                    router.push(`/sources`)
+                  }
+                }}
+              >
+                {props.unreadOnly ? 'Refresh' : 'Import OPML'}
+              </Button>
+            </Card>
+          )
         }
       />
 

@@ -19,6 +19,8 @@ const dbPromises = new Map<string, Promise<SQLite.SQLiteDatabase>>()
 // Serialize writes to avoid overlapping transactions on a single connection.
 const writeQueues = new Map<string, Promise<void>>()
 
+const MIGRATION_USER_VERSION = 1
+
 const ensureColumn = async (
   db: SQLite.SQLiteDatabase,
   table: string,
@@ -30,6 +32,15 @@ const ensureColumn = async (
   if (!hasColumn) {
     await db.execAsync(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition};`)
   }
+}
+
+const getUserVersion = async (db: SQLite.SQLiteDatabase): Promise<number> => {
+  const row = await db.getFirstAsync<{ user_version: number }>(`PRAGMA user_version;`)
+  return Number(row?.user_version) || 0
+}
+
+const setUserVersion = async (db: SQLite.SQLiteDatabase, version: number) => {
+  await db.execAsync(`PRAGMA user_version = ${Math.max(0, Math.floor(version))};`)
 }
 
 const ensureUniqueFeedXmlUrl = async (db: SQLite.SQLiteDatabase) => {
@@ -111,13 +122,18 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
   await ensureColumn(db, 'feeds', 'ETag', 'TEXT')
   await ensureColumn(db, 'feeds', 'lastModified', 'TEXT')
   await ensureColumn(db, 'feeds', 'folderId', 'TEXT')
-  await db.execAsync(`
-    INSERT INTO article_statuses (articleId, starred, updatedAt)
-    SELECT id, 1, strftime('%s','now')
-    FROM articles
-    WHERE saved = 1
-      AND id NOT IN (SELECT articleId FROM article_statuses);
-  `)
+
+  const userVersion = await getUserVersion(db)
+  if (userVersion < MIGRATION_USER_VERSION) {
+    await db.execAsync(`
+      INSERT INTO article_statuses (articleId, starred, updatedAt)
+      SELECT id, 1, strftime('%s','now')
+      FROM articles
+      WHERE saved = 1
+        AND id NOT IN (SELECT articleId FROM article_statuses);
+    `)
+    await setUserVersion(db, MIGRATION_USER_VERSION)
+  }
 }
 
 export const getDb = (key?: DbKey) => {

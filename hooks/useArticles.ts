@@ -27,7 +27,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     initialized,
   } = useArticlesStore()
   const { selectedFeedId } = useFiltersStore()
-  const { status, lastError, hydrate, refresh } = useRefreshStore()
+  const { status, hydrationStatus, hydratedFeedId, lastError, hydrate, refresh } = useRefreshStore()
   const [page, setPage] = useState(1)
 
   const triggerRefresh = useCallback(
@@ -44,9 +44,11 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
 
   useEffect(() => {
     if (initialized) {
+      if (hydrationStatus === 'loading') return
+      if (hydratedFeedId === (selectedFeedId ?? null)) return
       void hydrate(selectedFeedId)
     }
-  }, [hydrate, initialized, selectedFeedId])
+  }, [hydrate, hydratedFeedId, hydrationStatus, initialized, selectedFeedId])
 
   const unreadOnly = !!options.unreadOnly
 
@@ -118,7 +120,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
 
   return {
     articles: pagedArticles,
-    loading: status === 'loading',
+    loading: status === 'loading' || hydrationStatus === 'loading',
     refresh: () => triggerRefresh('manual'),
     loadNextPage,
     hasMore: pagedArticles.length < sortedAndFiltered.length,

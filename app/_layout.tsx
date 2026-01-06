@@ -2,8 +2,9 @@ import { useMaterial3Theme } from '@pchmn/expo-material3-theme'
 import { ThemeProvider } from '@react-navigation/native'
 import * as Linking from 'expo-linking'
 import { Stack, usePathname, useRouter } from 'expo-router'
+import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { AppState, type AppStateStatus, View } from 'react-native'
 import { PaperProvider, Snackbar } from 'react-native-paper'
 import 'react-native-reanimated'
@@ -16,6 +17,10 @@ import { useFiltersStore } from '@/store/filters'
 import { useRefreshStore } from '@/store/refresh'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 
+void SplashScreen.preventAutoHideAsync().catch(() => {
+  // best-effort; don't block startup if splash control isn't available
+})
+
 export default function RootLayout() {
   const router = useRouter()
   const colorScheme = useColorScheme()
@@ -23,6 +28,9 @@ export default function RootLayout() {
   const paperTheme = getPaperTheme(colorScheme ?? null, theme)
   const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
   const [dismissedError, setDismissedError] = useState<string | null>(null)
+  const [appReady, setAppReady] = useState(false)
+  const rootViewLaidOut = useRef(false)
+  const didBoot = useRef(false)
 
   // refresh feeds/articles when coming back from background
   const appState = useRef<AppStateStatus>(AppState.currentState)
@@ -36,16 +44,34 @@ export default function RootLayout() {
   // Startup effect
   useEffect(() => {
     const boot = async () => {
-      setInitialized()
-      // we load from disk
-      await hydrate()
-      // we force a refresh
-      await refresh({ reason: 'foreground' })
+      try {
+        // Load from disk first so we can render immediately.
+        await hydrate()
+      } finally {
+        setInitialized()
+        setAppReady(true)
+      }
+      // Kick off a refresh in the background (may hit the network).
+      void refresh({ reason: 'foreground' })
     }
-    if (!initialized) {
+    if (!initialized && !didBoot.current) {
+      didBoot.current = true
       boot()
     }
   }, [hydrate, initialized, setInitialized, refresh])
+
+  const onLayoutRootView = useCallback(() => {
+    rootViewLaidOut.current = true
+    if (appReady) {
+      void SplashScreen.hideAsync()
+    }
+  }, [appReady])
+
+  useEffect(() => {
+    if (appReady && rootViewLaidOut.current) {
+      void SplashScreen.hideAsync()
+    }
+  }, [appReady])
 
   useEffect(() => {
     const refreshOnForeground = async () => {
@@ -102,14 +128,22 @@ export default function RootLayout() {
     <PaperProvider theme={paperTheme}>
       <ThemeProvider value={navigationTheme}>
         <GestureHandlerRootView>
-          <View style={{ flex: 1, backgroundColor: navigationTheme.colors.background }}>
-            <Stack initialRouteName="sources">
-              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="sources" options={{ headerShown: false }} />
-              <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
-              <Stack.Screen name="settings" options={{ headerShown: false }} />
-              <Stack.Screen name="share" options={{ headerShown: false, presentation: 'modal' }} />
-            </Stack>
+          <View
+            style={{ flex: 1, backgroundColor: navigationTheme.colors.background }}
+            onLayout={onLayoutRootView}
+          >
+            {appReady ? (
+              <Stack initialRouteName="sources">
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                <Stack.Screen name="sources" options={{ headerShown: false }} />
+                <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
+                <Stack.Screen name="settings" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="share"
+                  options={{ headerShown: false, presentation: 'modal' }}
+                />
+              </Stack>
+            ) : null}
             <Snackbar
               visible={
                 refreshStatus === 'error' && !!refreshError && dismissedError !== refreshError

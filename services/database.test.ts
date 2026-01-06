@@ -4,7 +4,8 @@ import { describe, expect, it, vi } from 'vitest'
 const { db } = vi.hoisted(() => {
   const execAsync = vi.fn().mockResolvedValue(undefined)
   const getAllAsync = vi.fn().mockResolvedValue([])
-  return { db: { execAsync, getAllAsync } }
+  const getFirstAsync = vi.fn().mockResolvedValue({ user_version: 1 })
+  return { db: { execAsync, getAllAsync, getFirstAsync } }
 })
 
 vi.mock('expo-sqlite', () => ({
