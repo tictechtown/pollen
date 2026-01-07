@@ -2,15 +2,15 @@ import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
 import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { InteractionManager, StyleSheet, View } from 'react-native'
 import { Appbar, Snackbar, useTheme } from 'react-native-paper'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
-import { buildArticleHtml } from '@/services/article-html'
-import { readerApi } from '@/services/reader-api'
-import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
-import { shouldOpenExternally } from '@/services/webview-navigation'
 import { useArticle } from '@/hooks/useArticle'
+import { buildArticleHtml } from '@/services/article-html'
+import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
+import { readerApi } from '@/services/reader-api'
+import { shouldOpenExternally } from '@/services/webview-navigation'
 import { useArticlesStore } from '@/store/articles'
 
 export default function ArticleScreen() {
@@ -25,6 +25,7 @@ export default function ArticleScreen() {
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [reader, setReader] = useState<ReaderExtractionResult>({ status: 'idle' })
   const lastMissingLinkId = useRef<string | null>(null)
+  const lastMarkedReadId = useRef<string | null>(null)
   const webViewRef = useRef<WebView>(null)
   const initialNavigationUrl = useRef<string | null>(null)
   const lastOpenedUrl = useRef<string | null>(null)
@@ -52,7 +53,13 @@ export default function ArticleScreen() {
       article?.description ??
       'No content available. Try switching to the original page or Reader mode.'
 
-    return buildArticleHtml({ article: article ?? undefined, colors, displayDate, title: article?.title, body })
+    return buildArticleHtml({
+      article: article ?? undefined,
+      colors,
+      displayDate,
+      title: article?.title,
+      body,
+    })
   }, [article, colors, displayDate])
 
   const readerHtml = useMemo(() => {
@@ -68,10 +75,18 @@ export default function ArticleScreen() {
   }, [article, colors, displayDate, reader])
 
   useEffect(() => {
-    if (id && article && !article.read) {
+    if (!id || !article || article.read) return
+    if (lastMarkedReadId.current === id) return
+    lastMarkedReadId.current = id
+
+    const task = InteractionManager.runAfterInteractions(() => {
       void readerApi.articles.setRead(id, true)
       updateReadLocal(id, true)
-      invalidate()
+      // invalidate()
+    })
+
+    return () => {
+      task.cancel()
     }
   }, [article, id, invalidate, updateReadLocal])
 

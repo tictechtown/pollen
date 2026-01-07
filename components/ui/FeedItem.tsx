@@ -1,6 +1,6 @@
 import { useArticlesStore } from '@/store/articles'
 import { Article } from '@/types'
-import { useRef } from 'react'
+import { memo, useRef } from 'react'
 import { Image, Pressable, Share, StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 import { IconButton, Text } from 'react-native-paper'
@@ -110,8 +110,8 @@ const FeedItem = ({
             </Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 16 }}>
-            <View style={{ flex: 2 }}>
-              <Text variant="titleMedium" style={[styles.title, { opacity }]} numberOfLines={3}>
+            <View style={{ flex: 10 }}>
+              <Text variant="titleMedium" style={[styles.title, { opacity }]} numberOfLines={2}>
                 {article.title}
               </Text>
               {!!article.description && (
@@ -121,8 +121,12 @@ const FeedItem = ({
               )}
             </View>
             {!!article.thumbnail && (
-              <View style={{ flex: 1 }}>
-                <Image source={{ uri: article.thumbnail }} style={[styles.image, { opacity }]} />
+              <View style={{ flex: 4 }}>
+                <Image
+                  source={{ uri: article.thumbnail }}
+                  style={[styles.image, { opacity }]}
+                  fadeDuration={0}
+                />
               </View>
             )}
           </View>
@@ -174,7 +178,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   image: {
-    height: 90,
+    height: 72,
     borderRadius: 16,
   },
   swipeAction: {
@@ -188,4 +192,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default FeedItem
+export default memo(FeedItem)

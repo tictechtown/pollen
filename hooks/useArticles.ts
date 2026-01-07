@@ -5,6 +5,7 @@ import { useArticlesStore } from '@/store/articles'
 import { useFiltersStore } from '@/store/filters'
 import { type RefreshReason, useRefreshStore } from '@/store/refresh'
 import { Article } from '@/types'
+import { useShallow } from 'zustand/react/shallow'
 
 const PAGE_SIZE = 100
 
@@ -13,17 +14,20 @@ type UseArticlesOptions = {
 }
 
 export const useArticles = (options: UseArticlesOptions = {}) => {
-  const {
-    localSavedArticles,
-    localReadArticles,
-    version,
-    invalidate,
-    updateSavedLocal,
-    updateReadLocal,
-    initialized,
-  } = useArticlesStore()
-  const { selectedFeedId } = useFiltersStore()
-  const { status, hydrationStatus, lastError, refresh } = useRefreshStore()
+  const { version, invalidate, updateSavedLocal, updateReadLocal, initialized } = useArticlesStore(
+    useShallow((state) => ({
+      version: state.version,
+      invalidate: state.invalidate,
+      updateSavedLocal: state.updateSavedLocal,
+      updateReadLocal: state.updateReadLocal,
+      initialized: state.initialized,
+    })),
+  )
+  const selectedFeedId = useFiltersStore((state) => state.selectedFeedId)
+  const status = useRefreshStore((state) => state.status)
+  const hydrationStatus = useRefreshStore((state) => state.hydrationStatus)
+  const lastError = useRefreshStore((state) => state.lastError)
+  const refresh = useRefreshStore((state) => state.refresh)
   const [page, setPage] = useState(1)
   const [articles, setArticles] = useState<Article[]>([])
   const [total, setTotal] = useState(0)
@@ -87,7 +91,10 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     setPage((current) => Math.min(current, totalPages))
   }, [totalPages])
 
-  const hasUnread = useMemo(() => (unreadOnly ? total > 0 : unreadCount > 0), [total, unreadCount, unreadOnly])
+  const hasUnread = useMemo(
+    () => (unreadOnly ? total > 0 : unreadCount > 0),
+    [total, unreadCount, unreadOnly],
+  )
 
   const loadNextPage = useCallback(() => {
     setPage((current) => (current < totalPages ? current + 1 : current))
@@ -96,6 +103,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   // Save status
   const toggleSaved = useCallback(
     async (id: string) => {
+      const { localSavedArticles } = useArticlesStore.getState()
       const nextSaved = !(localSavedArticles.get(id) ?? false)
       try {
         await readerApi.articles.setSaved(id, nextSaved)
@@ -105,12 +113,13 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
         // ignore and keep local state unchanged
       }
     },
-    [invalidate, localSavedArticles, updateSavedLocal],
+    [invalidate, updateSavedLocal],
   )
 
   // Read status
   const toggleRead = useCallback(
     async (id: string) => {
+      const { localReadArticles } = useArticlesStore.getState()
       const nextRead = !(localReadArticles.get(id) ?? false)
       try {
         await readerApi.articles.setRead(id, nextRead)
@@ -120,7 +129,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
         // ignore and keep local state unchanged
       }
     },
-    [invalidate, localReadArticles, updateReadLocal],
+    [invalidate, updateReadLocal],
   )
 
   const markAllRead = useCallback(() => {

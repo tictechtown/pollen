@@ -4,19 +4,20 @@
  * - see all the feed sources
  * - remove them by swiping left
  * - add a new Feed using the FAB
- * - (TODO) organize feed per folder
+ * - organize feed per folder
  */
+
+import { useFocusEffect } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
 import he from 'he'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SectionList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
-import { useFocusEffect } from '@react-navigation/native'
 
 import SourceListItem from '@/components/ui/SourceListItem'
-import { readerApi } from '@/services/reader-api'
+import { buildFeedSections, FeedSection, groupFeedsByFolderId } from '@/services/feed-sections'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
-import { buildFeedSections, groupFeedsByFolderId } from '@/services/feed-sections'
+import { readerApi } from '@/services/reader-api'
 import { fetchFeed } from '@/services/rssClient'
 import { normalizeUrl } from '@/services/urls'
 import { generateUUID } from '@/services/uuid-generator'
@@ -39,6 +40,10 @@ import {
   TextInput,
   useTheme,
 } from 'react-native-paper'
+
+function keyExtractor(item: Feed): string {
+  return item.id
+}
 
 export default function SourcesScreen() {
   const router = useRouter()
@@ -80,7 +85,8 @@ export default function SourcesScreen() {
 
   const onStateChange = useCallback(({ open }: { open: boolean }) => setState({ open }), [setState])
 
-  const feedsByFolderId = useMemo(() => groupFeedsByFolderId(feeds), [feeds])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const feedsByFolderId = useMemo(() => groupFeedsByFolderId(feeds), [feeds.map((f) => f.id)])
   const sections = useMemo(() => buildFeedSections(feeds, folders), [feeds, folders])
 
   useEffect(() => {
@@ -110,14 +116,18 @@ export default function SourcesScreen() {
     }, [refreshUnreadCounts]),
   )
 
-  const handleSelect = (feed?: Feed) => {
-    if (!feed || feed.id === 'all') {
-      setFeedFilter(undefined, undefined)
-    } else {
-      setFeedFilter(feed.id, feed.title)
-    }
-    router.push('/(tabs)')
-  }
+  const handleSelect = useCallback(
+    (feed?: Feed) => {
+      if (!feed || feed.id === 'all') {
+        setFeedFilter(undefined, undefined)
+      } else {
+        setFeedFilter(feed.id, feed.title)
+      }
+      router.push('/(tabs)')
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [setFeedFilter],
+  )
 
   const handleRemove = (feed: Feed) => {
     readerApi.feeds.remove(feed.id).then(async () => {
@@ -378,6 +388,67 @@ export default function SourcesScreen() {
     ]
   }, [setAddVisible, handleImportOpml])
 
+  const renderItem = useCallback(
+    ({ item, index, section }: { item: Feed; index: number; section: FeedSection }) => {
+      return (
+        <SourceListItem
+          item={item}
+          isAll={false}
+          isSelected={selectedFeedId === item.id}
+          isFirst={index === 0}
+          isLast={index === section.data.length - 1}
+          onSelect={handleSelect}
+          onRequestRemove={(feed) => {
+            setFeedToRemove(feed)
+            setRemoveVisible(true)
+          }}
+          unreadCount={unreadCountsByFeedId.get(item.id) ?? 0}
+          onRequestMove={handleMoveFeed}
+          registerSwipeableRef={(id, ref) => {
+            swipeableRefs.current[id] = ref
+          }}
+        />
+      )
+    },
+    [handleSelect, selectedFeedId, unreadCountsByFeedId],
+  )
+
+  const renderSectionHeader = useCallback(({ section }: { section: FeedSection }) => {
+    const folder = section.folder
+    return (
+      <View style={styles.sectionHeader}>
+        {/* @ts-ignore */}
+        <List.Section title={folder ? folder.title : 'Default'} />
+        {folder ? (
+          <View style={styles.folderActions}>
+            <IconButton icon="pencil" size={16} onPress={() => openRenameFolder(folder)} />
+            <IconButton icon="delete" size={16} onPress={() => openDeleteFolder(folder)} />
+          </View>
+        ) : null}
+      </View>
+    )
+  }, [])
+
+  const ListHeaderComponent = useMemo(
+    () => (
+      <View>
+        <List.Section title="All">
+          <SourceListItem
+            item={{ id: 'all', title: 'All', xmlUrl: '' }}
+            isAll
+            isSelected={!selectedFeedId}
+            isFirst
+            isLast
+            onSelect={handleSelect}
+            onRequestRemove={() => {}}
+            unreadCount={totalUnreadCount}
+          />
+        </List.Section>
+      </View>
+    ),
+    [handleSelect, totalUnreadCount, selectedFeedId],
+  )
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <Appbar.Header mode="center-aligned">
@@ -386,60 +457,11 @@ export default function SourcesScreen() {
 
       <SectionList
         sections={sections}
-        keyExtractor={(item) => item.id}
+        keyExtractor={keyExtractor}
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
-          <View>
-            <List.Section title="All">
-              <SourceListItem
-                item={{ id: 'all', title: 'All', xmlUrl: '' }}
-                isAll
-                isSelected={!selectedFeedId}
-                isFirst
-                isLast
-                onSelect={handleSelect}
-                onRequestRemove={() => {}}
-                unreadCount={totalUnreadCount}
-              />
-            </List.Section>
-          </View>
-        }
-        renderSectionHeader={({ section }) => {
-          const folder = section.folder
-          return (
-            <View style={styles.sectionHeader}>
-              {/* @ts-ignore */}
-              <List.Section title={folder ? folder.title : 'Default'} />
-              {folder ? (
-                <View style={styles.folderActions}>
-                  <IconButton icon="pencil" size={16} onPress={() => openRenameFolder(folder)} />
-                  <IconButton icon="delete" size={16} onPress={() => openDeleteFolder(folder)} />
-                </View>
-              ) : null}
-            </View>
-          )
-        }}
-        renderItem={({ item, index, section }) => {
-          return (
-            <SourceListItem
-              item={item}
-              isAll={false}
-              isSelected={selectedFeedId === item.id}
-              isFirst={index === 0}
-              isLast={index === section.data.length - 1}
-              onSelect={handleSelect}
-              onRequestRemove={(feed) => {
-                setFeedToRemove(feed)
-                setRemoveVisible(true)
-              }}
-              unreadCount={unreadCountsByFeedId.get(item.id) ?? 0}
-              onRequestMove={handleMoveFeed}
-              registerSwipeableRef={(id, ref) => {
-                swipeableRefs.current[id] = ref
-              }}
-            />
-          )
-        }}
+        ListHeaderComponent={ListHeaderComponent}
+        renderSectionHeader={renderSectionHeader}
+        renderItem={renderItem}
         stickySectionHeadersEnabled={false}
       />
       <FAB.Group

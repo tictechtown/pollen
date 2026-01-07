@@ -1,17 +1,16 @@
 import { useMaterial3Theme } from '@pchmn/expo-material3-theme'
 import { ThemeProvider } from '@react-navigation/native'
-import * as Linking from 'expo-linking'
 import { Stack, usePathname, useRouter } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState, type AppStateStatus, View } from 'react-native'
 import { PaperProvider, Snackbar } from 'react-native-paper'
 import 'react-native-reanimated'
 
+import LinkingWrapper from '@/components/LinkingWrapper'
 import { getNavigationTheme, getPaperTheme } from '@/constants/paperTheme'
 import { useColorScheme } from '@/hooks/use-color-scheme'
-import { parseSharedUrl } from '@/services/share-intent'
 import { useArticlesStore } from '@/store/articles'
 import { useFiltersStore } from '@/store/filters'
 import { useRefreshStore } from '@/store/refresh'
@@ -25,12 +24,16 @@ export default function RootLayout() {
   const router = useRouter()
   const colorScheme = useColorScheme()
   const { theme } = useMaterial3Theme({ fallbackSourceColor: '#63A002' })
-  const paperTheme = getPaperTheme(colorScheme ?? null, theme)
-  const navigationTheme = getNavigationTheme(colorScheme ?? null, paperTheme)
   const [dismissedError, setDismissedError] = useState<string | null>(null)
   const [appReady, setAppReady] = useState(false)
   const rootViewLaidOut = useRef(false)
   const didBoot = useRef(false)
+
+  const paperTheme = useMemo(() => getPaperTheme(colorScheme ?? null, theme), [colorScheme])
+  const navigationTheme = useMemo(
+    () => getNavigationTheme(colorScheme ?? null, paperTheme),
+    [colorScheme, paperTheme],
+  )
 
   // refresh feeds/articles when coming back from background
   const appState = useRef<AppStateStatus>(AppState.currentState)
@@ -102,20 +105,6 @@ export default function RootLayout() {
     }
   }, [dismissedError, refreshError])
 
-  const url = Linking.useLinkingURL()
-
-  useEffect(() => {
-    const handleShareIntent = (url?: string | null) => {
-      const shared = parseSharedUrl(url ?? '')
-      if (shared) {
-        router.push({ pathname: '/share', params: { url: encodeURIComponent(shared) } })
-      }
-    }
-    if (url) {
-      handleShareIntent(url)
-    }
-  }, [router, url])
-
   const pathname = usePathname()
 
   useEffect(() => {
@@ -161,6 +150,7 @@ export default function RootLayout() {
             </Snackbar>
           </View>
         </GestureHandlerRootView>
+        <LinkingWrapper />
         <StatusBar style="auto" />
       </ThemeProvider>
     </PaperProvider>

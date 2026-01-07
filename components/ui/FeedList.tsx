@@ -44,7 +44,7 @@ export default function FeedList(props: Props) {
     markAllRead,
     error,
   } = useArticles(props)
-  const { selectedFeedTitle } = useFiltersStore()
+  const selectedFeedTitle = useFiltersStore((state) => state.selectedFeedTitle)
   const { colors } = useTheme()
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset?.y ?? 0
