@@ -608,7 +608,7 @@ const parseAtomFeed = async (
         title: decodeString(getText(item.title)) ?? 'Untitled',
         link: entryLink ?? url,
         source: decodeString(getText(channel?.title)) ?? 'RSS Feed',
-        publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
+        publishedAt: item.published ?? metadata.publishedAt ?? feedPublished ?? undefined,
         updatedAt: item.updated ?? undefined,
         description: feedDescription ?? metadata.description,
         content: contentFallback ?? getText(item.summary) ?? mediaContent ?? undefined,

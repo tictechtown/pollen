@@ -6,7 +6,7 @@ import { getDb, runWrite } from './database'
 type DbKey = string | undefined
 
 const toSortTimestamp = (article: Pick<Article, 'updatedAt' | 'publishedAt'>) => {
-  const ts = article.updatedAt ?? article.publishedAt
+  const ts = article.publishedAt
   const asDate = ts ? new Date(ts).getTime() : 0
   return Number.isFinite(asDate) ? asDate : 0
 }
@@ -120,7 +120,10 @@ export const getArticlesFromDb = async (feedId?: string, dbKey?: DbKey): Promise
   })
 }
 
-type ArticleDbRow = Omit<Article, 'read' | 'saved'> & { read: number | null; starred: number | null }
+type ArticleDbRow = Omit<Article, 'read' | 'saved'> & {
+  read: number | null
+  starred: number | null
+}
 
 const mapRowToArticle = (row: ArticleDbRow): Article => {
   const { read, starred, ...article } = row
@@ -196,10 +199,7 @@ export const getArticlesPageFromDb = async (
   return { articles: rows.map(mapRowToArticle), total }
 }
 
-export const getArticleByIdFromDb = async (
-  id: string,
-  dbKey?: DbKey,
-): Promise<Article | null> => {
+export const getArticleByIdFromDb = async (id: string, dbKey?: DbKey): Promise<Article | null> => {
   const db = await getDb(dbKey)
   const row = await db.getFirstAsync<ArticleDbRow>(
     `
