@@ -2,8 +2,8 @@ import { useRouter } from 'expo-router'
 import { useCallback, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import {
-  Appbar,
   ActivityIndicator,
+  Appbar,
   Button,
   Card,
   Dialog,
@@ -15,7 +15,7 @@ import {
   useTheme,
 } from 'react-native-paper'
 
-import FeedItem from '@/components/ui/FeedItem'
+import FeedListItem from '@/components/ui/FeedListItem'
 import { useSavedArticles } from '@/hooks/useSavedArticles'
 import { readerApi } from '@/services/reader-api'
 import { saveArticleForLater } from '@/services/save-for-later'
@@ -125,7 +125,7 @@ export default function SavedScreen() {
         }
         ItemSeparatorComponent={() => <Divider horizontalInset />}
         renderItem={({ item }) => (
-          <FeedItem
+          <FeedListItem
             article={item}
             onOpen={() => router.push(`/article/${item.id}`)}
             onToggleSaved={() => toggleSaved(item.id, item.saved)}

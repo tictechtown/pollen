@@ -42,7 +42,7 @@ const SwipeAction = ({
   )
 }
 
-const FeedItem = ({
+const FeedListItem = ({
   article,
   onOpen,
   onToggleSaved,
@@ -214,4 +214,4 @@ const styles = StyleSheet.create({
   },
 })
 
-export default memo(FeedItem)
+export default memo(FeedListItem)

@@ -20,7 +20,7 @@ import {
   useTheme,
 } from 'react-native-paper'
 
-import FeedItem from '@/components/ui/FeedItem'
+import FeedListItem from '@/components/ui/FeedListItem'
 import { useArticles } from '@/hooks/useArticles'
 import { useFiltersStore } from '@/store/filters'
 import { Article } from '@/types'
@@ -55,7 +55,7 @@ export default function FeedList(props: Props) {
 
   const renderItem = useCallback(
     ({ item }: { item: Article }) => (
-      <FeedItem
+      <FeedListItem
         article={item}
         onOpen={() => {
           router.push(`/article/${item.id}`)
