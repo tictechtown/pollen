@@ -61,7 +61,7 @@ const FeedItem = ({
   const saved =
     useArticlesStore((state) => state.localSavedArticles.get(article.id)) ?? article.saved
 
-  const opacity = read ? 0.7 : 1
+  const opacity = read ? 0.5 : 1
 
   return (
     <View style={styles.wrapper}>
@@ -97,11 +97,24 @@ const FeedItem = ({
           reanimatedRef.current?.close()
         }}
       >
-        <Pressable style={{ flex: 1, gap: 0, paddingHorizontal: 16 }} onPress={onOpen}>
+        <Pressable
+          style={({ pressed }) => [
+            {
+              backgroundColor: colors.surface,
+              opacity: pressed ? 0.5 : 1,
+              flex: 1,
+              gap: 0,
+              paddingHorizontal: 16,
+              borderRadius: 20,
+            },
+          ]}
+          onPress={onOpen}
+        >
           <View style={{ flex: 1, justifyContent: 'center' }}>
+            {/* Feed name */}
             <Text
-              variant="labelSmall"
-              style={{ color: colors.onSurfaceVariant, opacity }}
+              variant="labelMedium"
+              style={{ color: colors.tertiary, opacity }}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -109,12 +122,22 @@ const FeedItem = ({
             </Text>
           </View>
           <View style={{ flexDirection: 'row', gap: 16 }}>
-            <View style={{ flex: 10 }}>
-              <Text variant="titleMedium" style={[styles.title, { opacity }]} numberOfLines={2}>
+            <View style={{ flex: 10, gap: 4 }}>
+              {/* Article title */}
+              <Text
+                variant="titleMedium"
+                style={[styles.title, { color: colors.onSurface, opacity }]}
+                numberOfLines={2}
+              >
                 {article.title}
               </Text>
+              {/* Article description */}
               {!!article.description && (
-                <Text variant="bodySmall" numberOfLines={2} style={{ opacity }}>
+                <Text
+                  variant="bodySmall"
+                  numberOfLines={2}
+                  style={{ color: colors.onSurfaceVariant, opacity }}
+                >
                   {article.description}
                 </Text>
               )}
@@ -138,7 +161,8 @@ const FeedItem = ({
               alignItems: 'center',
             }}
           >
-            <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant, opacity }}>
+            {/* Time */}
+            <Text variant="labelMedium" style={{ color: colors.onSurfaceVariant, opacity }}>
               {formatRelativeTime(article.updatedAt ?? article.publishedAt)}
             </Text>
             <View style={{ flex: 0, flexDirection: 'row', alignItems: 'center', gap: 0 }}>
@@ -174,10 +198,9 @@ const styles = StyleSheet.create({
   },
   title: {
     lineHeight: 20,
-    marginBottom: 2,
   },
   image: {
-    height: 72,
+    height: 80,
     borderRadius: 16,
   },
   swipeAction: {
