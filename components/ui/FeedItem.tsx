@@ -28,7 +28,7 @@ const SwipeAction = ({
     width: clamp(isLeft ? dragX.value : -dragX.value, 0, 180),
   }))
   const opacityAnimation = useAnimatedStyle(() => ({
-    opacity: clamp(Math.abs(dragX.value) - 25, 0, 1),
+    opacity: clamp(Math.abs(dragX.value) - 60, 0, 1),
   }))
 
   return (
@@ -71,7 +71,6 @@ const FeedItem = ({
         leftThreshold={60}
         overshootLeft={false}
         overshootRight={false}
-        friction={2}
         renderLeftActions={(_, dragX) => (
           <SwipeAction
             dragX={dragX}
@@ -91,9 +90,9 @@ const FeedItem = ({
         )}
         onSwipeableOpen={(direction) => {
           if (direction === 'left') {
-            onToggleRead()
-          } else {
             onToggleSaved()
+          } else {
+            onToggleRead()
           }
           reanimatedRef.current?.close()
         }}

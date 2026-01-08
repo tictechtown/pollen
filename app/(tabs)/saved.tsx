@@ -40,7 +40,7 @@ export default function SavedScreen() {
       try {
         await readerApi.articles.setSaved(id, nextSaved)
         updateSavedLocal(id, nextSaved)
-        invalidate()
+        invalidate('local')
       } catch {
         // ignore and keep local state unchanged
       }
@@ -54,7 +54,7 @@ export default function SavedScreen() {
       try {
         await readerApi.articles.setRead(id, nextRead)
         updateReadLocal(id, nextRead)
-        invalidate()
+        invalidate('local')
       } catch {
         // ignore and keep local state unchanged
       }

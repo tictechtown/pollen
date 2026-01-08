@@ -7,8 +7,9 @@ type ArticlesState = {
   localReadArticles: Map<string, boolean>
   initialized: boolean
   version: number
+  lastInvalidateReason: 'local' | 'remote'
   setInitialized: () => void
-  invalidate: () => void
+  invalidate: (reason?: 'local' | 'remote') => void
   updateSavedLocal: (id: string, saved: boolean) => void
   updateReadLocal: (id: string, read: boolean) => void
   clear: () => void
@@ -20,8 +21,10 @@ export const useArticlesStore = create<ArticlesState>()(
     localReadArticles: new Map(),
     initialized: false,
     version: 0,
+    lastInvalidateReason: 'remote',
     setInitialized: () => set({ initialized: true }),
-    invalidate: () => set((state) => ({ version: state.version + 1 })),
+    invalidate: (reason = 'remote') =>
+      set((state) => ({ version: state.version + 1, lastInvalidateReason: reason })),
     updateSavedLocal: (id, saved) =>
       set((state) => ({
         localSavedArticles: new Map(state.localSavedArticles).set(id, saved),

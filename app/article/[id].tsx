@@ -107,7 +107,7 @@ export default function ArticleScreen() {
     const next = !article.saved
     await readerApi.articles.setSaved(id, next)
     updateSavedLocal(id, next)
-    invalidate()
+    invalidate('local')
   }
 
   const handleLoadReader = useCallback(async () => {

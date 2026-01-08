@@ -9,9 +9,9 @@ import {
   View,
 } from 'react-native'
 import {
+  ActivityIndicator,
   AnimatedFAB,
   Appbar,
-  ActivityIndicator,
   Banner,
   Button,
   Card,
@@ -39,6 +39,7 @@ export default function FeedList(props: Props) {
     loadNextPage,
     hasMore,
     hasUnread,
+    manualRefreshing,
     toggleSaved,
     toggleRead,
     markAllRead,
@@ -86,7 +87,7 @@ export default function FeedList(props: Props) {
         style={{ backgroundColor: colors.surface }}
         contentContainerStyle={styles.listContent}
         data={articles}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={refresh} />}
+        refreshControl={<RefreshControl refreshing={manualRefreshing} onRefresh={refresh} />}
         keyExtractor={(item) => item.id}
         ItemSeparatorComponent={() => <Divider horizontalInset />}
         onScroll={handleScroll}

@@ -14,13 +14,21 @@ type UseArticlesOptions = {
 }
 
 export const useArticles = (options: UseArticlesOptions = {}) => {
-  const { version, invalidate, updateSavedLocal, updateReadLocal, initialized } = useArticlesStore(
+  const {
+    version,
+    invalidate,
+    updateSavedLocal,
+    updateReadLocal,
+    initialized,
+    lastInvalidateReason,
+  } = useArticlesStore(
     useShallow((state) => ({
       version: state.version,
       invalidate: state.invalidate,
       updateSavedLocal: state.updateSavedLocal,
       updateReadLocal: state.updateReadLocal,
       initialized: state.initialized,
+      lastInvalidateReason: state.lastInvalidateReason,
     })),
   )
   const selectedFeedId = useFiltersStore((state) => state.selectedFeedId)
@@ -33,15 +41,19 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   const [total, setTotal] = useState(0)
   const [unreadCount, setUnreadCount] = useState(0)
   const [localLoading, setLocalLoading] = useState(false)
+  const [manualRefreshing, setManualRefreshing] = useState(false)
   const [localError, setLocalError] = useState<string | null>(null)
 
   const triggerRefresh = useCallback(
     async (reason: RefreshReason) => {
       setPage(1)
+      setManualRefreshing(reason === 'manual')
       try {
         await refresh({ reason, selectedFeedId })
       } catch {
         // Refresh errors are tracked in the refresh store.
+      } finally {
+        setManualRefreshing(false)
       }
     },
     [refresh, selectedFeedId],
@@ -50,7 +62,10 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   useEffect(() => {
     if (!initialized) return
     if (hydrationStatus === 'loading') return
-    setLocalLoading(true)
+    const shouldSkipLoading = lastInvalidateReason === 'local'
+    if (!shouldSkipLoading) {
+      setLocalLoading(true)
+    }
     setLocalError(null)
     void readerApi.articles
       .listPage({
@@ -69,7 +84,15 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
         setTotal(0)
       })
       .finally(() => setLocalLoading(false))
-  }, [hydrationStatus, initialized, options.unreadOnly, page, selectedFeedId, version])
+  }, [
+    hydrationStatus,
+    initialized,
+    lastInvalidateReason,
+    options.unreadOnly,
+    page,
+    selectedFeedId,
+    version,
+  ])
 
   const unreadOnly = !!options.unreadOnly
 
@@ -108,7 +131,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
       try {
         await readerApi.articles.setSaved(id, nextSaved)
         updateSavedLocal(id, nextSaved)
-        invalidate()
+        invalidate('local')
       } catch {
         // ignore and keep local state unchanged
       }
@@ -124,7 +147,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
       try {
         await readerApi.articles.setRead(id, nextRead)
         updateReadLocal(id, nextRead)
-        invalidate()
+        invalidate('local')
       } catch {
         // ignore and keep local state unchanged
       }
@@ -135,12 +158,13 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   const markAllRead = useCallback(() => {
     const ids = articles.map((article) => article.id)
     ids.forEach((id) => updateReadLocal(id, true))
-    void readerApi.articles.setAllRead(selectedFeedId).then(() => invalidate())
+    void readerApi.articles.setAllRead(selectedFeedId).then(() => invalidate('local'))
   }, [articles, invalidate, selectedFeedId, updateReadLocal])
 
   return {
     articles,
     loading: status === 'loading' || hydrationStatus === 'loading' || localLoading,
+    manualRefreshing,
     refresh: () => triggerRefresh('manual'),
     loadNextPage,
     hasMore: articles.length < total,
