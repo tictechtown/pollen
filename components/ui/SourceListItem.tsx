@@ -1,8 +1,8 @@
 // Swipeable feed picker row used inside sources lists.
-import { useEffect, useRef } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { Share, StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
-import { Avatar, Badge, IconButton, List, useTheme } from 'react-native-paper'
+import { Avatar, Badge, IconButton, List, Menu, useTheme } from 'react-native-paper'
 import Reanimated, { SharedValue, useAnimatedStyle } from 'react-native-reanimated'
 
 import { Feed } from '@/types'
@@ -25,6 +25,15 @@ type RightActionProps = {
   dragX: SharedValue<number>
   backgroundColor: string
   iconColor: string
+}
+
+const getDomainFromUrl = (url?: string) => {
+  if (!url) return ''
+  try {
+    return new URL(url).hostname.replace(/^www\./, '')
+  } catch {
+    return url
+  }
 }
 
 const RightAction = ({ dragX, backgroundColor, iconColor }: RightActionProps) => {
@@ -56,6 +65,7 @@ export default function SourceListItem({
 }: SourceListItemProps) {
   const { colors } = useTheme()
   const swipeableRef = useRef<SwipeableMethods | null>(null)
+  const [menuVisible, setMenuVisible] = useState(false)
   const cornerRadius = isSelected ? 82 : 4
   const edgeRadius = isSelected ? 82 : 16
   const showUnreadBadge = typeof unreadCount === 'number' && unreadCount > 0
@@ -77,7 +87,9 @@ export default function SourceListItem({
       <List.Item
         title={isAll ? 'All' : item.title || item.htmlUrl}
         description={
-          isAll ? 'See every article' : `${item.xmlUrl}${folderLabel ? ` • ${folderLabel}` : ''}`
+          isAll
+            ? 'See every article'
+            : `${getDomainFromUrl(item.xmlUrl)}${folderLabel ? ` • ${folderLabel}` : ''}`
         }
         titleNumberOfLines={1}
         descriptionNumberOfLines={1}
@@ -112,8 +124,47 @@ export default function SourceListItem({
                   {unreadLabel}
                 </Badge>
               ) : null}
-              {!isAll && onRequestMove ? (
-                <IconButton icon="folder-move" onPress={() => onRequestMove(item)} />
+              {!isAll ? (
+                <Menu
+                  visible={menuVisible}
+                  onDismiss={() => setMenuVisible(() => false)}
+                  anchor={
+                    <IconButton
+                      icon="dots-vertical"
+                      onPress={() => setMenuVisible(() => true)}
+                      accessibilityLabel="Feed options"
+                    />
+                  }
+                >
+                  <Menu.Item
+                    title="Move to Folder"
+                    onPress={() => {
+                      setMenuVisible(false)
+                      onRequestMove?.(item)
+                    }}
+                    disabled={!onRequestMove}
+                  />
+                  <Menu.Item
+                    title="Share"
+                    onPress={async () => {
+                      setMenuVisible(false)
+                      if (!item.xmlUrl) return
+                      await Share.share({
+                        title: item.title ?? undefined,
+                        message: item.xmlUrl,
+                        url: item.xmlUrl,
+                      })
+                    }}
+                    disabled={!item.xmlUrl}
+                  />
+                  <Menu.Item
+                    title="Delete"
+                    onPress={() => {
+                      setMenuVisible(false)
+                      onRequestRemove(item)
+                    }}
+                  />
+                </Menu>
               ) : null}
             </View>
           ) : null
