@@ -1,9 +1,17 @@
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
-import { ComponentProps, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { InteractionManager, StyleSheet, View } from 'react-native'
-import { Appbar, Snackbar, useTheme } from 'react-native-paper'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  Animated,
+  InteractionManager,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Share,
+  StyleSheet,
+  View,
+} from 'react-native'
+import { Appbar, Snackbar, Surface, useTheme } from 'react-native-paper'
 import { WebView, WebViewNavigation } from 'react-native-webview'
 
 import { useArticle } from '@/hooks/useArticle'
@@ -13,6 +21,8 @@ import { readerApi } from '@/services/reader-api'
 import { shouldOpenExternally } from '@/services/webview-navigation'
 import { useArticlesStore } from '@/store/articles'
 
+const AnimatedSurface = Animated.createAnimatedComponent(Surface)
+
 export default function ArticleScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -21,14 +31,18 @@ export default function ArticleScreen() {
   const invalidate = useArticlesStore((state) => state.invalidate)
   const { article } = useArticle(id)
   const { colors } = useTheme()
-  const [mode, setMode] = useState<'rss' | 'reader' | 'original'>('rss')
+  const [mode, setMode] = useState<'rss' | 'reader'>('rss')
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [reader, setReader] = useState<ReaderExtractionResult>({ status: 'idle' })
+  const [bottomBarVisible, setBottomBarVisible] = useState(true)
   const lastMissingLinkId = useRef<string | null>(null)
   const lastMarkedReadId = useRef<string | null>(null)
   const webViewRef = useRef<WebView>(null)
   const initialNavigationUrl = useRef<string | null>(null)
   const lastOpenedUrl = useRef<string | null>(null)
+  const lastScrollY = useRef(0)
+  const bottomBarVisibilityRef = useRef(true)
+  const bottomBarAnim = useRef(new Animated.Value(0)).current
 
   const displayDate = useMemo(() => {
     const raw = article?.publishedAt ?? article?.updatedAt
@@ -102,6 +116,17 @@ export default function ArticleScreen() {
     lastOpenedUrl.current = null
   }, [article?.id, mode])
 
+  useEffect(() => {
+    bottomBarVisibilityRef.current = bottomBarVisible
+    Animated.spring(bottomBarAnim, {
+      toValue: bottomBarVisible ? 0 : 1,
+      damping: 22,
+      stiffness: 700,
+      mass: 0.8,
+      useNativeDriver: true,
+    }).start()
+  }, [bottomBarAnim, bottomBarVisible])
+
   const handleToggleSaved = async () => {
     if (!id || !article) return
     const next = !article.saved
@@ -109,6 +134,15 @@ export default function ArticleScreen() {
     updateSavedLocal(id, next)
     invalidate('local')
   }
+
+  const handleShare = useCallback(async () => {
+    if (!article?.link) return
+    await Share.share({
+      title: article.title,
+      message: article.link,
+      url: article.link,
+    })
+  }, [article?.link, article?.title])
 
   const handleLoadReader = useCallback(async () => {
     if (!article?.link) {
@@ -125,16 +159,7 @@ export default function ArticleScreen() {
   }, [article?.link])
 
   const resolvedSource =
-    mode === 'reader'
-      ? readerHtml
-        ? { html: readerHtml }
-        : { html: rssHtml }
-      : mode === 'original'
-      ? { uri: article?.link ?? 'about:blank' }
-      : { html: rssHtml }
-
-  const originalIconName: ComponentProps<typeof MaterialCommunityIcons>['name'] =
-    mode === 'original' ? 'earth-box' : 'earth'
+    mode === 'reader' ? (readerHtml ? { html: readerHtml } : { html: rssHtml }) : { html: rssHtml }
 
   const ReaderIcon = useCallback(
     ({ size, color }: { size: number; color: string }) => (
@@ -173,18 +198,76 @@ export default function ArticleScreen() {
     }
   }, [])
 
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const offsetY = event.nativeEvent.contentOffset?.y ?? 0
+    const deltaY = offsetY - lastScrollY.current
+    lastScrollY.current = offsetY
+    if (Math.abs(deltaY) < 4) return
+    if (deltaY > 0 && bottomBarVisibilityRef.current) {
+      setBottomBarVisible(false)
+    } else if (deltaY < 0 && !bottomBarVisibilityRef.current) {
+      setBottomBarVisible(true)
+    }
+  }, [])
+
+  const bottomBarAnimatedStyle = {
+    opacity: bottomBarAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] }),
+    transform: [
+      {
+        translateY: bottomBarAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 80] }),
+      },
+    ],
+  }
+
+  if (!article) {
+    return null
+  }
+
   return (
     <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="" />
+      </Appbar.Header>
+
+      <WebView
+        originWhitelist={['*']}
+        source={resolvedSource}
+        style={[styles.webView, { backgroundColor: colors.surface }]}
+        ref={webViewRef}
+        onNavigationStateChange={handleNavigationStateChange}
+        // @ts-expect-error onScroll and handleScroll events are incompatible
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+      />
+
+      <AnimatedSurface
+        style={[
+          styles.bottomBar,
+          bottomBarAnimatedStyle,
+          { backgroundColor: colors.elevation?.level2 ?? colors.surface },
+        ]}
+        elevation={2}
+        pointerEvents={bottomBarVisible ? 'auto' : 'none'}
+      >
+        <Appbar.Action
+          icon="share-variant-outline"
+          accessibilityLabel="Share article"
+          onPress={handleShare}
+          disabled={!article?.link}
+        />
+
         <Appbar.Action
           icon={({ size, color }) => (
-            <MaterialCommunityIcons name={originalIconName} size={size} color={color} />
+            <MaterialCommunityIcons name="open-in-new" size={size} color={color} />
           )}
           accessibilityLabel="Open original"
-          onPress={() => {
-            setMode('original')
+          onPress={async () => {
+            if (!article?.link) {
+              setSnackbar('No link available')
+              return
+            }
+            await WebBrowser.openBrowserAsync(article.link, { createTask: false })
           }}
           animated={false}
         />
@@ -204,15 +287,7 @@ export default function ArticleScreen() {
           icon={article?.saved ? 'bookmark' : 'bookmark-outline'}
           onPress={handleToggleSaved}
         />
-      </Appbar.Header>
-
-      <WebView
-        originWhitelist={['*']}
-        source={resolvedSource}
-        style={{ backgroundColor: colors.surface }}
-        ref={webViewRef}
-        onNavigationStateChange={handleNavigationStateChange}
-      />
+      </AnimatedSurface>
 
       <Snackbar
         visible={Boolean(snackbar)}
@@ -229,6 +304,21 @@ export default function ArticleScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  webView: {
+    flex: 1,
+  },
+  bottomBar: {
+    position: 'absolute',
+    bottom: 44,
+    height: 64,
+    borderRadius: 64,
+    paddingInline: 8,
+    gap: 4,
+    flexDirection: 'row',
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
   content: {
     padding: 16,
