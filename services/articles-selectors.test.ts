@@ -64,7 +64,10 @@ describe('articles-selectors', () => {
   })
 
   it('selectSavedArticles uses savedStatus map (not article.saved field)', () => {
-    const articles = [makeArticle({ id: 'a1', saved: false }), makeArticle({ id: 'a2', saved: true })]
+    const articles = [
+      makeArticle({ id: 'a1', saved: false }),
+      makeArticle({ id: 'a2', saved: true }),
+    ]
     const savedStatus = new Map([
       ['a1', true],
       ['a2', false],
@@ -72,4 +75,3 @@ describe('articles-selectors', () => {
     expect(selectSavedArticles(articles, savedStatus).map((a) => a.id)).toEqual(['a1'])
   })
 })
-

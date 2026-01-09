@@ -81,4 +81,3 @@ describe('setFeedFolderIdInDb', () => {
     expect(runAsync).toHaveBeenCalledTimes(1)
   })
 })
-

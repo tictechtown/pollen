@@ -81,24 +81,21 @@ const authOrThrow = (response: { auth?: 0 | 1 }) => {
 const syncFolders = async (folders: FeedFolder[], dbKey: string) => {
   if (!folders.length) return
   const now = Math.floor(Date.now() / 1000)
-  await runWrite(
-    async (db) => {
-      await db.withTransactionAsync(async () => {
-        for (const folder of folders) {
-          await db.runAsync(
-            `
+  await runWrite(async (db) => {
+    await db.withTransactionAsync(async () => {
+      for (const folder of folders) {
+        await db.runAsync(
+          `
             INSERT INTO feed_folders (id, title, createdAt)
             VALUES (?, ?, ?)
             ON CONFLICT(id) DO UPDATE SET
               title=excluded.title;
           `,
-            [folder.id, folder.title, now],
-          )
-        }
-      })
-    },
-    dbKey,
-  )
+          [folder.id, folder.title, now],
+        )
+      }
+    })
+  }, dbKey)
 }
 
 const getMaxCachedItemId = async (dbKey: string): Promise<number> => {
@@ -109,13 +106,16 @@ const getMaxCachedItemId = async (dbKey: string): Promise<number> => {
   return Number(row?.maxId ?? 0) || 0
 }
 
-const syncStatusesFromSets = async (unreadIds: Set<string>, savedIds: Set<string>, dbKey: string) => {
+const syncStatusesFromSets = async (
+  unreadIds: Set<string>,
+  savedIds: Set<string>,
+  dbKey: string,
+) => {
   const now = Math.floor(Date.now() / 1000)
-  await runWrite(
-    async (db) => {
-      await db.withTransactionAsync(async () => {
-        await db.runAsync(
-          `
+  await runWrite(async (db) => {
+    await db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `
           INSERT INTO article_statuses (articleId, read, starred, updatedAt)
           SELECT id, 1, 0, ?
           FROM articles
@@ -124,41 +124,41 @@ const syncStatusesFromSets = async (unreadIds: Set<string>, savedIds: Set<string
             starred=excluded.starred,
             updatedAt=excluded.updatedAt;
         `,
-          [now],
-        )
+        [now],
+      )
 
-        const unreadList = Array.from(unreadIds)
-        for (const batch of chunk(unreadList, 500)) {
-          const placeholders = batch.map(() => '?').join(',')
-          await db.runAsync(
-            `
+      const unreadList = Array.from(unreadIds)
+      for (const batch of chunk(unreadList, 500)) {
+        const placeholders = batch.map(() => '?').join(',')
+        await db.runAsync(
+          `
             UPDATE article_statuses
             SET read = 0, lastReadAt = NULL, updatedAt = ?
             WHERE articleId IN (${placeholders})
           `,
-            [now, ...batch],
-          )
-        }
+          [now, ...batch],
+        )
+      }
 
-        const savedList = Array.from(savedIds)
-        for (const batch of chunk(savedList, 500)) {
-          const placeholders = batch.map(() => '?').join(',')
-          await db.runAsync(
-            `
+      const savedList = Array.from(savedIds)
+      for (const batch of chunk(savedList, 500)) {
+        const placeholders = batch.map(() => '?').join(',')
+        await db.runAsync(
+          `
             UPDATE article_statuses
             SET starred = 1, updatedAt = ?
             WHERE articleId IN (${placeholders})
           `,
-            [now, ...batch],
-          )
-        }
-      })
-    },
-    dbKey,
-  )
+          [now, ...batch],
+        )
+      }
+    })
+  }, dbKey)
 }
 
-export const createFreshRssStrategy = (account: Extract<ReaderAccount, { kind: 'freshrss' }>): ReaderStrategy => {
+export const createFreshRssStrategy = (
+  account: Extract<ReaderAccount, { kind: 'freshrss' }>,
+): ReaderStrategy => {
   const client = new FeverClient({ baseUrl: account.baseUrl, apiKey: account.apiKey })
   const dbKey = account.dbKey
 

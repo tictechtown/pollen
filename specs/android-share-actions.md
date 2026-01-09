@@ -1,6 +1,7 @@
 # Android share actions (v1.0.7)
 
 ## Action plan
+
 - Add two Android share receivers: (1) add URL as a feed, (2) save URL as an article.
 - Wire intent filters in `app.json/app.config` so the app appears in the share sheet for `ACTION_SEND` with `text/plain` and URL payloads.
 - Add a lightweight share-handling screen/router entry that reads the incoming intent, validates the URL, and routes to either feed-add flow or saved-article insertion.
@@ -8,12 +9,14 @@
 - Add tests for the handler logic; document manual QA steps on device/emulator.
 
 ## Goals
+
 - When a user shares a link from another app on Android, our app shows two actions:
   1. "Add as feed" → append the URL to feeds list (if valid feed) and refresh.
   2. "Save for later" → store the URL as a saved article entry.
 - Handle both when app is cold-started and when it is already running in background.
 
 ## Requirements
+
 - Intent filters:
   - `android.intent.action.SEND` with `android.mimeType="text/plain"`.
   - Categories: DEFAULT, BROWSABLE.
@@ -30,6 +33,7 @@
   - If article already saved, surface "Already saved" toast and no-op.
 
 ## Implementation outline
+
 - Config:
   - Update `app.json` -> `expo.android.intentFilters` to include the SEND/text filter.
   - Ensure the main activity is marked `android:exported="true"` (Expo handles, but verify).
@@ -45,6 +49,7 @@
   - After a successful action, close the handler screen or navigate to the relevant tab.
 
 ## Testing
+
 - Unit: URL validation and dedupe helpers; article id generation from URL; handler returns correct status messages.
 - Integration (device/emulator):
   - Share a valid RSS URL → app listed → add feed succeeds and shows toast.
@@ -53,6 +58,7 @@
   - Cold start vs warm start flows.
 
 ## Risks / mitigations
+
 - Intent parsing differences across OEMs: prefer reading both `text/plain` extra and data URI; fallback to regex URL extraction.
 - User cancels before choosing action: ensure safe defaults and no DB writes until a button is pressed.
 - Permissions/config drift: verify `app.json` merges with existing intent filters; add E2E check in release checklist.

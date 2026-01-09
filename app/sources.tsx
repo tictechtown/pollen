@@ -508,8 +508,8 @@ export default function SourcesScreen() {
                         candidate.kind === 'atom'
                           ? 'Atom'
                           : candidate.kind === 'rss'
-                          ? 'RSS'
-                          : 'Feed'
+                            ? 'RSS'
+                            : 'Feed'
                       })`}
                       description={candidate.title ? candidate.url : undefined}
                       onPress={() => handleSelectCandidate(candidate)}
@@ -599,7 +599,7 @@ export default function SourcesScreen() {
             </Text>
             <Text style={{ marginTop: 8 }} variant="bodySmall">
               Choose what to do with the{' '}
-              {selectedFolder ? feedsByFolderId.get(selectedFolder.id)?.length ?? 0 : 0} feed(s)
+              {selectedFolder ? (feedsByFolderId.get(selectedFolder.id)?.length ?? 0) : 0} feed(s)
               inside.
             </Text>
           </Dialog.Content>

@@ -11,4 +11,3 @@ export const formatRelativeTime = (date?: string, nowMs: number = Date.now()): s
   const diffDays = Math.floor(diffHours / 24)
   return `${diffDays}d ago`
 }
-

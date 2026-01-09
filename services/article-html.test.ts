@@ -53,4 +53,3 @@ describe('buildArticleHtml', () => {
     expect(html).toContain('src="https://example.com/hero.jpg"')
   })
 })
-

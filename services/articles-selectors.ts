@@ -21,4 +21,3 @@ export const selectSavedArticles = (
   articles: Article[],
   savedStatus: Map<string, boolean>,
 ): Article[] => articles.filter((article) => savedStatus.get(article.id))
-

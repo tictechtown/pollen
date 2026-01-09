@@ -97,10 +97,11 @@ export const useRefreshStore = create<RefreshState>()(
         blockedUntilManual: false,
       })
 
-      refreshPromise = readerApi.refresh({
-        selectedFeedId: context.selectedFeedId,
-        reason: context.reason,
-      })
+      refreshPromise = readerApi
+        .refresh({
+          selectedFeedId: context.selectedFeedId,
+          reason: context.reason,
+        })
         .then(async (result) => {
           if (!result) return null
           const hasFeeds = result.feedsUsed.length > 0

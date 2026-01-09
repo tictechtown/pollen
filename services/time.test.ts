@@ -15,4 +15,3 @@ describe('formatRelativeTime', () => {
     expect(formatRelativeTime('2026-01-04T12:00:00Z', now)).toBe('1d ago')
   })
 })
-

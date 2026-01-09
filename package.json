@@ -70,6 +70,7 @@
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
     "oxlint": "^1.38.0",
+    "prettier": "^3.7.4",
     "typescript": "~5.9.2",
     "vitest": "^4.0.16"
   },

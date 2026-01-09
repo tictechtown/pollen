@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { discoverFeedUrls } from './feedDiscovery'
 
 const createHeaders = (contentType?: string | null) => ({
-  get: (name: string) => (name.toLowerCase() === 'content-type' ? contentType ?? null : null),
+  get: (name: string) => (name.toLowerCase() === 'content-type' ? (contentType ?? null) : null),
 })
 
 describe('discoverFeedUrls', () => {
@@ -20,7 +20,11 @@ describe('discoverFeedUrls', () => {
     const result = await discoverFeedUrls('https://example.com/rss.xml')
 
     expect(fetchMock).toHaveBeenCalledTimes(1)
-    expect(result).toEqual({ directUrl: 'https://example.com/rss.xml', directKind: 'rss', candidates: [] })
+    expect(result).toEqual({
+      directUrl: 'https://example.com/rss.xml',
+      directKind: 'rss',
+      candidates: [],
+    })
   })
 
   it('extracts RSS and Atom links from HTML head', async () => {
@@ -71,7 +75,11 @@ describe('discoverFeedUrls', () => {
     const result = await discoverFeedUrls('https://example.com/feed')
 
     expect(fetchMock).toHaveBeenCalledTimes(2)
-    expect(result).toEqual({ directUrl: 'https://example.com/feed', directKind: 'rss', candidates: [] })
+    expect(result).toEqual({
+      directUrl: 'https://example.com/feed',
+      directKind: 'rss',
+      candidates: [],
+    })
   })
 
   it('resolves relative URLs and dedupes candidates', async () => {

@@ -15,7 +15,12 @@ describe('feed-sections', () => {
   it('groups feeds by folder id (including unfiled)', () => {
     const grouped = groupFeedsByFolderId(feeds)
     expect(grouped.get('folder-1')?.map((f) => f.id)).toEqual(['f3'])
-    expect(grouped.get('')?.map((f) => f.id).sort()).toEqual(['f1', 'f2'])
+    expect(
+      grouped
+        .get('')
+        ?.map((f) => f.id)
+        .sort(),
+    ).toEqual(['f1', 'f2'])
   })
 
   it('buildFeedSections sorts feeds and includes empty folders', () => {
@@ -28,4 +33,3 @@ describe('feed-sections', () => {
     expect(empty[1].data).toEqual([])
   })
 })
-

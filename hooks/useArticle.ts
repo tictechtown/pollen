@@ -43,4 +43,3 @@ export const useArticle = (id?: string | null) => {
 
   return { article: resolved, loading, error }
 }
-

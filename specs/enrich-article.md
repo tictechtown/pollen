@@ -38,16 +38,16 @@
 
 ```html
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Article",
-  "headline": "Gemini 3 Flash is now available in Gemini CLI",
-  "description": "Gemini 3 Flash is now available in Gemini CLI. It delivers Pro-grade coding performance with low latency and a lower cost, matching Gemini 3 Pro&#x27;s SWE-bench Verified score of 76%. It significantly outperforms 2.5 Pro, improving auto-routing and agentic coding. It&#x27;s ideal for high-frequency development tasks, handling complex code generation, large context windows (like processing 1,000 comment pull requests), and generating load-testing scripts quickly and reliably.",
-  "image": "https://storage.googleapis.com/gweb-developer-goog-blog-assets/images/output_padded.2e16d0ba.fill-800x400.png",
-  "datePublished": "2025-12-17",
-  "author": [
-    { "@type": "Person", "name": "Taylor Mullen", "url": "/search/?author=Taylor+Mullen" }
-  ]
-}
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Gemini 3 Flash is now available in Gemini CLI",
+    "description": "Gemini 3 Flash is now available in Gemini CLI. It delivers Pro-grade coding performance with low latency and a lower cost, matching Gemini 3 Pro&#x27;s SWE-bench Verified score of 76%. It significantly outperforms 2.5 Pro, improving auto-routing and agentic coding. It&#x27;s ideal for high-frequency development tasks, handling complex code generation, large context windows (like processing 1,000 comment pull requests), and generating load-testing scripts quickly and reliably.",
+    "image": "https://storage.googleapis.com/gweb-developer-goog-blog-assets/images/output_padded.2e16d0ba.fill-800x400.png",
+    "datePublished": "2025-12-17",
+    "author": [
+      { "@type": "Person", "name": "Taylor Mullen", "url": "/search/?author=Taylor+Mullen" }
+    ]
+  }
 </script>
 ```

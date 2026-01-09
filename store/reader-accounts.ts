@@ -27,9 +27,9 @@ export const useReaderAccountsStore = create<ReaderAccountsState>()(
     removeAccount: (id) =>
       set((state) => {
         const next = state.accounts.filter((a) => a.id !== id)
-        const activeAccountId = state.activeAccountId === id ? LOCAL_ACCOUNT.id : state.activeAccountId
+        const activeAccountId =
+          state.activeAccountId === id ? LOCAL_ACCOUNT.id : state.activeAccountId
         return { accounts: next.length ? next : [LOCAL_ACCOUNT], activeAccountId }
       }),
   })),
 )
-

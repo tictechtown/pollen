@@ -95,7 +95,7 @@ const getLink = (value?: LinkNode): string | undefined => {
   if (!value) return undefined
   if (Array.isArray(value)) {
     const entry = value.find((link) => link?.href || link?.['#text'])
-    return entry ? entry.href ?? entry['#text'] : undefined
+    return entry ? (entry.href ?? entry['#text']) : undefined
   }
   if (typeof value === 'string') return value
   return value.href ?? value['#text']
@@ -327,16 +327,16 @@ const extractJsonLd = (headHtml: string, baseUrl: string) => {
           typeof imageField === 'string'
             ? imageField
             : Array.isArray(imageField) && typeof imageField[0] === 'string'
-            ? imageField[0]
-            : undefined
+              ? imageField[0]
+              : undefined
         const publishedAt = candidate.datePublished || candidate.dateModified
         const publisher = candidate.publisher
         const source =
           typeof publisher === 'string'
             ? stripHtml(publisher)
             : publisher && typeof publisher.name === 'string'
-            ? stripHtml(publisher.name)
-            : undefined
+              ? stripHtml(publisher.name)
+              : undefined
         return {
           title,
           thumbnail: toAbsoluteUrl(baseUrl, image),

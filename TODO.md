@@ -9,7 +9,6 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 # Version 1.0.2
 
 - Clicking on `Sources`;
-
   - Brings you to a dedicated page.
   - Page has a list of items:
   - All
@@ -117,7 +116,6 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Add ability to create/manage folders for feeds
 - Add a FAB to add a lone link
 - Revise navigation when going to source. Should come from the left:
-
   - Maybe the navigation stack should be: [souces, tabs, share | article | settings], with the first route being tabs
 
 # Version 1.0.15

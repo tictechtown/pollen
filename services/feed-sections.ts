@@ -41,4 +41,3 @@ export const buildFeedSections = (feeds: Feed[], folders: FeedFolder[]): FeedSec
     ...folderSections,
   ]
 }
-

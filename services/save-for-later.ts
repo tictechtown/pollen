@@ -48,10 +48,10 @@ const applyMetadata = (article: Article, metadata: PageMetadata): Article => ({
 const hasMetadata = (metadata: PageMetadata) =>
   Boolean(
     metadata.title ||
-      metadata.description ||
-      metadata.thumbnail ||
-      metadata.publishedAt ||
-      metadata.source,
+    metadata.description ||
+    metadata.thumbnail ||
+    metadata.publishedAt ||
+    metadata.source,
   )
 
 export const saveArticleForLater = async ({

@@ -14,4 +14,3 @@ export const shouldOpenExternally = ({
   if (lastOpenedUrl && url === lastOpenedUrl) return false
   return true
 }
-

@@ -4,4 +4,3 @@ export const buildOpmlExportFilename = (now: Date = new Date()): string => {
   const d = String(now.getDate()).padStart(2, '0')
   return `pollen-subscriptions-${y}${m}${d}.opml`
 }
-

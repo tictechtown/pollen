@@ -33,4 +33,3 @@ describe('shouldOpenExternally', () => {
     ).toBe(false)
   })
 })
-

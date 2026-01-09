@@ -1,6 +1,7 @@
 # Conditional feed fetching + cache headers
 
 ## Action plan
+
 - Extend the Feed schema and type to persist cache metadata: `expiresTS`, `expires`, `ETag`, `lastModified`.
 - Teach the feed fetcher to parse caching headers (`Cache-Control`, `Expires`, `ETag`, `Last-Modified`) and return them alongside the parsed feed payload.
 - Use conditional requests (`If-None-Match`, `If-Modified-Since`) on subsequent fetches when values are present.
@@ -8,11 +9,13 @@
 - Add unit coverage for header parsing, conditional request behavior, and refresh skipping logic.
 
 ## Goals
+
 - Avoid unnecessary feed downloads by reusing HTTP caching headers.
 - Honor server-provided refresh windows without blocking manual refreshes.
 - Preserve existing refresh flow and article-upsert behavior when content changes.
 
 ## Requirements
+
 - DB Feed table gains: `expiresTS` (INTEGER epoch ms), `expires` (TEXT), `ETag` (TEXT), `lastModified` (TEXT).
 - `fetchFeed` adds conditional headers on subsequent requests when the feed has `ETag` and/or `lastModified`.
 - If the response is `304 Not Modified`, do not parse XML; return a result that updates cache metadata only.
@@ -26,6 +29,7 @@
 - Persist updated header values after every successful fetch (including 304).
 
 ## Architecture / implementation
+
 - Schema + type updates:
   - Update `types/index.ts` Feed type to include new fields.
   - Extend SQLite schema in `services/database.ts` with `ensureColumn` for the new columns.
@@ -42,12 +46,14 @@
   - When `fetchFeed` returns updated cache metadata, include it in the feed upsert data even if there are no new articles.
 
 ## Data
+
 - `feeds.expiresTS`: epoch milliseconds used to gate background/foreground refresh.
 - `feeds.expires`: raw `Expires` header string for debugging/traceability.
 - `feeds.ETag`: raw `ETag` header value; use as-is in `If-None-Match`.
 - `feeds.lastModified`: raw `Last-Modified` header value; use as-is in `If-Modified-Since`.
 
 ## Testing
+
 - Unit: header parsing for `Cache-Control` + `Expires`, including precedence rules.
 - Unit: `Cache-Control` parsing for multi-directive inputs like `private, must-revalidate, max-age=900`, `no-cache, must-revalidate, max-age=0, no-store, private`, and `s-maxage=600`.
 - Unit: malformed `Cache-Control` (e.g., `max-age=900; private`) returns `max-age=0`.
@@ -56,6 +62,7 @@
 - Regression: ensure feed metadata still updates on regular 200 responses.
 
 ## Risks / mitigations
+
 - Server clock skew can make `Expires` invalid; prefer `max-age` and clamp negative durations to `Date.now()`.
 - Some servers return weak `ETag` or malformed dates; treat parse failures as no-cache metadata.
 - Conditional requests may return 304 without headers; keep existing cache values in that case.
