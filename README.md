@@ -44,6 +44,7 @@ Then choose a target:
 ## Scripts
 
 - `npm run lint` — lint
+- `npx prettier .` — run Prettier checks
 - `npm test` — run tests
 - `npm run typecheck` — run TypeScript checks
 
