@@ -187,7 +187,6 @@ const styles = StyleSheet.create({
   listContent: {
     paddingTop: 16,
     paddingBottom: 120,
-    gap: 12,
   },
   emptyCard: {
     margin: 16,

@@ -1,7 +1,8 @@
 import { useArticlesStore } from '@/store/articles'
 import { Article } from '@/types'
+import { Image } from 'expo-image'
 import { memo, useRef } from 'react'
-import { Image, Pressable, Share, StyleSheet, View } from 'react-native'
+import { Pressable, Share, StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 import { IconButton, Text } from 'react-native-paper'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
@@ -98,29 +99,21 @@ const FeedListItem = ({
         }}
       >
         <Pressable
-          style={({ pressed }) => [
-            {
-              backgroundColor: colors.surface,
-              opacity: pressed ? 0.5 : 1,
-              flex: 1,
-              gap: 0,
-              paddingHorizontal: 16,
-              borderRadius: 20,
-            },
-          ]}
+          style={({ pressed }) => ({
+            backgroundColor: pressed ? colors.surfaceVariant : colors.surface,
+            opacity: pressed ? 0.8 : 1,
+
+            flex: 1,
+            gap: 0,
+            paddingTop: 4,
+            marginTop: 4,
+            paddingHorizontal: 8,
+            marginHorizontal: 8,
+            borderRadius: 20,
+          })}
           onPress={onOpen}
         >
-          <View style={{ flex: 1, justifyContent: 'center' }}>
-            {/* Feed name */}
-            <Text
-              variant="labelMedium"
-              style={{ color: colors.tertiary, opacity }}
-              numberOfLines={1}
-              ellipsizeMode="tail"
-            >
-              {article.source.slice(0, 50)}
-            </Text>
-          </View>
+          <View style={{ flex: 1, justifyContent: 'center' }}>{/* Feed name */}</View>
           <View style={{ flexDirection: 'row', gap: 16 }}>
             <View style={{ flex: 10, gap: 4 }}>
               {/* Article title */}
@@ -135,7 +128,8 @@ const FeedListItem = ({
               {!!article.description && (
                 <Text
                   variant="bodySmall"
-                  numberOfLines={2}
+                  // If title has a short title, we add an extra line of description, so we always have title + description = 4 lines
+                  numberOfLines={article.title.length < 35 ? 3 : 2}
                   style={{ color: colors.onSurfaceVariant, opacity }}
                 >
                   {article.description}
@@ -147,7 +141,7 @@ const FeedListItem = ({
                 <Image
                   source={{ uri: article.thumbnail }}
                   style={[styles.image, { opacity }]}
-                  fadeDuration={0}
+                  contentFit="cover"
                 />
               </View>
             )}
@@ -162,9 +156,18 @@ const FeedListItem = ({
             }}
           >
             {/* Time */}
-            <Text variant="labelMedium" style={{ color: colors.onSurfaceVariant, opacity }}>
-              {formatRelativeTime(article.updatedAt ?? article.publishedAt)}
+            <Text
+              variant="labelMedium"
+              style={{ color: colors.tertiary, opacity }}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {article.source.slice(0, 50)}
+              <Text variant="labelMedium" style={{ color: colors.onSurfaceVariant, opacity }}>
+                {` · ${formatRelativeTime(article.updatedAt ?? article.publishedAt)}`}
+              </Text>
             </Text>
+
             <View style={{ flex: 0, flexDirection: 'row', alignItems: 'center', gap: 0 }}>
               <IconButton
                 size={16}
@@ -200,7 +203,7 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   image: {
-    height: 80,
+    height: 74,
     borderRadius: 16,
   },
   swipeAction: {

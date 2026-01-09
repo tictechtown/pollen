@@ -29,6 +29,7 @@ export default function RootLayout() {
   const rootViewLaidOut = useRef(false)
   const didBoot = useRef(false)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const paperTheme = useMemo(() => getPaperTheme(colorScheme ?? null, theme), [colorScheme])
   const navigationTheme = useMemo(
     () => getNavigationTheme(colorScheme ?? null, paperTheme),

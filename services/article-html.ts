@@ -69,9 +69,10 @@ export const buildArticleHtml = ({
       <header class="article-header">
         ${hero}
         <div class="content">
-          <div class="meta">${displayDate}</div>
           <div class="title">${title ?? ''}</div>
-          <div class="source">${article?.source ?? ''}</div>
+          <div class="source">${
+            article?.source ?? ''
+          }<span class="meta"> • ${displayDate}<span></div>
         </div>
       </header>
     `
@@ -102,8 +103,8 @@ export const buildArticleHtml = ({
             pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
             code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
             .hero { width: 100%; border-radius: 0px; border-top-left-radius: 12px; border-top-right-radius: 12px; height: auto; }
-            .meta { color: ${colors.onSurfaceVariant}; font-size: 14px}
-            .title { font-size: 24px; color: ${colors.onSurface}; font-weight: 700; margin-block: 4px; line-height:1.2; }
+            .meta { color: ${colors.onSurfaceVariant}; font-size: 14px; font-weight: 400}
+            .title { font-size: 24px; color: ${colors.onSurface}; font-weight: 700; margin-block: 4px; line-height:1.15; }
             .source { color: ${colors.onSurfaceVariant}; font-weight: 700;}
             .divider { height: 0px; background: ${colors.outlineVariant}; margin: 16px 0; }
             

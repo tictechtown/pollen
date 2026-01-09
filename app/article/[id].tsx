@@ -225,7 +225,7 @@ export default function ArticleScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header mode="center-aligned">
+      <Appbar.Header mode="small">
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="" />
       </Appbar.Header>
@@ -319,17 +319,5 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'space-around',
-  },
-  content: {
-    padding: 16,
-    gap: 16,
-  },
-  title: {
-    marginTop: 4,
-    marginBottom: 4,
-  },
-  webviewContainer: {
-    flex: 1,
-    height: 400,
   },
 })
