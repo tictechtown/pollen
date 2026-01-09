@@ -20,6 +20,7 @@ A React Native RSS reader built with Expo and React Native Paper, optimized for 
 ### Prerequisites
 
 - Node.js (recommended: Node 20)
+- npm (recommended: the version from `packageManager` in `package.json`)
 - For Android dev/builds: Android Studio + Android SDK
 
 ### Install
@@ -44,7 +45,7 @@ Then choose a target:
 
 - `npm run lint` — lint
 - `npm test` — run tests
-- `npm typecheck` — run typescript checks
+- `npm run typecheck` — run TypeScript checks
 
 ## Build Android release APK
 
@@ -64,6 +65,12 @@ This repo includes a manually triggered workflow that builds an Android release 
 - Download: GitHub → Actions → “Build Android Release APK” → run → artifacts (`android-release-apk`)
 
 Note: release signing is not configured by default. For Play Store distribution, you’ll need to add a keystore + signing config and wire secrets into the workflow.
+
+## Notes for contributors
+
+- This project uses Expo Router.
+- The native folders (`android/` and `ios/`) are generated via `expo prebuild` for native builds, and are not committed.
+- No environment variables are required by default. If you add any, prefer documenting them and providing a `.env.example` (never commit real secrets).
 
 ## Contributing
 
