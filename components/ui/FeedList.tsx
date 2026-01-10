@@ -73,6 +73,7 @@ export default function FeedList(props: Props) {
       <Appbar.Header mode="small">
         <Appbar.Action icon={'menu'} onPress={() => router.dismissTo('/sources')} />
         <Appbar.Content title={selectedFeedTitle ? selectedFeedTitle : 'All'} />
+        <Appbar.Action icon="magnify" onPress={() => router.push('/search' as any)} />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
         <Appbar.Action icon="cog-outline" onPress={() => router.push('/settings')} />
       </Appbar.Header>

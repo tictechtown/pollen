@@ -2,6 +2,7 @@
 import { Article } from '@/types'
 
 import { getDb, runWrite } from './database'
+import { buildFtsPrefixQuery, toPlainTextFromHtml } from './fts'
 
 type DbKey = string | undefined
 
@@ -34,12 +35,13 @@ export const upsertArticles = async (articles: Article[], dbKey?: DbKey) => {
       for (const article of articles) {
         const sortTimestamp = toSortTimestamp(article)
         const saved = savedLookup[article.id] ?? (article.saved ? 1 : 0)
+        const contentText = toPlainTextFromHtml(article.content)
         console.log('inserting articles', article.source)
 
         await db.runAsync(
           `
-        INSERT INTO articles (id, feedId, title, link, source, publishedAt, updatedAt, description, content, thumbnail, saved, sortTimestamp)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO articles (id, feedId, title, link, source, publishedAt, updatedAt, description, content, contentText, thumbnail, saved, sortTimestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           feedId=excluded.feedId,
           title=excluded.title,
@@ -49,6 +51,7 @@ export const upsertArticles = async (articles: Article[], dbKey?: DbKey) => {
           updatedAt=excluded.updatedAt,
           description=excluded.description,
           content=excluded.content,
+          contentText=excluded.contentText,
           thumbnail=excluded.thumbnail,
           sortTimestamp=excluded.sortTimestamp,
           saved=COALESCE(articles.saved, excluded.saved);
@@ -63,6 +66,7 @@ export const upsertArticles = async (articles: Article[], dbKey?: DbKey) => {
             article.updatedAt ?? null,
             article.description ?? null,
             article.content ?? null,
+            contentText || null,
             article.thumbnail ?? null,
             saved,
             sortTimestamp,
@@ -123,10 +127,11 @@ export const getArticlesFromDb = async (feedId?: string, dbKey?: DbKey): Promise
 type ArticleDbRow = Omit<Article, 'read' | 'saved'> & {
   read: number | null
   starred: number | null
+  contentText?: string | null
 }
 
 const mapRowToArticle = (row: ArticleDbRow): Article => {
-  const { read, starred, ...article } = row
+  const { read, starred, contentText: _contentText, ...article } = row
   return {
     ...article,
     saved: Boolean(starred),
@@ -212,6 +217,91 @@ export const getArticleByIdFromDb = async (id: string, dbKey?: DbKey): Promise<A
     [id],
   )
   return row ? mapRowToArticle(row) : null
+}
+
+export const searchArticlesPageFromDb = async (params: {
+  query: string
+  feedId?: string
+  page: number
+  pageSize: number
+  dbKey?: DbKey
+}): Promise<{ articles: Article[]; total: number }> => {
+  const db = await getDb(params.dbKey)
+  const query = params.query.trim()
+  if (!query) return { articles: [], total: 0 }
+
+  const page = Math.max(1, Math.floor(params.page))
+  const pageSize = Math.min(50, Math.max(1, Math.floor(params.pageSize)))
+  const offset = (page - 1) * pageSize
+
+  const matchQuery = buildFtsPrefixQuery(query)
+  if (!matchQuery) return { articles: [], total: 0 }
+
+  const feedClause = params.feedId ? `AND articles.feedId = ?` : ''
+  const args = params.feedId ? [matchQuery, params.feedId] : [matchQuery]
+
+  try {
+    const countRow = await db.getFirstAsync<{ total: number }>(
+      `
+        SELECT COUNT(*) AS total
+        FROM articles_fts
+        JOIN articles ON articles_fts.rowid = articles.rowid
+        WHERE articles_fts MATCH ?
+        ${feedClause}
+      `,
+      args,
+    )
+    const total = Number(countRow?.total) || 0
+
+    const rows = await db.getAllAsync<ArticleDbRow>(
+      `
+        SELECT articles.*, article_statuses.read, article_statuses.starred
+        FROM articles
+        JOIN articles_fts ON articles_fts.rowid = articles.rowid
+        LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+        WHERE articles_fts MATCH ?
+        ${feedClause}
+        ORDER BY bm25(articles_fts, 5.0, 1.0) ASC, articles.sortTimestamp DESC, articles.createdAt DESC
+        LIMIT ? OFFSET ?
+      `,
+      [...args, pageSize, offset],
+    )
+
+    return { articles: rows.map(mapRowToArticle), total }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    const like = `%${query}%`
+    const where = `
+      WHERE (articles.title LIKE ? OR COALESCE(articles.contentText, '') LIKE ?)
+      ${params.feedId ? 'AND articles.feedId = ?' : ''}
+    `
+    const likeArgs = params.feedId ? [like, like, params.feedId] : [like, like]
+
+    console.warn('FTS search failed; falling back to LIKE search', message)
+
+    const countRow = await db.getFirstAsync<{ total: number }>(
+      `
+        SELECT COUNT(articles.id) AS total
+        FROM articles
+        ${where}
+      `,
+      likeArgs,
+    )
+    const total = Number(countRow?.total) || 0
+
+    const rows = await db.getAllAsync<ArticleDbRow>(
+      `
+        SELECT articles.*, article_statuses.read, article_statuses.starred
+        FROM articles
+        LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
+        ${where}
+        ORDER BY articles.sortTimestamp DESC, articles.createdAt DESC
+        LIMIT ? OFFSET ?
+      `,
+      [...likeArgs, pageSize, offset],
+    )
+    return { articles: rows.map(mapRowToArticle), total }
+  }
 }
 
 export const getUnreadCountFromDb = async (feedId?: string, dbKey?: DbKey): Promise<number> => {

@@ -1,6 +1,8 @@
 // SQLite setup, migrations, and serialized writes for the app database.
 import * as SQLite from 'expo-sqlite'
 
+import { toPlainTextFromHtml } from './fts'
+
 const DEFAULT_DB_KEY = '__default__'
 const DEFAULT_DB_FILE = 'pollen-6.db'
 
@@ -19,7 +21,7 @@ const dbPromises = new Map<string, Promise<SQLite.SQLiteDatabase>>()
 // Serialize writes to avoid overlapping transactions on a single connection.
 const writeQueues = new Map<string, Promise<void>>()
 
-const MIGRATION_USER_VERSION = 1
+const LATEST_USER_VERSION = 2
 
 const ensureColumn = async (
   db: SQLite.SQLiteDatabase,
@@ -60,6 +62,70 @@ const ensureUniqueFeedXmlUrl = async (db: SQLite.SQLiteDatabase) => {
   await createIndex()
 }
 
+const ensureArticleFts = async (db: SQLite.SQLiteDatabase) => {
+  try {
+    await db.execAsync(`
+      CREATE VIRTUAL TABLE IF NOT EXISTS articles_fts USING fts5(
+        title,
+        contentText,
+        content='articles',
+        content_rowid='rowid',
+        tokenize='unicode61 remove_diacritics 2',
+        prefix='2 3 4'
+      );
+
+      CREATE TRIGGER IF NOT EXISTS articles_ai AFTER INSERT ON articles BEGIN
+        INSERT INTO articles_fts(rowid, title, contentText)
+        VALUES (new.rowid, COALESCE(new.title, ''), COALESCE(new.contentText, ''));
+      END;
+
+      CREATE TRIGGER IF NOT EXISTS articles_ad AFTER DELETE ON articles BEGIN
+        INSERT INTO articles_fts(articles_fts, rowid, title, contentText)
+        VALUES ('delete', old.rowid, COALESCE(old.title, ''), COALESCE(old.contentText, ''));
+      END;
+
+      CREATE TRIGGER IF NOT EXISTS articles_au AFTER UPDATE ON articles BEGIN
+        INSERT INTO articles_fts(articles_fts, rowid, title, contentText)
+        VALUES ('delete', old.rowid, COALESCE(old.title, ''), COALESCE(old.contentText, ''));
+        INSERT INTO articles_fts(rowid, title, contentText)
+        VALUES (new.rowid, COALESCE(new.title, ''), COALESCE(new.contentText, ''));
+      END;
+    `)
+  } catch (err) {
+    console.warn('SQLite FTS unavailable; search may be degraded', err)
+  }
+}
+
+const backfillArticleContentText = async (db: SQLite.SQLiteDatabase) => {
+  while (true) {
+    const rows = await db.getAllAsync<{ rowid: number; content: string | null }>(`
+      SELECT rowid, content
+      FROM articles
+      WHERE (contentText IS NULL OR contentText = '')
+        AND content IS NOT NULL
+        AND content != ''
+      LIMIT 200
+    `)
+
+    if (!rows.length) return
+
+    await db.withTransactionAsync(async () => {
+      for (const row of rows) {
+        const text = toPlainTextFromHtml(row.content)
+        await db.runAsync(`UPDATE articles SET contentText = ? WHERE rowid = ?`, [text, row.rowid])
+      }
+    })
+  }
+}
+
+const rebuildArticleFts = async (db: SQLite.SQLiteDatabase) => {
+  try {
+    await db.execAsync(`INSERT INTO articles_fts(articles_fts) VALUES('rebuild');`)
+  } catch (err) {
+    console.warn('SQLite FTS rebuild failed; search may be degraded', err)
+  }
+}
+
 const createTables = async (db: SQLite.SQLiteDatabase) => {
   await db.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -94,6 +160,7 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
       updatedAt TEXT,
       description TEXT,
       content TEXT,
+      contentText TEXT,
       thumbnail TEXT,
       saved INTEGER DEFAULT 0,
       sortTimestamp INTEGER DEFAULT 0,
@@ -122,9 +189,13 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
   await ensureColumn(db, 'feeds', 'ETag', 'TEXT')
   await ensureColumn(db, 'feeds', 'lastModified', 'TEXT')
   await ensureColumn(db, 'feeds', 'folderId', 'TEXT')
+  await ensureColumn(db, 'articles', 'contentText', 'TEXT')
+  await ensureArticleFts(db)
 
-  const userVersion = await getUserVersion(db)
-  if (userVersion < MIGRATION_USER_VERSION) {
+  const initialVersion = await getUserVersion(db)
+  let version = initialVersion
+
+  if (version < 1) {
     await db.execAsync(`
       INSERT INTO article_statuses (articleId, starred, updatedAt)
       SELECT id, 1, strftime('%s','now')
@@ -132,7 +203,17 @@ const createTables = async (db: SQLite.SQLiteDatabase) => {
       WHERE saved = 1
         AND id NOT IN (SELECT articleId FROM article_statuses);
     `)
-    await setUserVersion(db, MIGRATION_USER_VERSION)
+    version = 1
+  }
+
+  if (version < 2) {
+    await backfillArticleContentText(db)
+    await rebuildArticleFts(db)
+    version = 2
+  }
+
+  if (version !== initialVersion && version <= LATEST_USER_VERSION) {
+    await setUserVersion(db, version)
   }
 }
 

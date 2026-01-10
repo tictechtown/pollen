@@ -4,6 +4,7 @@ import {
   getArticlesPageFromDb,
   getUnreadCountFromDb,
   getUnreadCountsByFeedFromDb,
+  searchArticlesPageFromDb,
   setAllArticlesReadFromDb,
   setArticleRead,
   setArticleSaved,
@@ -53,6 +54,7 @@ export const createLocalStrategy = (): ReaderStrategy => {
     importOpml: async (uri) => importFeedsFromOpmlUri(uri),
     articles: {
       listPage: async (params) => getArticlesPageFromDb({ ...params, dbKey: undefined }),
+      searchPage: async (params) => searchArticlesPageFromDb({ ...params, dbKey: undefined }),
       get: async (id) => getArticleByIdFromDb(id),
       upsert: async (articles) => upsertArticles(articles),
       getUnreadCountsByFeed: async () => getUnreadCountsByFeedFromDb(),

@@ -45,8 +45,21 @@ export type ReaderArticlesListPageResult = {
   total: number
 }
 
+export type ReaderArticlesSearchPageParams = {
+  query: string
+  feedId?: string
+  page: number
+  pageSize: number
+}
+
+export type ReaderArticlesSearchPageResult = {
+  articles: Article[]
+  total: number
+}
+
 export type ReaderArticlesApi = {
   listPage: (params: ReaderArticlesListPageParams) => Promise<ReaderArticlesListPageResult>
+  searchPage: (params: ReaderArticlesSearchPageParams) => Promise<ReaderArticlesSearchPageResult>
   get: (id: string) => Promise<Article | null>
   upsert: (articles: Article[]) => Promise<void>
   getUnreadCountsByFeed: () => Promise<Map<string, number>>

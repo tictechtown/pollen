@@ -44,6 +44,8 @@ export const readerApi = {
   articles: {
     listPage: (params: Parameters<ReaderStrategy['articles']['listPage']>[0]) =>
       getActiveReaderStrategy().articles.listPage(params),
+    searchPage: (params: Parameters<ReaderStrategy['articles']['searchPage']>[0]) =>
+      getActiveReaderStrategy().articles.searchPage(params),
     get: (id: string) => getActiveReaderStrategy().articles.get(id),
     upsert: (articles: Parameters<ReaderStrategy['articles']['upsert']>[0]) =>
       getActiveReaderStrategy().articles.upsert(articles),

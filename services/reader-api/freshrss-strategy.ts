@@ -7,6 +7,7 @@ import {
   getUnreadArticleIdsFromDb,
   getUnreadCountFromDb,
   getUnreadCountsByFeedFromDb,
+  searchArticlesPageFromDb,
   setAllArticlesReadFromDb,
   setArticleRead,
   setArticleSaved,
@@ -249,6 +250,7 @@ export const createFreshRssStrategy = (
     },
     articles: {
       listPage: async (params) => getArticlesPageFromDb({ ...params, dbKey }),
+      searchPage: async (params) => searchArticlesPageFromDb({ ...params, dbKey }),
       get: async (id) => getArticleByIdFromDb(id, dbKey),
       upsert: async (articles) => upsertArticles(articles, dbKey),
       getUnreadCountsByFeed: async () => getUnreadCountsByFeedFromDb(dbKey),
