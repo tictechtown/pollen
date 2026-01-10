@@ -228,19 +228,14 @@ const extractCacheMetadata = (headers: Headers, now = Date.now()): CacheMetadata
 
   const maxAge = parseCacheControl(cacheControl)
   let expiresTS: number | undefined
-  const minExpiresTS = now + MIN_EXPIRES_TTL_MS
 
   if (maxAge !== null) {
-    expiresTS = Math.max(minExpiresTS, now + maxAge * 1000)
+    expiresTS = now + maxAge * 1000
   } else if (expiresHeader) {
     const parsed = toTimestamp(expiresHeader)
     if (parsed) {
-      expiresTS = Math.max(minExpiresTS, parsed)
+      expiresTS = Math.max(now, parsed)
     }
-  }
-
-  if (!expiresTS) {
-    expiresTS = minExpiresTS
   }
 
   return {
@@ -502,8 +497,8 @@ interface RssFeed {
       site?: TextNode[]
       subtitle?: TextNode
       updated?: string
-      'sy:updateFrequency'?: number
-      'sy:updatePeriod'?: string
+      'sy:updateFrequency'?: TextNode
+      'sy:updatePeriod'?: TextNode
     }
     version: string
   }
@@ -562,6 +557,53 @@ const extractHTMLLink = (links: AtomFeed['feed']['link'] | undefined): string | 
   } else {
     return links.type === 'text/html' ? links.href : undefined
   }
+}
+
+const parseSyndicationPeriod = (value?: unknown) => {
+  const raw = typeof value === 'string' ? value : getText(value as TextNode)
+  const normalized = raw?.trim().toLowerCase()
+  if (!normalized) return undefined
+  if (
+    normalized === 'hourly' ||
+    normalized === 'daily' ||
+    normalized === 'weekly' ||
+    normalized === 'monthly' ||
+    normalized === 'yearly'
+  ) {
+    return normalized
+  }
+  return undefined
+}
+
+const parseSyndicationFrequency = (value?: unknown) => {
+  if (value === undefined || value === null) return undefined
+  const raw = typeof value === 'number' ? `${value}` : getText(value as TextNode)
+  const parsed = raw ? Number.parseInt(raw.trim(), 10) : Number.NaN
+  if (!Number.isFinite(parsed) || parsed <= 0) return undefined
+  return parsed
+}
+
+const getSyndicationExpiresTS = (channel: RssFeed['rss']['channel'], now = Date.now()) => {
+  const period = parseSyndicationPeriod(channel?.['sy:updatePeriod'])
+  if (!period) return undefined
+  const frequency = parseSyndicationFrequency(channel?.['sy:updateFrequency']) ?? 1
+  const periodMs =
+    period === 'hourly'
+      ? 60 * 60 * 1000
+      : period === 'daily'
+        ? 24 * 60 * 60 * 1000
+        : period === 'weekly'
+          ? 7 * 24 * 60 * 60 * 1000
+          : period === 'monthly'
+            ? 30 * 24 * 60 * 60 * 1000
+            : 365 * 24 * 60 * 60 * 1000
+  const expiresTS = now + periodMs * frequency
+  return Math.max(now + MIN_EXPIRES_TTL_MS, expiresTS)
+}
+
+const applyDefaultExpires = (feed: Feed, now = Date.now()): Feed => {
+  if (feed.expiresTS && feed.expiresTS > now) return feed
+  return { ...feed, expiresTS: now + MIN_EXPIRES_TTL_MS }
 }
 
 // RFC: https://www.ietf.org/rfc/rfc4287.txt
@@ -645,6 +687,7 @@ const parseRssFeed = async (
     return ts > cutoffTs
   })
   const htmlUrl = getLink(channel?.link)
+  const syndicationExpiresTS = getSyndicationExpiresTS(channel)
   const feed: Feed = {
     id: feedId,
     title: decodeString(getText(channel?.title)) ?? 'RSS Feed',
@@ -654,6 +697,7 @@ const parseRssFeed = async (
     image:
       (Array.isArray(channel?.image) ? channel?.image[0]?.url : channel?.image?.url) ?? undefined,
     lastUpdated: channel?.updated ?? channel?.lastBuildDate ?? channel?.pubDate ?? undefined,
+    expiresTS: syndicationExpiresTS ?? undefined,
   }
 
   const articles: Article[] = await Promise.all(
@@ -735,13 +779,14 @@ export const fetchFeed = async (
       ? response.headers
       : new Headers()
   const cacheMetadata = extractCacheMetadata(responseHeaders)
+  const now = Date.now()
 
   if (response.status === 304) {
     if (!existingFeed) {
       throw new Error('Received 304 without existing feed metadata')
     }
     return {
-      feed: mergeCacheMetadata(existingFeed, cacheMetadata),
+      feed: applyDefaultExpires(mergeCacheMetadata(existingFeed, cacheMetadata), now),
       articles: [],
     }
   }
@@ -757,9 +802,11 @@ export const fetchFeed = async (
 
   if ('feed' in parsed) {
     const result = await parseAtomFeed(feedId, url, parsed, cutoffTs, metadataBudget)
-    return { ...result, feed: mergeCacheMetadata(result.feed, cacheMetadata) }
+    const merged = mergeCacheMetadata(result.feed, cacheMetadata)
+    return { ...result, feed: applyDefaultExpires(merged, now) }
   } else {
     const result = await parseRssFeed(feedId, url, parsed, cutoffTs, metadataBudget)
-    return { ...result, feed: mergeCacheMetadata(result.feed, cacheMetadata) }
+    const merged = mergeCacheMetadata(result.feed, cacheMetadata)
+    return { ...result, feed: applyDefaultExpires(merged, now) }
   }
 }

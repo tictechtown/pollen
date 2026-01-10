@@ -257,6 +257,64 @@ describe('fetchFeed', () => {
     }
   })
 
+  it('bumps expiresTS on 304 responses when cached value is already expired', async () => {
+    vi.useFakeTimers()
+    const now = new Date('2024-01-01T00:00:00Z')
+    vi.setSystemTime(now)
+
+    try {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        status: 304,
+        headers: new Headers(),
+      } as any)
+
+      const { feed, articles } = await fetchFeed('feed-1', 'https://example.com/rss.xml', {
+        metadataBudget: { remaining: 0 },
+        existingFeed: {
+          id: 'feed-1',
+          title: 'Example Feed',
+          xmlUrl: 'https://example.com/rss.xml',
+          image: null,
+          description: null,
+          lastUpdated: null,
+          expiresTS: now.getTime() - 60 * 1000,
+        } as any,
+      })
+
+      expect(articles).toEqual([])
+      expect(feed.expiresTS).toBe(now.getTime() + 5 * 60 * 1000)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('uses syndication update hints for expiresTS when available', async () => {
+    vi.useFakeTimers()
+    const now = new Date('2024-01-01T00:00:00Z')
+    vi.setSystemTime(now)
+
+    try {
+      const xmlPath = fileURLToPath(
+        new URL('./__tests__/feeds/ars-technica__09cc00c55f.xml', import.meta.url),
+      )
+      const xml = readFileSync(xmlPath, 'utf8')
+
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        status: 200,
+        headers: new Headers(),
+        text: async () => xml,
+      } as any)
+
+      const { feed } = await fetchFeed('feed-ars', 'https://arstechnica.com/feed/', {
+        metadataBudget: { remaining: 0 },
+      })
+
+      expect(feed.expiresTS).toBe(now.getTime() + 60 * 60 * 1000)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('downloads all OPML feeds', () => {
     expect(failures).toEqual([])
   })
