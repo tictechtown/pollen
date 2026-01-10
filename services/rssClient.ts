@@ -45,6 +45,8 @@ export const parseCacheControl = (value?: string | null): number | null => {
   return null
 }
 
+const MIN_EXPIRES_TTL_MS = 5 * 60 * 1000
+
 const METADATA_TIMEOUT = 5000
 const ENRICHMENT_TYPES = new Set(['Article', 'NewsArticle', 'BlogPosting'])
 
@@ -226,14 +228,19 @@ const extractCacheMetadata = (headers: Headers, now = Date.now()): CacheMetadata
 
   const maxAge = parseCacheControl(cacheControl)
   let expiresTS: number | undefined
+  const minExpiresTS = now + MIN_EXPIRES_TTL_MS
 
   if (maxAge !== null) {
-    expiresTS = Math.max(now, now + maxAge * 1000)
+    expiresTS = Math.max(minExpiresTS, now + maxAge * 1000)
   } else if (expiresHeader) {
     const parsed = toTimestamp(expiresHeader)
     if (parsed) {
-      expiresTS = Math.max(now, parsed)
+      expiresTS = Math.max(minExpiresTS, parsed)
     }
+  }
+
+  if (!expiresTS) {
+    expiresTS = minExpiresTS
   }
 
   return {

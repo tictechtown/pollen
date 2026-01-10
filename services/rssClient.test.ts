@@ -219,6 +219,44 @@ describe('fetchFeed', () => {
     expect(actualArticles).toEqual(expectedArticles)
   })
 
+  it('defaults expiresTS to now plus five minutes when cache headers are missing', async () => {
+    vi.useFakeTimers()
+    const now = new Date('2024-01-01T00:00:00Z')
+    vi.setSystemTime(now)
+
+    try {
+      const xml = `
+        <rss version="2.0">
+          <channel>
+            <title>Sample Feed</title>
+            <link>https://example.com</link>
+            <description>Example feed</description>
+            <item>
+              <title>Entry</title>
+              <link>https://example.com/entry</link>
+              <guid>entry-1</guid>
+              <pubDate>Mon, 01 Jan 2024 00:00:00 GMT</pubDate>
+            </item>
+          </channel>
+        </rss>
+      `
+
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+        status: 200,
+        headers: new Headers(),
+        text: async () => xml,
+      } as any)
+
+      const { feed } = await fetchFeed('feed-1', 'https://example.com/rss.xml', {
+        metadataBudget: { remaining: 0 },
+      })
+
+      expect(feed.expiresTS).toBe(now.getTime() + 5 * 60 * 1000)
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('downloads all OPML feeds', () => {
     expect(failures).toEqual([])
   })
