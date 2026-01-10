@@ -109,7 +109,7 @@ const FeedListItem = ({
             marginTop: 4,
             paddingHorizontal: 8,
             marginHorizontal: 8,
-            borderRadius: 20,
+            borderRadius: 16,
           })}
           onPress={onOpen}
         >
@@ -119,7 +119,10 @@ const FeedListItem = ({
               {/* Article title */}
               <Text
                 variant="titleMedium"
-                style={[styles.title, { color: colors.onSurface, opacity }]}
+                style={[
+                  styles.title,
+                  { color: read ? colors.onSurfaceDisabled : colors.onSurface },
+                ]}
                 numberOfLines={2}
               >
                 {article.title}
@@ -130,7 +133,7 @@ const FeedListItem = ({
                   variant="bodySmall"
                   // If title has a short title, we add an extra line of description, so we always have title + description = 4 lines
                   numberOfLines={article.title.length < 35 ? 3 : 2}
-                  style={{ color: colors.onSurfaceVariant, opacity }}
+                  style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
                 >
                   {article.description}
                 </Text>
@@ -158,12 +161,15 @@ const FeedListItem = ({
             {/* Time */}
             <Text
               variant="labelMedium"
-              style={{ color: colors.tertiary, opacity }}
+              style={{ color: read ? colors.onSurfaceDisabled : colors.tertiary }}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
               {article.source.slice(0, 50)}
-              <Text variant="labelMedium" style={{ color: colors.onSurfaceVariant, opacity }}>
+              <Text
+                variant="labelMedium"
+                style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
+              >
                 {` · ${formatRelativeTime(article.updatedAt ?? article.publishedAt)}`}
               </Text>
             </Text>
