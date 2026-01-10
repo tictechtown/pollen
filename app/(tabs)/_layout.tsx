@@ -22,15 +22,30 @@ export default function TabLayout() {
     >
       <NativeTabs.Trigger name="unread">
         <Label>Unread</Label>
-        <Icon src={<VectorIcon family={MaterialIcons} name="radio-button-unchecked" />} />
+        <Icon
+          src={{
+            default: <VectorIcon family={MaterialIcons} name="radio-button-unchecked" />,
+            selected: <VectorIcon family={MaterialIcons} name="radio-button-checked" />,
+          }}
+        />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="index">
         <Label>Feed</Label>
-        <Icon src={<VectorIcon family={MaterialIcons} name="notes" />} />
+        <Icon
+          src={{
+            default: <VectorIcon family={MaterialIcons} name="list" />,
+            selected: <VectorIcon family={MaterialIcons} name="notes" />,
+          }}
+        />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="saved">
         <Label>Read Later</Label>
-        <Icon src={<VectorIcon family={MaterialIcons} name="bookmarks" />} />
+        <Icon
+          src={{
+            default: <VectorIcon family={MaterialIcons} name="bookmarks" />,
+            selected: <VectorIcon family={MaterialIcons} name="bookmark" />,
+          }}
+        />
       </NativeTabs.Trigger>
     </NativeTabs>
   )
