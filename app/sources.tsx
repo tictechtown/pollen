@@ -18,6 +18,7 @@ import SourceListItem from '@/components/ui/SourceListItem'
 import { buildFeedSections, FeedSection, groupFeedsByFolderId } from '@/services/feed-sections'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { readerApi } from '@/services/reader-api'
+import { importFeedsFromOpmlUrl } from '@/services/refresh'
 import { fetchFeed } from '@/services/rssClient'
 import { normalizeUrl } from '@/services/urls'
 import { generateUUID } from '@/services/uuid-generator'
@@ -259,11 +260,19 @@ export default function SourcesScreen() {
     setFeedToRemove(null)
   }
 
-  const finalizeAdd = () => {
+  const closeAddDialog = () => {
     setFeedUrl('')
     setFeedCandidates([])
     setAddVisible(false)
+  }
+
+  const finalizeAdd = () => {
+    closeAddDialog()
     router.push('/(tabs)')
+  }
+
+  const finalizeOpmlAdd = () => {
+    closeAddDialog()
   }
 
   const addFeedByUrl = async (url: string) => {
@@ -301,12 +310,24 @@ export default function SourcesScreen() {
   const handleAdd = async () => {
     const trimmedUrl = normalizeUrl(feedUrl)
     if (!trimmedUrl) {
-      setSnackbar('Enter a feed URL')
+      setSnackbar('Enter a feed or OPML URL')
       return
     }
     await withSubmitting(async () => {
       try {
-        const { directUrl, candidates } = await discoverFeedUrls(trimmedUrl)
+        const { directUrl, candidates, opmlUrl } = await discoverFeedUrls(trimmedUrl)
+        if (opmlUrl) {
+          const imported = await importFeedsFromOpmlUrl(opmlUrl)
+          addFeeds(imported)
+          invalidateArticles()
+          const folders = await readerApi.folders.list()
+          setFolders(folders)
+          setSnackbar(
+            imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML',
+          )
+          finalizeOpmlAdd()
+          return
+        }
         if (directUrl) {
           if (await addFeedByUrl(directUrl)) {
             finalizeAdd()
@@ -363,13 +384,15 @@ export default function SourcesScreen() {
 
       const imported = await readerApi.importOpml(asset.uri)
       addFeeds(imported)
+      const folders = await readerApi.folders.list()
+      setFolders(folders)
       setSnackbar(imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML')
     } catch (err) {
       setSnackbar(err instanceof Error ? err.message : 'Failed to import OPML')
     } finally {
       setImportingOpml(false)
     }
-  }, [addFeeds, setSnackbar, setImportingOpml, importingOpml])
+  }, [addFeeds, setFolders, setSnackbar, setImportingOpml, importingOpml])
 
   const FABActions = useMemo(() => {
     const openCreateFolder = () => {
@@ -484,7 +507,7 @@ export default function SourcesScreen() {
           <Dialog.Content>
             <TextInput
               mode="outlined"
-              label="Feed URL"
+              label="Feed or OPML URL"
               value={feedUrl}
               onChangeText={(value) => {
                 setFeedUrl(value)

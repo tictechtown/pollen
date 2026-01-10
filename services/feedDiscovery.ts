@@ -1,22 +1,26 @@
 // Feed discovery helper for user-provided URLs.
 
+import { isOpmlXml } from './opml'
+
 type FeedCandidate = {
   url: string
   title?: string
   kind: 'rss' | 'atom' | 'unknown'
 }
 
-const FEED_MIME_TYPES = new Set([
-  'application/rss+xml',
-  'application/atom+xml',
-  'application/xml',
-  'text/xml',
-])
+const FEED_MIME_TYPES = new Set(['application/rss+xml', 'application/atom+xml'])
+const GENERIC_XML_MIME_TYPES = new Set(['application/xml', 'text/xml'])
 
 const normalizeMimeType = (value?: string | null) =>
   (value ?? '').split(';')[0].trim().toLowerCase()
 
-const isFeedContentType = (value?: string | null) => FEED_MIME_TYPES.has(normalizeMimeType(value))
+const isFeedContentType = (value?: string | null) => {
+  const normalized = normalizeMimeType(value)
+  return FEED_MIME_TYPES.has(normalized) || GENERIC_XML_MIME_TYPES.has(normalized)
+}
+
+const isStrictFeedContentType = (value?: string | null) =>
+  FEED_MIME_TYPES.has(normalizeMimeType(value))
 
 const detectFeedKindFromMime = (value?: string | null): FeedCandidate['kind'] => {
   const normalized = normalizeMimeType(value)
@@ -92,11 +96,12 @@ export const discoverFeedUrls = async (
 ): Promise<{
   directUrl?: string
   directKind?: FeedCandidate['kind']
+  opmlUrl?: string
   candidates: FeedCandidate[]
 }> => {
   try {
     const headResp = await fetch(inputUrl, { method: 'HEAD' })
-    if (headResp.ok && isFeedContentType(headResp.headers.get('content-type'))) {
+    if (headResp.ok && isStrictFeedContentType(headResp.headers.get('content-type'))) {
       return {
         directUrl: inputUrl,
         directKind: detectFeedKindFromMime(headResp.headers.get('content-type')),
@@ -113,6 +118,14 @@ export const discoverFeedUrls = async (
   }
 
   const contentType = resp.headers.get('content-type')
+  const body = await resp.text()
+  if (isOpmlXml(body)) {
+    return {
+      opmlUrl: resp.url || inputUrl,
+      candidates: [],
+    }
+  }
+
   if (isFeedContentType(contentType)) {
     return {
       directUrl: resp.url || inputUrl,
@@ -121,7 +134,6 @@ export const discoverFeedUrls = async (
     }
   }
 
-  const body = await resp.text()
   if (looksLikeFeed(body)) {
     return {
       directUrl: resp.url || inputUrl,
@@ -136,9 +148,13 @@ export const discoverFeedUrls = async (
 }
 
 export const discoverFeedCandidates = async (inputUrl: string): Promise<FeedCandidate[]> => {
-  const { directUrl, directKind, candidates } = await discoverFeedUrls(inputUrl)
+  const { directUrl, directKind, candidates, opmlUrl } = await discoverFeedUrls(inputUrl)
   const deduped: FeedCandidate[] = []
   const seen = new Set<string>()
+
+  if (opmlUrl) {
+    return []
+  }
 
   const push = (candidate: FeedCandidate) => {
     if (seen.has(candidate.url)) return

@@ -16,7 +16,8 @@ import {
 } from 'react-native-paper'
 
 import { dedupeById } from '@/services/collections'
-import { discoverFeedCandidates, FeedCandidate } from '@/services/feedDiscovery'
+import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
+import { importFeedsFromOpmlUrl } from '@/services/refresh'
 import { readerApi } from '@/services/reader-api'
 import { fetchFeed } from '@/services/rssClient'
 import { saveArticleForLater } from '@/services/save-for-later'
@@ -25,6 +26,7 @@ import { generateUUID } from '@/services/uuid-generator'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
 import { useFiltersStore } from '@/store/filters'
+import { useFoldersStore } from '@/store/folders'
 import { Feed } from '@/types'
 
 export default function ShareScreen() {
@@ -41,17 +43,20 @@ export default function ShareScreen() {
 
   const feeds = useFeedsStore((state) => state.feeds)
   const addFeed = useFeedsStore((state) => state.addFeed)
+  const addFeeds = useFeedsStore((state) => state.addFeeds)
+  const setFolders = useFoldersStore((state) => state.setFolders)
   const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
   const invalidate = useArticlesStore((state) => state.invalidate)
   const { setFeedFilter } = useFiltersStore()
 
-  const [submitting, setSubmitting] = useState<'subscribe' | 'save' | null>(null)
+  const [submitting, setSubmitting] = useState<'subscribe' | 'save' | 'opml' | null>(null)
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [discoveryStatus, setDiscoveryStatus] = useState<
-    'idle' | 'loading' | 'ready' | 'none' | 'error'
+    'idle' | 'loading' | 'ready' | 'none' | 'error' | 'opml'
   >('idle')
   const [candidates, setCandidates] = useState<FeedCandidate[]>([])
   const [discoveryError, setDiscoveryError] = useState<string | null>(null)
+  const [opmlUrl, setOpmlUrl] = useState<string | null>(null)
   const [manualVisible, setManualVisible] = useState(false)
   const [manualUrl, setManualUrl] = useState('')
   const [duplicateFeed, setDuplicateFeed] = useState<Feed | null>(null)
@@ -83,10 +88,31 @@ export default function ShareScreen() {
     setDiscoveryStatus('loading')
     setDiscoveryError(null)
     setCandidates([])
+    setOpmlUrl(null)
     try {
-      const discovered = await discoverFeedCandidates(url)
-      if (discovered.length) {
-        setCandidates(discovered)
+      const discovered = await discoverFeedUrls(url)
+      if (discovered.opmlUrl) {
+        setOpmlUrl(discovered.opmlUrl)
+        setDiscoveryStatus('opml')
+        return
+      }
+      const nextCandidates: FeedCandidate[] = []
+      const seen = new Set<string>()
+      const push = (candidate: FeedCandidate) => {
+        if (seen.has(candidate.url)) return
+        seen.add(candidate.url)
+        nextCandidates.push(candidate)
+      }
+      if (discovered.directUrl) {
+        push({
+          url: discovered.directUrl,
+          title: undefined,
+          kind: discovered.directKind ?? 'unknown',
+        })
+      }
+      discovered.candidates.forEach(push)
+      if (nextCandidates.length) {
+        setCandidates(nextCandidates)
         setDiscoveryStatus('ready')
         return
       }
@@ -173,6 +199,29 @@ export default function ShareScreen() {
     } catch (err) {
       console.error('Failed to subscribe from share', err)
       setSnackbar('Failed to subscribe')
+    } finally {
+      setSubmitting(null)
+    }
+  }
+
+  const handleImportOpml = async () => {
+    if (!opmlUrl) {
+      setSnackbar('Invalid OPML URL')
+      return
+    }
+    setSubmitting('opml')
+    try {
+      const imported = await importFeedsFromOpmlUrl(opmlUrl)
+      addFeeds(imported)
+      invalidate()
+      const folders = await readerApi.folders.list()
+      setFolders(folders)
+      setSnackbar(
+        imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML',
+      )
+    } catch (err) {
+      console.error('Failed to import OPML from share', err)
+      setSnackbar(err instanceof Error ? err.message : 'Failed to import OPML')
     } finally {
       setSubmitting(null)
     }
@@ -283,6 +332,28 @@ export default function ShareScreen() {
           </Card>
         ) : null}
 
+        {discoveryStatus === 'opml' ? (
+          <Card style={styles.card}>
+            <Card.Title title="OPML file detected" titleVariant="titleMedium" />
+            <Card.Content>
+              <Text variant="bodyMedium">
+                Import this OPML file to subscribe to all included feeds.
+              </Text>
+            </Card.Content>
+            <Card.Actions>
+              <Button
+                icon="file-import-outline"
+                mode="contained"
+                onPress={() => void handleImportOpml()}
+                disabled={submitting !== null}
+                loading={submitting === 'opml'}
+              >
+                Import OPML
+              </Button>
+            </Card.Actions>
+          </Card>
+        ) : null}
+
         {discoveryStatus === 'none' ? (
           <Card style={styles.card}>
             <Card.Title title="No feed found" titleVariant="titleMedium" />
@@ -319,7 +390,7 @@ export default function ShareScreen() {
                 }}
                 disabled={submitting !== null}
               >
-                Enter feed URL
+                Enter feed or OPML URL
               </Button>
             </Card.Actions>
           </Card>
@@ -328,11 +399,11 @@ export default function ShareScreen() {
 
       <Portal>
         <Dialog visible={manualVisible} onDismiss={() => setManualVisible(false)}>
-          <Dialog.Title>Manual feed URL</Dialog.Title>
+          <Dialog.Title>Manual feed or OPML URL</Dialog.Title>
           <Dialog.Content>
             <TextInput
               mode="outlined"
-              label="Feed URL"
+              label="Feed or OPML URL"
               value={manualUrl}
               onChangeText={setManualUrl}
               autoCapitalize="none"

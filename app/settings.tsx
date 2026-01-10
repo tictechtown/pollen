@@ -11,11 +11,13 @@ import { buildOpmlExportFilename } from '@/services/opml-export'
 import { readerApi } from '@/services/reader-api'
 import { useArticlesStore } from '@/store/articles'
 import { useFeedsStore } from '@/store/feeds'
+import { useFoldersStore } from '@/store/folders'
 
 export default function SettingsScreen() {
   const router = useRouter()
   const invalidateArticles = useArticlesStore((state) => state.invalidate)
   const setFeeds = useFeedsStore((state) => state.setFeeds)
+  const setFolders = useFoldersStore((state) => state.setFolders)
   const feeds = useFeedsStore((state) => state.feeds)
   const [snackbar, setSnackbar] = useState<string | null>(null)
 
@@ -49,7 +51,9 @@ export default function SettingsScreen() {
 
       const imported = await readerApi.importOpml(asset.uri)
       const feeds = await readerApi.feeds.list()
+      const folders = await readerApi.folders.list()
       setFeeds(feeds)
+      setFolders(folders)
       setSnackbar(imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML')
     } catch (err) {
       setSnackbar(err instanceof Error ? err.message : 'Failed to import OPML')

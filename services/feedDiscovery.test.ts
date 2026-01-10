@@ -128,4 +128,29 @@ describe('discoverFeedUrls', () => {
 
     expect(result).toEqual({ candidates: [] })
   })
+
+  it('returns opmlUrl when response body is OPML', async () => {
+    const opml = `<?xml version="1.0"?>
+      <opml version="2.0">
+        <body>
+          <outline type="rss" xmlUrl="https://example.com/rss.xml" />
+        </body>
+      </opml>`
+
+    vi.spyOn(globalThis, 'fetch')
+      .mockRejectedValueOnce(new Error('HEAD not allowed'))
+      .mockResolvedValueOnce({
+        ok: true,
+        url: 'https://example.com/subscriptions.opml',
+        headers: createHeaders('application/xml'),
+        text: async () => opml,
+      } as any)
+
+    const result = await discoverFeedUrls('https://example.com/subscriptions.opml')
+
+    expect(result).toEqual({
+      opmlUrl: 'https://example.com/subscriptions.opml',
+      candidates: [],
+    })
+  })
 })

@@ -38,23 +38,44 @@ type OutlineNode = {
   outline?: OutlineNode | OutlineNode[]
 }
 
-const collectFeeds = (node?: OutlineNode | OutlineNode[]): Feed[] => {
+export type ParsedOpmlFolder = {
+  title: string
+  feedUrls: string[]
+}
+
+export type ParsedOpml = {
+  feeds: Feed[]
+  folders: ParsedOpmlFolder[]
+}
+
+const collectFeeds = (
+  node: OutlineNode | OutlineNode[] | undefined,
+  folderMap: Map<string, Set<string>>,
+  folderTitle?: string,
+): Feed[] => {
   const outlines = toArray(node)
 
   return outlines.flatMap((outline) => {
     const feeds: Feed[] = []
+    const title = decode(outline.title ?? outline.text)
+    const nextFolderTitle = outline.outline && title ? title : folderTitle
     if (outline.type === 'rss' && outline.xmlUrl) {
       const feedId = generateUUID()
       feeds.push({
         id: feedId,
         xmlUrl: outline.xmlUrl,
-        title: decode(outline.title ?? outline.text) ?? outline.xmlUrl,
+        title: title ?? outline.xmlUrl,
         description: decode(outline.description),
       })
+      if (folderTitle) {
+        const urls = folderMap.get(folderTitle) ?? new Set<string>()
+        urls.add(outline.xmlUrl)
+        folderMap.set(folderTitle, urls)
+      }
     }
 
     if (outline.outline) {
-      feeds.push(...collectFeeds(outline.outline))
+      feeds.push(...collectFeeds(outline.outline, folderMap, nextFolderTitle))
     }
 
     return feeds
@@ -70,10 +91,16 @@ export const isOpmlXml = (xml: string): boolean => {
   }
 }
 
-export const parseOpml = (opml: string): Feed[] => {
+export const parseOpml = (opml: string): ParsedOpml => {
   const parsed = parser.parse(opml) as OpmlDocument
   const outlines = parsed.opml?.body?.outline
-  return collectFeeds(outlines)
+  const folderMap = new Map<string, Set<string>>()
+  const feeds = collectFeeds(outlines, folderMap)
+  const folders = Array.from(folderMap.entries()).map(([title, feedUrls]) => ({
+    title,
+    feedUrls: Array.from(feedUrls),
+  }))
+  return { feeds, folders }
 }
 
 const escapeXmlAttribute = (value: string): string =>

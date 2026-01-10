@@ -4,6 +4,7 @@ import * as FileSystem from 'expo-file-system/legacy'
 import { Article, Feed } from '@/types'
 import { upsertArticles } from './articles-db'
 import { getFeedsFromDb, upsertFeeds } from './feeds-db'
+import { createFolderInDb, getFoldersFromDb } from './folders-db'
 import { isOpmlXml, parseOpml } from './opml'
 import { fetchFeed } from './rssClient'
 
@@ -65,17 +66,48 @@ const mapWithConcurrency = async <T, R>(
   return results
 }
 
-export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
-  const opmlXml = await FileSystem.readAsStringAsync(uri)
+export const importFeedsFromOpmlXml = async (opmlXml: string): Promise<Feed[]> => {
   if (!isOpmlXml(opmlXml)) {
     throw new Error('Invalid OPML file')
   }
-  const parsedFeeds = parseOpml(opmlXml)
+  const { feeds: parsedFeeds, folders: parsedFolders } = parseOpml(opmlXml)
   const existingFeeds = await getFeedsFromDb()
+  const existingFolders = await getFoldersFromDb()
+  const folderByTitle = new Map(existingFolders.map((folder) => [folder.title, folder]))
+
+  const folderIdByTitle = new Map<string, string>()
+  for (const folder of parsedFolders) {
+    const trimmed = folder.title.trim()
+    if (!trimmed) continue
+    let record = folderByTitle.get(trimmed)
+    if (!record) {
+      record = await createFolderInDb(trimmed)
+      folderByTitle.set(trimmed, record)
+    }
+    folderIdByTitle.set(trimmed, record.id)
+  }
+
+  const folderIdByXmlUrl = new Map<string, string>()
+  parsedFolders.forEach((folder) => {
+    const trimmed = folder.title.trim()
+    if (!trimmed) return
+    const folderId = folderIdByTitle.get(trimmed)
+    if (!folderId) return
+    folder.feedUrls.forEach((url) => {
+      if (!folderIdByXmlUrl.has(url)) {
+        folderIdByXmlUrl.set(url, folderId)
+      }
+    })
+  })
+
+  const parsedFeedsWithFolders = parsedFeeds.map((feed) => {
+    const folderId = folderIdByXmlUrl.get(feed.xmlUrl)
+    return folderId ? { ...feed, folderId } : feed
+  })
 
   // we are removing duplicated feeds (already existing feeds in our app)
   const urls = new Set(existingFeeds.map((f) => f.xmlUrl))
-  const dedupFeeds = parsedFeeds.filter((f) => {
+  const dedupFeeds = parsedFeedsWithFolders.filter((f) => {
     if (urls.has(f.xmlUrl)) {
       return false
     }
@@ -96,6 +128,7 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
   results.forEach((result) => {
     if (result.status !== 'fulfilled') return
     const { feed, articles: fetchedArticles } = result.value
+    const folderId = folderIdByXmlUrl.get(feed.xmlUrl)
 
     const maxTsFromFresh = fetchedArticles.reduce(
       (max, article) => Math.max(max, articleTimestamp(article)),
@@ -104,6 +137,7 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
 
     feedsForUpsert.push({
       ...feed,
+      folderId: folderId ?? feed.folderId,
       lastPublishedTs: maxTsFromFresh || undefined,
     })
 
@@ -122,6 +156,20 @@ export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
   }
 
   return feedsForUpsert
+}
+
+export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
+  const opmlXml = await FileSystem.readAsStringAsync(uri)
+  return importFeedsFromOpmlXml(opmlXml)
+}
+
+export const importFeedsFromOpmlUrl = async (url: string): Promise<Feed[]> => {
+  const resp = await fetch(url)
+  if (!resp.ok) {
+    throw new Error('Failed to load OPML')
+  }
+  const opmlXml = await resp.text()
+  return importFeedsFromOpmlXml(opmlXml)
 }
 
 let refreshInFlight: Promise<RefreshResult> | null = null

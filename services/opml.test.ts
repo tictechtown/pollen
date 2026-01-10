@@ -15,10 +15,32 @@ describe('parseOpml', () => {
         </body>
       </opml>`
 
-    const feeds = parseOpml(opml)
+    const { feeds } = parseOpml(opml)
 
     expect(feeds).toHaveLength(1)
     expect(feeds[0].xmlUrl).toBe(url)
+  })
+
+  it('collects folders for nested outlines', () => {
+    const opml = `<?xml version="1.0"?>
+      <opml version="2.0">
+        <body>
+          <outline text="Gaming" title="Gaming">
+            <outline text="Escapist" title="Escapist" xmlUrl="https://example.com/escapist.xml" type="rss" />
+            <outline text="Eurogamer" title="Eurogamer" xmlUrl="https://example.com/eurogamer.xml" type="rss" />
+          </outline>
+        </body>
+      </opml>`
+
+    const { feeds, folders } = parseOpml(opml)
+
+    expect(feeds).toHaveLength(2)
+    expect(folders).toEqual([
+      {
+        title: 'Gaming',
+        feedUrls: ['https://example.com/escapist.xml', 'https://example.com/eurogamer.xml'],
+      },
+    ])
   })
 })
 
