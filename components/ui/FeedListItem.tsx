@@ -2,7 +2,7 @@ import { useArticlesStore } from '@/store/articles'
 import { Article } from '@/types'
 import { Image } from 'expo-image'
 import { memo, useRef } from 'react'
-import { Pressable, Share, StyleSheet, View } from 'react-native'
+import { Pressable, StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 import { IconButton, Text } from 'react-native-paper'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
@@ -65,151 +65,123 @@ const FeedListItem = ({
   const opacity = read ? 0.5 : 1
 
   return (
-    <View style={styles.wrapper}>
-      <Swipeable
-        ref={reanimatedRef}
-        rightThreshold={60}
-        leftThreshold={60}
-        overshootLeft={false}
-        overshootRight={false}
-        renderLeftActions={(_, dragX) => (
-          <SwipeAction
-            dragX={dragX}
-            backgroundColor={colors.secondaryContainer}
-            iconColor={colors.onSecondaryContainer}
-            icon={read ? 'circle-outline' : 'check-circle-outline'}
-            isLeft
-          />
-        )}
-        renderRightActions={(_, dragX) => (
-          <SwipeAction
-            dragX={dragX}
-            backgroundColor={colors.secondaryContainer}
-            iconColor={colors.onSecondaryContainer}
-            icon={saved ? 'bookmark-outline' : 'bookmark'}
-          />
-        )}
-        onSwipeableOpen={(direction) => {
-          if (direction === 'left') {
-            onToggleSaved()
-          } else {
-            onToggleRead()
-          }
-          reanimatedRef.current?.close()
-        }}
+    <Swipeable
+      ref={reanimatedRef}
+      rightThreshold={60}
+      leftThreshold={60}
+      overshootLeft={false}
+      overshootRight={false}
+      renderLeftActions={(_, dragX) => (
+        <SwipeAction
+          dragX={dragX}
+          backgroundColor={colors.secondaryContainer}
+          iconColor={colors.onSecondaryContainer}
+          icon={read ? 'circle-outline' : 'check-circle-outline'}
+          isLeft
+        />
+      )}
+      renderRightActions={(_, dragX) => (
+        <SwipeAction
+          dragX={dragX}
+          backgroundColor={colors.secondaryContainer}
+          iconColor={colors.onSecondaryContainer}
+          icon={saved ? 'bookmark-outline' : 'bookmark'}
+        />
+      )}
+      onSwipeableOpen={(direction) => {
+        if (direction === 'left') {
+          onToggleSaved()
+        } else {
+          onToggleRead()
+        }
+        reanimatedRef.current?.close()
+      }}
+    >
+      <Pressable
+        style={({ pressed }) => ({
+          backgroundColor: pressed ? colors.surfaceVariant : colors.surface,
+          opacity: pressed ? 0.8 : 1,
+          flex: 1,
+          gap: 4,
+          paddingBlock: 6,
+          marginBlock: 6,
+          paddingHorizontal: 12,
+          marginHorizontal: 4,
+          borderRadius: 20,
+          minHeight: 90,
+        })}
+        onPress={onOpen}
       >
-        <Pressable
-          style={({ pressed }) => ({
-            backgroundColor: pressed ? colors.surfaceVariant : colors.surface,
-            opacity: pressed ? 0.8 : 1,
-
+        <View
+          style={{
+            flexDirection: 'row',
             flex: 1,
-            gap: 0,
-            paddingTop: 4,
-            marginTop: 4,
-            paddingHorizontal: 8,
-            marginHorizontal: 8,
-            borderRadius: 16,
-          })}
-          onPress={onOpen}
+            justifyContent: 'space-between',
+            gap: 32,
+            alignItems: 'center',
+          }}
         >
-          <View style={{ flex: 1, justifyContent: 'center' }}>{/* Feed name */}</View>
-          <View style={{ flexDirection: 'row', gap: 16 }}>
-            <View style={{ flex: 10, gap: 4 }}>
-              {/* Article title */}
-              <Text
-                variant="titleMedium"
-                style={[
-                  styles.title,
-                  { color: read ? colors.onSurfaceDisabled : colors.onSurface },
-                ]}
-                numberOfLines={2}
-              >
-                {article.title}
-              </Text>
-              {/* Article description */}
-              {!!article.description && (
-                <Text
-                  variant="bodySmall"
-                  // If title has a short title, we add an extra line of description, so we always have title + description = 4 lines
-                  numberOfLines={article.title.length < 35 ? 3 : 2}
-                  style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
-                >
-                  {article.description}
-                </Text>
-              )}
-            </View>
-            {!!article.thumbnail && (
-              <View style={{ flex: 4 }}>
-                <Image
-                  source={{ uri: article.thumbnail }}
-                  style={[styles.image, { opacity }]}
-                  contentFit="cover"
-                />
-              </View>
-            )}
-          </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              flex: 1,
-              justifyContent: 'space-between',
-              gap: 32,
-              alignItems: 'center',
-            }}
+          {/* Feed name */}
+          <Text
+            variant="labelMedium"
+            style={{ color: read ? colors.onSurfaceDisabled : colors.tertiary }}
+            numberOfLines={1}
+            ellipsizeMode="tail"
           >
-            {/* Time */}
+            {article.source.slice(0, 50)}
+          </Text>
+          {/* Relative time */}
+          <Text
+            variant="labelMedium"
+            style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
+          >
+            {formatRelativeTime(article.updatedAt ?? article.publishedAt)}
+          </Text>
+        </View>
+
+        <View style={{ flex: 1, flexDirection: 'row', gap: 16 }}>
+          <View style={{ flex: 10, gap: 4 }}>
+            {/* Article title */}
             <Text
-              variant="labelMedium"
-              style={{ color: read ? colors.onSurfaceDisabled : colors.tertiary }}
-              numberOfLines={1}
-              ellipsizeMode="tail"
+              variant="titleMedium"
+              style={[styles.title, { color: read ? colors.onSurfaceDisabled : colors.onSurface }]}
+              numberOfLines={2}
             >
-              {article.source.slice(0, 50)}
+              {article.title}
+            </Text>
+            {/* Article description */}
+            {!!article.description && (
               <Text
-                variant="labelMedium"
+                variant="bodySmall"
+                // If title has a short title, we add an extra line of description, so we always have title + description = 4 lines
+                numberOfLines={article.title.length < 35 ? 3 : 2}
                 style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
               >
-                {` · ${formatRelativeTime(article.updatedAt ?? article.publishedAt)}`}
+                {article.description}
               </Text>
-            </Text>
-
-            <View style={{ flex: 0, flexDirection: 'row', alignItems: 'center', gap: 0 }}>
-              <IconButton
-                size={16}
-                icon="share-variant-outline"
-                style={{ margin: 0 }}
-                onPress={async () => {
-                  await Share.share({
-                    title: article.title,
-                    message: article.link,
-                    url: article.link,
-                  })
-                }}
-              />
-              <IconButton
-                size={16}
-                style={{ margin: 0 }}
-                icon={saved ? 'bookmark' : 'bookmark-outline'}
-                onPress={onToggleSaved}
+            )}
+          </View>
+          {!!article.thumbnail && (
+            <View style={{ flex: 4 }}>
+              <Image
+                source={{ uri: article.thumbnail }}
+                style={[styles.image, { opacity }]}
+                contentFit="cover"
               />
             </View>
-          </View>
-        </Pressable>
-      </Swipeable>
-    </View>
+          )}
+        </View>
+      </Pressable>
+    </Swipeable>
   )
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    marginBottom: 4,
-  },
   title: {
     lineHeight: 20,
   },
   image: {
-    height: 74,
+    height: 76,
     borderRadius: 16,
   },
   swipeAction: {

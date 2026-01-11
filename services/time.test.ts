@@ -14,4 +14,10 @@ describe('formatRelativeTime', () => {
     expect(formatRelativeTime('2026-01-05T11:00:00Z', now)).toBe('1h ago')
     expect(formatRelativeTime('2026-01-04T12:00:00Z', now)).toBe('1d ago')
   })
+
+  it('formats months and years', () => {
+    const now = Date.parse('2026-01-05T12:00:00Z')
+    expect(formatRelativeTime('2025-12-05T12:00:00Z', now)).toBe('1mo ago')
+    expect(formatRelativeTime('2025-01-05T12:00:00Z', now)).toBe('1y ago')
+  })
 })

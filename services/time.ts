@@ -9,5 +9,9 @@ export const formatRelativeTime = (date?: string, nowMs: number = Date.now()): s
   const diffHours = Math.floor(diffMinutes / 60)
   if (diffHours < 24) return `${diffHours}h ago`
   const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays}d ago`
+  if (diffDays < 30) return `${diffDays}d ago`
+  const diffMonths = Math.floor(diffDays / 30)
+  if (diffMonths < 12) return `${diffMonths}mo ago`
+  const diffYears = Math.floor(diffDays / 365)
+  return `${diffYears}y ago`
 }

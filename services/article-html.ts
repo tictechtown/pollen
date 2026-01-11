@@ -68,12 +68,8 @@ export const buildArticleHtml = ({
   const headerInner = `
       <header class="article-header">
         ${hero}
-        <div class="content">
-          <div class="title">${title ?? ''}</div>
-          <div class="source">${
-            article?.source ?? ''
-          }<span class="meta"> • ${displayDate}<span></div>
-        </div>
+        <div class="title">${title ?? ''}</div>
+        <div class="source">${article?.source ?? ''}<span class="meta"> • ${displayDate}<span></div>
       </header>
     `
   const headerBlock = article?.link
@@ -85,16 +81,15 @@ export const buildArticleHtml = ({
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <style>
-            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurface}; }
+            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurfaceVariant}; }
             figure { width: 100%; margin:0; padding:0 }
             figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
             img { max-width: 100%; height: auto; border-radius: 12px; }
+            video { width: 100%; height: auto; }
             h1, h2, h3, h4 { line-height: 1.2; }
-            a { color: ${colors.primary}; text-decoration: none; }
+            a { color: ${colors.primary}; text-decoration: underline; }
             a:hover { text-decoration: underline; }
             figure { margin: 0 0 16px 0; }
-            .article-header { border-radius: 12px; background: ${colors.surfaceVariant};}
-            .article-header .content { padding: 16px }
             .header-link { color: inherit; text-decoration: none; display: block; }
             .header-link:hover { text-decoration: none; }
             .header-link:active { opacity: 0.6; }
@@ -102,10 +97,12 @@ export const buildArticleHtml = ({
             blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
             pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
             code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
-            .hero { width: 100%; border-radius: 0px; border-top-left-radius: 12px; border-top-right-radius: 12px; height: auto; }
-            .meta { color: ${colors.onSurfaceVariant}; font-size: 14px; font-weight: 400}
-            .title { font-size: 24px; color: ${colors.onSurface}; font-weight: 700; margin-block: 4px; line-height:1.15; }
-            .source { color: ${colors.onSurfaceVariant}; font-weight: 700;}
+            
+            .article-header { display: flex;  flex-direction: column; gap: 4px; }
+            .hero { width: 100%; border-radius: 12px; height: auto; margin-bottom: 4px}
+            .title { font-size: 24px; color: ${colors.onSurface}; font-weight: 700; line-height:1.15; }
+            .source { color: ${colors.onSurfaceDisabled}; font-size: 14px; font-weight: 500;}
+            .meta { color: ${colors.onSurfaceDisabled}; font-size: 14px; font-weight: 400}
             .divider { height: 0px; background: ${colors.outlineVariant}; margin: 16px 0; }
             
             .pane { will-change: transform, opacity; }

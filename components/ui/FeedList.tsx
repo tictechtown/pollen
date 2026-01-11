@@ -15,7 +15,6 @@ import {
   Banner,
   Button,
   Card,
-  Divider,
   Text,
   useTheme,
 } from 'react-native-paper'
@@ -90,7 +89,6 @@ export default function FeedList(props: Props) {
         data={articles}
         refreshControl={<RefreshControl refreshing={manualRefreshing} onRefresh={refresh} />}
         keyExtractor={(item) => item.id}
-        ItemSeparatorComponent={() => <Divider horizontalInset />}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         onEndReached={() => {
