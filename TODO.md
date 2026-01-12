@@ -142,6 +142,7 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 - Add vibration
 - If feed has an issue (5xx or 4xx) -> display it to the user in sources
 - Fix double screen when sharing
+- relative time is not displaying "ago"
 
 # Version 1.1.0
 
