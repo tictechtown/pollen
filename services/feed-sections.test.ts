@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Feed, FeedFolder } from '@/types'
 
-import { buildFeedSections, groupFeedsByFolderId } from './feed-sections'
+import { applyFolderExpansion, buildFeedSections, groupFeedsByFolderId } from './feed-sections'
 
 describe('feed-sections', () => {
   const feeds: Feed[] = [
@@ -31,5 +31,12 @@ describe('feed-sections', () => {
 
     const empty = buildFeedSections([], folders)
     expect(empty[1].data).toEqual([])
+  })
+
+  it('applyFolderExpansion hides folder data when collapsed', () => {
+    const sections = buildFeedSections(feeds, folders)
+    const collapsed = applyFolderExpansion(sections, { 'folder-1': false })
+    expect(collapsed[0].data.map((f) => f.id)).toEqual(['f2', 'f1'])
+    expect(collapsed[1].data).toEqual([])
   })
 })

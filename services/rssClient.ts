@@ -178,6 +178,11 @@ export const decodeString = (value?: string): string | undefined => {
   return decodedEntities
 }
 
+const trimStartText = (value?: string | null): string | undefined => {
+  if (value === undefined || value === null) return undefined
+  return value.trimStart()
+}
+
 export const encodeBase64 = (value?: string | null): string | undefined => {
   if (value === undefined || value === null) return undefined
   const makeUrlSafe = (input: string) =>
@@ -624,7 +629,7 @@ const parseAtomFeed = async (
 
   const feed: Feed = {
     id: feedId,
-    title: decodeString(getText(channel?.title)) ?? 'RSS Feed',
+    title: trimStartText(decodeString(getText(channel?.title))) ?? 'RSS Feed',
     xmlUrl: url,
     htmlUrl: extractHTMLLink(channel.link),
     description: decodeString(getText(channel?.subtitle)) ?? undefined,
@@ -638,10 +643,11 @@ const parseAtomFeed = async (
       const contentEncoded = getText(item.content) ?? getText(item['content:encoded'])
       const contentFallback = contentEncoded ?? getText(item.description)
       const entryLink = Array.isArray(item.link) ? undefined : getLink(item.link)
+      const summaryText = trimStartText(getText(item.summary))
       const rawId = getText(item.id) ?? entryLink ?? getText(item.title) ?? `${Date.now()}`
       const encodedId = encodeBase64(rawId) ?? rawId
       const feedDescription =
-        stripHtml(getText(item.description) ?? getText(item.summary)) ?? media.description
+        trimStartText(stripHtml(getText(item.description) ?? summaryText)) ?? media.description
       const feedPublished = item.published ?? item.updated ?? undefined
       const mediaContent = buildMediaContent(media)
 
@@ -654,13 +660,13 @@ const parseAtomFeed = async (
 
       return {
         id: encodedId,
-        title: decodeString(getText(item.title)) ?? 'Untitled',
+        title: trimStartText(decodeString(getText(item.title))) ?? 'Untitled',
         link: entryLink ?? url,
-        source: decodeString(getText(channel?.title)) ?? 'RSS Feed',
+        source: trimStartText(decodeString(getText(channel?.title))) ?? 'RSS Feed',
         publishedAt: item.published ?? metadata.publishedAt ?? feedPublished ?? undefined,
         updatedAt: item.updated ?? undefined,
         description: feedDescription ?? metadata.description,
-        content: contentFallback ?? getText(item.summary) ?? mediaContent ?? undefined,
+        content: contentFallback ?? summaryText ?? mediaContent ?? undefined,
         thumbnail: metadata.thumbnail ?? undefined,
         feedId: feed.id,
         read: false,
@@ -690,7 +696,7 @@ const parseRssFeed = async (
   const syndicationExpiresTS = getSyndicationExpiresTS(channel)
   const feed: Feed = {
     id: feedId,
-    title: decodeString(getText(channel?.title)) ?? 'RSS Feed',
+    title: trimStartText(decodeString(getText(channel?.title))) ?? 'RSS Feed',
     xmlUrl: url,
     htmlUrl: htmlUrl ?? undefined,
     description: decodeString(getText(channel?.subtitle)) ?? undefined,
@@ -709,7 +715,8 @@ const parseRssFeed = async (
         getText(item.guid) ?? getLink(item.link) ?? getText(item.title) ?? `${Date.now()}`
 
       const encodedId = encodeBase64(rawId) ?? rawId
-      const feedDescription = stripHtml(getText(item.description)) ?? media.description
+      const feedDescription =
+        trimStartText(stripHtml(getText(item.description))) ?? media.description
       const feedPublished = item.pubDate ?? undefined
       const mediaContent = buildMediaContent(media)
 
@@ -722,9 +729,9 @@ const parseRssFeed = async (
 
       return {
         id: encodedId,
-        title: decodeString(getText(item.title)) ?? 'Untitled',
+        title: trimStartText(decodeString(getText(item.title))) ?? 'Untitled',
         link: getLink(item.link) ?? url,
-        source: decodeString(getText(channel?.title)) ?? 'RSS Feed',
+        source: trimStartText(decodeString(getText(channel?.title))) ?? 'RSS Feed',
         publishedAt: feedPublished ?? metadata.publishedAt ?? undefined,
         updatedAt: undefined,
         description: feedDescription ?? metadata.description,

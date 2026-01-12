@@ -209,8 +209,7 @@ export default function SettingsScreen() {
       <Snackbar
         visible={Boolean(snackbar)}
         onDismiss={() => setSnackbar(null)}
-        duration={2500}
-        action={{ label: 'OK', onPress: () => setSnackbar(null) }}
+        onIconPress={() => setSnackbar(null)}
       >
         {snackbar}
       </Snackbar>

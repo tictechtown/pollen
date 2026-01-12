@@ -51,18 +51,20 @@ export const createLocalStrategy = (): ReaderStrategy => {
       })
       return result
     },
-    importOpml: async (uri) => importFeedsFromOpmlUri(uri),
+    importOpml: async (uri, options) => importFeedsFromOpmlUri(uri, options),
     articles: {
       listPage: async (params) => getArticlesPageFromDb({ ...params, dbKey: undefined }),
       searchPage: async (params) => searchArticlesPageFromDb({ ...params, dbKey: undefined }),
       get: async (id) => getArticleByIdFromDb(id),
       upsert: async (articles) => upsertArticles(articles),
       getUnreadCountsByFeed: async () => getUnreadCountsByFeedFromDb(),
-      getUnreadCount: async (feedId) => getUnreadCountFromDb(feedId),
+      getUnreadCount: async (filters) =>
+        getUnreadCountFromDb({ feedId: filters?.feedId, folderId: filters?.folderId }),
       setRead: async (id, read) => setArticleRead(id, read),
       setSaved: async (id, saved) => setArticleSaved(id, saved),
       setManyRead: async (ids, read) => setManyArticlesRead(ids, read),
-      setAllRead: async (feedId) => setAllArticlesReadFromDb(feedId),
+      setAllRead: async (filters) =>
+        setAllArticlesReadFromDb({ feedId: filters?.feedId, folderId: filters?.folderId }),
       deleteOlderThan: async (olderThanMs) => deleteArticlesOlderThan(olderThanMs),
     },
     feeds: {

@@ -147,7 +147,7 @@ const FeedListItem = ({
               style={[styles.title, { color: read ? colors.onSurfaceDisabled : colors.onSurface }]}
               numberOfLines={2}
             >
-              {article.title}
+              {article.title.trimStart()}
             </Text>
             {/* Article description */}
             {!!article.description && (
@@ -157,7 +157,7 @@ const FeedListItem = ({
                 numberOfLines={article.title.length < 35 ? 3 : 2}
                 style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
               >
-                {article.description}
+                {article.description.trimStart()}
               </Text>
             )}
           </View>

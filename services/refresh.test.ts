@@ -146,4 +146,36 @@ describe('importFeedsFromOpmlXml', () => {
   it('throws when the XML is not OPML', async () => {
     await expect(importFeedsFromOpmlXml('<rss></rss>')).rejects.toThrow('Invalid OPML file')
   })
+
+  it('reports progress while importing', async () => {
+    const opml = `<?xml version="1.0"?>
+      <opml version="2.0">
+        <body>
+          <outline type="rss" xmlUrl="https://example.com/rss.xml" title="Example Feed" />
+          <outline type="rss" xmlUrl="https://example.com/rss-2.xml" title="Second Feed" />
+        </body>
+      </opml>`
+
+    getFeedsFromDb.mockResolvedValue([])
+    getFoldersFromDb.mockResolvedValue([])
+    fetchFeed
+      .mockResolvedValueOnce({
+        feed: { id: 'feed-1', title: 'Example Feed', xmlUrl: 'https://example.com/rss.xml' },
+        articles: [],
+      })
+      .mockResolvedValueOnce({
+        feed: { id: 'feed-2', title: 'Second Feed', xmlUrl: 'https://example.com/rss-2.xml' },
+        articles: [],
+      })
+
+    const progressUpdates: Array<{ current: number; total: number }> = []
+
+    await importFeedsFromOpmlXml(opml, {
+      onProgress: (progress) => progressUpdates.push(progress),
+    })
+
+    expect(progressUpdates[0]).toEqual({ current: 0, total: 2 })
+    expect(progressUpdates).toHaveLength(3)
+    expect(progressUpdates[progressUpdates.length - 1]).toEqual({ current: 2, total: 2 })
+  })
 })

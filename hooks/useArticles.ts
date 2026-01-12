@@ -32,6 +32,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     })),
   )
   const selectedFeedId = useFiltersStore((state) => state.selectedFeedId)
+  const selectedFolderId = useFiltersStore((state) => state.selectedFolderId)
   const status = useRefreshStore((state) => state.status)
   const hydrationStatus = useRefreshStore((state) => state.hydrationStatus)
   const lastError = useRefreshStore((state) => state.lastError)
@@ -70,6 +71,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     void readerApi.articles
       .listPage({
         feedId: selectedFeedId,
+        folderId: selectedFolderId,
         unreadOnly: !!options.unreadOnly,
         page: 1,
         pageSize: PAGE_SIZE * Math.max(1, page),
@@ -91,6 +93,7 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
     options.unreadOnly,
     page,
     selectedFeedId,
+    selectedFolderId,
     version,
   ])
 
@@ -98,15 +101,15 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
 
   useEffect(() => {
     setPage(1)
-  }, [selectedFeedId, unreadOnly])
+  }, [selectedFeedId, selectedFolderId, unreadOnly])
 
   useEffect(() => {
     if (!initialized) return
     void readerApi.articles
-      .getUnreadCount(selectedFeedId)
+      .getUnreadCount({ feedId: selectedFeedId, folderId: selectedFolderId })
       .then((count) => setUnreadCount(count))
       .catch(() => setUnreadCount(0))
-  }, [initialized, selectedFeedId, version])
+  }, [initialized, selectedFeedId, selectedFolderId, version])
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / PAGE_SIZE)), [total])
 
@@ -158,8 +161,10 @@ export const useArticles = (options: UseArticlesOptions = {}) => {
   const markAllRead = useCallback(() => {
     const ids = articles.map((article) => article.id)
     ids.forEach((id) => updateReadLocal(id, true))
-    void readerApi.articles.setAllRead(selectedFeedId).then(() => invalidate('local'))
-  }, [articles, invalidate, selectedFeedId, updateReadLocal])
+    void readerApi.articles
+      .setAllRead({ feedId: selectedFeedId, folderId: selectedFolderId })
+      .then(() => invalidate('local'))
+  }, [articles, invalidate, selectedFeedId, selectedFolderId, updateReadLocal])
 
   return {
     articles,

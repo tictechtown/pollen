@@ -40,13 +40,19 @@ const toTimestamp = (value?: string | null): number => {
 const articleTimestamp = (article: Article): number =>
   toTimestamp(article.updatedAt) || toTimestamp(article.publishedAt)
 
+type OpmlImportProgress = { current: number; total: number }
+type OpmlImportOptions = { onProgress?: (progress: OpmlImportProgress) => void }
+
 const mapWithConcurrency = async <T, R>(
   items: T[],
   limit: number,
   mapper: (item: T, index: number) => Promise<R>,
+  onProgress?: (progress: OpmlImportProgress) => void,
 ): Promise<PromiseSettledResult<R>[]> => {
   const results: PromiseSettledResult<R>[] = Array.from({ length: items.length })
   let nextIndex = 0
+  let completed = 0
+  const total = items.length
 
   const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
     while (true) {
@@ -58,6 +64,9 @@ const mapWithConcurrency = async <T, R>(
         results[currentIndex] = { status: 'fulfilled', value }
       } catch (reason) {
         results[currentIndex] = { status: 'rejected', reason }
+      } finally {
+        completed += 1
+        onProgress?.({ current: completed, total })
       }
     }
   })
@@ -66,7 +75,10 @@ const mapWithConcurrency = async <T, R>(
   return results
 }
 
-export const importFeedsFromOpmlXml = async (opmlXml: string): Promise<Feed[]> => {
+export const importFeedsFromOpmlXml = async (
+  opmlXml: string,
+  options: OpmlImportOptions = {},
+): Promise<Feed[]> => {
   if (!isOpmlXml(opmlXml)) {
     throw new Error('Invalid OPML file')
   }
@@ -115,11 +127,17 @@ export const importFeedsFromOpmlXml = async (opmlXml: string): Promise<Feed[]> =
     return true
   })
 
-  const results = await mapWithConcurrency(dedupFeeds, CONCURRENT_FEED_FETCHES, (feed) =>
-    fetchFeed(feed.id, feed.xmlUrl, {
-      cutoffTs: 0,
-      metadataBudget: { remaining: 200 },
-    }),
+  options.onProgress?.({ current: 0, total: dedupFeeds.length })
+
+  const results = await mapWithConcurrency(
+    dedupFeeds,
+    CONCURRENT_FEED_FETCHES,
+    (feed) =>
+      fetchFeed(feed.id, feed.xmlUrl, {
+        cutoffTs: 0,
+        metadataBudget: { remaining: 200 },
+      }),
+    options.onProgress,
   )
 
   const feedsForUpsert: Feed[] = []
@@ -158,18 +176,24 @@ export const importFeedsFromOpmlXml = async (opmlXml: string): Promise<Feed[]> =
   return feedsForUpsert
 }
 
-export const importFeedsFromOpmlUri = async (uri: string): Promise<Feed[]> => {
+export const importFeedsFromOpmlUri = async (
+  uri: string,
+  options?: OpmlImportOptions,
+): Promise<Feed[]> => {
   const opmlXml = await FileSystem.readAsStringAsync(uri)
-  return importFeedsFromOpmlXml(opmlXml)
+  return importFeedsFromOpmlXml(opmlXml, options)
 }
 
-export const importFeedsFromOpmlUrl = async (url: string): Promise<Feed[]> => {
+export const importFeedsFromOpmlUrl = async (
+  url: string,
+  options?: OpmlImportOptions,
+): Promise<Feed[]> => {
   const resp = await fetch(url)
   if (!resp.ok) {
     throw new Error('Failed to load OPML')
   }
   const opmlXml = await resp.text()
-  return importFeedsFromOpmlXml(opmlXml)
+  return importFeedsFromOpmlXml(opmlXml, options)
 }
 
 let refreshInFlight: Promise<RefreshResult> | null = null

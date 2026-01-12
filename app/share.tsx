@@ -17,8 +17,8 @@ import {
 
 import { dedupeById } from '@/services/collections'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
-import { importFeedsFromOpmlUrl } from '@/services/refresh'
 import { readerApi } from '@/services/reader-api'
+import { importFeedsFromOpmlUrl } from '@/services/refresh'
 import { fetchFeed } from '@/services/rssClient'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
@@ -216,9 +216,7 @@ export default function ShareScreen() {
       invalidate()
       const folders = await readerApi.folders.list()
       setFolders(folders)
-      setSnackbar(
-        imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML',
-      )
+      setSnackbar(imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML')
     } catch (err) {
       console.error('Failed to import OPML from share', err)
       setSnackbar(err instanceof Error ? err.message : 'Failed to import OPML')
@@ -512,8 +510,7 @@ export default function ShareScreen() {
       <Snackbar
         visible={Boolean(snackbar)}
         onDismiss={() => setSnackbar(null)}
-        duration={3500}
-        action={{ label: 'Dismiss', onPress: () => setSnackbar(null) }}
+        onIconPress={() => setSnackbar(null)}
       >
         {snackbar}
       </Snackbar>

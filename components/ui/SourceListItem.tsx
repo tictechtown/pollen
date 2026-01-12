@@ -69,7 +69,7 @@ export default function SourceListItem({
   const cornerRadius = isSelected ? 82 : 4
   const edgeRadius = isSelected ? 82 : 16
   const showUnreadBadge = typeof unreadCount === 'number' && unreadCount > 0
-  const unreadLabel = unreadCount && unreadCount > 99 ? '99+' : String(unreadCount ?? 0)
+  const unreadLabel = unreadCount && unreadCount > 999 ? '999+' : String(unreadCount ?? 0)
 
   const containerStyle = [
     styles.segmentItem,

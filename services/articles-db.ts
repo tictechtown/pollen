@@ -141,6 +141,7 @@ const mapRowToArticle = (row: ArticleDbRow): Article => {
 
 type ArticleListFilters = {
   feedId?: string
+  folderId?: string
   unreadOnly?: boolean
   savedOnly?: boolean
 }
@@ -152,6 +153,9 @@ const buildArticlesWhere = (filters: ArticleListFilters) => {
   if (filters.feedId) {
     clauses.push(`articles.feedId = ?`)
     args.push(filters.feedId)
+  } else if (filters.folderId) {
+    clauses.push(`articles.feedId IN (SELECT id FROM feeds WHERE folderId = ?)`)
+    args.push(filters.folderId)
   } else if (!filters.savedOnly) {
     clauses.push(`articles.feedId IS NOT NULL`)
     clauses.push(`articles.feedId != ''`)
@@ -222,6 +226,7 @@ export const getArticleByIdFromDb = async (id: string, dbKey?: DbKey): Promise<A
 export const searchArticlesPageFromDb = async (params: {
   query: string
   feedId?: string
+  folderId?: string
   page: number
   pageSize: number
   dbKey?: DbKey
@@ -237,8 +242,13 @@ export const searchArticlesPageFromDb = async (params: {
   const matchQuery = buildFtsPrefixQuery(query)
   if (!matchQuery) return { articles: [], total: 0 }
 
-  const feedClause = params.feedId ? `AND articles.feedId = ?` : ''
-  const args = params.feedId ? [matchQuery, params.feedId] : [matchQuery]
+  const scopeClause = params.feedId
+    ? `AND articles.feedId = ?`
+    : params.folderId
+      ? `AND articles.feedId IN (SELECT id FROM feeds WHERE folderId = ?)`
+      : ''
+  const scopeArgs = params.feedId ? [params.feedId] : params.folderId ? [params.folderId] : []
+  const args = [matchQuery, ...scopeArgs]
 
   try {
     const countRow = await db.getFirstAsync<{ total: number }>(
@@ -247,7 +257,7 @@ export const searchArticlesPageFromDb = async (params: {
         FROM articles_fts
         JOIN articles ON articles_fts.rowid = articles.rowid
         WHERE articles_fts MATCH ?
-        ${feedClause}
+        ${scopeClause}
       `,
       args,
     )
@@ -260,7 +270,7 @@ export const searchArticlesPageFromDb = async (params: {
         JOIN articles_fts ON articles_fts.rowid = articles.rowid
         LEFT JOIN article_statuses ON article_statuses.articleId = articles.id
         WHERE articles_fts MATCH ?
-        ${feedClause}
+        ${scopeClause}
         ORDER BY bm25(articles_fts, 5.0, 1.0) ASC, articles.sortTimestamp DESC, articles.createdAt DESC
         LIMIT ? OFFSET ?
       `,
@@ -273,9 +283,19 @@ export const searchArticlesPageFromDb = async (params: {
     const like = `%${query}%`
     const where = `
       WHERE (articles.title LIKE ? OR COALESCE(articles.contentText, '') LIKE ?)
-      ${params.feedId ? 'AND articles.feedId = ?' : ''}
+      ${
+        params.feedId
+          ? 'AND articles.feedId = ?'
+          : params.folderId
+            ? 'AND articles.feedId IN (SELECT id FROM feeds WHERE folderId = ?)'
+            : ''
+      }
     `
-    const likeArgs = params.feedId ? [like, like, params.feedId] : [like, like]
+    const likeArgs = params.feedId
+      ? [like, like, params.feedId]
+      : params.folderId
+        ? [like, like, params.folderId]
+        : [like, like]
 
     console.warn('FTS search failed; falling back to LIKE search', message)
 
@@ -304,9 +324,17 @@ export const searchArticlesPageFromDb = async (params: {
   }
 }
 
-export const getUnreadCountFromDb = async (feedId?: string, dbKey?: DbKey): Promise<number> => {
-  const db = await getDb(dbKey)
-  const { whereSql, args } = buildArticlesWhere({ feedId, unreadOnly: true })
+export const getUnreadCountFromDb = async (params: {
+  feedId?: string
+  folderId?: string
+  dbKey?: DbKey
+} = {}): Promise<number> => {
+  const db = await getDb(params.dbKey)
+  const { whereSql, args } = buildArticlesWhere({
+    feedId: params.feedId,
+    folderId: params.folderId,
+    unreadOnly: true,
+  })
   const row = await db.getFirstAsync<{ total: number }>(
     `
       SELECT COUNT(articles.id) AS total
@@ -319,12 +347,17 @@ export const getUnreadCountFromDb = async (feedId?: string, dbKey?: DbKey): Prom
   return Number(row?.total) || 0
 }
 
-export const getUnreadArticleIdsFromDb = async (
-  feedId?: string,
-  dbKey?: DbKey,
-): Promise<string[]> => {
-  const db = await getDb(dbKey)
-  const { whereSql, args } = buildArticlesWhere({ feedId, unreadOnly: true })
+export const getUnreadArticleIdsFromDb = async (params: {
+  feedId?: string
+  folderId?: string
+  dbKey?: DbKey
+} = {}): Promise<string[]> => {
+  const db = await getDb(params.dbKey)
+  const { whereSql, args } = buildArticlesWhere({
+    feedId: params.feedId,
+    folderId: params.folderId,
+    unreadOnly: true,
+  })
   const rows = await db.getAllAsync<{ id: string }>(
     `
       SELECT articles.id AS id
@@ -337,10 +370,17 @@ export const getUnreadArticleIdsFromDb = async (
   return rows.map((row) => row.id)
 }
 
-export const setAllArticlesReadFromDb = async (feedId?: string, dbKey?: DbKey) => {
+export const setAllArticlesReadFromDb = async (params: {
+  feedId?: string
+  folderId?: string
+  dbKey?: DbKey
+} = {}) => {
   const now = Math.floor(Date.now() / 1000)
   await runWrite(async (db) => {
-    const { whereSql, args } = buildArticlesWhere({ feedId })
+    const { whereSql, args } = buildArticlesWhere({
+      feedId: params.feedId,
+      folderId: params.folderId,
+    })
     await db.runAsync(
       `
         INSERT INTO article_statuses (articleId, read, lastReadAt, updatedAt)
@@ -355,7 +395,7 @@ export const setAllArticlesReadFromDb = async (feedId?: string, dbKey?: DbKey) =
       `,
       [now, now, ...args],
     )
-  }, dbKey)
+  }, params.dbKey)
 }
 
 export const getUnreadCountsByFeedFromDb = async (dbKey?: DbKey): Promise<Map<string, number>> => {

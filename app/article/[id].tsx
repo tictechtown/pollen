@@ -16,6 +16,7 @@ import { WebView, WebViewNavigation } from 'react-native-webview'
 
 import { useArticle } from '@/hooks/useArticle'
 import { buildArticleHtml } from '@/services/article-html'
+import { ArticleMode, toggleArticleMode } from '@/services/article-mode'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { readerApi } from '@/services/reader-api'
 import { shouldOpenExternally } from '@/services/webview-navigation'
@@ -31,7 +32,7 @@ export default function ArticleScreen() {
   const invalidate = useArticlesStore((state) => state.invalidate)
   const { article } = useArticle(id)
   const { colors } = useTheme()
-  const [mode, setMode] = useState<'rss' | 'reader'>('rss')
+  const [mode, setMode] = useState<ArticleMode>('rss')
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [reader, setReader] = useState<ReaderExtractionResult>({ status: 'idle' })
   const [bottomBarVisible, setBottomBarVisible] = useState(true)
@@ -158,6 +159,15 @@ export default function ArticleScreen() {
     }
   }, [article?.link])
 
+  const handleToggleMode = useCallback(() => {
+    const nextMode = toggleArticleMode(mode)
+    if (nextMode === 'reader') {
+      void handleLoadReader()
+      return
+    }
+    setMode('rss')
+  }, [handleLoadReader, mode])
+
   const resolvedSource =
     mode === 'reader' ? (readerHtml ? { html: readerHtml } : { html: rssHtml }) : { html: rssHtml }
 
@@ -236,6 +246,9 @@ export default function ArticleScreen() {
         style={[styles.webView, { backgroundColor: colors.surface }]}
         ref={webViewRef}
         onNavigationStateChange={handleNavigationStateChange}
+        pullToRefreshEnabled
+        onRefresh={handleToggleMode}
+        mediaPlaybackRequiresUserAction={false}
         // @ts-expect-error onScroll and handleScroll events are incompatible
         onScroll={handleScroll}
         scrollEventThrottle={16}
@@ -274,13 +287,7 @@ export default function ArticleScreen() {
         <Appbar.Action
           icon={ReaderIcon}
           accessibilityLabel={mode === 'rss' ? 'Reader mode' : 'Show RSS content'}
-          onPress={() => {
-            if (mode === 'rss') {
-              handleLoadReader()
-            } else {
-              setMode('rss')
-            }
-          }}
+          onPress={handleToggleMode}
           disabled={reader.status === 'pending'}
         />
         <Appbar.Action
@@ -292,8 +299,7 @@ export default function ArticleScreen() {
       <Snackbar
         visible={Boolean(snackbar)}
         onDismiss={() => setSnackbar(null)}
-        duration={1500}
-        action={{ label: 'OK', onPress: () => setSnackbar(null) }}
+        onIconPress={() => setSnackbar(null)}
       >
         {snackbar}
       </Snackbar>

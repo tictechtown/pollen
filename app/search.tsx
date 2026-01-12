@@ -17,7 +17,9 @@ export default function SearchScreen() {
 
   const selectedFeedId = useFiltersStore((state) => state.selectedFeedId)
   const selectedFeedTitle = useFiltersStore((state) => state.selectedFeedTitle)
-  const scopeLabel = selectedFeedTitle ? selectedFeedTitle : 'All articles'
+  const selectedFolderId = useFiltersStore((state) => state.selectedFolderId)
+  const selectedFolderTitle = useFiltersStore((state) => state.selectedFolderTitle)
+  const scopeLabel = selectedFeedTitle ?? selectedFolderTitle ?? 'All articles'
 
   const updateSavedLocal = useArticlesStore((state) => state.updateSavedLocal)
   const updateReadLocal = useArticlesStore((state) => state.updateReadLocal)
@@ -56,6 +58,7 @@ export default function SearchScreen() {
         const result = await readerApi.articles.searchPage({
           query: trimmed,
           feedId: selectedFeedId,
+          folderId: selectedFolderId,
           page: params.page,
           pageSize: PAGE_SIZE,
         })
@@ -77,7 +80,7 @@ export default function SearchScreen() {
         setLoadingMore(false)
       }
     },
-    [selectedFeedId],
+    [selectedFeedId, selectedFolderId],
   )
 
   useEffect(() => {
@@ -90,7 +93,7 @@ export default function SearchScreen() {
   useEffect(() => {
     void runSearch({ query, page: 1, append: false })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedFeedId])
+  }, [selectedFeedId, selectedFolderId])
 
   useEffect(() => {
     const timer = setTimeout(() => {

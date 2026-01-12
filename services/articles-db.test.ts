@@ -122,6 +122,45 @@ describe('searchArticlesPageFromDb', () => {
     ])
   })
 
+  it('scopes search results to a folder when folderId is provided', async () => {
+    const rows = [
+      {
+        id: '1',
+        feedId: 'feed-1',
+        title: 'Folder match',
+        link: 'https://example.com/1',
+        source: 'Example',
+        publishedAt: null,
+        updatedAt: null,
+        description: null,
+        content: '<p>Hello</p>',
+        contentText: 'Hello',
+        thumbnail: null,
+        sortTimestamp: 0,
+        createdAt: 0,
+        read: 0,
+        starred: 0,
+      },
+    ]
+
+    const getFirstAsync = vi.fn().mockResolvedValue({ total: 1 })
+    const getAllAsync = vi.fn().mockResolvedValue(rows)
+    const getDbMock = vi.mocked(getDb)
+    getDbMock.mockResolvedValue({ getFirstAsync, getAllAsync } as unknown as SQLiteDatabase)
+
+    await searchArticlesPageFromDb({
+      query: 'hello',
+      folderId: 'folder-1',
+      page: 1,
+      pageSize: 50,
+    })
+
+    expect(getFirstAsync).toHaveBeenCalledWith(expect.stringContaining('folderId'), [
+      'hello*',
+      'folder-1',
+    ])
+  })
+
   it('falls back to LIKE search if FTS is unavailable', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const rows = [

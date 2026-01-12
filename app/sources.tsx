@@ -11,11 +11,16 @@ import { useFocusEffect } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
 import he from 'he'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { SectionList, StyleSheet, View } from 'react-native'
+import { GestureResponderEvent, SectionList, StyleSheet, View } from 'react-native'
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
 import SourceListItem from '@/components/ui/SourceListItem'
-import { buildFeedSections, FeedSection, groupFeedsByFolderId } from '@/services/feed-sections'
+import {
+  applyFolderExpansion,
+  buildFeedSections,
+  FeedSection,
+  groupFeedsByFolderId,
+} from '@/services/feed-sections'
 import { discoverFeedUrls, FeedCandidate } from '@/services/feedDiscovery'
 import { readerApi } from '@/services/reader-api'
 import { importFeedsFromOpmlUrl } from '@/services/refresh'
@@ -31,11 +36,13 @@ import * as DocumentPicker from 'expo-document-picker'
 import {
   Appbar,
   Button,
+  Card,
   Dialog,
   FAB,
-  IconButton,
   List,
+  Menu,
   Portal,
+  ProgressBar,
   Snackbar,
   Text,
   TextInput,
@@ -60,7 +67,8 @@ export default function SourcesScreen() {
   const updateFolder = useFoldersStore((state) => state.updateFolder)
   const removeFolder = useFoldersStore((state) => state.removeFolder)
   const invalidateArticles = useArticlesStore((state) => state.invalidate)
-  const { setFeedFilter, selectedFeedId } = useFiltersStore()
+  const { setFeedFilter, setFolderFilter, clear, selectedFeedId, selectedFolderId } =
+    useFiltersStore()
 
   const [addVisible, setAddVisible] = useState(false)
   const [removeVisible, setRemoveVisible] = useState(false)
@@ -75,10 +83,15 @@ export default function SourcesScreen() {
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const swipeableRefs = useRef<Record<string, SwipeableMethods | null>>({})
-  const [importingOpml, setImportingOpml] = useState(false)
   const [state, setState] = useState({ open: false })
   const [folderName, setFolderName] = useState('')
   const [selectedFolder, setSelectedFolder] = useState<FeedFolder | null>(null)
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({})
+  const [folderMenuVisible, setFolderMenuVisible] = useState(false)
+  const [folderMenuAnchor, setFolderMenuAnchor] = useState<{ x: number; y: number } | null>(null)
+  const [folderMenuFolder, setFolderMenuFolder] = useState<FeedFolder | null>(null)
+  const [importingOpml, setImportingOpml] = useState(false)
+  const [opmlProgress, setOpmlProgress] = useState<{ current: number; total: number } | null>(null)
   const [unreadCountsByFeedId, setUnreadCountsByFeedId] = useState<Map<string, number>>(
     () => new Map(),
   )
@@ -88,7 +101,11 @@ export default function SourcesScreen() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const feedsByFolderId = useMemo(() => groupFeedsByFolderId(feeds), [feeds.map((f) => f.id)])
-  const sections = useMemo(() => buildFeedSections(feeds, folders), [feeds, folders])
+  const baseSections = useMemo(() => buildFeedSections(feeds, folders), [feeds, folders])
+  const sections = useMemo(
+    () => applyFolderExpansion(baseSections, expandedFolders),
+    [baseSections, expandedFolders],
+  )
 
   useEffect(() => {
     readerApi.folders
@@ -120,21 +137,29 @@ export default function SourcesScreen() {
   const handleSelect = useCallback(
     (feed?: Feed) => {
       if (!feed || feed.id === 'all') {
-        setFeedFilter(undefined, undefined)
+        clear()
       } else {
         setFeedFilter(feed.id, feed.title)
       }
       router.push('/(tabs)')
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setFeedFilter],
+    [clear, setFeedFilter],
+  )
+
+  const handleSelectFolder = useCallback(
+    (folder: FeedFolder) => {
+      setFolderFilter(folder.id, folder.title)
+      router.push('/(tabs)')
+    },
+    [setFolderFilter, router],
   )
 
   const handleRemove = (feed: Feed) => {
     readerApi.feeds.remove(feed.id).then(async () => {
       removeFeed(feed.id)
       if (selectedFeedId === feed.id) {
-        setFeedFilter(undefined, undefined)
+        clear()
       }
       invalidateArticles()
       void refreshUnreadCounts()
@@ -146,6 +171,25 @@ export default function SourcesScreen() {
     setFeedToMove(feed)
     setMoveVisible(true)
   }
+
+  const toggleFolderExpanded = useCallback((folderId: string) => {
+    setExpandedFolders((prev) => {
+      const isExpanded = prev[folderId] ?? false
+      return { ...prev, [folderId]: !isExpanded }
+    })
+  }, [])
+
+  const openFolderMenu = useCallback((folder: FeedFolder, event: GestureResponderEvent) => {
+    setFolderMenuFolder(folder)
+    setFolderMenuAnchor({ x: event.nativeEvent.pageX, y: event.nativeEvent.pageY })
+    setFolderMenuVisible(true)
+  }, [])
+
+  const closeFolderMenu = useCallback(() => {
+    setFolderMenuVisible(false)
+    setFolderMenuAnchor(null)
+    setFolderMenuFolder(null)
+  }, [])
 
   const applyMoveToFolder = async (folderId: string | null) => {
     if (!feedToMove) return
@@ -172,11 +216,14 @@ export default function SourcesScreen() {
     }
   }
 
-  const openRenameFolder = (folder: FeedFolder) => {
-    setSelectedFolder(folder)
-    setFolderName(folder.title)
-    setFolderRenameVisible(true)
-  }
+  const openRenameFolder = useCallback(
+    (folder: FeedFolder) => {
+      setSelectedFolder(folder)
+      setFolderName(folder.title)
+      setFolderRenameVisible(true)
+    },
+    [setSelectedFolder, setFolderName, setFolderRenameVisible],
+  )
 
   const handleRenameFolder = async () => {
     if (!selectedFolder) return
@@ -186,16 +233,22 @@ export default function SourcesScreen() {
       updateFolder({ ...selectedFolder, title })
       setFolderRenameVisible(false)
       setSelectedFolder(null)
+      if (selectedFolderId === selectedFolder.id) {
+        setFolderFilter(selectedFolder.id, title)
+      }
       setSnackbar('Folder renamed')
     } catch (err) {
       setSnackbar(err instanceof Error ? err.message : 'Failed to rename folder')
     }
   }
 
-  const openDeleteFolder = (folder: FeedFolder) => {
-    setSelectedFolder(folder)
-    setFolderDeleteVisible(true)
-  }
+  const openDeleteFolder = useCallback(
+    (folder: FeedFolder) => {
+      setSelectedFolder(folder)
+      setFolderDeleteVisible(true)
+    },
+    [setFolderDeleteVisible, setSelectedFolder],
+  )
 
   const closeDeleteFolder = () => {
     setFolderDeleteVisible(false)
@@ -210,6 +263,9 @@ export default function SourcesScreen() {
       const feedsInFolder = feedsByFolderId.get(folderId) ?? []
       feedsInFolder.forEach((feed) => updateFeed({ ...feed, folderId: null }))
       removeFolder(folderId)
+      if (selectedFolderId === folderId) {
+        clear()
+      }
       setSnackbar('Folder deleted')
     } catch (err) {
       setSnackbar(err instanceof Error ? err.message : 'Failed to delete folder')
@@ -230,8 +286,11 @@ export default function SourcesScreen() {
       }
       await readerApi.folders.delete(folderId)
       removeFolder(folderId)
+      if (selectedFolderId === folderId) {
+        clear()
+      }
       if (selectedFeedId && removedFeedIds.has(selectedFeedId)) {
-        setFeedFilter(undefined, undefined)
+        clear()
         invalidateArticles()
       }
       void refreshUnreadCounts()
@@ -317,7 +376,11 @@ export default function SourcesScreen() {
       try {
         const { directUrl, candidates, opmlUrl } = await discoverFeedUrls(trimmedUrl)
         if (opmlUrl) {
-          const imported = await importFeedsFromOpmlUrl(opmlUrl)
+          setImportingOpml(true)
+          setOpmlProgress({ current: 0, total: 0 })
+          const imported = await importFeedsFromOpmlUrl(opmlUrl, {
+            onProgress: (progress) => setOpmlProgress(progress),
+          })
           addFeeds(imported)
           invalidateArticles()
           const folders = await readerApi.folders.list()
@@ -326,6 +389,8 @@ export default function SourcesScreen() {
             imported.length ? `Imported ${imported.length} feeds` : 'No feeds found in OPML',
           )
           finalizeOpmlAdd()
+          setOpmlProgress(null)
+          setImportingOpml(false)
           return
         }
         if (directUrl) {
@@ -365,6 +430,7 @@ export default function SourcesScreen() {
   const handleImportOpml = useCallback(async () => {
     if (importingOpml) return
     setImportingOpml(true)
+    setOpmlProgress({ current: 0, total: 0 })
     try {
       const result = await DocumentPicker.getDocumentAsync({
         copyToCacheDirectory: true,
@@ -382,7 +448,9 @@ export default function SourcesScreen() {
         return
       }
 
-      const imported = await readerApi.importOpml(asset.uri)
+      const imported = await readerApi.importOpml(asset.uri, {
+        onProgress: (progress) => setOpmlProgress(progress),
+      })
       addFeeds(imported)
       const folders = await readerApi.folders.list()
       setFolders(folders)
@@ -391,6 +459,7 @@ export default function SourcesScreen() {
       setSnackbar(err instanceof Error ? err.message : 'Failed to import OPML')
     } finally {
       setImportingOpml(false)
+      setOpmlProgress(null)
     }
   }, [addFeeds, setFolders, setSnackbar, setImportingOpml, importingOpml])
 
@@ -436,40 +505,64 @@ export default function SourcesScreen() {
     [handleSelect, selectedFeedId, unreadCountsByFeedId],
   )
 
-  const renderSectionHeader = useCallback(({ section }: { section: FeedSection }) => {
-    const folder = section.folder
-    return (
-      <View style={styles.sectionHeader}>
-        {/* @ts-ignore */}
-        <List.Section title={folder ? folder.title : 'Default'} />
-        {folder ? (
-          <View style={styles.folderActions}>
-            <IconButton icon="pencil" size={16} onPress={() => openRenameFolder(folder)} />
-            <IconButton icon="delete" size={16} onPress={() => openDeleteFolder(folder)} />
-          </View>
-        ) : null}
-      </View>
-    )
-  }, [])
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: FeedSection }) => {
+      const folder = section.folder
+      const isExpanded = expandedFolders[folder?.id ?? 'default'] ?? false
+      const isSelected = !!selectedFolderId && selectedFolderId === folder?.id
+      return (
+        /* @ts-ignore */
+        <List.Accordion
+          title={folder?.title ?? 'Default'}
+          expanded={isExpanded}
+          onPress={() => toggleFolderExpanded(folder?.id ?? 'default')}
+          onLongPress={(event) => !!folder && openFolderMenu(folder, event)}
+          left={() => <List.Icon icon="folder" />}
+          style={
+            isSelected
+              ? { backgroundColor: colors.surfaceVariant, paddingLeft: 32 }
+              : { paddingLeft: 32 }
+          }
+          titleStyle={isSelected ? { color: colors.onSurfaceVariant } : undefined}
+        />
+      )
+    },
+    [
+      colors.onSurfaceVariant,
+      colors.surfaceVariant,
+      expandedFolders,
+      openFolderMenu,
+      selectedFolderId,
+      toggleFolderExpanded,
+    ],
+  )
 
   const ListHeaderComponent = useMemo(
     () => (
       <View>
-        <List.Section title="All">
-          <SourceListItem
-            item={{ id: 'all', title: 'All', xmlUrl: '' }}
-            isAll
-            isSelected={!selectedFeedId}
-            isFirst
-            isLast
-            onSelect={handleSelect}
-            onRequestRemove={() => {}}
-            unreadCount={totalUnreadCount}
-          />
-        </List.Section>
+        {importingOpml ? (
+          <Card style={styles.importCard} mode="elevated">
+            <Card.Content style={{ gap: 8 }}>
+              <ProgressBar progress={(opmlProgress?.current ?? 0) / (opmlProgress?.total ?? 1)} />
+              <Text variant="bodyMedium">
+                Importing {opmlProgress?.current ?? 0} / {opmlProgress?.total ?? 0} from OPML
+              </Text>
+            </Card.Content>
+          </Card>
+        ) : null}
+        <SourceListItem
+          item={{ id: 'all', title: 'All', xmlUrl: '' }}
+          isAll
+          isSelected={!selectedFeedId && !selectedFolderId}
+          isFirst
+          isLast
+          onSelect={handleSelect}
+          onRequestRemove={() => {}}
+          unreadCount={totalUnreadCount}
+        />
       </View>
     ),
-    [handleSelect, totalUnreadCount, selectedFeedId],
+    [handleSelect, totalUnreadCount, selectedFeedId, selectedFolderId, importingOpml, opmlProgress],
   )
 
   return (
@@ -496,6 +589,45 @@ export default function SourcesScreen() {
       />
 
       <Portal>
+        <Menu
+          visible={folderMenuVisible}
+          onDismiss={closeFolderMenu}
+          anchor={folderMenuAnchor ?? { x: 0, y: 0 }}
+        >
+          <Menu.Item
+            title="View folder"
+            leadingIcon="folder"
+            onPress={() => {
+              const folder = folderMenuFolder
+              closeFolderMenu()
+              if (folder) {
+                handleSelectFolder(folder)
+              }
+            }}
+          />
+          <Menu.Item
+            title="Rename"
+            leadingIcon="pencil"
+            onPress={() => {
+              const folder = folderMenuFolder
+              closeFolderMenu()
+              if (folder) {
+                openRenameFolder(folder)
+              }
+            }}
+          />
+          <Menu.Item
+            title="Delete"
+            leadingIcon="delete"
+            onPress={() => {
+              const folder = folderMenuFolder
+              closeFolderMenu()
+              if (folder) {
+                openDeleteFolder(folder)
+              }
+            }}
+          />
+        </Menu>
         <Dialog
           visible={addVisible}
           onDismiss={() => {
@@ -649,8 +781,7 @@ export default function SourcesScreen() {
         <Snackbar
           visible={Boolean(snackbar)}
           onDismiss={() => setSnackbar(null)}
-          duration={3000}
-          action={{ label: 'Dismiss', onPress: () => setSnackbar(null) }}
+          onIconPress={() => setSnackbar(null)}
         >
           {snackbar}
         </Snackbar>
@@ -667,9 +798,9 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     paddingBottom: 64,
   },
-  folderActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  importCard: {
+    marginBottom: 12,
+    marginHorizontal: 16,
   },
   sectionHeader: {
     paddingTop: 8,
@@ -677,8 +808,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-  },
-  sectionHeaderTitles: {
-    flex: 1,
   },
 })

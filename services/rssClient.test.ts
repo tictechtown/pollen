@@ -190,6 +190,35 @@ describe('fetchFeed', () => {
     updatedAt: article?.updatedAt ?? null,
   })
 
+  it('trims leading whitespace in feed title, article title, and summary', async () => {
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>   Feed Title</title>
+  <id>feed-id</id>
+  <updated>2024-01-01T00:00:00Z</updated>
+  <entry>
+    <id>entry-1</id>
+    <title>   Article Title</title>
+    <summary>   Summary text</summary>
+    <link href="https://example.com/article" />
+    <updated>2024-01-01T00:00:00Z</updated>
+  </entry>
+</feed>`
+
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce({
+      status: 200,
+      text: async () => xml,
+    } as any)
+
+    const { feed, articles } = await fetchFeed('feed-id', 'https://example.com/feed', {
+      metadataBudget: { remaining: 0 },
+    })
+
+    expect(feed.title).toBe('Feed Title')
+    expect(articles[0]?.title).toBe('Article Title')
+    expect(articles[0]?.description).toBe('Summary text')
+  })
+
   it.each(fixtures)('parses $title', async (entry) => {
     const xmlPath = fileURLToPath(new URL(`./__tests__/feeds/${entry.file}`, import.meta.url))
     const xml = readFileSync(xmlPath, 'utf8')

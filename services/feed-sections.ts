@@ -41,3 +41,21 @@ export const buildFeedSections = (feeds: Feed[], folders: FeedFolder[]): FeedSec
     ...folderSections,
   ]
 }
+
+export const applyFolderExpansion = (
+  sections: FeedSection[],
+  expandedByFolderId: Record<string, boolean>,
+): FeedSection[] =>
+  sections.map((section) => {
+    if (!section.folder) {
+      return {
+        ...section,
+        data: expandedByFolderId['default'] ? section.data : [],
+      }
+    }
+    const isExpanded = expandedByFolderId[section.folder.id] ?? true
+    return {
+      ...section,
+      data: isExpanded ? section.data : [],
+    }
+  })

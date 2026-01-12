@@ -127,14 +127,21 @@ For any new UI elements, try to use Material You or Material You Expressive elem
 # Version 1.0.16
 
 - By default, expiresTS should have a min of 5 mins
+  - use sys time tag if available
+- Flavor images(undraw.co, openpeeps.com, humaaans.com)
 - If post has an updated date, don't change it's published date?
-- If feed has an issue (5xx or 4xx) -> display it to the user in sources
+- Display Progress animation when importing OPML
+- Do we need articleStore instead of SQLite?
+- Add OPML from link (and preserve folder)
 
 # Version 1.0.17
 
-- Display Progress animation when importing OPML
 - After OPML files have been imported, refresh cache
-- Do we need articleStore instead of SQLite?
+- FreshRSS implementation (fever, greader)
+- Clean up Settings
+- Add vibration
+- If feed has an issue (5xx or 4xx) -> display it to the user in sources
+- Fix double screen when sharing
 
 # Version 1.1.0
 

@@ -23,6 +23,7 @@ import FeedListItem from '@/components/ui/FeedListItem'
 import { useArticles } from '@/hooks/useArticles'
 import { useFiltersStore } from '@/store/filters'
 import { Article } from '@/types'
+import { Image } from 'expo-image'
 
 interface Props {
   unreadOnly?: boolean
@@ -45,6 +46,7 @@ export default function FeedList(props: Props) {
     error,
   } = useArticles(props)
   const selectedFeedTitle = useFiltersStore((state) => state.selectedFeedTitle)
+  const selectedFolderTitle = useFiltersStore((state) => state.selectedFolderTitle)
   const { colors } = useTheme()
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset?.y ?? 0
@@ -71,7 +73,7 @@ export default function FeedList(props: Props) {
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Appbar.Header mode="small">
         <Appbar.Action icon={'menu'} onPress={() => router.dismissTo('/sources')} />
-        <Appbar.Content title={selectedFeedTitle ? selectedFeedTitle : 'All'} />
+        <Appbar.Content title={selectedFeedTitle ?? selectedFolderTitle ?? 'All'} />
         <Appbar.Action icon="magnify" onPress={() => router.push('/search' as any)} />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
         <Appbar.Action icon="cog-outline" onPress={() => router.push('/settings')} />
@@ -100,47 +102,51 @@ export default function FeedList(props: Props) {
         renderItem={renderItem}
         ListEmptyComponent={
           loading ? (
-            <Card
-              contentStyle={{ gap: 12 }}
-              style={{ marginInline: 16, paddingInline: 16, paddingBottom: 16 }}
-            >
-              <Card.Content style={{ gap: 12 }}>
+            <Card contentStyle={{ gap: 12 }} style={styles.emptyCard}>
+              <Image
+                style={styles.image}
+                source={require('../../assets/images/undraw_loading_3kqt.svg')}
+              />
+
+              <Card.Content style={{ alignItems: 'center', gap: 12 }}>
                 <ActivityIndicator />
                 <Text>Loading…</Text>
               </Card.Content>
             </Card>
           ) : (
-            <Card
-              contentStyle={{ gap: 12 }}
-              style={{ marginInline: 16, paddingInline: 16, paddingBottom: 16 }}
-            >
-              <Card.Content>
-                <Text>{props.unreadOnly ? 'All caught up' : 'No Feed yet'}</Text>
-              </Card.Content>
-              <Button
-                mode="contained"
-                onPress={() => {
-                  if (props.unreadOnly) {
-                    router.push('/(tabs)')
-                  } else {
-                    router.push(`/sources`)
-                  }
-                }}
-              >
-                {props.unreadOnly ? 'Show all' : 'Add new Feed'}
-              </Button>
-              <Button
-                mode="contained-tonal"
-                onPress={() => {
-                  if (props.unreadOnly) {
-                    refresh()
-                  } else {
-                    router.push(`/sources`)
-                  }
-                }}
-              >
-                {props.unreadOnly ? 'Refresh' : 'Import OPML'}
-              </Button>
+            <Card style={styles.emptyCard}>
+              <Image style={styles.image} source={require('../../assets/images/no-unread.svg')} />
+
+              <Card.Title
+                titleVariant="titleMedium"
+                title={props.unreadOnly ? 'All caught up' : 'No Feed yet'}
+              />
+              <Card.Actions>
+                <Button
+                  mode="contained"
+                  onPress={() => {
+                    if (props.unreadOnly) {
+                      router.push('/(tabs)')
+                    } else {
+                      router.push(`/sources`)
+                    }
+                  }}
+                >
+                  {props.unreadOnly ? 'Show all' : 'Add new Feed'}
+                </Button>
+                <Button
+                  mode="contained-tonal"
+                  onPress={() => {
+                    if (props.unreadOnly) {
+                      refresh()
+                    } else {
+                      router.push(`/sources`)
+                    }
+                  }}
+                >
+                  {props.unreadOnly ? 'Refresh' : 'Import OPML'}
+                </Button>
+              </Card.Actions>
             </Card>
           )
         }
@@ -167,10 +173,17 @@ const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 120,
   },
-  empty: {},
+  emptyCard: {
+    margin: 16,
+  },
   fab: {
     position: 'absolute',
     right: 16,
     bottom: 128,
+  },
+  image: {
+    flex: 1,
+    height: 300,
+    margin: 16,
   },
 })

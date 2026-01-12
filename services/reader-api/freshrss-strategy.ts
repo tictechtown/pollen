@@ -254,7 +254,8 @@ export const createFreshRssStrategy = (
       get: async (id) => getArticleByIdFromDb(id, dbKey),
       upsert: async (articles) => upsertArticles(articles, dbKey),
       getUnreadCountsByFeed: async () => getUnreadCountsByFeedFromDb(dbKey),
-      getUnreadCount: async (feedId) => getUnreadCountFromDb(feedId, dbKey),
+      getUnreadCount: async (filters) =>
+        getUnreadCountFromDb({ feedId: filters?.feedId, folderId: filters?.folderId, dbKey }),
       setRead: async (id, read) => {
         await client.request({ mark: 'item', as: read ? 'read' : 'unread', id })
         await setArticleRead(id, read, dbKey)
@@ -270,12 +271,20 @@ export const createFreshRssStrategy = (
         )
         await setManyArticlesRead(ids, read, dbKey)
       },
-      setAllRead: async (feedId) => {
-        const ids = await getUnreadArticleIdsFromDb(feedId, dbKey)
+      setAllRead: async (filters) => {
+        const ids = await getUnreadArticleIdsFromDb({
+          feedId: filters?.feedId,
+          folderId: filters?.folderId,
+          dbKey,
+        })
         for (const batch of chunk(ids, 50)) {
           await Promise.all(batch.map((id) => client.request({ mark: 'item', as: 'read', id })))
         }
-        await setAllArticlesReadFromDb(feedId, dbKey)
+        await setAllArticlesReadFromDb({
+          feedId: filters?.feedId,
+          folderId: filters?.folderId,
+          dbKey,
+        })
       },
       deleteOlderThan: async (olderThanMs) => deleteArticlesOlderThan(olderThanMs, dbKey),
     },

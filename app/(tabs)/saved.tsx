@@ -21,6 +21,7 @@ import { readerApi } from '@/services/reader-api'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
 import { useArticlesStore } from '@/store/articles'
+import { Image } from 'expo-image'
 
 export default function SavedScreen() {
   const router = useRouter()
@@ -99,6 +100,18 @@ export default function SavedScreen() {
     <View style={[styles.container, { backgroundColor: colors.surface }]}>
       <Appbar.Header mode="center-aligned">
         <Appbar.Content title="Read Later" />
+        <Appbar.Action
+          icon="cog-outline"
+          onPress={() =>
+            router.push({
+              pathname: '/share',
+              params: {
+                url: 'https://raw.githubusercontent.com/spians/awesome-RSS-feeds/master/recommended/with_category/Photography.opml',
+              },
+            })
+          }
+        />
+
         <Appbar.Action icon="cog-outline" onPress={() => router.push('/settings')} />
       </Appbar.Header>
 
@@ -116,9 +129,14 @@ export default function SavedScreen() {
             </Card>
           ) : (
             <Card style={styles.emptyCard}>
-              <Card.Title title="No saved articles" />
+              <Image
+                style={styles.image}
+                source={require('../../assets/images/undraw_save-to-bookmarks_9o51.svg')}
+              />
+
+              <Card.Title titleVariant="titleMedium" title="No saved articles" />
               <Card.Content>
-                <Text variant="bodyMedium">Swipe left on a card in your feed to save it.</Text>
+                <Text>Swipe left on a card in your feed to save it.</Text>
               </Card.Content>
             </Card>
           )
@@ -171,8 +189,7 @@ export default function SavedScreen() {
       <Snackbar
         visible={Boolean(snackbar)}
         onDismiss={() => setSnackbar(null)}
-        duration={3500}
-        action={{ label: 'Dismiss', onPress: () => setSnackbar(null) }}
+        onIconPress={() => setSnackbar(null)}
       >
         {snackbar}
       </Snackbar>
@@ -195,5 +212,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 16,
     bottom: 128,
+  },
+  image: {
+    flex: 1,
+    height: 300,
+    margin: 16,
   },
 })

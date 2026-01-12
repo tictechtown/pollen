@@ -32,8 +32,14 @@ export type ReaderHydrateResult = {
   articles: Article[]
 }
 
+export type OpmlImportProgress = {
+  current: number
+  total: number
+}
+
 export type ReaderArticlesListPageParams = {
   feedId?: string
+  folderId?: string
   unreadOnly?: boolean
   savedOnly?: boolean
   page: number
@@ -48,6 +54,7 @@ export type ReaderArticlesListPageResult = {
 export type ReaderArticlesSearchPageParams = {
   query: string
   feedId?: string
+  folderId?: string
   page: number
   pageSize: number
 }
@@ -63,11 +70,11 @@ export type ReaderArticlesApi = {
   get: (id: string) => Promise<Article | null>
   upsert: (articles: Article[]) => Promise<void>
   getUnreadCountsByFeed: () => Promise<Map<string, number>>
-  getUnreadCount: (feedId?: string) => Promise<number>
+  getUnreadCount: (filters?: { feedId?: string; folderId?: string }) => Promise<number>
   setRead: (id: string, read: boolean) => Promise<void>
   setSaved: (id: string, saved: boolean) => Promise<void>
   setManyRead: (ids: string[], read: boolean) => Promise<void>
-  setAllRead: (feedId?: string) => Promise<void>
+  setAllRead: (filters?: { feedId?: string; folderId?: string }) => Promise<void>
   deleteOlderThan: (olderThanMs: number) => Promise<void>
 }
 
@@ -90,7 +97,10 @@ export type ReaderStrategy = {
   accountId: string
   hydrate: (feedId?: string) => Promise<ReaderHydrateResult>
   refresh: (context: ReaderRefreshContext) => Promise<ReaderRefreshResult | null>
-  importOpml?: (uri: string) => Promise<Feed[]>
+  importOpml?: (
+    uri: string,
+    options?: { onProgress?: (progress: OpmlImportProgress) => void },
+  ) => Promise<Feed[]>
   articles: ReaderArticlesApi
   feeds: ReaderFeedsApi
   folders: ReaderFoldersApi
