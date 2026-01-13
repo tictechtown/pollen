@@ -1,13 +1,27 @@
 import { useArticlesStore } from '@/store/articles'
 import { Article } from '@/types'
+import * as Haptics from 'expo-haptics'
 import { Image } from 'expo-image'
-import { memo, useRef } from 'react'
+import { memo, useCallback, useRef } from 'react'
 import { Pressable, StyleSheet, View } from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
-import { IconButton, Text } from 'react-native-paper'
+import { Icon, Text } from 'react-native-paper'
 import { MD3Colors } from 'react-native-paper/lib/typescript/types'
-import Reanimated, { clamp, SharedValue, useAnimatedStyle } from 'react-native-reanimated'
+import Reanimated, {
+  clamp,
+  runOnJS,
+  SharedValue,
+  useAnimatedReaction,
+  useAnimatedStyle,
+  useDerivedValue,
+} from 'react-native-reanimated'
 
+import {
+  getSwipeIconTranslateX,
+  SWIPE_ACTION_ICON_SIZE,
+  SWIPE_ACTION_MAX_WIDTH,
+  SWIPE_ACTION_TRIGGER_THRESHOLD,
+} from '@/components/ui/swipeActionUtils'
 import { formatRelativeTime } from '@/services/time'
 
 type SwipeActionProps = {
@@ -18,6 +32,8 @@ type SwipeActionProps = {
   isLeft?: boolean
 }
 
+const SWIPE_ACTION_BACKGROUND_COLOR = '#6dd58c'
+
 const SwipeAction = ({
   dragX,
   backgroundColor,
@@ -25,18 +41,40 @@ const SwipeAction = ({
   icon,
   isLeft = false,
 }: SwipeActionProps) => {
+  const triggerHaptic = useCallback(() => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+  }, [])
+
+  const actionWidth = useDerivedValue(
+    () => clamp(isLeft ? dragX.value : -dragX.value, 0, SWIPE_ACTION_MAX_WIDTH),
+    [isLeft],
+  )
+
   const styleAnimation = useAnimatedStyle(() => ({
-    width: clamp(isLeft ? dragX.value : -dragX.value, 0, 180),
+    width: actionWidth.value,
   }))
   const opacityAnimation = useAnimatedStyle(() => ({
-    opacity: clamp(Math.abs(dragX.value) - 60, 0, 1),
+    opacity: clamp(actionWidth.value - SWIPE_ACTION_TRIGGER_THRESHOLD / 4, 0, 1),
   }))
+  const iconTranslateAnimation = useAnimatedStyle(() => ({
+    transform: [{ translateX: getSwipeIconTranslateX(actionWidth.value, isLeft) }],
+  }))
+
+  useAnimatedReaction(
+    () => actionWidth.value >= SWIPE_ACTION_TRIGGER_THRESHOLD,
+    (isTriggered, wasTriggered) => {
+      if (isTriggered && !wasTriggered) {
+        runOnJS(triggerHaptic)()
+      }
+    },
+    [isLeft],
+  )
 
   return (
     <View style={[styles.swipeActionContainer, { alignItems: isLeft ? 'flex-start' : 'flex-end' }]}>
       <Reanimated.View style={[styles.swipeAction, { backgroundColor }, styleAnimation]}>
-        <Reanimated.View style={opacityAnimation}>
-          <IconButton icon={icon} iconColor={iconColor} size={20} />
+        <Reanimated.View style={[opacityAnimation, iconTranslateAnimation]}>
+          <Icon source={icon} color={iconColor} size={SWIPE_ACTION_ICON_SIZE} />
         </Reanimated.View>
       </Reanimated.View>
     </View>
@@ -67,15 +105,14 @@ const FeedListItem = ({
   return (
     <Swipeable
       ref={reanimatedRef}
-      rightThreshold={60}
-      leftThreshold={60}
-      overshootLeft={false}
-      overshootRight={false}
+      rightThreshold={SWIPE_ACTION_TRIGGER_THRESHOLD}
+      leftThreshold={SWIPE_ACTION_TRIGGER_THRESHOLD}
+      friction={1.5}
       renderLeftActions={(_, dragX) => (
         <SwipeAction
           dragX={dragX}
-          backgroundColor={colors.secondaryContainer}
-          iconColor={colors.onSecondaryContainer}
+          backgroundColor={SWIPE_ACTION_BACKGROUND_COLOR}
+          iconColor={colors.scrim}
           icon={read ? 'circle-outline' : 'check-circle-outline'}
           isLeft
         />
@@ -83,9 +120,9 @@ const FeedListItem = ({
       renderRightActions={(_, dragX) => (
         <SwipeAction
           dragX={dragX}
-          backgroundColor={colors.secondaryContainer}
-          iconColor={colors.onSecondaryContainer}
-          icon={saved ? 'bookmark-outline' : 'bookmark'}
+          backgroundColor={SWIPE_ACTION_BACKGROUND_COLOR}
+          iconColor={colors.scrim}
+          icon={saved ? 'bookmark-minus-outline' : 'bookmark-check-outline'}
         />
       )}
       onSwipeableOpen={(direction) => {
@@ -187,11 +224,11 @@ const styles = StyleSheet.create({
   swipeAction: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 24,
+    borderRadius: 999,
     height: '100%',
   },
   swipeActionContainer: {
-    width: 180,
+    width: SWIPE_ACTION_MAX_WIDTH,
   },
 })
 

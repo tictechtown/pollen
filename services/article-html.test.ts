@@ -12,6 +12,20 @@ describe('buildArticleHtml', () => {
     surfaceVariant: '#eee',
     outlineVariant: '#ddd',
     onSurfaceVariant: '#111',
+    outline: '#999',
+    scrim: '#f9f9f9',
+  } as any
+  const fontBase = {
+    fontFamily: 'System',
+    letterSpacing: 0,
+    fontWeight: '400',
+    lineHeight: 20,
+    fontSize: 16,
+  }
+  const fonts = {
+    bodyMedium: fontBase,
+    labelMedium: { ...fontBase, fontSize: 12, lineHeight: 14 },
+    headlineLarge: { ...fontBase, fontSize: 24, lineHeight: 28, fontWeight: '700' },
   } as any
 
   it('wraps the header in a link when article.link is present', () => {
@@ -25,6 +39,7 @@ describe('buildArticleHtml', () => {
         saved: false,
       } satisfies Article,
       colors,
+      fonts,
       displayDate: 'Jan 5',
       title: 'Hello',
       body: '<p>Body</p>',
@@ -45,6 +60,7 @@ describe('buildArticleHtml', () => {
         saved: false,
       } satisfies Article,
       colors,
+      fonts,
       displayDate: 'Jan 5',
       title: 'Hello',
       body: '<p>Body</p>',
