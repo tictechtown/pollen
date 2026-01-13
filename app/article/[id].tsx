@@ -7,6 +7,7 @@ import {
   InteractionManager,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Platform,
   Share,
   StyleSheet,
   View,
@@ -19,10 +20,12 @@ import { buildArticleHtml } from '@/services/article-html'
 import { ArticleMode, toggleArticleMode } from '@/services/article-mode'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { readerApi } from '@/services/reader-api'
+import { buildEdgeGestureBlockerScript } from '@/services/webview-gestures'
 import { shouldOpenExternally } from '@/services/webview-navigation'
 import { useArticlesStore } from '@/store/articles'
 
 const AnimatedSurface = Animated.createAnimatedComponent(Surface)
+const EDGE_GESTURE_BLOCKER_SCRIPT = buildEdgeGestureBlockerScript()
 
 export default function ArticleScreen() {
   const router = useRouter()
@@ -31,7 +34,7 @@ export default function ArticleScreen() {
   const updateReadLocal = useArticlesStore((state) => state.updateReadLocal)
   const invalidate = useArticlesStore((state) => state.invalidate)
   const { article } = useArticle(id)
-  const { colors } = useTheme()
+  const { colors, fonts } = useTheme()
   const [mode, setMode] = useState<ArticleMode>('rss')
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [reader, setReader] = useState<ReaderExtractionResult>({ status: 'idle' })
@@ -71,11 +74,12 @@ export default function ArticleScreen() {
     return buildArticleHtml({
       article: article ?? undefined,
       colors,
+      fonts,
       displayDate,
       title: article?.title,
       body,
     })
-  }, [article, colors, displayDate])
+  }, [article, colors, fonts, displayDate])
 
   const readerHtml = useMemo(() => {
     if (reader.status !== 'ok' || !reader.html) return null
@@ -83,11 +87,12 @@ export default function ArticleScreen() {
     return buildArticleHtml({
       article: article ?? undefined,
       colors,
+      fonts,
       displayDate,
       title: reader.title ?? article?.title,
       body: reader.html,
     })
-  }, [article, colors, displayDate, reader])
+  }, [article, colors, fonts, displayDate, reader])
 
   useEffect(() => {
     if (!id || !article || article.read) return
@@ -235,7 +240,7 @@ export default function ArticleScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header mode="small">
+      <Appbar.Header mode="small" elevated={false} style={{ backgroundColor: colors.scrim }}>
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="" />
       </Appbar.Header>
@@ -245,6 +250,9 @@ export default function ArticleScreen() {
         source={resolvedSource}
         style={[styles.webView, { backgroundColor: colors.surface }]}
         ref={webViewRef}
+        injectedJavaScriptBeforeContentLoaded={
+          Platform.OS === 'android' ? EDGE_GESTURE_BLOCKER_SCRIPT : undefined
+        }
         onNavigationStateChange={handleNavigationStateChange}
         pullToRefreshEnabled
         onRefresh={handleToggleMode}
@@ -258,7 +266,7 @@ export default function ArticleScreen() {
         style={[
           styles.bottomBar,
           bottomBarAnimatedStyle,
-          { backgroundColor: colors.elevation?.level2 ?? colors.surface },
+          { backgroundColor: colors.elevation?.level1 ?? colors.surface },
         ]}
         elevation={2}
         pointerEvents={bottomBarVisible ? 'auto' : 'none'}

@@ -35,7 +35,7 @@ describe('feed-sections', () => {
 
   it('applyFolderExpansion hides folder data when collapsed', () => {
     const sections = buildFeedSections(feeds, folders)
-    const collapsed = applyFolderExpansion(sections, { 'folder-1': false })
+    const collapsed = applyFolderExpansion(sections, { 'folder-1': false, default: true })
     expect(collapsed[0].data.map((f) => f.id)).toEqual(['f2', 'f1'])
     expect(collapsed[1].data).toEqual([])
   })

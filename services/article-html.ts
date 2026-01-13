@@ -1,9 +1,10 @@
 import type { Article } from '@/types'
-import type { MD3Colors } from 'react-native-paper/lib/typescript/types'
+import type { MD3Colors, MD3Type, MD3Typescale } from 'react-native-paper/lib/typescript/types'
 
 type BuildArticleHtmlParams = {
   article?: Article
   colors: MD3Colors
+  fonts: MD3Typescale
   displayDate: string
   title?: string
   body: string
@@ -55,21 +56,28 @@ const WRAP_FIGCAPTIONS_SCRIPT = `
   })()
 `
 
+const buildFontTokens = (fontType: MD3Type): string => {
+  return `font-size: ${fontType.fontSize}px; line-height: ${fontType.lineHeight / fontType.fontSize}; letter-spacing: ${fontType.letterSpacing}px; font-weight: ${fontType.fontWeight}`
+}
+
 export const buildArticleHtml = ({
   article,
   colors,
+  fonts,
   displayDate,
   title,
   body,
 }: BuildArticleHtmlParams): string => {
-  const hero = article?.thumbnail
-    ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
-    : ''
+  const hero =
+    article?.thumbnail && !body.trimStart().startsWith('<figure')
+      ? `<img class="hero" src="${article.thumbnail}" alt="thumbnail" />`
+      : ''
   const headerInner = `
       <header class="article-header">
-        ${hero}
+        <div class="time">${displayDate}</div>
         <div class="title">${title ?? ''}</div>
-        <div class="source">${article?.source ?? ''}<span class="meta"> • ${displayDate}<span></div>
+        <div class="source">${article?.source ?? ''}</div>
+        ${hero}
       </header>
     `
   const headerBlock = article?.link
@@ -81,30 +89,32 @@ export const buildArticleHtml = ({
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <style>
-            body { padding: 16px; padding-top:0; padding-bottom: 64px; font-family: -apple-system, Roboto, sans-serif; line-height: 1.6; background: ${colors.surface}; color: ${colors.onSurfaceVariant}; }
+            body { padding-inline: 8px; padding-top:0; padding-bottom: 128px; font-family: -apple-system, Roboto, sans-serif; ${buildFontTokens(fonts.bodyMedium)}; font-size: 17px; background: ${colors.scrim}; color: ${colors.onSurfaceVariant}; }
+            main { padding-inline: 8px; margin-top: 8px }
             figure { width: 100%; margin:0; padding:0 }
             figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
-            img { max-width: 100%; height: auto; border-radius: 12px; }
+            img { max-width: 100%; height: auto; border-radius: 24px; }
             video { width: 100%; height: auto; }
             h1, h2, h3, h4 { line-height: 1.2; }
             a { color: ${colors.primary}; text-decoration: underline; }
             a:hover { text-decoration: underline; }
             figure { margin: 0 0 16px 0; }
-            .header-link { color: inherit; text-decoration: none; display: block; }
-            .header-link:hover { text-decoration: none; }
-            .header-link:active { opacity: 0.6; }
             iframe { width: 100%; }
             blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
             pre { background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}; white-space: pre; border-radius: 16px; padding: 8px; padding-inline: 12px; overflow-x: auto }
             code {background-color: ${colors.surfaceVariant}; color: ${colors.onSurfaceVariant}}
             
-            .article-header { display: flex;  flex-direction: column; gap: 4px; }
-            .hero { width: 100%; border-radius: 12px; height: auto; margin-bottom: 4px}
-            .title { font-size: 24px; color: ${colors.onSurface}; font-weight: 700; line-height:1.15; }
-            .source { color: ${colors.onSurfaceDisabled}; font-size: 14px; font-weight: 500;}
-            .meta { color: ${colors.onSurfaceDisabled}; font-size: 14px; font-weight: 400}
-            .divider { height: 0px; background: ${colors.outlineVariant}; margin: 16px 0; }
+            .article-header { padding: 8px; display: flex;  flex-direction: column; gap: 4px; }
             
+            .header-link { color: inherit; text-decoration: none; display: block; -webkit-tap-highlight-color: transparent; }
+            .header-link:hover { text-decoration: none;  background: ${colors.surfaceVariant} ; border-radius: 16px }
+            .header-link:active { opacity: 0.6; }
+
+            .time { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.7; }
+            .title { color: ${colors.onSurface}; ${buildFontTokens(fonts.headlineLarge)}; font-weight: bold; }
+            .source { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.7; }
+            .hero { width: 100%; border-radius: 24px; height: auto; margin-block: 8px}
+
             .pane { will-change: transform, opacity; }
             .enter {
               animation: enter-up 200ms cubic-bezier(0, 0, 0.2, 1) 100ms both;
@@ -117,8 +127,9 @@ export const buildArticleHtml = ({
         </head>
         <body class="pane enter">
           ${headerBlock}
-          <div class="divider"></div>
+          <main>
           ${body}
+          </main>
           <script>
             ${WRAP_FIGCAPTIONS_SCRIPT}
           </script>

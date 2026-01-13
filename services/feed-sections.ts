@@ -53,7 +53,7 @@ export const applyFolderExpansion = (
         data: expandedByFolderId['default'] ? section.data : [],
       }
     }
-    const isExpanded = expandedByFolderId[section.folder.id] ?? true
+    const isExpanded = expandedByFolderId[section.folder.id] ?? false
     return {
       ...section,
       data: isExpanded ? section.data : [],

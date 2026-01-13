@@ -126,7 +126,15 @@ export default function RootLayout() {
               <Stack initialRouteName="sources">
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen name="sources" options={{ headerShown: false }} />
-                <Stack.Screen name="article/[id]" options={{ headerShown: false }} />
+                <Stack.Screen
+                  name="article/[id]"
+                  options={{
+                    headerShown: false,
+                    contentStyle: {
+                      backgroundColor: paperTheme.colors.scrim,
+                    },
+                  }}
+                />
                 <Stack.Screen name="search" options={{ headerShown: false }} />
                 <Stack.Screen name="settings" options={{ headerShown: false }} />
                 <Stack.Screen
