@@ -20,7 +20,7 @@ export type RefreshResult = {
   newArticlesCount: number
 }
 
-const CONCURRENT_FEED_FETCHES = 10
+const CONCURRENT_FEED_FETCHES = 20
 
 const dedupeById = (articles: Article[]): Article[] => {
   const seen = new Set<string>()

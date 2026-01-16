@@ -57,7 +57,7 @@ const WRAP_FIGCAPTIONS_SCRIPT = `
 `
 
 const buildFontTokens = (fontType: MD3Type): string => {
-  return `font-size: ${fontType.fontSize}px; line-height: ${fontType.lineHeight / fontType.fontSize}; letter-spacing: ${fontType.letterSpacing}px; font-weight: ${fontType.fontWeight}`
+  return `font-size: ${fontType.fontSize}px; line-height: ${fontType.lineHeight}px; letter-spacing: ${fontType.letterSpacing}px; font-weight: ${fontType.fontWeight}`
 }
 
 export const buildArticleHtml = ({
