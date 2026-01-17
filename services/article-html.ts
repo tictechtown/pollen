@@ -94,12 +94,11 @@ export const buildArticleHtml = ({
             body { padding-inline: 8px; padding-top:0; padding-bottom: 128px; font-family: -apple-system, Roboto, sans-serif; ${buildFontTokens(fonts.bodyLarge)}; background: ${colors.surfaceContainerLowest}; color: ${colors.onSurface}; }
             main { padding-inline: 8px; margin-top: 8px }
             figure { width: 100%; margin:0; padding:0 }
-            figcaption { ${buildFontTokens(fonts.bodySmall)}; color: ${colors.onSurfaceDisabled}; margin-top: 4px}
+            figcaption { ${buildFontTokens(fonts.bodySmall)}; color: ${colors.onSurfaceVariant}; opacity: 0.8; margin-top: 4px}
             img { max-width: 100%; height: auto; border-radius: 24px; }
             video { width: 100%; height: auto; }
             h1, h2, h3, h4 { line-height: 1.2; }
-            a { color: ${colors.primary}; text-decoration: underline; }
-            a:hover { text-decoration: underline; }
+            a { color: ${colors.primary}; text-decoration: underline; font-weight:bold }
             figure { margin: 0 0 16px 0; }
             iframe { width: 100%; }
             blockquote { border-left: 3px solid ${colors.outlineVariant}; padding-left: 12px; margin-left: 0; color: ${colors.onSurface}; opacity: 0.8; }
@@ -109,12 +108,11 @@ export const buildArticleHtml = ({
             .article-header { padding: 8px; display: flex;  flex-direction: column; gap: 4px; }
             
             .header-link { color: inherit; text-decoration: none; display: block; -webkit-tap-highlight-color: transparent; }
-            .header-link:hover { text-decoration: none;  background: ${colors.surfaceVariant} ; border-radius: 16px }
-            .header-link:active { opacity: 0.6; }
+            .header-link:active { text-decoration: none;  background: ${colors.surfaceVariant} ; border-radius: 16px; opacity: 0.6;  }
 
-            .time { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.7; }
+            .time { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.8; }
             .title { color: ${colors.onSurface}; ${buildFontTokens(fonts.headlineLarge)}; font-weight: bold; }
-            .source { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.7; word-break: break-all; }
+            .source { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.8; word-break: break-all; }
             .hero { width: 100%; border-radius: 24px; height: auto; margin-block: 8px}
 
             .pane { will-change: transform, opacity; }

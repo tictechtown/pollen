@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { FlatList, StyleSheet, View } from 'react-native'
 import {
   ActivityIndicator,
@@ -16,11 +16,13 @@ import {
 } from 'react-native-paper'
 
 import FeedListItem from '@/components/ui/FeedListItem'
+import { getListPerformanceProps } from '@/components/ui/listPerformance'
 import { useSavedArticles } from '@/hooks/useSavedArticles'
 import { readerApi } from '@/services/reader-api'
 import { saveArticleForLater } from '@/services/save-for-later'
 import { normalizeUrl } from '@/services/urls'
 import { useArticlesStore } from '@/store/articles'
+import { Article, ModernMD3Colors } from '@/types'
 import { Image } from 'expo-image'
 
 export default function SavedScreen() {
@@ -34,6 +36,7 @@ export default function SavedScreen() {
   const [inputUrl, setInputUrl] = useState('')
   const [snackbar, setSnackbar] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const listPerformanceProps = useMemo(() => getListPerformanceProps(saved.length), [saved.length])
 
   const toggleSaved = useCallback(
     async (id: string, currentSaved: boolean) => {
@@ -62,6 +65,29 @@ export default function SavedScreen() {
     },
     [invalidate, updateReadLocal],
   )
+
+  const handleOpen = useCallback(
+    (id: string) => {
+      router.push(`/article/${id}`)
+    },
+    [router],
+  )
+
+  const renderItem = useCallback(
+    ({ item }: { item: Article }) => (
+      <FeedListItem
+        article={item}
+        onOpen={handleOpen}
+        onToggleSaved={toggleSaved}
+        onToggleRead={toggleRead}
+        readOnly
+        colors={colors as ModernMD3Colors}
+      />
+    ),
+    [colors, handleOpen, toggleRead, toggleSaved],
+  )
+
+  const renderSeparator = useCallback(() => <Divider horizontalInset />, [])
 
   const handleCloseDialog = () => {
     setAddVisible(false)
@@ -97,7 +123,7 @@ export default function SavedScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
         <Appbar.Content title="Read Later" />
         <Appbar.Action
@@ -116,6 +142,7 @@ export default function SavedScreen() {
       </Appbar.Header>
 
       <FlatList
+        {...listPerformanceProps}
         contentContainerStyle={styles.listContent}
         data={saved}
         keyExtractor={(item) => item.id}
@@ -141,16 +168,8 @@ export default function SavedScreen() {
             </Card>
           )
         }
-        ItemSeparatorComponent={() => <Divider horizontalInset />}
-        renderItem={({ item }) => (
-          <FeedListItem
-            article={item}
-            onOpen={() => router.push(`/article/${item.id}`)}
-            onToggleSaved={() => toggleSaved(item.id, item.saved)}
-            onToggleRead={() => toggleRead(item.id, item.read)}
-            colors={colors}
-          />
-        )}
+        ItemSeparatorComponent={renderSeparator}
+        renderItem={renderItem}
       />
 
       <FAB

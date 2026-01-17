@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
   NativeScrollEvent,
@@ -20,9 +20,10 @@ import {
 } from 'react-native-paper'
 
 import FeedListItem from '@/components/ui/FeedListItem'
+import { getListPerformanceProps } from '@/components/ui/listPerformance'
 import { useArticles } from '@/hooks/useArticles'
 import { useFiltersStore } from '@/store/filters'
-import { Article } from '@/types'
+import { Article, ModernMD3Colors } from '@/types'
 import { Image } from 'expo-image'
 
 interface Props {
@@ -48,31 +49,52 @@ export default function FeedList(props: Props) {
   const selectedFeedTitle = useFiltersStore((state) => state.selectedFeedTitle)
   const selectedFolderTitle = useFiltersStore((state) => state.selectedFolderTitle)
   const { colors } = useTheme()
+  const listPerformanceProps = useMemo(
+    () => getListPerformanceProps(articles.length),
+    [articles.length],
+  )
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset?.y ?? 0
     const nextScrolled = offsetY !== 0
     setIsScrolled(nextScrolled)
   }, [])
+  const handleOpen = useCallback(
+    (id: string) => {
+      router.push(`/article/${id}`)
+    },
+    [router],
+  )
+  const handleToggleSaved = useCallback(
+    (id: string, _currentSaved: boolean) => {
+      toggleSaved(id)
+    },
+    [toggleSaved],
+  )
+  const handleToggleRead = useCallback(
+    (id: string, _currentRead: boolean) => {
+      toggleRead(id)
+    },
+    [toggleRead],
+  )
+  const keyExtractor = useCallback((item: Article) => item.id, [])
 
   const renderItem = useCallback(
     ({ item }: { item: Article }) => (
       <FeedListItem
         article={item}
-        onOpen={() => {
-          router.push(`/article/${item.id}`)
-        }}
-        onToggleSaved={() => toggleSaved(item.id)}
-        onToggleRead={() => toggleRead(item.id)}
-        colors={colors}
+        onOpen={handleOpen}
+        onToggleSaved={handleToggleSaved}
+        onToggleRead={handleToggleRead}
+        colors={colors as ModernMD3Colors}
       />
     ),
-    [colors, router, toggleSaved, toggleRead],
+    [colors, handleOpen, handleToggleRead, handleToggleSaved],
   )
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <View style={styles.container}>
       <Appbar.Header mode="small">
-        <Appbar.Action icon={'menu'} onPress={() => router.dismissTo('/sources')} />
+        <Appbar.Action icon={'arrow-left'} onPress={() => router.dismissTo('/sources')} />
         <Appbar.Content title={selectedFeedTitle ?? selectedFolderTitle ?? 'All'} />
         <Appbar.Action icon="magnify" onPress={() => router.push('/search' as any)} />
         <Appbar.Action icon="refresh" onPress={() => refresh()} />
@@ -86,11 +108,11 @@ export default function FeedList(props: Props) {
       ) : null}
 
       <FlatList
-        style={{ backgroundColor: colors.surface }}
+        {...listPerformanceProps}
         contentContainerStyle={styles.listContent}
         data={articles}
         refreshControl={<RefreshControl refreshing={manualRefreshing} onRefresh={refresh} />}
-        keyExtractor={(item) => item.id}
+        keyExtractor={keyExtractor}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         onEndReached={() => {

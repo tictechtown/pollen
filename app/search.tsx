@@ -1,8 +1,9 @@
 import FeedListItem from '@/components/ui/FeedListItem'
+import { getListPerformanceProps } from '@/components/ui/listPerformance'
 import { readerApi } from '@/services/reader-api'
 import { useArticlesStore } from '@/store/articles'
 import { useFiltersStore } from '@/store/filters'
-import type { Article } from '@/types'
+import type { Article, ModernMD3Colors } from '@/types'
 import { useRouter } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, RefreshControl, StyleSheet, TextInput, View } from 'react-native'
@@ -32,6 +33,10 @@ export default function SearchScreen() {
   const [loading, setLoading] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const listPerformanceProps = useMemo(
+    () => getListPerformanceProps(articles.length),
+    [articles.length],
+  )
 
   const searchbarRef = useRef<TextInput>(null)
 
@@ -103,7 +108,7 @@ export default function SearchScreen() {
   }, [])
 
   const toggleSaved = useCallback(
-    async (id: string) => {
+    async (id: string, _currentSaved: boolean) => {
       const { localSavedArticles } = useArticlesStore.getState()
       const nextSaved = !(localSavedArticles.get(id) ?? false)
       try {
@@ -118,7 +123,7 @@ export default function SearchScreen() {
   )
 
   const toggleRead = useCallback(
-    async (id: string) => {
+    async (id: string, _currentRead: boolean) => {
       const { localReadArticles } = useArticlesStore.getState()
       const nextRead = !(localReadArticles.get(id) ?? false)
       try {
@@ -132,19 +137,24 @@ export default function SearchScreen() {
     [invalidate, updateReadLocal],
   )
 
+  const handleOpen = useCallback(
+    (id: string) => {
+      router.push(`/article/${id}`)
+    },
+    [router],
+  )
+
   const renderItem = useCallback(
     ({ item }: { item: Article }) => (
       <FeedListItem
         article={item}
-        onOpen={() => {
-          router.push(`/article/${item.id}`)
-        }}
-        onToggleSaved={() => toggleSaved(item.id)}
-        onToggleRead={() => toggleRead(item.id)}
-        colors={colors}
+        onOpen={handleOpen}
+        onToggleSaved={toggleSaved}
+        onToggleRead={toggleRead}
+        colors={colors as ModernMD3Colors}
       />
     ),
-    [colors, router, toggleRead, toggleSaved],
+    [colors, handleOpen, toggleRead, toggleSaved],
   )
 
   const listHeader = useMemo(
@@ -159,7 +169,7 @@ export default function SearchScreen() {
   )
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface }]}>
+    <View style={styles.container}>
       <Appbar.Header mode="small">
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="Search" />
@@ -190,6 +200,7 @@ export default function SearchScreen() {
       ) : null}
 
       <FlatList
+        {...listPerformanceProps}
         data={articles}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}

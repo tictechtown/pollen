@@ -4,7 +4,6 @@ import { ArticleMode, toggleArticleMode } from '@/services/article-mode'
 import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
 import { readerApi } from '@/services/reader-api'
 import { buildEdgeGestureBlockerScript } from '@/services/webview-gestures'
-import { shouldOpenExternally } from '@/services/webview-navigation'
 import { useArticlesStore } from '@/store/articles'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -22,7 +21,8 @@ import {
 } from 'react-native'
 import { Appbar, Snackbar, Surface, useTheme } from 'react-native-paper'
 import type { MD3Colors } from 'react-native-paper/lib/typescript/types'
-import { WebView, WebViewNavigation } from 'react-native-webview'
+import { WebView } from 'react-native-webview'
+import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes'
 
 const AnimatedSurface = Animated.createAnimatedComponent(Surface)
 const EDGE_GESTURE_BLOCKER_SCRIPT = buildEdgeGestureBlockerScript()
@@ -42,8 +42,6 @@ export default function ArticleScreen() {
   const lastMissingLinkId = useRef<string | null>(null)
   const lastMarkedReadId = useRef<string | null>(null)
   const webViewRef = useRef<WebView>(null)
-  const initialNavigationUrl = useRef<string | null>(null)
-  const lastOpenedUrl = useRef<string | null>(null)
   const lastScrollY = useRef(0)
   const bottomBarVisibilityRef = useRef(true)
   const bottomBarAnim = useRef(new Animated.Value(0)).current
@@ -118,11 +116,6 @@ export default function ArticleScreen() {
   }, [article])
 
   useEffect(() => {
-    initialNavigationUrl.current = null
-    lastOpenedUrl.current = null
-  }, [article?.id, mode])
-
-  useEffect(() => {
     bottomBarVisibilityRef.current = bottomBarVisible
     Animated.spring(bottomBarAnim, {
       toValue: bottomBarVisible ? 0 : 1,
@@ -187,30 +180,12 @@ export default function ArticleScreen() {
     [colors.primary, mode],
   )
 
-  const handleNavigationStateChange = useCallback(async (navState: WebViewNavigation) => {
-    if (!initialNavigationUrl.current) {
-      initialNavigationUrl.current = navState.url
-      return
+  const handleShouldStartLoadWithRequest = useCallback((event: ShouldStartLoadRequest) => {
+    if (event.url.slice(0, 4) === 'http') {
+      void WebBrowser.openBrowserAsync(event.url)
+      return false
     }
-
-    if (
-      !shouldOpenExternally({
-        url: navState.url,
-        initialUrl: initialNavigationUrl.current,
-        lastOpenedUrl: lastOpenedUrl.current,
-      })
-    ) {
-      return
-    }
-
-    lastOpenedUrl.current = navState.url
-    webViewRef.current?.stopLoading()
-
-    await WebBrowser.openBrowserAsync(navState.url)
-
-    if (navState.canGoBack) {
-      webViewRef.current?.goBack()
-    }
+    return true
   }, [])
 
   const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -260,7 +235,7 @@ export default function ArticleScreen() {
         injectedJavaScriptBeforeContentLoaded={
           Platform.OS === 'android' ? EDGE_GESTURE_BLOCKER_SCRIPT : undefined
         }
-        onNavigationStateChange={handleNavigationStateChange}
+        onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
         pullToRefreshEnabled
         onRefresh={handleToggleMode}
         mediaPlaybackRequiresUserAction={false}

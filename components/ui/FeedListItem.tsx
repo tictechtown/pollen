@@ -1,20 +1,29 @@
 import { useArticlesStore } from '@/store/articles'
-import { Article } from '@/types'
+import { Article, ModernMD3Colors } from '@/types'
 import * as Haptics from 'expo-haptics'
 import { Image } from 'expo-image'
 import * as WebBrowser from 'expo-web-browser'
 import { memo, useCallback, useRef, useState } from 'react'
-import { GestureResponderEvent, Pressable, Share, StyleSheet, View } from 'react-native'
+import {
+  GestureResponderEvent,
+  LayoutChangeEvent,
+  Pressable,
+  Share,
+  StyleSheet,
+  View,
+} from 'react-native'
 import Swipeable, { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 import { Icon, Menu, Text } from 'react-native-paper'
-import { MD3Colors } from 'react-native-paper/lib/typescript/types'
 import Reanimated, {
   clamp,
+  Easing,
   runOnJS,
   SharedValue,
   useAnimatedReaction,
   useAnimatedStyle,
   useDerivedValue,
+  useSharedValue,
+  withTiming,
 } from 'react-native-reanimated'
 
 import {
@@ -25,6 +34,7 @@ import {
 } from '@/components/ui/swipeActionUtils'
 import { formatRelativeTime } from '@/services/time'
 import { getReadMenuLabel, getSavedMenuLabel } from './feedListItemMenu'
+import { getRippleDiameter } from './rippleUtils'
 
 type SwipeActionProps = {
   dragX: SharedValue<number>
@@ -32,6 +42,15 @@ type SwipeActionProps = {
   iconColor: string
   icon: string
   isLeft?: boolean
+}
+
+type FeedListItemProps = {
+  article: Article
+  onOpen: (id: string) => void
+  onToggleSaved: (id: string, currentSaved: boolean) => void
+  onToggleRead: (id: string, currentRead: boolean) => void
+  colors: ModernMD3Colors
+  readOnly?: boolean
 }
 
 const SWIPE_ACTION_BACKGROUND_COLOR = '#6dd58c'
@@ -44,7 +63,7 @@ const SwipeAction = ({
   isLeft = false,
 }: SwipeActionProps) => {
   const triggerHaptic = useCallback(() => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+    void Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Long_Press)
   }, [])
 
   const actionWidth = useDerivedValue(
@@ -89,31 +108,65 @@ const FeedListItem = ({
   onToggleSaved,
   onToggleRead,
   colors,
-}: {
-  article: Article
-  onOpen: () => void
-  onToggleSaved: () => void
-  onToggleRead: () => void
-  colors: MD3Colors
-}) => {
+  readOnly,
+}: FeedListItemProps) => {
   const reanimatedRef = useRef<SwipeableMethods>(null)
   const [menuVisible, setMenuVisible] = useState(false)
   const [menuAnchor, setMenuAnchor] = useState<{ x: number; y: number } | null>(null)
+  const [pressableLayout, setPressableLayout] = useState({ width: 0, height: 0 })
+  const [rippleLayout, setRippleLayout] = useState({ x: 0, y: 0, size: 0 })
   const longPressTriggeredRef = useRef(false)
+  const rippleScale = useSharedValue(0)
+  const rippleOpacity = useSharedValue(0)
 
   const read = useArticlesStore((state) => state.localReadArticles.get(article.id)) ?? article.read
   const saved =
     useArticlesStore((state) => state.localSavedArticles.get(article.id)) ?? article.saved
 
-  const opacity = read ? 0.5 : 1
+  const opacity = read && !readOnly ? 0.5 : 1
   const hasLink = Boolean(article.link)
 
-  const openMenu = useCallback((event: GestureResponderEvent) => {
-    longPressTriggeredRef.current = true
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
-    setMenuAnchor({ x: event.nativeEvent.pageX, y: event.nativeEvent.pageY })
-    setMenuVisible(true)
+  const handlePressableLayout = useCallback((event: LayoutChangeEvent) => {
+    const { width, height } = event.nativeEvent.layout
+    setPressableLayout((current) =>
+      current.width === width && current.height === height ? current : { width, height },
+    )
   }, [])
+
+  const handlePressOut = useCallback(() => {
+    if (longPressTriggeredRef.current) {
+      rippleOpacity.value = withTiming(0, { duration: 450, easing: Easing.out(Easing.quad) })
+    } else {
+      rippleOpacity.value = 0.2
+      rippleScale.value = 0
+    }
+  }, [rippleOpacity, rippleScale])
+
+  const triggerLongPressRipple = useCallback(
+    (event: GestureResponderEvent) => {
+      const { width, height } = pressableLayout
+      if (!width || !height) return
+      const { locationX, locationY } = event.nativeEvent
+      const size = getRippleDiameter({ width, height }, { x: locationX, y: locationY })
+      setRippleLayout({ x: locationX - size / 2, y: locationY - size / 2, size })
+      rippleScale.value = 0
+      rippleOpacity.value = 0.2
+      rippleScale.value = withTiming(1, { duration: 250, easing: Easing.out(Easing.quad) })
+      rippleOpacity.value = withTiming(1, { duration: 250, easing: Easing.out(Easing.quad) })
+    },
+    [pressableLayout, rippleOpacity, rippleScale],
+  )
+
+  const openMenu = useCallback(
+    (event: GestureResponderEvent) => {
+      longPressTriggeredRef.current = true
+      triggerLongPressRipple(event)
+      void Haptics.performAndroidHapticsAsync(Haptics.AndroidHaptics.Long_Press)
+      setMenuAnchor({ x: event.nativeEvent.pageX, y: event.nativeEvent.pageY })
+      setMenuVisible(true)
+    },
+    [triggerLongPressRipple],
+  )
 
   const closeMenu = useCallback(() => {
     longPressTriggeredRef.current = false
@@ -126,8 +179,25 @@ const FeedListItem = ({
       longPressTriggeredRef.current = false
       return
     }
-    onOpen()
-  }, [onOpen])
+    onOpen(article.id)
+  }, [article.id, onOpen])
+
+  const rippleAnimationStyle = useAnimatedStyle(() => ({
+    opacity: rippleOpacity.value,
+    transform: [{ scale: rippleScale.value }],
+  }))
+
+  const handleSwipeOpen = useCallback(
+    (direction: 'left' | 'right') => {
+      if (direction === 'left') {
+        onToggleSaved(article.id, saved)
+      } else {
+        onToggleRead(article.id, read)
+      }
+      reanimatedRef.current?.close()
+    },
+    [article.id, read, saved, onToggleSaved, onToggleRead, reanimatedRef],
+  )
 
   return (
     <>
@@ -135,7 +205,10 @@ const FeedListItem = ({
         ref={reanimatedRef}
         rightThreshold={SWIPE_ACTION_TRIGGER_THRESHOLD}
         leftThreshold={SWIPE_ACTION_TRIGGER_THRESHOLD}
-        friction={1.5}
+        friction={1}
+        dragOffsetFromLeftEdge={20}
+        dragOffsetFromRightEdge={20}
+        overshootFriction={8}
         renderLeftActions={(_, dragX) => (
           <SwipeAction
             dragX={dragX}
@@ -153,19 +226,12 @@ const FeedListItem = ({
             icon={saved ? 'bookmark-minus-outline' : 'bookmark-check-outline'}
           />
         )}
-        onSwipeableOpen={(direction) => {
-          if (direction === 'left') {
-            onToggleSaved()
-          } else {
-            onToggleRead()
-          }
-          reanimatedRef.current?.close()
-        }}
+        onSwipeableOpen={handleSwipeOpen}
       >
         <Pressable
-          style={({ pressed }) => ({
-            backgroundColor: pressed ? colors.surfaceVariant : colors.surface,
-            opacity: pressed ? 0.8 : 1,
+          onLayout={handlePressableLayout}
+          style={{
+            opacity: 1,
             flex: 1,
             gap: 4,
             paddingBlock: 6,
@@ -174,10 +240,27 @@ const FeedListItem = ({
             marginHorizontal: 4,
             borderRadius: 20,
             minHeight: 90,
-          })}
+            overflow: 'hidden',
+          }}
           onPress={handlePress}
           onLongPress={openMenu}
+          onPressOut={handlePressOut}
         >
+          <Reanimated.View
+            pointerEvents="none"
+            style={[
+              styles.longPressRipple,
+              {
+                left: rippleLayout.x,
+                top: rippleLayout.y,
+                width: rippleLayout.size,
+                height: rippleLayout.size,
+                borderRadius: rippleLayout.size / 2,
+                backgroundColor: colors.surfaceVariant,
+              },
+              rippleAnimationStyle,
+            ]}
+          />
           <View
             style={{
               flexDirection: 'row',
@@ -190,7 +273,7 @@ const FeedListItem = ({
             {/* Feed name */}
             <Text
               variant="labelMedium"
-              style={{ color: read ? colors.onSurfaceDisabled : colors.tertiary }}
+              style={{ color: read && !readOnly ? colors.onSurfaceDisabled : colors.tertiary }}
               numberOfLines={1}
               ellipsizeMode="tail"
             >
@@ -199,7 +282,11 @@ const FeedListItem = ({
             {/* Relative time */}
             <Text
               variant="labelMedium"
-              style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
+              style={{
+                borderWidth: 1,
+                borderColor: colors.surfaceContainerLowest,
+                color: read && !readOnly ? colors.onSurfaceDisabled : colors.onSurfaceVariant,
+              }}
             >
               {formatRelativeTime(article.updatedAt ?? article.publishedAt)}
             </Text>
@@ -212,7 +299,9 @@ const FeedListItem = ({
                 variant="titleMedium"
                 style={[
                   styles.title,
-                  { color: read ? colors.onSurfaceDisabled : colors.onSurface },
+                  {
+                    color: read && !readOnly ? colors.onSurfaceDisabled : colors.onSurfaceVariant,
+                  },
                 ]}
                 numberOfLines={2}
               >
@@ -224,7 +313,9 @@ const FeedListItem = ({
                   variant="bodySmall"
                   // If title has a short title, we add an extra line of description, so we always have title + description = 4 lines
                   numberOfLines={article.title.length < 35 ? 3 : 2}
-                  style={{ color: read ? colors.onSurfaceDisabled : colors.onSurfaceVariant }}
+                  style={{
+                    color: read && !readOnly ? colors.onSurfaceDisabled : colors.onSurfaceVariant,
+                  }}
                 >
                   {article.description.trimStart()}
                 </Text>
@@ -247,14 +338,14 @@ const FeedListItem = ({
           title={getReadMenuLabel(read)}
           onPress={() => {
             closeMenu()
-            onToggleRead()
+            onToggleRead(article.id, read)
           }}
         />
         <Menu.Item
           title={getSavedMenuLabel(saved)}
           onPress={() => {
             closeMenu()
-            onToggleSaved()
+            onToggleSaved(article.id, saved)
           }}
         />
         <Menu.Item
@@ -299,7 +390,10 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   swipeActionContainer: {
-    width: SWIPE_ACTION_MAX_WIDTH,
+    width: '100%',
+  },
+  longPressRipple: {
+    position: 'absolute',
   },
 })
 

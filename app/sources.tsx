@@ -15,6 +15,7 @@ import { GestureResponderEvent, SectionList, StyleSheet, View } from 'react-nati
 import { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
 
 import SourceListItem from '@/components/ui/SourceListItem'
+import { getListPerformanceProps } from '@/components/ui/listPerformance'
 import {
   applyFolderExpansion,
   buildFeedSections,
@@ -105,6 +106,14 @@ export default function SourcesScreen() {
   const sections = useMemo(
     () => applyFolderExpansion(baseSections, expandedFolders),
     [baseSections, expandedFolders],
+  )
+  const sectionItemCount = useMemo(
+    () => sections.reduce((total, section) => total + section.data.length, 0),
+    [sections],
+  )
+  const listPerformanceProps = useMemo(
+    () => getListPerformanceProps(sectionItemCount),
+    [sectionItemCount],
   )
 
   useEffect(() => {
@@ -566,12 +575,13 @@ export default function SourcesScreen() {
   )
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={styles.container}>
       <Appbar.Header mode="center-aligned">
         <Appbar.Content title="Sources" />
       </Appbar.Header>
 
       <SectionList
+        {...listPerformanceProps}
         sections={sections}
         keyExtractor={keyExtractor}
         contentContainerStyle={styles.listContent}

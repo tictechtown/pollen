@@ -1,3 +1,5 @@
+import { MD3Colors } from 'react-native-paper/lib/typescript/types'
+
 export type Article = {
   /**
    * Base64 version of Feed.id or RSS.guid
@@ -106,4 +108,13 @@ export type FeedFolder = {
   id: string
   title: string
   createdAt: number
+}
+
+export type ModernMD3Colors = MD3Colors & {
+  surfaceBright: string
+  surfaceContainer: string
+  surfaceContainerHigh: string
+  surfaceContainerHighest: string
+  surfaceContainerLow: string
+  surfaceContainerLowest: string
 }

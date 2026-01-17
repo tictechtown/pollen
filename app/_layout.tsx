@@ -124,7 +124,7 @@ export default function RootLayout() {
       <ThemeProvider value={navigationTheme}>
         <GestureHandlerRootView>
           <View
-            style={{ flex: 1, backgroundColor: navigationTheme.colors.background }}
+            style={{ flex: 1, backgroundColor: surfaceContainerLowest }}
             onLayout={onLayoutRootView}
           >
             {appReady ? (
