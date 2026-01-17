@@ -16,7 +16,7 @@
     "run:android": "expo run:android",
     "run:android:release": "expo run:android --variant release",
     "run:ios": "expo run:ios",
-    "build:android:release": "expo prebuild --platform android --no-install && cd android && ./gradlew assembleRelease",
+    "build:android:release": "expo prebuild --platform android --no-install && cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a",
     "lint": "expo lint && oxlint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
