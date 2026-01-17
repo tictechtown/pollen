@@ -3,7 +3,9 @@ import type { MD3Colors, MD3Type, MD3Typescale } from 'react-native-paper/lib/ty
 
 type BuildArticleHtmlParams = {
   article?: Article
-  colors: MD3Colors
+  colors: MD3Colors & {
+    surfaceContainerLowest: string
+  }
   fonts: MD3Typescale
   displayDate: string
   title?: string
@@ -76,7 +78,7 @@ export const buildArticleHtml = ({
       <header class="article-header">
         <div class="time">${displayDate}</div>
         <div class="title">${title ?? ''}</div>
-        <div class="source">${article?.source ?? ''}</div>
+        <div class="source">${article?.source ?? ''} • ${article?.link} </div>
         ${hero}
       </header>
     `
@@ -89,10 +91,10 @@ export const buildArticleHtml = ({
         <head>
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <style>
-            body { padding-inline: 8px; padding-top:0; padding-bottom: 128px; font-family: -apple-system, Roboto, sans-serif; ${buildFontTokens(fonts.bodyMedium)}; font-size: 17px; background: ${colors.scrim}; color: ${colors.onSurfaceVariant}; }
+            body { padding-inline: 8px; padding-top:0; padding-bottom: 128px; font-family: -apple-system, Roboto, sans-serif; ${buildFontTokens(fonts.bodyLarge)}; background: ${colors.surfaceContainerLowest}; color: ${colors.onSurface}; }
             main { padding-inline: 8px; margin-top: 8px }
             figure { width: 100%; margin:0; padding:0 }
-            figcaption {font-style: italic; line-height: 1.2; margin-top: 4px}
+            figcaption { ${buildFontTokens(fonts.bodySmall)}; color: ${colors.onSurfaceDisabled}; margin-top: 4px}
             img { max-width: 100%; height: auto; border-radius: 24px; }
             video { width: 100%; height: auto; }
             h1, h2, h3, h4 { line-height: 1.2; }
@@ -112,7 +114,7 @@ export const buildArticleHtml = ({
 
             .time { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.7; }
             .title { color: ${colors.onSurface}; ${buildFontTokens(fonts.headlineLarge)}; font-weight: bold; }
-            .source { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.7; }
+            .source { color: ${colors.outline}; ${buildFontTokens(fonts.labelMedium)}; opacity: 0.7; word-break: break-all; }
             .hero { width: 100%; border-radius: 24px; height: auto; margin-block: 8px}
 
             .pane { will-change: transform, opacity; }

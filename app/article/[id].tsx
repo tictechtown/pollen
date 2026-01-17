@@ -1,3 +1,11 @@
+import { useArticle } from '@/hooks/useArticle'
+import { buildArticleHtml } from '@/services/article-html'
+import { ArticleMode, toggleArticleMode } from '@/services/article-mode'
+import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
+import { readerApi } from '@/services/reader-api'
+import { buildEdgeGestureBlockerScript } from '@/services/webview-gestures'
+import { shouldOpenExternally } from '@/services/webview-navigation'
+import { useArticlesStore } from '@/store/articles'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
@@ -13,16 +21,8 @@ import {
   View,
 } from 'react-native'
 import { Appbar, Snackbar, Surface, useTheme } from 'react-native-paper'
+import type { MD3Colors } from 'react-native-paper/lib/typescript/types'
 import { WebView, WebViewNavigation } from 'react-native-webview'
-
-import { useArticle } from '@/hooks/useArticle'
-import { buildArticleHtml } from '@/services/article-html'
-import { ArticleMode, toggleArticleMode } from '@/services/article-mode'
-import { fetchAndExtractReader, ReaderExtractionResult } from '@/services/reader'
-import { readerApi } from '@/services/reader-api'
-import { buildEdgeGestureBlockerScript } from '@/services/webview-gestures'
-import { shouldOpenExternally } from '@/services/webview-navigation'
-import { useArticlesStore } from '@/store/articles'
 
 const AnimatedSurface = Animated.createAnimatedComponent(Surface)
 const EDGE_GESTURE_BLOCKER_SCRIPT = buildEdgeGestureBlockerScript()
@@ -73,7 +73,7 @@ export default function ArticleScreen() {
 
     return buildArticleHtml({
       article: article ?? undefined,
-      colors,
+      colors: colors as MD3Colors & { surfaceContainerLowest: string },
       fonts,
       displayDate,
       title: article?.title,
@@ -86,7 +86,7 @@ export default function ArticleScreen() {
 
     return buildArticleHtml({
       article: article ?? undefined,
-      colors,
+      colors: colors as MD3Colors & { surfaceContainerLowest: string },
       fonts,
       displayDate,
       title: reader.title ?? article?.title,
@@ -240,7 +240,14 @@ export default function ArticleScreen() {
 
   return (
     <View style={styles.container}>
-      <Appbar.Header mode="small" elevated={false} style={{ backgroundColor: colors.scrim }}>
+      <Appbar.Header
+        mode="small"
+        elevated={false}
+        style={{
+          backgroundColor: (colors as MD3Colors & { surfaceContainerLowest: string })
+            .surfaceContainerLowest,
+        }}
+      >
         <Appbar.BackAction onPress={() => router.back()} />
         <Appbar.Content title="" />
       </Appbar.Header>

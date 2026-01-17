@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppState, type AppStateStatus, View } from 'react-native'
 import { PaperProvider, Snackbar } from 'react-native-paper'
+import type { MD3Colors } from 'react-native-paper/lib/typescript/types'
 import 'react-native-reanimated'
 
 import LinkingWrapper from '@/components/LinkingWrapper'
@@ -114,6 +115,10 @@ export default function RootLayout() {
     router.push('/(tabs)') // keeps sources underneath
   }, [initialized, pathname, router])
 
+  const surfaceContainerLowest =
+    (paperTheme.colors as MD3Colors & { surfaceContainerLowest?: string }).surfaceContainerLowest ??
+    paperTheme.colors.surface
+
   return (
     <PaperProvider theme={paperTheme}>
       <ThemeProvider value={navigationTheme}>
@@ -131,7 +136,7 @@ export default function RootLayout() {
                   options={{
                     headerShown: false,
                     contentStyle: {
-                      backgroundColor: paperTheme.colors.scrim,
+                      backgroundColor: surfaceContainerLowest,
                     },
                   }}
                 />

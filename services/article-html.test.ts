@@ -7,7 +7,9 @@ import { buildArticleHtml } from './article-html'
 describe('buildArticleHtml', () => {
   const colors = {
     surface: '#fff',
+    surfaceContainerLowest: '#fdfdfd',
     onSurface: '#000',
+    onSurfaceDisabled: '#777',
     primary: '#00f',
     surfaceVariant: '#eee',
     outlineVariant: '#ddd',
@@ -23,7 +25,9 @@ describe('buildArticleHtml', () => {
     fontSize: 16,
   }
   const fonts = {
+    bodyLarge: { ...fontBase, fontSize: 18, lineHeight: 22 },
     bodyMedium: fontBase,
+    bodySmall: { ...fontBase, fontSize: 12, lineHeight: 16 },
     labelMedium: { ...fontBase, fontSize: 12, lineHeight: 14 },
     headlineLarge: { ...fontBase, fontSize: 24, lineHeight: 28, fontWeight: '700' },
   } as any
